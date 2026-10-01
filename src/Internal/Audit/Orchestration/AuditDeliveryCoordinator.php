@@ -23,6 +23,11 @@ final readonly class AuditDeliveryCoordinator
         private PostgreSqlAuditOutboxStore $outbox,
     ) {}
 
+    public function usesConnection(#[\SensitiveParameter] Connection $connection): bool
+    {
+        return $this->connection === $connection;
+    }
+
     public function deliverStandalone(#[\SensitiveParameter] AuditDeliveryRequest $request): void
     {
         $plan = $this->selector->forDraft($request->draft());

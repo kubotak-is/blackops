@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='341e118875c981225f2f922f713392c9234eadc39e4a849f8a05f76068e83b19'
+reviewed_export_sha='57ccab5fe22c80c7686cc0dac35eaa0efa92a2d629306bd7e276c9601c05fe47'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -44,6 +44,17 @@ printf '%s\n' \
     src/Internal/OperationData/OperationOutcomeReadExecutionSource.php \
     src/Internal/Diagnostics/AuditedOperationDiagnosticsQuery.php \
     src/Internal/Diagnostics/OperationDiagnosticsReadExecutionSource.php \
+    src/Internal/Audit/Authentication/AuthenticationAuditEventWriter.php \
+    src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php \
+    src/Internal/Audit/Authentication/AuditedHttpAuthenticator.php \
+    src/Internal/Audit/Authorization/AuthorizationAuditPolicyBinding.php \
+    src/Internal/Audit/Authorization/AuthorizationAuditPolicyRegistry.php \
+    src/Internal/Audit/Authorization/AuthorizationAuditEvaluation.php \
+    src/Internal/Audit/Authorization/AuthorizationAuditEvaluator.php \
+    src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php \
+    src/Internal/Audit/Authorization/AuthorizationAuditCoordinator.php \
+    src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php \
+    src/Internal/Audit/Retention/RetentionHoldAuditWriter.php \
     src/Internal/Audit/Relay/AuditRelayOutcome.php \
     src/Internal/Audit/Relay/AuditRelayFailure.php \
     src/Internal/Audit/Relay/AuditRelayException.php \
@@ -60,6 +71,7 @@ printf '%s\n' \
     src/Internal/Diagnostics/UnavailableOperationDiagnosticsAuthorizer.php \
     src/Internal/Status/TenantScopedOperationStatusSource.php \
     src/Internal/Status/TenantBoundOperationStatusSource.php \
+    src/Internal/Retention/AuditedRetentionHoldPort.php \
     src/Internal/Audit/Storage/AuditStoreFailure.php \
     src/Internal/Audit/Storage/AuditStoreException.php \
     src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -877,6 +889,42 @@ test_mutation_rejected() {
             ' "${candidate}" >"${candidate}.tmp"
             mv "${candidate}.tmp" "${candidate}"
             ;;
+        d3-interface-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authentication/AuthenticationAuditEventWriter.php|d' "${candidate}"
+            ;;
+        d3-writer-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php|d' "${candidate}"
+            ;;
+        d3-adapter-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authentication/AuditedHttpAuthenticator.php|d' "${candidate}"
+            ;;
+        d4a-binding-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authorization/AuthorizationAuditPolicyBinding.php|d' "${candidate}"
+            ;;
+        d4a-registry-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authorization/AuthorizationAuditPolicyRegistry.php|d' "${candidate}"
+            ;;
+        d4a-evaluation-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authorization/AuthorizationAuditEvaluation.php|d' "${candidate}"
+            ;;
+        d4a-evaluator-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authorization/AuthorizationAuditEvaluator.php|d' "${candidate}"
+            ;;
+        d4b-factory-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php|d' "${candidate}"
+            ;;
+        d4b-coordinator-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authorization/AuthorizationAuditCoordinator.php|d' "${candidate}"
+            ;;
+        d4b-attempt-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php|d' "${candidate}"
+            ;;
+        d5h-writer-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Retention/RetentionHoldAuditWriter.php|d' "${candidate}"
+            ;;
+        d5h-port-omission)
+            run_bounded sed -i '\|src/Internal/Retention/AuditedRetentionHoldPort.php|d' "${candidate}"
+            ;;
         d2s1-duplicate-entry)
             run_bounded awk '
                 !inserted && $0 ~ /src\/Internal\/Status\/TenantBoundOperationStatusSource\.php/ {
@@ -1246,9 +1294,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 97
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 97
-printf 'required inventory: PASS (97 ordered paths, 97 unique)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 109
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 109
+printf 'required inventory: PASS (109 ordered paths, 109 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1274,6 +1322,18 @@ test_mutation_rejected d2j-reverse-new-block d2j-order-swap
 test_mutation_rejected d2x-query-entry-omission d2x-query-omission
 test_mutation_rejected d2x-execution-entry-omission d2x-execution-omission
 test_mutation_rejected d2x-reverse-new-block d2x-order-swap
+test_mutation_rejected d3-interface-entry-omission d3-interface-omission
+test_mutation_rejected d3-writer-entry-omission d3-writer-omission
+test_mutation_rejected d3-adapter-entry-omission d3-adapter-omission
+test_mutation_rejected d4a-binding-entry-omission d4a-binding-omission
+test_mutation_rejected d4a-registry-entry-omission d4a-registry-omission
+test_mutation_rejected d4a-evaluation-entry-omission d4a-evaluation-omission
+test_mutation_rejected d4a-evaluator-entry-omission d4a-evaluator-omission
+test_mutation_rejected d4b-factory-entry-omission d4b-factory-omission
+test_mutation_rejected d4b-coordinator-entry-omission d4b-coordinator-omission
+test_mutation_rejected d4b-attempt-entry-omission d4b-attempt-omission
+test_mutation_rejected d5h-writer-entry-omission d5h-writer-omission
+test_mutation_rejected d5h-port-entry-omission d5h-port-omission
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1299,4 +1359,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (48 rejected: 34 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (60 rejected: 46 inventory, 14 call-contract)\n'

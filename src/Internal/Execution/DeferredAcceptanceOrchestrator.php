@@ -12,6 +12,7 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Core\Rejection\RejectionReason;
 use BlackOps\Core\Retention\RetentionPeriod;
+use BlackOps\Internal\Audit\Authorization\AuthorizationAuditCoordinator;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\Idempotency\IdempotencyClaimStatus;
 use BlackOps\Internal\Idempotency\IdempotencyRecovery;
@@ -58,11 +59,14 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
         private ?RetentionPeriod $idempotencyRetention = null,
         private ?IdempotencyRecovery $idempotencyRecovery = null,
         private ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
+        #[\SensitiveParameter]
+        private ?AuthorizationAuditCoordinator $authorizationAudit = null,
     ) {
         $this->validator = new OperationValueValidator();
     }
 
     /** @mago-expect lint:halstead */
+    /** @mago-expect lint:no-else-clause */
     public function accept(
         DeferredOperationMessage $message,
         OperationEnvelope $envelope,
@@ -74,170 +78,182 @@ final readonly class DeferredAcceptanceOrchestrator implements ScheduledDeferred
         try {
             return $this->scope->run(
                 $envelope,
-                fn(): DeferredAcknowledgement|OperationResult => $this->connection->transactional(function () use (
-                    $message,
-                    $envelope,
-                    $metadata,
-                    $failures,
-                ): DeferredAcknowledgement|OperationResult {
-                    try {
-                        $violations = $this->validator->validate($envelope->value());
-                        if ($envelope->context()->schedule() !== null && $violations !== []) {
-                            $reason = RejectionReason::validation('validation.failed', $violations);
-                            $received = $this->records->operationReceived($envelope, $metadata, 1);
-                            $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
-                            $this->journal->append($received);
-                            $rejected = $this->records->operationRejected($envelope, $metadata, 2, $reason);
-                            $this->lifecycle->next($state, JournalEvent::OperationRejected);
-                            $this->journal->append($rejected);
-                            if ($this->scheduledOccurrences !== null) {
-                                $this->scheduledOccurrences->transition(
-                                    $envelope->id(),
-                                    'claimed',
-                                    'rejected',
-                                    'validation_failed',
-                                    $rejected->occurredAt,
-                                    $envelope->context()->tenant(),
+                /** @mago-expect lint:halstead */
+                fn(): DeferredAcknowledgement|OperationResult => $this->connection->transactional(
+                    /** @mago-expect lint:halstead */
+                    function () use (
+                        $message,
+                        $envelope,
+                        $metadata,
+                        $failures,
+                    ): DeferredAcknowledgement|OperationResult {
+                        try {
+                            $violations = $this->validator->validate($envelope->value());
+                            if ($envelope->context()->schedule() !== null && $violations !== []) {
+                                $reason = RejectionReason::validation('validation.failed', $violations);
+                                $received = $this->records->operationReceived($envelope, $metadata, 1);
+                                $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
+                                $this->journal->append($received);
+                                $rejected = $this->records->operationRejected($envelope, $metadata, 2, $reason);
+                                $this->lifecycle->next($state, JournalEvent::OperationRejected);
+                                $this->journal->append($rejected);
+                                if ($this->scheduledOccurrences !== null) {
+                                    $this->scheduledOccurrences->transition(
+                                        $envelope->id(),
+                                        'claimed',
+                                        'rejected',
+                                        'validation_failed',
+                                        $rejected->occurredAt,
+                                        $envelope->context()->tenant(),
+                                    );
+                                }
+
+                                return OperationResult::rejected($reason, $envelope->id());
+                            }
+                            $authorizationAttempt = null;
+                            if ($this->authorizationAudit !== null) {
+                                $authorizationAttempt = $this->authorizationAudit->evaluate($metadata, $envelope);
+                                $authorizationRejection = $authorizationAttempt->evaluation()->rejection();
+                                $authorizationAttempt->deliverInOwnedTransaction($this->connection);
+                            } else {
+                                $authorizationRejection = $this->authorize($metadata, $envelope);
+                            }
+
+                            if ($authorizationRejection !== null) {
+                                $received = $this->records->operationReceived($envelope, $metadata, 1);
+                                $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
+                                $this->journal->append($received);
+                                $this->lifecycle->next($state, JournalEvent::OperationRejected);
+                                $rejected = $this->records->operationRejected(
+                                    $envelope,
+                                    $metadata,
+                                    2,
+                                    $authorizationRejection,
+                                );
+                                $this->journal->append($rejected);
+                                if ($envelope->context()->schedule() !== null && $this->scheduledOccurrences !== null) {
+                                    $this->scheduledOccurrences->transition(
+                                        $envelope->id(),
+                                        'claimed',
+                                        'rejected',
+                                        $authorizationRejection->code(),
+                                        $rejected->occurredAt,
+                                        $envelope->context()->tenant(),
+                                    );
+                                }
+
+                                return OperationResult::rejected(
+                                    $authorizationRejection,
+                                    $envelope->context()->idempotencyKeyHash() === null ? $envelope->id() : null,
                                 );
                             }
 
-                            return OperationResult::rejected($reason, $envelope->id());
-                        }
-                        $authorizationRejection = $this->authorize($metadata, $envelope);
+                            $processing = null;
+                            $keyHash = $envelope->context()->idempotencyKeyHash();
+                            if ($keyHash !== null) {
+                                $actor = $envelope
+                                    ->context()
+                                    ->actorContext()
+                                    ?->authorization() ?? throw new LogicException('Idempotency actor is unavailable.');
+                                $store = $this->idempotency ?? throw new LogicException(
+                                    'Idempotency store is unavailable.',
+                                );
+                                $retention = $this->idempotencyRetention ?? throw new LogicException(
+                                    'Idempotency retention is unavailable.',
+                                );
+                                $scope = $this->idempotencyScopes->hash(
+                                    $metadata->typeId,
+                                    $actor,
+                                    $keyHash,
+                                    $envelope->context()->tenant(),
+                                );
+                                $claim = $store->claim(
+                                    $scope,
+                                    $keyHash,
+                                    $this->idempotencyFingerprints->fingerprint($metadata->typeId, $envelope->value()),
+                                    $envelope->id(),
+                                    new Deferred(),
+                                    $envelope->context()->receivedAt(),
+                                    $retention->expiresAt($envelope->context()->receivedAt()),
+                                    $metadata->typeId,
+                                    1,
+                                    $envelope->context()->tenant(),
+                                );
+                                if ($claim->status() === IdempotencyClaimStatus::ExistingConflict) {
+                                    return OperationResult::rejected(RejectionReason::conflict('idempotency_conflict'));
+                                }
+                                if ($claim->status() === IdempotencyClaimStatus::ExistingSameFingerprint) {
+                                    $existing = $claim->record();
+                                    if ($existing instanceof ProcessingRecord) {
+                                        if ($this->idempotencyRecovery !== null) {
+                                            $recovered = $this->idempotencyRecovery->deferred($existing);
+                                            if ($recovered !== null) {
+                                                return $recovered;
+                                            }
+                                        }
+                                        return OperationResult::rejected(RejectionReason::conflict(
+                                            'idempotency_in_progress',
+                                        ));
+                                    }
 
-                        if ($authorizationRejection !== null) {
+                                    return new DeferredAcknowledgement(
+                                        $existing->operationId(),
+                                        $existing->acceptedAt() ?? $existing->createdAt(),
+                                        true,
+                                    );
+                                }
+                                $processing = $claim->record();
+                                if (!$processing instanceof ProcessingRecord) {
+                                    throw new LogicException('Idempotency claim did not return a processing record.');
+                                }
+                            }
+
                             $received = $this->records->operationReceived($envelope, $metadata, 1);
                             $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
                             $this->journal->append($received);
-                            $this->lifecycle->next($state, JournalEvent::OperationRejected);
-                            $rejected = $this->records->operationRejected(
-                                $envelope,
-                                $metadata,
-                                2,
-                                $authorizationRejection,
-                            );
-                            $this->journal->append($rejected);
+
+                            $acknowledgement = $this->sender->enqueue($message);
+                            $accepted = $this->records->operationAccepted($envelope, $metadata, 2);
+                            $this->lifecycle->next($state, JournalEvent::OperationAccepted);
+                            $this->journal->append($accepted);
+                            $this->sender->advanceNextSequence($message, 3);
                             if ($envelope->context()->schedule() !== null && $this->scheduledOccurrences !== null) {
                                 $this->scheduledOccurrences->transition(
                                     $envelope->id(),
                                     'claimed',
-                                    'rejected',
-                                    $authorizationRejection->code(),
-                                    $rejected->occurredAt,
+                                    'accepted',
+                                    null,
+                                    $acknowledgement->acceptedAt(),
                                     $envelope->context()->tenant(),
                                 );
                             }
 
-                            return OperationResult::rejected(
-                                $authorizationRejection,
-                                $envelope->context()->idempotencyKeyHash() === null ? $envelope->id() : null,
-                            );
-                        }
-
-                        $processing = null;
-                        $keyHash = $envelope->context()->idempotencyKeyHash();
-                        if ($keyHash !== null) {
-                            $actor = $envelope->context()->actorContext()?->authorization() ?? throw new LogicException(
-                                'Idempotency actor is unavailable.',
-                            );
-                            $store = $this->idempotency ?? throw new LogicException(
-                                'Idempotency store is unavailable.',
-                            );
-                            $retention = $this->idempotencyRetention ?? throw new LogicException(
-                                'Idempotency retention is unavailable.',
-                            );
-                            $scope = $this->idempotencyScopes->hash(
-                                $metadata->typeId,
-                                $actor,
-                                $keyHash,
-                                $envelope->context()->tenant(),
-                            );
-                            $claim = $store->claim(
-                                $scope,
-                                $keyHash,
-                                $this->idempotencyFingerprints->fingerprint($metadata->typeId, $envelope->value()),
-                                $envelope->id(),
-                                new Deferred(),
-                                $envelope->context()->receivedAt(),
-                                $retention->expiresAt($envelope->context()->receivedAt()),
-                                $metadata->typeId,
-                                1,
-                                $envelope->context()->tenant(),
-                            );
-                            if ($claim->status() === IdempotencyClaimStatus::ExistingConflict) {
-                                return OperationResult::rejected(RejectionReason::conflict('idempotency_conflict'));
-                            }
-                            if ($claim->status() === IdempotencyClaimStatus::ExistingSameFingerprint) {
-                                $existing = $claim->record();
-                                if ($existing instanceof ProcessingRecord) {
-                                    if ($this->idempotencyRecovery !== null) {
-                                        $recovered = $this->idempotencyRecovery->deferred($existing);
-                                        if ($recovered !== null) {
-                                            return $recovered;
-                                        }
-                                    }
-                                    return OperationResult::rejected(RejectionReason::conflict(
-                                        'idempotency_in_progress',
-                                    ));
-                                }
-
-                                return new DeferredAcknowledgement(
-                                    $existing->operationId(),
-                                    $existing->acceptedAt() ?? $existing->createdAt(),
-                                    true,
+                            if ($processing !== null && $this->idempotency !== null) {
+                                $terminal = new TerminalRecord(
+                                    $processing->scope(),
+                                    $processing->key(),
+                                    $processing->fingerprint(),
+                                    $processing->operationId(),
+                                    $processing->strategy(),
+                                    $processing->createdAt(),
+                                    $processing->expiresAt(),
+                                    null,
+                                    null,
+                                    $acknowledgement->acceptedAt(),
                                 );
+                                if (!$this->idempotency->terminalize($processing->operationId(), $terminal)) {
+                                    throw new LogicException('Idempotency terminalization failed.');
+                                }
                             }
-                            $processing = $claim->record();
-                            if (!$processing instanceof ProcessingRecord) {
-                                throw new LogicException('Idempotency claim did not return a processing record.');
-                            }
+
+                            return $acknowledgement;
+                        } catch (Throwable $failure) {
+                            $failures->capture($failure);
+
+                            throw $failure;
                         }
-
-                        $received = $this->records->operationReceived($envelope, $metadata, 1);
-                        $state = $this->lifecycle->next(null, JournalEvent::OperationReceived);
-                        $this->journal->append($received);
-
-                        $acknowledgement = $this->sender->enqueue($message);
-                        $accepted = $this->records->operationAccepted($envelope, $metadata, 2);
-                        $this->lifecycle->next($state, JournalEvent::OperationAccepted);
-                        $this->journal->append($accepted);
-                        $this->sender->advanceNextSequence($message, 3);
-                        if ($envelope->context()->schedule() !== null && $this->scheduledOccurrences !== null) {
-                            $this->scheduledOccurrences->transition(
-                                $envelope->id(),
-                                'claimed',
-                                'accepted',
-                                null,
-                                $acknowledgement->acceptedAt(),
-                                $envelope->context()->tenant(),
-                            );
-                        }
-
-                        if ($processing !== null && $this->idempotency !== null) {
-                            $terminal = new TerminalRecord(
-                                $processing->scope(),
-                                $processing->key(),
-                                $processing->fingerprint(),
-                                $processing->operationId(),
-                                $processing->strategy(),
-                                $processing->createdAt(),
-                                $processing->expiresAt(),
-                                null,
-                                null,
-                                $acknowledgement->acceptedAt(),
-                            );
-                            if (!$this->idempotency->terminalize($processing->operationId(), $terminal)) {
-                                throw new LogicException('Idempotency terminalization failed.');
-                            }
-                        }
-
-                        return $acknowledgement;
-                    } catch (Throwable $failure) {
-                        $failures->capture($failure);
-
-                        throw $failure;
-                    }
-                }),
+                    },
+                ),
                 $metadata->typeId,
             );
         } catch (IdempotencyReplayFailure $failure) {

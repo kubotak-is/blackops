@@ -23,6 +23,8 @@ use BlackOps\Core\Validation\Violation;
 use BlackOps\Execution\Dispatcher;
 use BlackOps\Execution\ValidationRejectionRecorder;
 use BlackOps\Idempotency\IdempotencyKey;
+use BlackOps\Internal\Audit\Authorization\AuthorizationAuditAttempt;
+use BlackOps\Internal\Audit\Authorization\AuthorizationAuditCoordinator;
 use BlackOps\Internal\Authorization\AuthorizationEvaluator;
 use BlackOps\Internal\ExecutionContext\ExecutionContextFactory;
 use BlackOps\Internal\Idempotency\IdempotencyClaimStatus;
@@ -95,6 +97,8 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         private ?IdempotencyRecovery $idempotencyRecovery = null,
         private ?PostgreSqlScheduledOccurrenceLifecycle $scheduledOccurrences = null,
         private \Psr\Clock\ClockInterface $clock = new PostgreSqlSystemClock(),
+        #[\SensitiveParameter]
+        private ?AuthorizationAuditCoordinator $authorizationAudit = null,
     ) {
         $this->validator = new OperationValueValidator();
         $this->metadataResolver = $metadataResolver ?? new OperationMetadataResolver($registry);
@@ -233,6 +237,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         }
     }
 
+    /** @mago-expect lint:no-else-clause */
     private function dispatchEnvelope(
         OperationMetadata $metadata,
         OperationEnvelope $receivedEnvelope,
@@ -243,14 +248,23 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         $sequence = new InlineSequence();
         $authorizationRejection = null;
         $authorizationPreEvaluated = false;
+        $authorizationAttempt = null;
         $claim = null;
         if ($idempotencyKey !== null) {
-            $authorizationRejection = $this->authorizationRejection($metadata, $receivedEnvelope);
+            if ($this->authorizationAudit !== null) {
+                $authorizationAttempt = $this->authorizationAudit->evaluate($metadata, $receivedEnvelope);
+                $authorizationRejection = $authorizationAttempt->evaluation()->rejection();
+            } else {
+                $authorizationRejection = $this->authorizationRejection($metadata, $receivedEnvelope);
+            }
             $authorizationPreEvaluated = true;
             if ($authorizationRejection === null) {
                 $claim = $this->claimBeforeLifecycle($metadata, $receivedEnvelope, $idempotencyKey);
                 if ($claim->status() !== IdempotencyClaimStatus::Claimed) {
-                    return $this->duplicateResult($claim);
+                    $result = $this->duplicateResult($claim);
+                    $authorizationAttempt?->deliverStandalone();
+
+                    return $result;
                 }
             }
         }
@@ -298,6 +312,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
                     $processing,
                     $authorizationRejection,
                     $authorizationPreEvaluated,
+                    $authorizationAttempt,
                 ): OperationResult {
                     return $this->executeAttempt(
                         $metadata,
@@ -310,6 +325,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
                         $processing,
                         $authorizationRejection,
                         $authorizationPreEvaluated,
+                        $authorizationAttempt,
                     );
                 },
                 $metadata->typeId,
@@ -373,7 +389,13 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         ?ProcessingRecord $processing,
         ?RejectionReason $preAuthorizationRejection,
         bool $authorizationPreEvaluated,
+        #[\SensitiveParameter]
+        ?AuthorizationAuditAttempt $preAuthorizationAttempt,
     ): OperationResult {
+        $authorizationAttempt = $preAuthorizationAttempt;
+        if ($authorizationAttempt === null && $this->authorizationAudit !== null) {
+            $authorizationAttempt = $this->authorizationAudit->evaluate($metadata, $envelope);
+        }
         $authorizationResult = $this->authorize(
             $metadata,
             $envelope,
@@ -381,11 +403,13 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
             $sequence,
             $preAuthorizationRejection,
             $authorizationPreEvaluated,
+            $authorizationAttempt,
         );
         if ($authorizationResult !== null) {
             return $authorizationResult;
         }
 
+        $authorizationAttempt?->assertMutation($metadata, $this->transactions);
         $handler = $this->handlers->resolve($metadata->handler);
         $terminalRecords = [];
         $invoke = function () use (
@@ -393,9 +417,12 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
             $handler,
             $envelope,
             $receivedEnvelope,
+            $authorizationAttempt,
             &$primaryFailure,
         ): OperationResult {
             try {
+                $authorizationAttempt?->deliverInMutationTransaction();
+
                 return $this->invoke($metadata, $handler, $envelope, $receivedEnvelope->context());
             } catch (Throwable $failure) {
                 $primaryFailure ??= $failure;
@@ -757,6 +784,7 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
 
     /** @mago-expect lint:excessive-parameter-list */
     /** @mago-expect lint:no-boolean-flag-parameter */
+    /** @mago-expect lint:no-else-clause */
     private function authorize(
         OperationMetadata $metadata,
         OperationEnvelope $envelope,
@@ -764,21 +792,34 @@ final readonly class InlineDispatcher implements Dispatcher, ScheduledInlineDisp
         InlineSequence $sequence,
         ?RejectionReason $preAuthorizationRejection = null,
         bool $authorizationPreEvaluated = false,
+        #[\SensitiveParameter]
+        ?AuthorizationAuditAttempt $authorizationAttempt = null,
     ): ?OperationResult {
         if ($metadata->authorizationPolicy === null) {
             return null;
         }
 
-        if ($this->authorization === null) {
+        if ($authorizationAttempt === null && $this->authorization === null) {
             throw new LogicException('Authorization evaluator is unavailable.');
         }
 
-        $rejection = $authorizationPreEvaluated
-            ? $preAuthorizationRejection
-            : $this->authorization->evaluate($metadata, $envelope);
+        if ($authorizationAttempt !== null) {
+            $rejection = $authorizationAttempt->evaluation()->rejection();
+        } elseif ($authorizationPreEvaluated) {
+            $rejection = $preAuthorizationRejection;
+        } else {
+            $authorization = $this->authorization;
+            if ($authorization === null) {
+                throw new LogicException('Authorization evaluator is unavailable.');
+            }
+
+            $rejection = $authorization->evaluate($metadata, $envelope);
+        }
         if ($rejection === null) {
             return null;
         }
+
+        $authorizationAttempt?->deliverStandalone();
 
         $this->appendLifecycleRecord(
             $state,

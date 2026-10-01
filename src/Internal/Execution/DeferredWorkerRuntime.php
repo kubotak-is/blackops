@@ -15,6 +15,9 @@ use BlackOps\Core\OperationResult;
 use BlackOps\Core\OperationValue;
 use BlackOps\Core\Registry\OperationMetadata;
 use BlackOps\Internal\Application\ApplicationDatabaseConnectionLifecycle;
+use BlackOps\Internal\Audit\Authorization\AuthorizationAuditAttempt;
+use BlackOps\Internal\Audit\Authorization\AuthorizationAuditCoordinator;
+use BlackOps\Internal\Audit\Orchestration\AuditDeliveryException;
 use BlackOps\Internal\Telemetry\TelemetryMetrics;
 use BlackOps\Internal\Telemetry\TelemetrySpanScope;
 use BlackOps\Internal\Telemetry\TelemetryTracer;
@@ -40,6 +43,8 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         private HandlerInvoker $invoker = new HandlerInvoker(),
         private ?ApplicationDatabaseConnectionLifecycle $connections = null,
         private ?TelemetryMetrics $metrics = null,
+        #[\SensitiveParameter]
+        private ?AuthorizationAuditCoordinator $authorizationAudit = null,
     ) {}
 
     public function run(OperationClaim $claim): OperationResult
@@ -95,7 +100,8 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
             throw $failure;
         }
         try {
-            $result = $this->execute($claim, $envelope, $handler, $metadata, $metadata->typeId);
+            $authorizationAttempt = null;
+            $result = $this->execute($claim, $envelope, $handler, $metadata, $metadata->typeId, $authorizationAttempt);
             if ($result->isCompleted()) {
                 if (
                     $metadata->transactionConnection === null
@@ -110,7 +116,7 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
                 return $result;
             }
 
-            $this->reject($claim, $metadata, $envelope, $result);
+            $this->reject($claim, $metadata, $envelope, $result, $authorizationAttempt);
             $span?->result('rejected');
             $metric?->result('rejected');
             return $result;
@@ -169,56 +175,83 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         }
     }
 
+    /** @mago-expect lint:halstead */
+    /** @mago-expect lint:excessive-parameter-list */
+    /** @mago-expect lint:no-else-clause */
     private function execute(
         OperationClaim $claim,
         OperationEnvelope $envelope,
         object $handler,
         OperationMetadata $metadata,
         string $operationTypeId,
+        #[\SensitiveParameter]
+        ?AuthorizationAuditAttempt &$authorizationAttempt,
     ): OperationResult {
-        return $this->guard->run($claim, fn(): OperationResult => $this->storage->scope->run(
+        return $this->guard->run($claim, function () use (
+            $claim,
             $envelope,
-            function () use ($claim, $handler, $envelope, $metadata): OperationResult {
-                try {
-                    $rejection = $this->services->authorization->evaluate($metadata, $envelope);
-                    if ($rejection !== null) {
-                        return OperationResult::rejected($rejection, $envelope->id());
-                    }
-
-                    $invoke = function () use ($metadata, $handler, $envelope): OperationResult {
-                        try {
-                            return $this->invoker->invoke($metadata, $handler, $envelope);
-                        } catch (OperationRejectedException $rejected) {
-                            return OperationResult::rejected($rejected->reason(), $envelope->id());
-                        }
-                    };
-
-                    if ($metadata->transactionConnection === null) {
-                        return $invoke();
-                    }
-
-                    if ($this->storage->transactions === null) {
-                        throw new LogicException('Operation transaction coordinator is unavailable.');
-                    }
-
-                    return $this->storage->transactions->execute(
-                        $metadata,
-                        $invoke,
-                        fn(OperationResult $result): mixed => $this->completeInCurrentTransaction(
-                            $claim,
-                            $metadata,
-                            $envelope,
-                            $result,
-                        ),
-                    );
-                } catch (WorkerExecutionInterruptedException $exception) {
-                    throw $exception;
-                } catch (Throwable $exception) {
-                    throw new HandlerInvocationFailedException($exception);
-                }
-            },
+            $handler,
+            $metadata,
             $operationTypeId,
-        ));
+            &$authorizationAttempt,
+        ): OperationResult {
+            return $this->storage->scope->run(
+                $envelope,
+                function () use ($claim, $handler, $envelope, $metadata, &$authorizationAttempt): OperationResult {
+                    try {
+                        if ($this->authorizationAudit !== null) {
+                            $authorizationAttempt = $this->authorizationAudit->evaluate($metadata, $envelope);
+                            $rejection = $authorizationAttempt->evaluation()->rejection();
+                        } else {
+                            $rejection = $this->services->authorization->evaluate($metadata, $envelope);
+                        }
+                        if ($rejection !== null) {
+                            return OperationResult::rejected($rejection, $envelope->id());
+                        }
+
+                        $authorizationAttempt?->assertMutation($metadata, $this->storage->transactions);
+                        $invoke = function () use (
+                            $metadata,
+                            $handler,
+                            $envelope,
+                            $authorizationAttempt,
+                        ): OperationResult {
+                            try {
+                                $authorizationAttempt?->deliverInMutationTransaction();
+
+                                return $this->invoker->invoke($metadata, $handler, $envelope);
+                            } catch (OperationRejectedException $rejected) {
+                                return OperationResult::rejected($rejected->reason(), $envelope->id());
+                            }
+                        };
+
+                        if ($metadata->transactionConnection === null) {
+                            return $invoke();
+                        }
+
+                        if ($this->storage->transactions === null) {
+                            throw new LogicException('Operation transaction coordinator is unavailable.');
+                        }
+
+                        return $this->storage->transactions->execute(
+                            $metadata,
+                            $invoke,
+                            fn(OperationResult $result): mixed => $this->completeInCurrentTransaction(
+                                $claim,
+                                $metadata,
+                                $envelope,
+                                $result,
+                            ),
+                        );
+                    } catch (WorkerExecutionInterruptedException $exception) {
+                        throw $exception;
+                    } catch (Throwable $exception) {
+                        throw new HandlerInvocationFailedException($exception);
+                    }
+                },
+                $operationTypeId,
+            );
+        });
     }
 
     /** @return array{0: OperationEnvelope, 1: ?TelemetrySpanScope} */
@@ -337,8 +370,23 @@ final readonly class DeferredWorkerRuntime implements DeferredClaimRuntime
         OperationMetadata $metadata,
         OperationEnvelope $envelope,
         OperationResult $result,
+        #[\SensitiveParameter]
+        ?AuthorizationAuditAttempt $authorizationAttempt,
     ): void {
-        $this->storage->connection->transactional(function () use ($claim, $metadata, $envelope, $result): void {
+        $this->storage->connection->transactional(function () use (
+            $claim,
+            $metadata,
+            $envelope,
+            $result,
+            $authorizationAttempt,
+        ): void {
+            if ($authorizationAttempt?->evaluation()->isDenied() === true) {
+                try {
+                    $authorizationAttempt->deliverInOwnedTransaction($this->storage->connection);
+                } catch (AuditDeliveryException $exception) {
+                    throw new HandlerInvocationFailedException($exception);
+                }
+            }
             $reservation = $this->storage->state->reserveRejected($claim, $this->storage->clock->now());
             $this->storage->lifecycle->next(LifecycleState::Running, JournalEvent::OperationRejected);
             $this->storage->journal->append($this->storage->records->operationRejected(

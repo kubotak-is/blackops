@@ -10,6 +10,7 @@ use BlackOps\Core\Attribute\PublicApi;
 use BlackOps\Internal\Application\ApplicationAuditConfiguration;
 use BlackOps\Internal\Application\ApplicationAuditRuntime;
 use BlackOps\Internal\Application\ApplicationAuditRuntimeComposer;
+use BlackOps\Internal\Audit\Authorization\AuthorizationAuditCoordinator;
 use BlackOps\Internal\Audit\Key\ApplicationAuditProtectionKeySource;
 use BlackOps\Internal\Audit\Orchestration\AuditDeliveryCoordinator;
 use BlackOps\Internal\Audit\Orchestration\AuditDeliveryException;
@@ -19,6 +20,24 @@ use BlackOps\Internal\Audit\Orchestration\AuditDeliveryRequest;
 use BlackOps\Internal\Audit\Orchestration\AuditDeliverySelector;
 use BlackOps\Internal\Audit\Orchestration\AuditMutationTransactionCoordinator;
 use BlackOps\Internal\Audit\Orchestration\AuditProtectedReadGate;
+use BlackOps\Internal\Audit\Retention\RetentionHoldAuditWriter;
+use BlackOps\Internal\Execution\DeferredAcceptanceOrchestrator;
+use BlackOps\Internal\Execution\DeferredWorkerRuntime;
+use BlackOps\Internal\Execution\InlineDispatcher;
+use BlackOps\Internal\Transaction\OperationTransactionCoordinator;
+use Doctrine\DBAL\Connection;
+use PhpParser\Node;
+use PhpParser\Node\Expr\BinaryOp\Identical;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Return_;
+use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\ParserFactory;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -122,7 +141,19 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 '__unserialize',
             ],
             AuditDeliverySelector::class => ['__construct', 'select', 'forDraft', 'validate'],
-            AuditDeliveryCoordinator::class => ['__construct', 'deliverStandalone', 'deliverInCurrentTransaction'],
+            AuditDeliveryCoordinator::class => [
+                '__construct',
+                'deliverStandalone',
+                'deliverInCurrentTransaction',
+                'usesConnection',
+            ],
+            OperationTransactionCoordinator::class => [
+                '__construct',
+                'execute',
+                'isTransactional',
+                'sharesFrameworkConnection',
+                'usesFrameworkConnection',
+            ],
             AuditMutationTransactionCoordinator::class => ['__construct', 'execute'],
             AuditProtectedReadGate::class => ['__construct', 'requested', 'terminal'],
             ApplicationAuditProtectionKeySource::class => ['__construct', 'activeKey', 'key'],
@@ -249,6 +280,18 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'void',
         );
         $this->assertParameters(
+            AuditDeliveryCoordinator::class,
+            'usesConnection',
+            [['connection', 'Connection', 1]],
+            'bool',
+        );
+        $this->assertParameters(
+            OperationTransactionCoordinator::class,
+            'usesFrameworkConnection',
+            [['connection', 'Connection', 1]],
+            'bool',
+        );
+        $this->assertParameters(
             AuditMutationTransactionCoordinator::class,
             'execute',
             [
@@ -329,6 +372,65 @@ final class AuditDeliveryArchitectureTest extends TestCase
             ],
             'ApplicationAuditRuntime',
         );
+    }
+
+    public function testConnectionIdentityPredicatesRemainPureObjectComparisons(): void
+    {
+        $expected = [
+            'src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [
+                'class' => 'AuditDeliveryCoordinator',
+                'method' => 'usesConnection',
+                'property' => 'connection',
+            ],
+            'src/Internal/Transaction/OperationTransactionCoordinator.php' => [
+                'class' => 'OperationTransactionCoordinator',
+                'method' => 'usesFrameworkConnection',
+                'property' => 'frameworkConnection',
+            ],
+        ];
+        foreach ($expected as $relative => $definition) {
+            $source = file_get_contents(__DIR__ . '/../../' . $relative);
+            self::assertIsString($source, $relative);
+            $nodes = $this->parseArchitectureSource($source);
+            $class = $this->architectureClass($nodes, $definition['class']);
+            self::assertNotNull($class, $relative);
+            $method = $this->architectureMethod($class, $definition['method']);
+            self::assertNotNull($method, $relative);
+            self::assertNotNull($method->stmts, $relative);
+            self::assertCount(1, $method->stmts, $relative);
+            $statement = $method->stmts[0];
+            self::assertInstanceOf(Return_::class, $statement, $relative);
+            self::assertInstanceOf(Identical::class, $statement->expr, $relative);
+            self::assertTrue($this->isIdentityComparison($statement->expr, $definition['property']), $relative);
+            self::assertSame([], new NodeFinder()->findInstanceOf($method, Node\Expr\MethodCall::class), $relative);
+            self::assertSame([], new NodeFinder()->findInstanceOf($method, Node\Expr\StaticCall::class), $relative);
+            self::assertSame([], new NodeFinder()->findInstanceOf($method, Node\Expr\New_::class), $relative);
+        }
+    }
+
+    public function testNativeAuthorizationAuditDependencyIsTrailingOptionalSensitive(): void
+    {
+        foreach ([
+            InlineDispatcher::class,
+            DeferredAcceptanceOrchestrator::class,
+            DeferredWorkerRuntime::class,
+        ] as $type) {
+            $constructor = new ReflectionClass($type)->getConstructor();
+            self::assertNotNull($constructor, $type);
+            $parameters = $constructor->getParameters();
+            self::assertNotEmpty($parameters, $type);
+            $parameter = $parameters[count($parameters) - 1];
+            self::assertSame('authorizationAudit', $parameter->getName(), $type);
+            self::assertSame(AuthorizationAuditCoordinator::class, $parameter->getType()?->getName(), $type);
+            self::assertTrue($parameter->allowsNull(), $type);
+            self::assertTrue($parameter->isDefaultValueAvailable(), $type);
+            self::assertNull($parameter->getDefaultValue(), $type);
+            self::assertCount(1, $parameter->getAttributes(\SensitiveParameter::class), $type);
+            $property = new ReflectionClass($type)->getProperty('authorizationAudit');
+            self::assertTrue($property->isPrivate(), $type);
+            self::assertTrue($property->isReadOnly(), $type);
+            self::assertSame(AuthorizationAuditCoordinator::class, $property->getType()?->getName(), $type);
+        }
     }
 
     public function testDirectCallAndConstructionMapsRemainBoundedAndActivationIsAbsent(): void
@@ -427,6 +529,16 @@ final class AuditDeliveryArchitectureTest extends TestCase
         self::assertSame(1, $replacements);
         self::assertNotEmpty($this->c3DeclarationViolations($signature, $baseline));
 
+        $writerSignature = $sources;
+        $writerSignature['src/Internal/Audit/Retention/RetentionHoldAuditWriter.php'] = str_replace(
+            'string $buildId,',
+            'int $buildId,',
+            $writerSignature['src/Internal/Audit/Retention/RetentionHoldAuditWriter.php'],
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        self::assertNotEmpty($this->c3DeclarationViolations($writerSignature, $baseline));
+
         $parent = $sources;
         $parent['src/Internal/Audit/Orchestration/AuditDeliveryException.php'] = str_replace(
             'extends RuntimeException',
@@ -489,10 +601,19 @@ final class AuditDeliveryArchitectureTest extends TestCase
                     'src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => 1,
                 ],
                 'deliverInCurrentTransaction' => [
+                    'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 2,
                     'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
+                    'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+                ],
+                'deliverInMutationTransaction' => [
+                    'src/Internal/Execution/DeferredWorkerRuntime.php' => 1,
+                    'src/Internal/Execution/InlineDispatcher.php' => 1,
                 ],
                 'deliverStandalone' => [
+                    'src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php' => 1,
+                    'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 1,
                     'src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => 2,
+                    'src/Internal/Execution/InlineDispatcher.php' => 2,
                 ],
             ],
             $this->c3DirectCalls($sources),
@@ -524,6 +645,39 @@ final class AuditDeliveryArchitectureTest extends TestCase
         $added['src/External/C3Caller.php'] = '<?php $store->appendRequired($draft);';
         self::assertNotEmpty($this->c3ReferenceViolations($added));
 
+        $authenticationReference = $sources;
+        $authenticationReference['src/External/C3AuthenticationReference.php'] = <<<'PHP'
+            <?php
+
+            use BlackOps\Internal\Audit\Authentication\AuthenticationAuditEventWriter;
+
+            final class C3AuthenticationReference
+            {
+                public function write(AuthenticationAuditEventWriter $writer): void {}
+            }
+            PHP;
+        self::assertNotEmpty($this->c3ReferenceViolations($authenticationReference));
+
+        $authenticationConstructor = $sources;
+        $authenticationConstructor['src/External/C3AuthenticationConstructor.php'] = <<<'PHP'
+            <?php
+
+            use BlackOps\Internal\Audit\Authentication\AuditedHttpAuthenticator;
+
+            new AuditedHttpAuthenticator($authenticator, $writer, $connection);
+            PHP;
+        self::assertNotEmpty($this->c3ReferenceViolations($authenticationConstructor));
+
+        $authenticationDelivery = $sources;
+        $authenticationDelivery['src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php'] = str_replace(
+            '->deliverStandalone(',
+            '->deliverRemoved(',
+            $authenticationDelivery['src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php'],
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        self::assertNotEmpty($this->c3ReferenceViolations($authenticationDelivery));
+
         $removed = $sources;
         $removed['src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php'] = str_replace(
             '->appendRequired(',
@@ -533,6 +687,16 @@ final class AuditDeliveryArchitectureTest extends TestCase
         );
         self::assertSame(1, $replacements);
         self::assertNotEmpty($this->c3ReferenceViolations($removed));
+
+        $writerReceiver = $sources;
+        $writerReceiver['src/Internal/Audit/Retention/RetentionHoldAuditWriter.php'] = str_replace(
+            '$delivery->deliverInCurrentTransaction(',
+            '$alternateDelivery->deliverInCurrentTransaction(',
+            $writerReceiver['src/Internal/Audit/Retention/RetentionHoldAuditWriter.php'],
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        self::assertNotEmpty($this->c3ReferenceViolations($writerReceiver));
 
         $dynamic = $sources;
         $dynamic['src/External/C3Caller.php'] = '<?php $store->{$method}($draft);';
@@ -843,6 +1007,30 @@ final class AuditDeliveryArchitectureTest extends TestCase
         $forbiddenMutation['src/Internal/Application/ApplicationAuditRuntimeComposer.php'] .= "\nuse BlackOps\\StorageProtection\\StorageKeyProvider;\n";
         self::assertNotEmpty($this->c3ForbiddenReferenceViolations($forbiddenMutation));
 
+        $generalProjection = $sources;
+        $generalProjection['src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php'] .= <<<'PHP'
+
+            new BlackOpsInternalProjectionSensitiveProjectionFilter();
+            PHP;
+        self::assertNotEmpty($this->c3ForbiddenReferenceViolations($generalProjection));
+
+        $fallbackDelivery = $sources;
+        $fallbackDelivery['src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php'] = str_replace(
+            "    private function buildId(): string\n    {",
+            "    private function buildId(): string\n    {\n        \$fallbackDelivery->deliverStandalone(\$request);",
+            $fallbackDelivery['src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php'],
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        self::assertNotEmpty($this->c3ForbiddenReferenceViolations($fallbackDelivery));
+
+        $otherFallbackDelivery = $sources;
+        $otherFallbackDelivery['src/Internal/Application/ApplicationAuditRuntime.php'] .= <<<'PHP'
+
+            $fallbackDelivery->deliverStandalone($request);
+            PHP;
+        self::assertNotEmpty($this->c3ForbiddenReferenceViolations($otherFallbackDelivery));
+
         $extraDependency = $sources;
         $extraDependency['src/Internal/Audit/Orchestration/AuditDeliverySelector.php'] = str_replace(
             'use BlackOps\\Internal\\Audit\\Record\\AuditRecordValidator;',
@@ -913,6 +1101,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'src/Internal/Application/ApplicationAuditConfiguration.php',
             'src/Internal/Application/ApplicationAuditRuntime.php',
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php',
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php',
         ];
     }
 
@@ -946,6 +1135,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 str_starts_with($path, 'src/Audit/')
                 || str_starts_with($path, 'src/Internal/Audit/Orchestration/')
                 || $path === 'src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php'
+                || $path === 'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php'
                 || preg_match('#^src/Internal/Application/ApplicationAudit[^/]*\.php$#', $path) === 1
             ) {
                 $paths[] = $path;
@@ -1071,6 +1261,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             ],
             'src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [
                 'method:__construct',
+                'method:usesConnection',
                 'method:deliverStandalone',
                 'method:deliverInCurrentTransaction',
                 'method:append',
@@ -1126,6 +1317,27 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'method:assertConnection',
                 'method:providers',
             ],
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                'property:$snapshot',
+                'method:__construct',
+                'method:assertConnection',
+                'method:placed',
+                'method:released',
+                'method:__debugInfo',
+                'method:__serialize',
+                'method:__unserialize',
+                'method:write',
+                'method:catalog',
+                'method:definition',
+                'method:occurredAt',
+                'method:opaqueId',
+                'method:draft',
+                'method:selector',
+                'method:reference',
+                'method:value',
+                'method:failure',
+                'method:remap',
+            ],
         ];
         $declarations = [
             'src/Audit/AuditOpaqueIdKeyProvider.php' => 'interface AuditOpaqueIdKeyProvider',
@@ -1142,6 +1354,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'src/Internal/Application/ApplicationAuditConfiguration.php' => 'final readonly class ApplicationAuditConfiguration',
             'src/Internal/Application/ApplicationAuditRuntime.php' => 'final readonly class ApplicationAuditRuntime',
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => 'final readonly class ApplicationAuditRuntimeComposer',
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 'final class RetentionHoldAuditWriter',
         ];
         $expected = [];
         foreach ($this->c3ExpectedPaths() as $path) {
@@ -1417,6 +1630,16 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 ],
             ],
             ApplicationAuditRuntimeComposer::class => $empty,
+            RetentionHoldAuditWriter::class => [
+                'snapshot' => [
+                    'visibility' => 'private',
+                    'readonly' => false,
+                    'promoted' => false,
+                    'type' => 'SensitiveParameterValue',
+                    'nullable' => false,
+                    'sensitive' => 0,
+                ],
+            ],
         ];
     }
 
@@ -1466,6 +1689,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'src/Internal/Application/ApplicationAuditConfiguration.php' => 'BlackOps\\Internal\\Application',
             'src/Internal/Application/ApplicationAuditRuntime.php' => 'BlackOps\\Internal\\Application',
             'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => 'BlackOps\\Internal\\Application',
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 'BlackOps\\Internal\\Audit\\Retention',
         ];
         $expectedFullyQualifiedNames = [
             'src/Audit/AuditOpaqueIdKeyProvider.php' => [],
@@ -1518,6 +1742,12 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 '\\Throwable',
                 '\\BlackOps\\Internal\\Audit\\Record\\AuditRecordValidator',
                 '\\RuntimeException',
+            ],
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                '\\DateTimeZone',
+                '\\LogicException',
+                '\\SensitiveParameter',
+                '\\SensitiveParameterValue',
             ],
         ];
         $expected = [
@@ -1641,6 +1871,46 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'use BlackOps\\Internal\\StorageProtection\\RandomNonceSource;',
                 'use BlackOps\\StorageProtection\\StorageKey;',
                 'use Psr\\Container\\ContainerInterface;',
+            ],
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                'use BlackOps\\Core\\ActorContext;',
+                'use BlackOps\\Core\\ActorRef;',
+                'use BlackOps\\Core\\Audit\\AuditActionPhase;',
+                'use BlackOps\\Core\\Audit\\AuditDelivery;',
+                'use BlackOps\\Core\\Audit\\AuditEventCatalog;',
+                'use BlackOps\\Core\\Audit\\AuditEventCategory;',
+                'use BlackOps\\Core\\Audit\\AuditEventDefinition;',
+                'use BlackOps\\Core\\Audit\\AuditOpaqueIdPurpose;',
+                'use BlackOps\\Core\\Audit\\AuditOutcomeStatus;',
+                'use BlackOps\\Core\\Audit\\AuditPolicyDecision;',
+                'use BlackOps\\Core\\Audit\\AuditRecordAction;',
+                'use BlackOps\\Core\\Audit\\AuditRecordActor;',
+                'use BlackOps\\Core\\Audit\\AuditRecordCorrelation;',
+                'use BlackOps\\Core\\Audit\\AuditRecordDraft;',
+                'use BlackOps\\Core\\Audit\\AuditRecordEvent;',
+                'use BlackOps\\Core\\Audit\\AuditRecordEvidence;',
+                'use BlackOps\\Core\\Audit\\AuditRecordOutcome;',
+                'use BlackOps\\Core\\Audit\\AuditRecordPolicy;',
+                'use BlackOps\\Core\\Audit\\AuditRecordResource;',
+                'use BlackOps\\Core\\Audit\\AuditRecordSource;',
+                'use BlackOps\\Core\\Audit\\AuditSemanticTuple;',
+                'use BlackOps\\Core\\Audit\\AuditSourceOwner;',
+                'use BlackOps\\Core\\Audit\\AuditSourceRuntime;',
+                'use BlackOps\\Core\\Audit\\AuditTypedReference;',
+                'use BlackOps\\Core\\Audit\\AuditValidationException;',
+                'use BlackOps\\Core\\Identifier\\OperationId;',
+                'use BlackOps\\Core\\Identifier\\RetentionHoldId;',
+                'use BlackOps\\Core\\TenantRef;',
+                'use BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog;',
+                'use BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryException;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryFailure;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest;',
+                'use BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliverySelector;',
+                'use Doctrine\\DBAL\\Connection;',
+                'use Psr\\Clock\\ClockInterface;',
+                'use Throwable;',
             ],
         ];
         $violations = [];
@@ -1789,6 +2059,15 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 $target('AuditMutationTransactionCoordinator'),
                 $target('AuditProtectedReadGate'),
             ],
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryException',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryFailure',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliverySelector',
+                'BlackOps\\Internal\\Audit\\Retention\\RetentionHoldAuditWriter',
+            ],
         ];
     }
 
@@ -1905,8 +2184,19 @@ final class AuditDeliveryArchitectureTest extends TestCase
             if (!$isC3Owner) {
                 continue;
             }
-            $source = $this->c3ExecutableCode($rawSource);
             foreach ($forbidden as $needle) {
+                if (
+                    $needle === 'Psr\\Http'
+                    && in_array(
+                        $path,
+                        [
+                            'src/Internal/Audit/Authentication/AuditedHttpAuthenticator.php',
+                        ],
+                        true,
+                    )
+                ) {
+                    continue;
+                }
                 if (
                     $needle === 'OutboxRelay'
                     && in_array(
@@ -1920,7 +2210,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 ) {
                     continue;
                 }
-                if (str_contains($source, $needle)) {
+                if ($this->c3ContainsForbiddenNeedle($rawSource, $path, $needle)) {
                     $violations[] = $path . ':' . $needle;
                 }
             }
@@ -1929,13 +2219,127 @@ final class AuditDeliveryArchitectureTest extends TestCase
         return $violations;
     }
 
+    private function c3ContainsForbiddenNeedle(string $rawSource, string $path, string $needle): bool
+    {
+        if (!in_array($needle, ['Projection', 'fallback'], true)) {
+            return str_contains($this->c3ExecutableCode($rawSource), $needle);
+        }
+        $tokens = token_get_all($rawSource);
+        foreach ($tokens as $index => $token) {
+            if (
+                is_array($token)
+                && in_array(
+                    $token[0],
+                    [
+                        T_COMMENT,
+                        T_DOC_COMMENT,
+                        T_CONSTANT_ENCAPSED_STRING,
+                        T_ENCAPSED_AND_WHITESPACE,
+                        T_START_HEREDOC,
+                        T_END_HEREDOC,
+                        T_INLINE_HTML,
+                    ],
+                    true,
+                )
+            ) {
+                continue;
+            }
+            $text = is_array($token) ? $token[1] : $token;
+            if (!str_contains($text, $needle)) {
+                continue;
+            }
+            if (
+                $needle === 'Projection'
+                && $path === 'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php'
+                && is_array($token)
+                && $token[0] === T_STRING
+                && $token[1] === 'assertProjectionAgreement'
+                && $this->c3IsProjectionAgreementReference($tokens, $index)
+            ) {
+                continue;
+            }
+            if (
+                $needle === 'fallback'
+                && $path === 'src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php'
+                && is_array($token)
+                && $token[0] === T_VARIABLE
+                && $token[1] === '$fallback'
+                && $this->c3IsExecutionFallbackVariable($tokens, $index)
+            ) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function c3IsProjectionAgreementReference(array $tokens, int $index): bool
+    {
+        $next = $this->c3NextToken($tokens, $index + 1);
+        if ($next === null || $tokens[$next] !== '(') {
+            return false;
+        }
+        $previous = $this->c3PreviousToken($tokens, $index - 1);
+        if ($previous === null) {
+            return false;
+        }
+        if (is_array($tokens[$previous]) && $tokens[$previous][0] === T_FUNCTION) {
+            return true;
+        }
+        if (!$this->c3Operator($tokens[$previous], [T_DOUBLE_COLON])) {
+            return false;
+        }
+        $self = $this->c3PreviousToken($tokens, $previous - 1);
+
+        return (
+            $self !== null
+            && is_array($tokens[$self])
+            && $tokens[$self][0] === T_STRING
+            && strtolower($tokens[$self][1]) === 'self'
+        );
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function c3IsExecutionFallbackVariable(array $tokens, int $index): bool
+    {
+        for ($cursor = $index; $cursor >= 0; $cursor--) {
+            $token = $tokens[$cursor];
+            if (is_array($token) && $token[0] === T_FN) {
+                return false;
+            }
+            if (!is_array($token) || $token[0] !== T_FUNCTION) {
+                continue;
+            }
+            $name = $this->c3NextToken($tokens, $cursor + 1);
+
+            return (
+                $name !== null
+                && is_array($tokens[$name])
+                && $tokens[$name][0] === T_STRING
+                && strtolower($tokens[$name][1]) === 'executionfallback'
+            );
+        }
+
+        return false;
+    }
+
     private function c3ReferencesTargetClass(string $source): bool
     {
         $tokens = token_get_all($source);
         [$namespace, $aliases] = $this->c3NameContext($tokens);
         $targets = array_values(array_filter(
             array_map(static fn(string $target): string => ltrim($target, '\\'), $this->c3TargetClasses()),
-            static fn(string $target): bool => $target !== 'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
+            static fn(string $target): bool => !in_array(
+                $target,
+                [
+                    'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
+                    'BlackOps\\Internal\\Audit\\Retention\\RetentionHoldAuditWriter',
+                ],
+                true,
+            ),
         ));
         foreach ($tokens as $index => $token) {
             if (
@@ -2136,6 +2540,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             ],
             'src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => [
                 'publicfunction__construct(privateConnection$connection,privateAuditDeliverySelector$selector,privatePostgreSqlAuditRecordStore$records,privatePostgreSqlAuditOutboxStore$outbox)',
+                'publicfunctionusesConnection(#[\SensitiveParameter]Connection$connection):bool',
                 'publicfunctiondeliverStandalone(#[\SensitiveParameter]AuditDeliveryRequest$request):void',
                 'publicfunctiondeliverInCurrentTransaction(AuditDeliveryPlan$plan,#[\SensitiveParameter]AuditDeliveryRequest$request):void',
                 'privatefunctionappend(AuditDelivery$delivery,#[\SensitiveParameter]AuditDeliveryRequest$request):void',
@@ -2182,6 +2587,27 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'privatefunctiondatabase(#[\SensitiveParameter]ApplicationConfigurationSnapshot$configuration):ApplicationDatabaseConfiguration',
                 'privatefunctionassertConnection(#[\SensitiveParameter]ApplicationDatabaseConfiguration$database,#[\SensitiveParameter]ApplicationOperationRuntimeComposition$operations):void',
                 'privatefunctionproviders(#[\SensitiveParameter]ContainerInterface$container):array',
+            ],
+            'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                'private\SensitiveParameterValue$snapshot;',
+                'publicfunction__construct(#[\SensitiveParameter]HmacAuditOpaqueIdDeriver$opaqueIds,#[\SensitiveParameter]AuditDeliverySelector$selector,#[\SensitiveParameter]AuditDeliveryCoordinator$delivery,#[\SensitiveParameter]ClockInterface$clock,#[\SensitiveParameter]ActorContext$actor,#[\SensitiveParameter]AuditRecordCorrelation$correlation,AuditSourceRuntime$runtime,#[\SensitiveParameter]string$buildId)',
+                'publicfunctionassertConnection(#[\SensitiveParameter]Connection$connection):void',
+                'publicfunctionplaced(#[\SensitiveParameter]RetentionHoldId$holdId,#[\SensitiveParameter]OperationId$operationId,#[\SensitiveParameter]?TenantRef$tenant):void',
+                'publicfunctionreleased(#[\SensitiveParameter]RetentionHoldId$holdId,#[\SensitiveParameter]OperationId$operationId,#[\SensitiveParameter]?TenantRef$tenant):void',
+                'publicfunction__debugInfo():array',
+                'publicfunction__serialize():array',
+                'publicfunction__unserialize(#[\SensitiveParameter]array$data):void',
+                'privatefunctionwrite(string$eventType,string$outcomeCode,#[\SensitiveParameter]RetentionHoldId$holdId,#[\SensitiveParameter]OperationId$operationId,#[\SensitiveParameter]?TenantRef$tenant):void',
+                'privatefunctioncatalog():AuditEventCatalog',
+                'privatefunctiondefinition(#[\SensitiveParameter]AuditEventCatalog$catalog,string$eventType,string$outcomeCode):AuditEventDefinition',
+                'privatefunctionoccurredAt():string',
+                'privatefunctionopaqueId(AuditOpaqueIdPurpose$purpose,#[\SensitiveParameter]string$context):string',
+                'privatefunctiondraft(#[\SensitiveParameter]AuditEventDefinition$definition,#[\SensitiveParameter]string$actionId,#[\SensitiveParameter]string$resourceId,#[\SensitiveParameter]string$occurredAt,#[\SensitiveParameter]?AuditTypedReference$tenant):AuditRecordDraft',
+                'privatefunctionselector():AuditDeliverySelector',
+                'privatefunctionreference(?ActorRef$reference):?AuditTypedReference',
+                'privatefunctionvalue(#[\SensitiveParameter]string$key):mixed',
+                'privatestaticfunctionfailure(AuditDeliveryFailure$failure):AuditDeliveryException',
+                'privatestaticfunctionremap(#[\SensitiveParameter]AuditDeliveryException$failure):AuditDeliveryException',
             ],
         ];
         $violations = [];
@@ -2401,9 +2827,20 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => 1,
             ],
             'deliverInCurrentTransaction' => [
+                'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 2,
                 'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
+                'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
             ],
-            'deliverStandalone' => ['src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => 2],
+            'deliverInMutationTransaction' => [
+                'src/Internal/Execution/DeferredWorkerRuntime.php' => 1,
+                'src/Internal/Execution/InlineDispatcher.php' => 1,
+            ],
+            'deliverStandalone' => [
+                'src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php' => 1,
+                'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 1,
+                'src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => 2,
+                'src/Internal/Execution/InlineDispatcher.php' => 2,
+            ],
         ];
         if ($this->c3DirectCalls($sources) !== $expected) {
             $violations[] = 'direct-call-inventory';
@@ -2412,12 +2849,33 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'appendDurable|src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => ['$this->outbox'],
             'appendDurable|src/Internal/Audit/Relay/PostgreSqlAuditRelayPersistence.php' => ['$this->records'],
             'appendRequired|src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => ['$this->records'],
+            'deliverInCurrentTransaction|src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => [
+                '$values',
+                '$values',
+            ],
             'deliverInCurrentTransaction|src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => [
                 '$this->delivery',
             ],
+            'deliverInCurrentTransaction|src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                '$delivery',
+            ],
+            'deliverInMutationTransaction|src/Internal/Execution/DeferredWorkerRuntime.php' => [
+                '$authorizationAttempt',
+            ],
+            'deliverInMutationTransaction|src/Internal/Execution/InlineDispatcher.php' => [
+                '$authorizationAttempt',
+            ],
+            'deliverStandalone|src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php' => [
+                '$delivery',
+            ],
+            'deliverStandalone|src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => ['$values'],
             'deliverStandalone|src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => [
                 '$this->delivery',
                 '$this->delivery',
+            ],
+            'deliverStandalone|src/Internal/Execution/InlineDispatcher.php' => [
+                '$authorizationAttempt',
+                '$authorizationAttempt',
             ],
         ];
         if ($this->c3DirectCallReceivers($sources) !== $receivers) {
@@ -2452,7 +2910,10 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'src/Internal/Application/ApplicationAuditRuntimeComposer.php' => 1,
             ],
             'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest' => [
+                'src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php' => 1,
+                'src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php' => 1,
                 'src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => 2,
+                'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
             ],
             'BlackOps\\Internal\\Application\\ApplicationOperationRuntimeComposition' => [
                 'src/Internal/Application/ApplicationOperationRuntimeComposer.php' => 1,
@@ -2461,6 +2922,9 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'src/Internal/Application/ApplicationDatabaseConfiguration.php' => 1,
             ],
             'BlackOps\\Internal\\Application\\ApplicationAuditRuntimeComposer' => [],
+            'BlackOps\\Internal\\Audit\\Authentication\\AuthenticationAuditEventWriter' => [],
+            'BlackOps\\Internal\\Audit\\Authentication\\DurableAuthenticationAuditEventWriter' => [],
+            'BlackOps\\Internal\\Audit\\Authentication\\AuditedHttpAuthenticator' => [],
         ];
         foreach ($constructors as $target => $expectedFiles) {
             $actualFiles = [];
@@ -2497,6 +2961,59 @@ final class AuditDeliveryArchitectureTest extends TestCase
         ksort($runtimeFactoryCallers);
         if ($runtimeFactoryCallers !== ['src/Internal/Application/ApplicationAuditRuntimeComposer.php' => 1]) {
             $violations[] = 'runtime-factory-callers';
+        }
+
+        $violations = [...$violations, ...$this->c3AuthenticationReferenceViolations($sources)];
+
+        return $violations;
+    }
+
+    /** @param array<string,string> $sources @return list<string> */
+    private function c3AuthenticationReferenceViolations(array $sources): array
+    {
+        $expected = [
+            'src/Internal/Audit/Authentication/AuthenticationAuditEventWriter.php' => [
+                'BlackOps\\Internal\\Audit\\Authentication\\AuthenticationAuditEventWriter',
+            ],
+            'src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php' => [
+                'BlackOps\\Internal\\Audit\\Authentication\\AuthenticationAuditEventWriter',
+                'BlackOps\\Internal\\Audit\\Authentication\\DurableAuthenticationAuditEventWriter',
+                'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryException',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryFailure',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest',
+            ],
+            'src/Internal/Audit/Authentication/AuditedHttpAuthenticator.php' => [
+                'BlackOps\\Internal\\Audit\\Authentication\\AuditedHttpAuthenticator',
+                'BlackOps\\Internal\\Audit\\Authentication\\AuthenticationAuditEventWriter',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryException',
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryFailure',
+            ],
+        ];
+        $violations = [];
+        $authenticationTargets = [
+            'BlackOps\\Internal\\Audit\\Authentication\\AuthenticationAuditEventWriter',
+            'BlackOps\\Internal\\Audit\\Authentication\\DurableAuthenticationAuditEventWriter',
+            'BlackOps\\Internal\\Audit\\Authentication\\AuditedHttpAuthenticator',
+        ];
+        foreach ($expected as $path => $expectedReferences) {
+            if (!array_key_exists($path, $sources)) {
+                $violations[] = 'authentication-missing:' . $path;
+                continue;
+            }
+            sort($expectedReferences);
+            if ($this->c3ReferencedTargetClasses($sources[$path]) !== $expectedReferences) {
+                $violations[] = 'authentication-references:' . $path;
+            }
+        }
+        foreach ($sources as $path => $source) {
+            if (array_key_exists($path, $expected)) {
+                continue;
+            }
+            if (array_intersect($authenticationTargets, $this->c3ReferencedTargetClasses($source)) !== []) {
+                $violations[] = 'authentication-external-reference:' . $path;
+            }
         }
 
         return $violations;
@@ -2636,7 +3153,13 @@ final class AuditDeliveryArchitectureTest extends TestCase
     /** @param array<string,string> $sources @return array<string,array<string,int>> */
     private function c3DirectCalls(array $sources): array
     {
-        $methods = ['appendRequired', 'appendDurable', 'deliverInCurrentTransaction', 'deliverStandalone'];
+        $methods = [
+            'appendRequired',
+            'appendDurable',
+            'deliverInCurrentTransaction',
+            'deliverInMutationTransaction',
+            'deliverStandalone',
+        ];
         $result = array_fill_keys($methods, []);
         foreach ($sources as $path => $source) {
             $tokens = token_get_all($source);
@@ -2650,10 +3173,10 @@ final class AuditDeliveryArchitectureTest extends TestCase
                     continue;
                 }
                 $open = $this->c3NextToken($tokens, $name + 1);
-                if ($open === null || $tokens[$open] !== '(' || !in_array($tokens[$name][1], $methods, true)) {
+                $method = $this->c3MethodName($tokens[$name][1]);
+                if ($open === null || $tokens[$open] !== '(' || $method === null) {
                     continue;
                 }
-                $method = $tokens[$name][1];
                 $result[$method][$path] = ($result[$method][$path] ?? 0) + 1;
             }
         }
@@ -2680,16 +3203,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                     $name === null
                     || !is_array($tokens[$name])
                     || $tokens[$name][0] !== T_STRING
-                    || !in_array(
-                        $tokens[$name][1],
-                        [
-                            'appendRequired',
-                            'appendDurable',
-                            'deliverInCurrentTransaction',
-                            'deliverStandalone',
-                        ],
-                        true,
-                    )
+                    || $this->c3MethodName($tokens[$name][1]) === null
                 ) {
                     continue;
                 }
@@ -2698,7 +3212,11 @@ final class AuditDeliveryArchitectureTest extends TestCase
                     continue;
                 }
                 $receiver = $this->c3Receiver($tokens, $index);
-                $key = $tokens[$name][1] . '|' . $path;
+                $method = $this->c3MethodName($tokens[$name][1]);
+                if ($method === null) {
+                    continue;
+                }
+                $key = $method . '|' . $path;
                 $result[$key][] = $receiver;
             }
         }
@@ -2715,13 +3233,39 @@ final class AuditDeliveryArchitectureTest extends TestCase
     private function c3Receiver(array $tokens, int $operator): ?string
     {
         $name = $this->c3PreviousToken($tokens, $operator - 1);
-        if ($name === null || !is_array($tokens[$name])) {
+        if ($name === null) {
             return null;
         }
-        if ($tokens[$name][0] === T_VARIABLE) {
-            return $tokens[$name][1];
+        if (is_array($tokens[$name])) {
+            if ($tokens[$name][0] === T_VARIABLE) {
+                return $tokens[$name][1];
+            }
+            if ($tokens[$name][0] !== T_STRING) {
+                return null;
+            }
+        } elseif ($tokens[$name] !== ']') {
+            return null;
         }
-        if ($tokens[$name][0] !== T_STRING) {
+        if ($tokens[$name] === ']') {
+            $depth = 1;
+            $opening = null;
+            for ($cursor = $name - 1; $cursor >= 0; $cursor--) {
+                if ($tokens[$cursor] === ']') {
+                    $depth++;
+                } elseif ($tokens[$cursor] === '[') {
+                    $depth--;
+                    if ($depth === 0) {
+                        $opening = $cursor;
+                        break;
+                    }
+                }
+            }
+            if ($opening !== null) {
+                $base = $this->c3PreviousToken($tokens, $opening - 1);
+                if ($base !== null && is_array($tokens[$base]) && $tokens[$base][0] === T_VARIABLE) {
+                    return $tokens[$base][1];
+                }
+            }
             return null;
         }
         $parts = [$tokens[$name][1]];
@@ -2742,15 +3286,24 @@ final class AuditDeliveryArchitectureTest extends TestCase
             }
             return null;
         }
-        if (
-            $cursor !== null
-            && is_array($tokens[$cursor])
-            && !in_array($tokens[$cursor][0], [T_RETURN, T_THROW], true)
-        ) {
-            return null;
+        return implode('->', $parts);
+    }
+
+    private function c3MethodName(string $method): ?string
+    {
+        foreach ([
+            'appendRequired',
+            'appendDurable',
+            'deliverInCurrentTransaction',
+            'deliverInMutationTransaction',
+            'deliverStandalone',
+        ] as $candidate) {
+            if (strtolower($method) === strtolower($candidate)) {
+                return $candidate;
+            }
         }
 
-        return implode('->', $parts);
+        return null;
     }
 
     /** @return list<int> */
@@ -2795,10 +3348,14 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 'ApplicationOperationRuntimeComposition',
                 'DoctrineDatabaseManager',
                 'HmacAuditOpaqueIdDeriver',
+                'AuthenticationAuditEventWriter',
+                'DurableAuthenticationAuditEventWriter',
+                'AuditedHttpAuthenticator',
                 'appendRequired',
                 'appendDurable',
                 'deliverStandalone',
                 'deliverInCurrentTransaction',
+                'deliverInMutationTransaction',
             ] as $target) {
                 if (str_contains($source, $target)) {
                     $targetMentioned = true;
@@ -2845,12 +3402,13 @@ final class AuditDeliveryArchitectureTest extends TestCase
     private function c3CallableArray(array $tokens): bool
     {
         $methods = [
-            'appendRequired',
-            'appendDurable',
-            'deliverStandalone',
-            'deliverInCurrentTransaction',
+            'appendrequired',
+            'appenddurable',
+            'deliverstandalone',
+            'deliverincurrenttransaction',
+            'deliverinmutationtransaction',
             'compose',
-            'fromComposition',
+            'fromcomposition',
         ];
         for ($index = 0; $index < count($tokens); $index++) {
             if ($tokens[$index] !== '[') {
@@ -2891,7 +3449,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 $method === null
                 || !is_array($tokens[$method])
                 || $tokens[$method][0] !== T_CONSTANT_ENCAPSED_STRING
-                || !in_array(substr($tokens[$method][1], 1, -1), $methods, true)
+                || !in_array(strtolower(substr($tokens[$method][1], 1, -1)), $methods, true)
             ) {
                 continue;
             }
@@ -3129,6 +3687,10 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'BlackOps\\Internal\\Application\\ApplicationOperationRuntimeComposition',
             'BlackOps\\Internal\\Database\\DoctrineDatabaseManager',
             'BlackOps\\Internal\\Audit\\HmacAuditOpaqueIdDeriver',
+            'BlackOps\\Internal\\Audit\\Authentication\\AuthenticationAuditEventWriter',
+            'BlackOps\\Internal\\Audit\\Authentication\\DurableAuthenticationAuditEventWriter',
+            'BlackOps\\Internal\\Audit\\Authentication\\AuditedHttpAuthenticator',
+            'BlackOps\\Internal\\Audit\\Retention\\RetentionHoldAuditWriter',
         ];
     }
 
@@ -3358,5 +3920,66 @@ final class AuditDeliveryArchitectureTest extends TestCase
             $name = substr($name, strrpos($name, '\\') + 1);
         }
         return ($type->allowsNull() && $type->getName() !== 'mixed' ? '?' : '') . $name;
+    }
+
+    /** @return list<Node> */
+    private function parseArchitectureSource(string $source): array
+    {
+        $nodes = new ParserFactory()
+            ->createForNewestSupportedVersion()
+            ->parse($source);
+        self::assertIsArray($nodes);
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new NameResolver());
+
+        return $traverser->traverse($nodes);
+    }
+
+    /** @param list<Node> $nodes */
+    private function architectureClass(array $nodes, string $name): ?Class_
+    {
+        foreach (new NodeFinder()->findInstanceOf($nodes, Class_::class) as $class) {
+            if ($class instanceof Class_ && $class->name?->toString() === $name) {
+                return $class;
+            }
+        }
+
+        return null;
+    }
+
+    private function architectureMethod(Class_ $class, string $name): ?ClassMethod
+    {
+        foreach ($class->getMethods() as $method) {
+            if (strtolower($method->name->toString()) === strtolower($name)) {
+                return $method;
+            }
+        }
+
+        return null;
+    }
+
+    private function isVariableNamed(?Node $node, string $name): bool
+    {
+        return $node instanceof Variable && $node->name === $name;
+    }
+
+    private function isThisProperty(?Node $node, string $property): bool
+    {
+        return (
+            $node instanceof PropertyFetch
+            && $this->isVariableNamed($node->var, 'this')
+            && $node->name instanceof \PhpParser\Node\Identifier
+            && $node->name->toString() === $property
+        );
+    }
+
+    private function isIdentityComparison(Identical $comparison, string $property): bool
+    {
+        return (
+            $this->isVariableNamed($comparison->left, 'connection')
+            && $this->isThisProperty($comparison->right, $property)
+            || $this->isThisProperty($comparison->left, $property)
+            && $this->isVariableNamed($comparison->right, 'connection')
+        );
     }
 }

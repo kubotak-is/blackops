@@ -562,8 +562,8 @@ end_line = 131
 
 [[entries."src/Internal/Execution/InlineDispatcher.php".issues]]
 code = "halstead"
-start_line = 235
-end_line = 358
+start_line = 240
+end_line = 374
 
 [[entries."src/Internal/Logging/StructuredJsonlFormatter.php".issues]]
 code = "halstead"

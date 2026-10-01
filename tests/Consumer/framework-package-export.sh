@@ -103,6 +103,17 @@ validate_package() {
         src/Internal/OperationData/OperationOutcomeReadExecutionSource.php \
         src/Internal/Diagnostics/AuditedOperationDiagnosticsQuery.php \
         src/Internal/Diagnostics/OperationDiagnosticsReadExecutionSource.php \
+        src/Internal/Audit/Authentication/AuthenticationAuditEventWriter.php \
+        src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php \
+        src/Internal/Audit/Authentication/AuditedHttpAuthenticator.php \
+        src/Internal/Audit/Authorization/AuthorizationAuditPolicyBinding.php \
+        src/Internal/Audit/Authorization/AuthorizationAuditPolicyRegistry.php \
+        src/Internal/Audit/Authorization/AuthorizationAuditEvaluation.php \
+        src/Internal/Audit/Authorization/AuthorizationAuditEvaluator.php \
+        src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php \
+        src/Internal/Audit/Authorization/AuthorizationAuditCoordinator.php \
+        src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php \
+        src/Internal/Audit/Retention/RetentionHoldAuditWriter.php \
         src/Internal/Audit/Relay/AuditRelayOutcome.php \
         src/Internal/Audit/Relay/AuditRelayFailure.php \
         src/Internal/Audit/Relay/AuditRelayException.php \
@@ -119,6 +130,7 @@ validate_package() {
         src/Internal/Diagnostics/UnavailableOperationDiagnosticsAuthorizer.php \
         src/Internal/Status/TenantScopedOperationStatusSource.php \
         src/Internal/Status/TenantBoundOperationStatusSource.php \
+        src/Internal/Retention/AuditedRetentionHoldPort.php \
         src/Internal/Audit/Storage/AuditStoreFailure.php \
         src/Internal/Audit/Storage/AuditStoreException.php \
         src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -191,8 +203,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 97
-    test "${required_inventory_unique}" -eq 97
+    test "${required_inventory_count}" -eq 109
+    test "${required_inventory_unique}" -eq 109
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \

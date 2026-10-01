@@ -820,6 +820,184 @@ final class AuditRecordArchitectureTest extends TestCase
             ),
             'an extra D2 directory file must not inherit a directory-wide A2 exemption',
         );
+
+        $authenticationWriterPath =
+            $sourceRoot . '/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php';
+        $authenticationWriterSource = file_get_contents($authenticationWriterPath);
+        self::assertIsString($authenticationWriterSource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations(
+                $authenticationWriterPath,
+                $authenticationWriterSource,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authentication writer may use only its explicitly allowed A2 record types',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $authenticationWriterPath,
+                $authenticationWriterSource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authentication writer allowance must reject an unrelated A2 dependency',
+        );
+        $authenticationSiblingPath = $sourceRoot . '/Internal/Audit/Authentication/Sibling.php';
+        self::assertSame(
+            ['AuditRecordDraft'],
+            $this->a2DeliveryViolations(
+                $authenticationSiblingPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Authentication;\nnew \\BlackOps\\Core\\Audit\\AuditRecordDraft();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'an authentication sibling must not inherit the exact writer allowance',
+        );
+
+        $authorizationEvaluationPath = $sourceRoot . '/Internal/Audit/Authorization/AuthorizationAuditEvaluation.php';
+        $authorizationEvaluationSource = file_get_contents($authorizationEvaluationPath);
+        self::assertIsString($authorizationEvaluationSource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations(
+                $authorizationEvaluationPath,
+                $authorizationEvaluationSource,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authorization evaluation may use its explicitly allowed policy record type',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $authorizationEvaluationPath,
+                $authorizationEvaluationSource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authorization evaluation allowance must reject an unrelated A2 dependency',
+        );
+        $authorizationSiblingPath = $sourceRoot . '/Internal/Audit/Authorization/Sibling.php';
+        self::assertSame(['AuditRecordPolicy'], $this->a2DeliveryViolations($authorizationSiblingPath, <<<'PHP'
+            <?php
+            namespace BlackOps\Internal\Audit\Authorization;
+
+            new \BlackOps\Core\Audit\AuditRecordPolicy(
+                'authorization',
+                1,
+                \BlackOps\Core\Audit\AuditPolicyDecision::Allow,
+                'allowed',
+                \BlackOps\Core\Audit\AuditDelivery::Required,
+            );
+            PHP, $deliveryDirectory, $productTypes), 'an authorization sibling must not inherit the exact evaluation allowance');
+
+        $authorizationFactoryPath = $sourceRoot . '/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php';
+        $authorizationFactorySource = file_get_contents($authorizationFactoryPath);
+        self::assertIsString($authorizationFactorySource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations(
+                $authorizationFactoryPath,
+                $authorizationFactorySource,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authorization factory may use only its explicitly allowed A2 record types',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $authorizationFactoryPath,
+                $authorizationFactorySource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authorization factory allowance must reject an unrelated A2 dependency',
+        );
+        $authorizationFactorySiblingPath = $sourceRoot . '/Internal/Audit/Authorization/FactorySibling.php';
+        self::assertSame(
+            ['AuditRecordDraft'],
+            $this->a2DeliveryViolations(
+                $authorizationFactorySiblingPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Authorization;\nnew \\BlackOps\\Core\\Audit\\AuditRecordDraft();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'an authorization sibling must not inherit the exact factory allowance',
+        );
+
+        $authorizationAttemptPath = $sourceRoot . '/Internal/Audit/Authorization/AuthorizationAuditAttempt.php';
+        $authorizationAttemptSource = file_get_contents($authorizationAttemptPath);
+        self::assertIsString($authorizationAttemptSource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations(
+                $authorizationAttemptPath,
+                $authorizationAttemptSource,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authorization attempt may inspect only its explicitly allowed policy record type',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $authorizationAttemptPath,
+                $authorizationAttemptSource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the authorization attempt allowance must reject an unrelated A2 dependency',
+        );
+        $authorizationAttemptSiblingPath = $sourceRoot . '/Internal/Audit/Authorization/AttemptSibling.php';
+        self::assertSame(
+            ['AuditRecordPolicy'],
+            $this->a2DeliveryViolations(
+                $authorizationAttemptSiblingPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Authorization;\nnew \\BlackOps\\Core\\Audit\\AuditRecordPolicy();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'an authorization sibling must not inherit the exact attempt allowance',
+        );
+
+        $retentionWriterPath = $sourceRoot . '/Internal/Audit/Retention/RetentionHoldAuditWriter.php';
+        $retentionWriterSource = file_get_contents($retentionWriterPath);
+        self::assertIsString($retentionWriterSource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations(
+                $retentionWriterPath,
+                $retentionWriterSource,
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the retention writer may use only its explicitly allowed A2 record types',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $retentionWriterPath,
+                $retentionWriterSource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the retention writer allowance must reject an unrelated A2 dependency',
+        );
+        $retentionWriterSiblingPath = $sourceRoot . '/Internal/Audit/Retention/WriterSibling.php';
+        self::assertSame(
+            ['AuditRecordPolicy'],
+            $this->a2DeliveryViolations(
+                $retentionWriterSiblingPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Retention;\nnew \\BlackOps\\Core\\Audit\\AuditRecordPolicy();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'a retention sibling must not inherit the exact writer allowance',
+        );
     }
 
     public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
@@ -1390,18 +1568,30 @@ final class AuditRecordArchitectureTest extends TestCase
         self::assertNotFalse($sourceRoot);
         $sources = $this->sourceFiles($sourceRoot);
         self::assertSame(
-            ['Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1],
+            [
+                'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
+            ],
             $this->operationalProviderCallsites($sources),
         );
         $lookupPath = 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php';
         self::assertSame(
-            [[
-                'path' => $lookupPath,
-                'target' => FrameworkOperationalAuditEventCatalog::class,
-                'receiver' => 'FrameworkOperationalAuditEventCatalog',
-                'method' => 'catalog',
-                'kind' => 'same_namespace',
-            ]],
+            [
+                [
+                    'path' => $lookupPath,
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
+            ],
             $this->operationalProviderReferenceInventory($sources),
         );
         self::assertTrue($this->exactOperationalProviderReferenceShape($sources[$lookupPath]));
@@ -1427,7 +1617,11 @@ final class AuditRecordArchitectureTest extends TestCase
 
         $providerPath = 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php';
         foreach ($sources as $path => $source) {
-            if ($path === $providerPath || $path === $lookupPath)
+            if (
+                $path === $providerPath
+                || $path === $lookupPath
+                || $path === 'Internal/Audit/Retention/RetentionHoldAuditWriter.php'
+            )
                 continue;
             self::assertStringNotContainsString(
                 'FrameworkOperationalAuditEventCatalog',
@@ -1536,6 +1730,7 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'External/OperationalCatalogCaller.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($extraCaller),
         );
@@ -1554,6 +1749,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
             ],
             $this->operationalProviderReferenceInventory($extraCaller),
@@ -1744,6 +1946,7 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
             ],
             $this->operationalProviderCallsites($wholePathCaller),
             'the provider path is scanned as a normal source and cannot be exempted wholesale',
@@ -1763,6 +1966,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
             ],
             $this->operationalProviderReferenceInventory($wholePathCaller),
@@ -3368,6 +3578,51 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditRecordResource',
                 'AuditRecordSource',
                 'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Authorization/AuthorizationAuditEvaluation.php' => [
+                'AuditRecordPolicy',
+            ],
+            'Internal/Audit/Authorization/AuthorizationAuditEventFactory.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => [
+                'AuditRecordPolicy',
             ],
             'Internal/Audit/Read/OperationReadExecutionSource.php' => [],
             'Internal/Audit/Read/OperationReadNonceSource.php' => [],

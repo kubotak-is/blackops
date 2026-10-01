@@ -31,6 +31,11 @@ final readonly class OperationTransactionCoordinator
         return $connectionName !== null && $this->databases->connection($connectionName) === $this->frameworkConnection;
     }
 
+    public function usesFrameworkConnection(#[\SensitiveParameter] Connection $connection): bool
+    {
+        return $this->frameworkConnection === $connection;
+    }
+
     /**
      * @param Closure(): OperationResult $invoke
      * @param Closure(OperationResult): void $completeInSharedTransaction
