@@ -116,24 +116,24 @@ final readonly class PostgreSqlStorageProtectionRotationBatch
     ): StorageProtectionRotationResult {
         try {
             $remaining = $this->query->remaining($tables->table, $execution->target, $scope);
-            $state = $this->state($execution->counts, count($execution->rows), $scope->batchSize);
-            $fingerprint = $this->fingerprint($scope, $execution->counts->failed);
-            if ($execution->mode->writes()) {
-                $this->audit->finish(
-                    $tables->checkpoint,
-                    $tables->audit,
-                    new StorageProtectionRotationAuditCompletion(
-                        $scope,
-                        $execution->counts,
-                        $state,
-                        $execution->auditId,
-                        $fingerprint,
-                    ),
-                );
-            }
         } catch (Throwable $exception) {
             $this->finishFailure($scope, $tables, $execution);
             throw $exception;
+        }
+        $state = $this->state($execution->counts, count($execution->rows), $scope->batchSize);
+        $fingerprint = $this->fingerprint($scope, $execution->counts->failed);
+        if ($execution->mode->writes()) {
+            $this->audit->finish(
+                $tables->checkpoint,
+                $tables->audit,
+                new StorageProtectionRotationAuditCompletion(
+                    $scope,
+                    $execution->counts,
+                    $state,
+                    $execution->auditId,
+                    $fingerprint,
+                ),
+            );
         }
         return new StorageProtectionRotationResult(
             $scope->purpose->value,

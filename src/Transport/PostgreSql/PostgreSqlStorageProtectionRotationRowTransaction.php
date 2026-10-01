@@ -44,8 +44,6 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
         }
         try {
             $this->advance($request, $result);
-            $this->connection->commit();
-            return $result;
         } catch (Throwable) {
             $this->rollBack();
             return new PostgreSqlStorageProtectionRotationRowResult(
@@ -56,6 +54,13 @@ final readonly class PostgreSqlStorageProtectionRotationRowTransaction
                 true,
             );
         }
+        try {
+            $this->connection->commit();
+        } catch (Throwable $exception) {
+            $this->rollBack();
+            throw $exception;
+        }
+        return $result;
     }
 
     private function columns(PostgreSqlStorageProtectionRotationRowRequest $request): PostgreSqlStorageProtectionRotationRowResult
