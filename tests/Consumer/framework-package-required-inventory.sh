@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='dceab3a4d166f7a09625660bb85c4d08c86a2400efbd362b4837ce8fdc531ce7'
+reviewed_export_sha='a1b53ac9b64b3c2a11e0b93ce73f7730eddd13a80f38169181dc6f92f2a0719b'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -67,6 +67,18 @@ printf '%s\n' \
     src/Internal/Audit/Rotation/StorageRotationAuditWriter.php \
     src/Internal/Audit/Replay/ObserverReplayAuditHook.php \
     src/Internal/Audit/Replay/ObserverReplayAuditWriter.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditFailure.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditHookGuard.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditHookLineage.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditWriterBinding.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditWriterEmission.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditWriterPolicy.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditWriterDefinition.php \
+    src/Internal/Audit/Replay/ObserverReplayAuditWriterRecord.php \
+    src/Transport/PostgreSql/PostgreSqlObserverReplayAdvanceRoot.php \
+    src/Transport/PostgreSql/PostgreSqlObserverReplayBeginRoot.php \
+    src/Transport/PostgreSql/PostgreSqlObserverReplayBeginTransaction.php \
     src/Internal/Audit/Relay/AuditRelayOutcome.php \
     src/Internal/Audit/Relay/AuditRelayFailure.php \
     src/Internal/Audit/Relay/AuditRelayException.php \
@@ -968,6 +980,93 @@ test_mutation_rejected() {
         d5o2-interface-omission)
             run_bounded sed -i '\|src/Transport/PostgreSql/PostgreSqlObserverReplayPhaseHook.php|d' "${candidate}"
             ;;
+        o2-failure-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditFailure.php|d' "${candidate}"
+            ;;
+        o2-hook-guard-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditHookGuard.php|d' "${candidate}"
+            ;;
+        o2-hook-lineage-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditHookLineage.php|d' "${candidate}"
+            ;;
+        o2-writer-binding-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditWriterBinding.php|d' "${candidate}"
+            ;;
+        o2-writer-emission-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditWriterEmission.php|d' "${candidate}"
+            ;;
+        o2-writer-policy-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditWriterPolicy.php|d' "${candidate}"
+            ;;
+        o2-writer-catalog-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php|d' "${candidate}"
+            ;;
+        o2-writer-definition-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditWriterDefinition.php|d' "${candidate}"
+            ;;
+        o2-writer-record-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Replay/ObserverReplayAuditWriterRecord.php|d' "${candidate}"
+            ;;
+        o2-advance-root-omission)
+            run_bounded sed -i '\|src/Transport/PostgreSql/PostgreSqlObserverReplayAdvanceRoot.php|d' "${candidate}"
+            ;;
+        o2-begin-root-omission)
+            run_bounded sed -i '\|src/Transport/PostgreSql/PostgreSqlObserverReplayBeginRoot.php|d' "${candidate}"
+            ;;
+        o2-begin-transaction-omission)
+            run_bounded sed -i '\|src/Transport/PostgreSql/PostgreSqlObserverReplayBeginTransaction.php|d' "${candidate}"
+            ;;
+        o2-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditFailure\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditHookGuard\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditHookLineage\.php/ &&
+                        getline fourth > 0 && fourth ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditWriterBinding\.php/ &&
+                        getline fifth > 0 && fifth ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditWriterEmission\.php/ &&
+                        getline sixth > 0 && sixth ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditWriterPolicy\.php/ &&
+                        getline seventh > 0 && seventh ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditWriterCatalog\.php/ &&
+                        getline eighth > 0 && eighth ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditWriterDefinition\.php/ &&
+                        getline ninth > 0 && ninth ~ /src\/Internal\/Audit\/Replay\/ObserverReplayAuditWriterRecord\.php/ &&
+                        getline tenth > 0 && tenth ~ /src\/Transport\/PostgreSql\/PostgreSqlObserverReplayAdvanceRoot\.php/ &&
+                        getline eleventh > 0 && eleventh ~ /src\/Transport\/PostgreSql\/PostgreSqlObserverReplayBeginRoot\.php/ &&
+                        getline twelfth > 0 && twelfth ~ /src\/Transport\/PostgreSql\/PostgreSqlObserverReplayBeginTransaction\.php/) {
+                        print twelfth
+                        print eleventh
+                        print tenth
+                        print ninth
+                        print eighth
+                        print seventh
+                        print sixth
+                        print fifth
+                        print fourth
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    if (fourth != "") print fourth
+                    if (fifth != "") print fifth
+                    if (sixth != "") print sixth
+                    if (seventh != "") print seventh
+                    if (eighth != "") print eighth
+                    if (ninth != "") print ninth
+                    if (tenth != "") print tenth
+                    if (eleventh != "") print eleventh
+                    if (twelfth != "") print twelfth
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
         f1-failure-omission)
             run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactFailure.php|d' "${candidate}"
             ;;
@@ -1394,9 +1493,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 125
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 125
-printf 'required inventory: PASS (125 ordered paths, 125 unique)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 137
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 137
+printf 'required inventory: PASS (137 ordered paths, 137 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1443,6 +1542,19 @@ test_mutation_rejected d5r2-interface-entry-omission d5r2-interface-omission
 test_mutation_rejected d5o2-hook-entry-omission d5o2-hook-omission
 test_mutation_rejected d5o2-writer-entry-omission d5o2-writer-omission
 test_mutation_rejected d5o2-interface-entry-omission d5o2-interface-omission
+test_mutation_rejected o2-failure-entry-omission o2-failure-omission
+test_mutation_rejected o2-hook-guard-entry-omission o2-hook-guard-omission
+test_mutation_rejected o2-hook-lineage-entry-omission o2-hook-lineage-omission
+test_mutation_rejected o2-writer-binding-entry-omission o2-writer-binding-omission
+test_mutation_rejected o2-writer-emission-entry-omission o2-writer-emission-omission
+test_mutation_rejected o2-writer-policy-entry-omission o2-writer-policy-omission
+test_mutation_rejected o2-writer-catalog-entry-omission o2-writer-catalog-omission
+test_mutation_rejected o2-writer-definition-entry-omission o2-writer-definition-omission
+test_mutation_rejected o2-writer-record-entry-omission o2-writer-record-omission
+test_mutation_rejected o2-advance-root-entry-omission o2-advance-root-omission
+test_mutation_rejected o2-begin-root-entry-omission o2-begin-root-omission
+test_mutation_rejected o2-begin-transaction-entry-omission o2-begin-transaction-omission
+test_mutation_rejected o2-reverse-new-block o2-order-swap
 test_mutation_rejected f1-failure-entry-omission f1-failure-omission
 test_mutation_rejected f1-exception-entry-omission f1-exception-omission
 test_mutation_rejected f1-checkpoint-entry-omission f1-checkpoint-omission
@@ -1476,4 +1588,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (77 rejected: 63 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (90 rejected: 76 inventory, 14 call-contract)\n'

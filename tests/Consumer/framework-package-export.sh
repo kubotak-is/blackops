@@ -126,6 +126,18 @@ validate_package() {
         src/Internal/Audit/Rotation/StorageRotationAuditWriter.php \
         src/Internal/Audit/Replay/ObserverReplayAuditHook.php \
         src/Internal/Audit/Replay/ObserverReplayAuditWriter.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditFailure.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditHookGuard.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditHookLineage.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditWriterBinding.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditWriterEmission.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditWriterPolicy.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditWriterDefinition.php \
+        src/Internal/Audit/Replay/ObserverReplayAuditWriterRecord.php \
+        src/Transport/PostgreSql/PostgreSqlObserverReplayAdvanceRoot.php \
+        src/Transport/PostgreSql/PostgreSqlObserverReplayBeginRoot.php \
+        src/Transport/PostgreSql/PostgreSqlObserverReplayBeginTransaction.php \
         src/Internal/Audit/Relay/AuditRelayOutcome.php \
         src/Internal/Audit/Relay/AuditRelayFailure.php \
         src/Internal/Audit/Relay/AuditRelayException.php \
@@ -219,8 +231,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 125
-    test "${required_inventory_unique}" -eq 125
+    test "${required_inventory_count}" -eq 137
+    test "${required_inventory_unique}" -eq 137
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \
