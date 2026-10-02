@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='323f2dd27b83b425fca73fb6788f510a99d9357b400ea92d142d6f2685d69055'
+reviewed_export_sha='dceab3a4d166f7a09625660bb85c4d08c86a2400efbd362b4837ce8fdc531ce7'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -20,6 +20,13 @@ printf '%s\n' \
     src/Audit/AuditOpaqueIdKeyProvider.php \
     src/Audit/AuditProtectionKeyProvider.php \
     src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php \
+    src/Internal/Audit/Artifact/AuditArtifactFailure.php \
+    src/Internal/Audit/Artifact/AuditArtifactException.php \
+    src/Internal/Audit/Artifact/AuditCheckpointCodec.php \
+    src/Internal/Audit/Artifact/AuditAnchorReceiptCodec.php \
+    src/Internal/Audit/Artifact/AuditTrustSnapshotCodec.php \
+    src/Internal/Audit/Artifact/AuditArtifactSigner.php \
+    src/Internal/Audit/Artifact/AuditArtifactVerifier.php \
     src/Internal/Audit/Orchestration/AuditDeliveryFailure.php \
     src/Internal/Audit/Orchestration/AuditDeliveryException.php \
     src/Internal/Audit/Orchestration/AuditDeliveryPlan.php \
@@ -961,6 +968,63 @@ test_mutation_rejected() {
         d5o2-interface-omission)
             run_bounded sed -i '\|src/Transport/PostgreSql/PostgreSqlObserverReplayPhaseHook.php|d' "${candidate}"
             ;;
+        f1-failure-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactFailure.php|d' "${candidate}"
+            ;;
+        f1-exception-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactException.php|d' "${candidate}"
+            ;;
+        f1-checkpoint-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditCheckpointCodec.php|d' "${candidate}"
+            ;;
+        f1-anchor-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditAnchorReceiptCodec.php|d' "${candidate}"
+            ;;
+        f1-trust-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditTrustSnapshotCodec.php|d' "${candidate}"
+            ;;
+        f1-signer-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactSigner.php|d' "${candidate}"
+            ;;
+        f1-verifier-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactVerifier.php|d' "${candidate}"
+            ;;
+        f1-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactFailure\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactException\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Audit\/Artifact\/AuditCheckpointCodec\.php/ &&
+                        getline fourth > 0 && fourth ~ /src\/Internal\/Audit\/Artifact\/AuditAnchorReceiptCodec\.php/ &&
+                        getline fifth > 0 && fifth ~ /src\/Internal\/Audit\/Artifact\/AuditTrustSnapshotCodec\.php/ &&
+                        getline sixth > 0 && sixth ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactSigner\.php/ &&
+                        getline seventh > 0 && seventh ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactVerifier\.php/) {
+                        print seventh
+                        print sixth
+                        print fifth
+                        print fourth
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    if (fourth != "") print fourth
+                    if (fifth != "") print fifth
+                    if (sixth != "") print sixth
+                    if (seventh != "") print seventh
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
         d2s1-duplicate-entry)
             run_bounded awk '
                 !inserted && $0 ~ /src\/Internal\/Status\/TenantBoundOperationStatusSource\.php/ {
@@ -1330,9 +1394,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 118
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 118
-printf 'required inventory: PASS (118 ordered paths, 118 unique)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 125
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 125
+printf 'required inventory: PASS (125 ordered paths, 125 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1379,6 +1443,14 @@ test_mutation_rejected d5r2-interface-entry-omission d5r2-interface-omission
 test_mutation_rejected d5o2-hook-entry-omission d5o2-hook-omission
 test_mutation_rejected d5o2-writer-entry-omission d5o2-writer-omission
 test_mutation_rejected d5o2-interface-entry-omission d5o2-interface-omission
+test_mutation_rejected f1-failure-entry-omission f1-failure-omission
+test_mutation_rejected f1-exception-entry-omission f1-exception-omission
+test_mutation_rejected f1-checkpoint-entry-omission f1-checkpoint-omission
+test_mutation_rejected f1-anchor-entry-omission f1-anchor-omission
+test_mutation_rejected f1-trust-entry-omission f1-trust-omission
+test_mutation_rejected f1-signer-entry-omission f1-signer-omission
+test_mutation_rejected f1-verifier-entry-omission f1-verifier-omission
+test_mutation_rejected f1-reverse-new-block f1-order-swap
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1404,4 +1476,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (69 rejected: 55 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (77 rejected: 63 inventory, 14 call-contract)\n'

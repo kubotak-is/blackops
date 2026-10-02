@@ -79,6 +79,13 @@ validate_package() {
         src/Audit/AuditOpaqueIdKeyProvider.php \
         src/Audit/AuditProtectionKeyProvider.php \
         src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php \
+        src/Internal/Audit/Artifact/AuditArtifactFailure.php \
+        src/Internal/Audit/Artifact/AuditArtifactException.php \
+        src/Internal/Audit/Artifact/AuditCheckpointCodec.php \
+        src/Internal/Audit/Artifact/AuditAnchorReceiptCodec.php \
+        src/Internal/Audit/Artifact/AuditTrustSnapshotCodec.php \
+        src/Internal/Audit/Artifact/AuditArtifactSigner.php \
+        src/Internal/Audit/Artifact/AuditArtifactVerifier.php \
         src/Internal/Audit/Orchestration/AuditDeliveryFailure.php \
         src/Internal/Audit/Orchestration/AuditDeliveryException.php \
         src/Internal/Audit/Orchestration/AuditDeliveryPlan.php \
@@ -212,8 +219,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 118
-    test "${required_inventory_unique}" -eq 118
+    test "${required_inventory_count}" -eq 125
+    test "${required_inventory_unique}" -eq 125
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \
