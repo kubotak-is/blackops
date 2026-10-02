@@ -13,6 +13,7 @@ use BlackOps\Core\Audit\AuditOutcomeStatus;
 use BlackOps\Core\Audit\AuditPolicyDecision;
 use BlackOps\Core\Audit\AuditRecordCorrelation;
 use BlackOps\Core\Audit\AuditRecordDraft;
+use BlackOps\Core\Audit\AuditRecordTime;
 use BlackOps\Core\Audit\AuditSourceOwner;
 use BlackOps\Core\Audit\AuditTypedReference;
 use BlackOps\Internal\Audit\Catalog\FrameworkAuditEventCatalog;
@@ -1058,6 +1059,36 @@ final class AuditRecordArchitectureTest extends TestCase
             ),
             'a rotation sibling must not inherit the exact rotation writer allowance',
         );
+
+        $replayWriterPath = $sourceRoot . '/Internal/Audit/Replay/ObserverReplayAuditWriter.php';
+        $replayWriterSource = file_get_contents($replayWriterPath);
+        self::assertIsString($replayWriterSource);
+        self::assertSame(
+            [],
+            $this->a2DeliveryViolations($replayWriterPath, $replayWriterSource, $deliveryDirectory, $productTypes),
+            'the replay writer may use only its explicitly allowed A2 record types',
+        );
+        self::assertSame(
+            ['AuditRecordFinalizer'],
+            $this->a2DeliveryViolations(
+                $replayWriterPath,
+                $replayWriterSource . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'the replay writer allowance must reject an unrelated A2 dependency',
+        );
+        $replayWriterSiblingPath = $sourceRoot . '/Internal/Audit/Replay/WriterSibling.php';
+        self::assertSame(
+            ['AuditRecordPolicy'],
+            $this->a2DeliveryViolations(
+                $replayWriterSiblingPath,
+                "<?php\nnamespace BlackOps\\Internal\\Audit\\Replay;\nnew \\BlackOps\\Core\\Audit\\AuditRecordPolicy();\n",
+                $deliveryDirectory,
+                $productTypes,
+            ),
+            'a replay sibling must not inherit the exact writer allowance',
+        );
     }
 
     public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
@@ -1096,6 +1127,141 @@ final class AuditRecordArchitectureTest extends TestCase
                 $deliveryDirectory,
                 $productTypes,
             ),
+        );
+        $positiveAlias = <<<'PHP'
+            <?php
+            namespace BlackOps\Internal\Audit\Delivery;
+            use BlackOps\Core\Audit\AuditRecordTime as Time;
+            final class SyntheticTimestamp
+            {
+                private static function allowed(): void
+                {
+                    Time::assertTimestamp($value);
+                }
+            }
+            PHP;
+        self::assertSame(['allowed' => 1], $this->auditTimestampCallInventory($positiveAlias));
+        $positiveFqcn = <<<'PHP'
+            <?php
+            namespace BlackOps\Internal\Audit\Delivery;
+            final class SyntheticTimestamp
+            {
+                private static function allowed(): void
+                {
+                    \BlackOps\Core\Audit\AuditRecordTime::assertTimestamp($value);
+                }
+            }
+            PHP;
+        self::assertSame(['allowed' => 1], $this->auditTimestampCallInventory($positiveFqcn));
+        $positiveCase = str_replace('assertTimestamp', 'ASSERTTIMESTAMP', $positiveAlias, $replacements);
+        self::assertSame(1, $replacements);
+        self::assertSame(['allowed' => 1], $this->auditTimestampCallInventory($positiveCase));
+    }
+
+    public function testReplayHelperA2EdgesAndArtifactTimestampOwnersAreExact(): void
+    {
+        $sourceRoot = realpath(__DIR__ . '/../../src');
+        self::assertNotFalse($sourceRoot);
+        $deliveryDirectory = realpath($sourceRoot . '/Internal/Audit/Delivery');
+        self::assertNotFalse($deliveryDirectory);
+        $productTypes = $this->a2ProductTypes();
+        $helpers = [
+            'Internal/Audit/Replay/ObserverReplayAuditWriter.php' => ['AuditRecordCorrelation'],
+            'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => [],
+            'Internal/Audit/Replay/ObserverReplayAuditWriterBinding.php' => [
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+            ],
+            'Internal/Audit/Replay/ObserverReplayAuditWriterRecord.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+        ];
+        foreach ($helpers as $relative => $expected) {
+            $path = $sourceRoot . '/' . $relative;
+            $source = file_get_contents($path);
+            self::assertIsString($source);
+            self::assertSame($expected, $this->a2ProductReferences($source, $productTypes), $relative);
+            self::assertSame([], $this->a2DeliveryViolations($path, $source, $deliveryDirectory, $productTypes));
+            $mutated = $source . "\nnew \\BlackOps\\Internal\\Audit\\Record\\AuditRecordFinalizer();\n";
+            self::assertSame(
+                ['AuditRecordFinalizer'],
+                $this->a2DeliveryViolations($path, $mutated, $deliveryDirectory, $productTypes),
+                $relative . ' must reject an unlisted record dependency',
+            );
+        }
+
+        $expectedTimestampOwners = [
+            'Internal/Audit/Artifact/AuditArtifactShape.php' => [
+                'anchorUnsigned' => 2,
+                'checkpointUnsigned' => 2,
+            ],
+            'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['snapshot' => 3],
+            'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['assert' => 5],
+            'Internal/Audit/Artifact/AuditTrustLookup.php' => ['assertSignedAt' => 2],
+        ];
+        foreach ($expectedTimestampOwners as $relative => $expected) {
+            $path = $sourceRoot . '/' . $relative;
+            $source = file_get_contents($path);
+            self::assertIsString($source);
+            self::assertSame($expected, $this->auditTimestampCallInventory($source), $relative);
+        }
+        $artifact = $sourceRoot . '/Internal/Audit/Artifact/AuditArtifactShape.php';
+        $source = file_get_contents($artifact);
+        self::assertIsString($source);
+        $caseMutation = str_replace(
+            'AuditRecordTime::assertTimestamp(',
+            'AuditRecordTime::ASSERTTIMESTAMP(',
+            $source,
+            $replacements,
+        );
+        self::assertSame(4, $replacements);
+        self::assertSame(
+            $expectedTimestampOwners['Internal/Audit/Artifact/AuditArtifactShape.php'],
+            $this->auditTimestampCallInventory($caseMutation),
+        );
+        $mutated = str_replace(
+            "AuditRecordTime::assertTimestamp(\$normalized['sealedAt']);",
+            "AuditRecordTime::assertTimestamp(\$normalized['sealedAt']); AuditRecordTime::assertTimestamp(\$extra);",
+            $source,
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        self::assertNotSame(
+            $expectedTimestampOwners['Internal/Audit/Artifact/AuditArtifactShape.php'],
+            $this->auditTimestampCallInventory($mutated),
+        );
+        $wrongOwner = str_replace(
+            "AuditRecordTime::assertTimestamp(\$normalized['sealedAt']);",
+            "AuditRecordTime::assertTimestamp(\$normalized['sealedAt']);",
+            $source,
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        $wrongOwner .= "\nfinal class SyntheticTimestampOwner { private function unrelated(): void { AuditRecordTime::ASSERTTIMESTAMP('extra'); } }";
+        self::assertNotSame(
+            $expectedTimestampOwners['Internal/Audit/Artifact/AuditArtifactShape.php'],
+            $this->auditTimestampCallInventory($wrongOwner),
+        );
+        $additionalMethodCall = str_replace(
+            "        \$checkpointHash = self::digest(\$value['checkpointHash']);",
+            "        AuditRecordTime::assertTimestamp(\$value['signedAt']);\n        \$checkpointHash = self::digest(\$value['checkpointHash']);",
+            $source,
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        self::assertNotSame(
+            $expectedTimestampOwners['Internal/Audit/Artifact/AuditArtifactShape.php'],
+            $this->auditTimestampCallInventory($additionalMethodCall),
         );
     }
 
@@ -1630,6 +1796,7 @@ final class AuditRecordArchitectureTest extends TestCase
         self::assertSame(
             [
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
                 'Internal/Audit/Rotation/StorageRotationAuditWriter.php' => 1,
@@ -1645,6 +1812,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
@@ -1698,6 +1872,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 || $path === $lookupPath
                 || $path === 'Internal/Audit/Retention/RetentionHoldAuditWriter.php'
                 || $path === 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php'
+                || $path === 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php'
                 || $path === 'Internal/Audit/Rotation/StorageRotationAuditWriter.php'
             )
                 continue;
@@ -1808,6 +1983,7 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'External/OperationalCatalogCaller.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
                 'Internal/Audit/Rotation/StorageRotationAuditWriter.php' => 1,
@@ -1829,6 +2005,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
@@ -2040,6 +2223,7 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
                 'Internal/Audit/Rotation/StorageRotationAuditWriter.php' => 1,
@@ -2062,6 +2246,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
                 [
                     'path' => 'Internal/Audit/Retention/RetentionHoldAuditWriter.php',
@@ -3576,6 +3767,70 @@ final class AuditRecordArchitectureTest extends TestCase
         return $code;
     }
 
+    /** @return array<string,int> */
+    private function auditTimestampCallInventory(string $source): array
+    {
+        $tokens = token_get_all($source, TOKEN_PARSE);
+        $namespace = $this->namespaceName($tokens);
+        $aliases = $this->importAliases($tokens);
+        $inventory = [];
+        $method = null;
+        $methodBrace = null;
+        $braceDepth = 0;
+        for ($index = 0; $index < count($tokens); $index++) {
+            $token = $tokens[$index];
+            if (is_array($token) && $token[0] === T_FUNCTION && $methodBrace === null) {
+                $name = $this->nextSignificantToken($tokens, $index + 1);
+                if ($name !== null && is_array($tokens[$name]) && $tokens[$name][0] === T_STRING) {
+                    $method = $tokens[$name][1];
+                }
+                continue;
+            }
+            if ($token === '{') {
+                ++$braceDepth;
+                if ($method !== null && $methodBrace === null) {
+                    $methodBrace = $braceDepth;
+                }
+                continue;
+            }
+            if ($token === '}') {
+                if ($methodBrace === $braceDepth) {
+                    $method = null;
+                    $methodBrace = null;
+                }
+                --$braceDepth;
+                continue;
+            }
+            if (
+                $method === null
+                || !is_array($token)
+                || !$this->isNameToken($token)
+                || $this->resolveClassName($token, $namespace, $aliases) !== AuditRecordTime::class
+            ) {
+                continue;
+            }
+            $separator = $this->nextSignificantToken($tokens, $index + 1);
+            $call = $separator === null ? null : $this->nextSignificantToken($tokens, $separator + 1);
+            $opening = $call === null ? null : $this->nextSignificantToken($tokens, $call + 1);
+            if (
+                $separator !== null
+                && is_array($tokens[$separator])
+                && $tokens[$separator][0] === T_DOUBLE_COLON
+                && $call !== null
+                && is_array($tokens[$call])
+                && $tokens[$call][0] === T_STRING
+                && strtolower($tokens[$call][1]) === 'asserttimestamp'
+                && $opening !== null
+                && $tokens[$opening] === '('
+            ) {
+                $inventory[$method] = ($inventory[$method] ?? 0) + 1;
+            }
+        }
+        ksort($inventory);
+
+        return $inventory;
+    }
+
     /** @return list<string> */
     private function a2ProductTypes(): array
     {
@@ -3674,6 +3929,28 @@ final class AuditRecordArchitectureTest extends TestCase
             ],
             'Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => [],
             'Internal/Audit/Orchestration/AuditProtectedReadGate.php' => ['AuditRecordDraft'],
+            'Internal/Audit/Replay/ObserverReplayAuditWriter.php' => ['AuditRecordCorrelation'],
+            'Internal/Audit/Replay/ObserverReplayAuditWriterBinding.php' => [
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+            ],
+            'Internal/Audit/Replay/ObserverReplayAuditWriterRecord.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/Artifact/AuditArtifactShape.php' => ['AuditRecordTime'],
+            'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['AuditRecordTime'],
+            'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['AuditRecordTime'],
+            'Internal/Audit/Artifact/AuditTrustLookup.php' => ['AuditRecordTime'],
             'Internal/Audit/Read/AuditReadEventWriter.php' => ['AuditRecordDraft'],
             'Internal/Audit/Read/OperationReadAuditSession.php' => ['AuditRecordDraft'],
             'Internal/Audit/Read/OperationReadAuditSessionFactory.php' => [
@@ -3741,6 +4018,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditRecordSource',
                 'AuditSourceRuntime',
             ],
+            'Internal/Audit/Replay/ObserverReplayAuditWriter.php' => ['AuditRecordCorrelation'],
             'Internal/Audit/Authorization/AuthorizationAuditEvaluation.php' => [
                 'AuditRecordPolicy',
             ],

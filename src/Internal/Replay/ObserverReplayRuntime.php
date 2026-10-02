@@ -54,7 +54,7 @@ final readonly class ObserverReplayRuntime
         return new ObserverReplayResult(count($ids), 0, 0, $batch['hasMore'], !$batch['hasMore'], $ids);
     }
 
-    public function replay(ObserverReplayRequest $request): ObserverReplayResult
+    public function replay(#[\SensitiveParameter] ObserverReplayRequest $request): ObserverReplayResult
     {
         $span = $this->telemetry?->start('blackops.observer.replay', attributes: [
             'blackops.runtime.kind' => 'observer_replay',
@@ -105,10 +105,15 @@ final readonly class ObserverReplayRuntime
     }
 
     public function resume(
+        #[\SensitiveParameter]
         string $checkpoint,
+        #[\SensitiveParameter]
         string $actor,
+        #[\SensitiveParameter]
         string $reason,
+        #[\SensitiveParameter]
         ?int $batchSize = null,
+        #[\SensitiveParameter]
         ?DateTimeImmutable $now = null,
     ): ObserverReplayResult {
         $binding = $this->store->load($checkpoint);
@@ -130,8 +135,11 @@ final readonly class ObserverReplayRuntime
      * @return array{result: ?ObserverReplayResult, failure: ?Throwable}
      */
     private function deliver(
+        #[\SensitiveParameter]
         ObserverReplayRequest $request,
+        #[\SensitiveParameter]
         array $targets,
+        #[\SensitiveParameter]
         PostgreSqlObserverReplayBinding $binding,
     ): array {
         try {
@@ -171,7 +179,7 @@ final readonly class ObserverReplayRuntime
 
             try {
                 $cursor = $this->store->cursorFor($request->selector, $record);
-                $this->store->advance($request->checkpoint, $cursor, 1, $binding->auditId, $request->now);
+                $this->store->advanceSelected($request->checkpoint, $cursor, $binding->auditId, $record, $request->now);
             } catch (Throwable) {
                 return [
                     'result' => null,
@@ -217,9 +225,13 @@ final readonly class ObserverReplayRuntime
     }
 
     private function recordFailure(
+        #[\SensitiveParameter]
         string $checkpoint,
+        #[\SensitiveParameter]
         Throwable $exception,
+        #[\SensitiveParameter]
         ?DateTimeImmutable $now,
+        #[\SensitiveParameter]
         string $auditId,
     ): Throwable {
         try {
@@ -231,8 +243,11 @@ final readonly class ObserverReplayRuntime
     }
 
     private function finalize(
+        #[\SensitiveParameter]
         ObserverReplayRequest $request,
+        #[\SensitiveParameter]
         ?ObserverReplayResult $result,
+        #[\SensitiveParameter]
         string $auditId,
     ): ?Throwable {
         if ($result === null) {
@@ -251,7 +266,7 @@ final readonly class ObserverReplayRuntime
         return null;
     }
 
-    private function release(string $checkpoint): ?Throwable
+    private function release(#[\SensitiveParameter] string $checkpoint): ?Throwable
     {
         try {
             $this->store->unlock($checkpoint);

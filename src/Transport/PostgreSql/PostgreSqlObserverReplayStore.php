@@ -31,10 +31,16 @@ final readonly class PostgreSqlObserverReplayStore
     private PostgreSqlObserverReplayAuditWriter $auditWriter;
 
     public function __construct(
+        #[\SensitiveParameter]
         private Connection $connection,
+        #[\SensitiveParameter]
         private BopdEnvelopeCodec $protection,
+        #[\SensitiveParameter]
         string $schema = 'blackops',
+        #[\SensitiveParameter]
         ?PostgreSqlJournalRecordCodec $codec = null,
+        #[\SensitiveParameter]
+        private ?PostgreSqlObserverReplayPhaseHook $hook = null,
     ) {
         $this->schema = new PostgreSqlJournalSchema($schema);
         $this->codec = $codec ?? new PostgreSqlJournalRecordCodec();
@@ -66,7 +72,15 @@ final readonly class PostgreSqlObserverReplayStore
             $params = $query['params'];
             foreach ($this->connection->iterateAssociative($query['sql'], $params) as $row) {
                 $encoded = PostgreSqlBytea::string($row['encoded_record'] ?? null);
-                $tenant = $this->tenant($row);
+                $tenantType = $row['tenant_type'] ?? null;
+                $tenantId = $row['tenant_id'] ?? null;
+                $tenant = null;
+                if ($tenantType !== null || $tenantId !== null) {
+                    if (!is_string($tenantType) || $tenantType === '' || !is_string($tenantId) || $tenantId === '') {
+                        throw new RuntimeException('Canonical journal tenant subject is invalid.');
+                    }
+                    $tenant = new TenantRef($tenantType, $tenantId);
+                }
                 $encoded = $this->protection->decrypt(
                     $encoded,
                     new StorageProtectionContext(
@@ -109,76 +123,18 @@ final readonly class PostgreSqlObserverReplayStore
         return ['records' => $records, 'hasMore' => $hasMore];
     }
 
-    /** @param array<string, mixed> $row */
-    private function tenant(array $row): ?TenantRef
-    {
-        $type = $row['tenant_type'] ?? null;
-        $id = $row['tenant_id'] ?? null;
-        if ($type === null && $id === null) {
-            return null;
-        }
-        if (!is_string($type) || $type === '' || !is_string($id) || $id === '') {
-            throw new RuntimeException('Canonical journal tenant subject is invalid.');
-        }
-        return new TenantRef($type, $id);
-    }
-
-    public function begin(PostgreSqlObserverReplayBeginRequest $request): PostgreSqlObserverReplayBinding
-    {
-        if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
-            throw new RuntimeException('Replay mutation requires an idle auto-commit connection.');
-        }
-        PostgreSqlObserverReplayIdentity::assertCheckpoint($request->checkpoint);
-        $now = $request->now ?? new DateTimeImmutable('now');
-        $selectorHash = hash('sha256', PostgreSqlObserverReplayIdentity::selectorKey($request->selector));
-        $targets = $request->targets;
-        sort($targets);
-        $targetHash = hash('sha256', json_encode(array_values($targets), JSON_THROW_ON_ERROR));
-        $table = $this->schema->observerReplayCheckpointTable();
-        $audit = $this->schema->observerReplayAuditTable();
-        $locked = $this->connection->fetchOne('SELECT pg_try_advisory_lock(hashtext(:checkpoint))', [
-            'checkpoint' => $request->checkpoint,
+    public function begin(
+        #[\SensitiveParameter]
+        PostgreSqlObserverReplayBeginRequest $request,
+    ): PostgreSqlObserverReplayBinding {
+        return PostgreSqlObserverReplayBeginRoot::run([
+            'connection' => $this->connection,
+            'schema' => $this->schema,
+            'checkpointWriter' => $this->checkpointWriter,
+            'auditWriter' => $this->auditWriter,
+            'hook' => $this->hook,
+            'request' => $request,
         ]);
-        if ($locked !== true && $locked !== 't' && $locked !== 1 && $locked !== '1') {
-            throw new InvalidArgumentException('Replay checkpoint is already running.');
-        }
-        try {
-            $this->connection->beginTransaction();
-            $row = $this->checkpointWriter->row($table, $request->checkpoint);
-            if ($row !== false && ($row['selector_hash'] !== $selectorHash || $row['target_hash'] !== $targetHash)) {
-                throw new InvalidArgumentException('Replay checkpoint is bound to a different selector or target set.');
-            }
-            $auditId = bin2hex(random_bytes(16));
-            if ($row === false) {
-                $this->checkpointWriter->insert($table, $request, $selectorHash, $targetHash, $now);
-            }
-            if ($row !== false && $row['state'] !== 'running') {
-                $this->checkpointWriter->resume($table, $request->checkpoint, $now);
-            }
-            $this->auditWriter->insert($request, $selectorHash, $targetHash, $auditId, $now);
-            $this->connection->commit();
-            return new PostgreSqlObserverReplayBinding(
-                is_string($row['cursor_record_id'] ?? null) ? $row['cursor_record_id'] : null,
-                $auditId,
-            );
-        } catch (Throwable $exception) {
-            if ($this->connection->isTransactionActive()) {
-                try {
-                    $this->connection->rollBack();
-                } catch (Throwable $rollbackException) {
-                    $exception = new RuntimeException(
-                        'Replay transaction rollback failed.',
-                        previous: $rollbackException,
-                    );
-                }
-            }
-            try {
-                $this->unlock($request->checkpoint);
-            } catch (Throwable $unlockException) {
-                $exception = new RuntimeException('Replay checkpoint unlock failed.', previous: $unlockException);
-            }
-            throw $exception;
-        }
     }
 
     public function unlock(string $checkpoint): void
@@ -192,9 +148,13 @@ final readonly class PostgreSqlObserverReplayStore
     }
 
     public function finishInvocation(
+        #[\SensitiveParameter]
         string $checkpoint,
+        #[\SensitiveParameter]
         string $state,
+        #[\SensitiveParameter]
         ?DateTimeImmutable $now = null,
+        #[\SensitiveParameter]
         ?string $auditId = null,
     ): void {
         if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
@@ -203,6 +163,7 @@ final readonly class PostgreSqlObserverReplayStore
         if ($auditId === null) {
             throw new InvalidArgumentException('Replay completion audit ID is required.');
         }
+        $this->hook?->assertEntry($this->connection, $checkpoint);
         $now ??= new DateTimeImmutable('now');
         $table = $this->schema->observerReplayCheckpointTable();
         $audit = $this->schema->observerReplayAuditTable();
@@ -226,6 +187,7 @@ final readonly class PostgreSqlObserverReplayStore
             if ($auditAffected !== 1) {
                 throw new RuntimeException('Replay audit ownership was lost.');
             }
+            $this->hook?->finished($this->connection, $checkpoint, $auditId, $state);
             $this->connection->commit();
         } catch (Throwable $exception) {
             if ($this->connection->isTransactionActive()) {
@@ -273,52 +235,53 @@ final readonly class PostgreSqlObserverReplayStore
     }
 
     public function advance(
+        #[\SensitiveParameter]
         string $checkpoint,
+        #[\SensitiveParameter]
         ?string $cursor,
+        #[\SensitiveParameter]
         int $delivered,
+        #[\SensitiveParameter]
         string $auditId,
+        #[\SensitiveParameter]
         ?DateTimeImmutable $now = null,
     ): void {
-        if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
-            throw new RuntimeException('Replay mutation requires an idle auto-commit connection.');
-        }
-        $now ??= new DateTimeImmutable('now');
-        $table = $this->schema->observerReplayCheckpointTable();
-        $recordId = PostgreSqlObserverReplayIdentity::recordIdFromCursor($cursor);
-        try {
-            $this->connection->beginTransaction();
-            $affected = $this->connection->executeStatement(
-                "UPDATE {$table} SET cursor_record_id=:cursor, selected_count=selected_count+:count, delivered_count=delivered_count+:count, first_record_id=COALESCE(first_record_id, :record_id), last_record_id=:record_id, state=:state, updated_at=:at WHERE checkpoint_id=:id AND state='running'",
-                [
-                    'cursor' => $cursor,
-                    'count' => $delivered,
-                    'record_id' => $recordId,
-                    'state' => 'running',
-                    'at' => $now->format('Y-m-d H:i:s.uP'),
-                    'id' => $checkpoint,
-                ],
-            );
-            if ($affected !== 1) {
-                throw new RuntimeException('Replay checkpoint ownership was lost.');
-            }
-            $auditAffected = $this->connection->executeStatement(
-                "UPDATE {$this->schema->observerReplayAuditTable()} SET selected_count=selected_count+:count, delivered_count=delivered_count+:count, first_record_id=COALESCE(first_record_id, :record_id), last_record_id=:record_id WHERE audit_id=:audit AND checkpoint_id=:id AND state='started'",
-                ['count' => $delivered, 'record_id' => $recordId, 'audit' => $auditId, 'id' => $checkpoint],
-            );
-            if ($auditAffected !== 1) {
-                throw new RuntimeException('Replay audit ownership was lost.');
-            }
-            $this->connection->commit();
-        } catch (Throwable $exception) {
-            if ($this->connection->isTransactionActive()) {
-                try {
-                    $this->connection->rollBack();
-                } catch (Throwable $rollbackException) {
-                    $exception = new RuntimeException('Replay advance rollback failed.', previous: $rollbackException);
-                }
-            }
-            throw $exception;
-        }
+        PostgreSqlObserverReplayAdvanceRoot::run([
+            'connection' => $this->connection,
+            'schema' => $this->schema,
+            'hook' => $this->hook,
+            'checkpoint' => $checkpoint,
+            'cursor' => $cursor,
+            'delivered' => $delivered,
+            'auditId' => $auditId,
+            'now' => $now,
+            'source' => null,
+        ]);
+    }
+
+    public function advanceSelected(
+        #[\SensitiveParameter]
+        string $checkpoint,
+        #[\SensitiveParameter]
+        ?string $cursor,
+        #[\SensitiveParameter]
+        string $auditId,
+        #[\SensitiveParameter]
+        JournalRecord $source,
+        #[\SensitiveParameter]
+        ?DateTimeImmutable $now = null,
+    ): void {
+        PostgreSqlObserverReplayAdvanceRoot::run([
+            'connection' => $this->connection,
+            'schema' => $this->schema,
+            'hook' => $this->hook,
+            'checkpoint' => $checkpoint,
+            'cursor' => $cursor,
+            'delivered' => 1,
+            'auditId' => $auditId,
+            'now' => $now,
+            'source' => $source,
+        ]);
     }
 
     public function cursorFor(PostgreSqlObserverReplaySelector $selector, JournalRecord $record): string
@@ -334,9 +297,13 @@ final readonly class PostgreSqlObserverReplayStore
     }
 
     public function fail(
+        #[\SensitiveParameter]
         string $checkpoint,
+        #[\SensitiveParameter]
         Throwable $exception,
+        #[\SensitiveParameter]
         ?DateTimeImmutable $now = null,
+        #[\SensitiveParameter]
         ?string $auditId = null,
     ): void {
         if (!$this->connection->isAutoCommit() || $this->connection->getTransactionNestingLevel() !== 0) {
@@ -345,6 +312,7 @@ final readonly class PostgreSqlObserverReplayStore
         if ($auditId === null) {
             throw new InvalidArgumentException('Replay failure audit ID is required.');
         }
+        $this->hook?->assertEntry($this->connection, $checkpoint);
         $now ??= new DateTimeImmutable('now');
         $table = $this->schema->observerReplayCheckpointTable();
         $audit = $this->schema->observerReplayAuditTable();
@@ -370,6 +338,7 @@ final readonly class PostgreSqlObserverReplayStore
             if ($auditAffected !== 1) {
                 throw new RuntimeException('Replay audit ownership was lost.');
             }
+            $this->hook?->failed($this->connection, $checkpoint, $auditId);
             $this->connection->commit();
         } catch (Throwable $transactionException) {
             if ($this->connection->isTransactionActive()) {
