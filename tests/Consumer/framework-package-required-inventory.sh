@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='a1b53ac9b64b3c2a11e0b93ce73f7730eddd13a80f38169181dc6f92f2a0719b'
+reviewed_export_sha='f54e217903c7043d86d51626f9ac64676ac1c7bd0c02121287b5e1605d703b63'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -148,6 +148,18 @@ printf '%s\n' \
     resources/stubs/auth-logout.php.stub \
     resources/stubs/auth-user-migration.php.stub \
     resources/stubs/auth-session-migration.php.stub \
+    src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php \
+    src/Internal/Audit/Artifact/AuditArtifactScalar.php \
+    src/Internal/Audit/Artifact/AuditArtifactCanonical.php \
+    src/Internal/Audit/Artifact/AuditArtifactShape.php \
+    src/Internal/Audit/Artifact/AuditArtifactRelation.php \
+    src/Internal/Audit/Artifact/AuditArtifactIntegrity.php \
+    src/Internal/Audit/Artifact/AuditAnchorBinding.php \
+    src/Internal/Audit/Artifact/AuditTrustScalar.php \
+    src/Internal/Audit/Artifact/AuditTrustSnapshotShape.php \
+    src/Internal/Audit/Artifact/AuditTrustEntryShape.php \
+    src/Internal/Audit/Artifact/AuditTrustEntryRelation.php \
+    src/Internal/Audit/Artifact/AuditTrustLookup.php \
     >"${expected_inventory}"
 
 run_bounded() {
@@ -740,6 +752,97 @@ assert_inventory() {
     fi
 }
 
+assert_f1_mutation_shape() {
+    local candidate="$1"
+    local mutation="$2"
+    local function_source="${TEMP_ROOT}/${mutation}-function"
+
+    if ! extract_function "${candidate}" "${function_source}"; then
+        return 1
+    fi
+    if ! run_bounded awk -v expected_file="${expected_inventory}" -v mutation="${mutation}" '
+        BEGIN {
+            expected_count = 0
+            while ((getline line < expected_file) > 0) {
+                expected[++expected_count] = line
+            }
+            close(expected_file)
+            backslash = sprintf("%c", 92)
+            loop_marker = "    for required_path in " backslash
+            in_loop = 0
+            closed = 0
+            loop_count = 0
+            path_count = 0
+            invalid = 0
+        }
+        {
+            if (!in_loop) {
+                if ($0 == loop_marker) {
+                    loop_count++
+                    if (closed || loop_count != 1) {
+                        invalid = 1
+                    } else {
+                        in_loop = 1
+                    }
+                }
+                next
+            }
+
+            if (substr($0, 1, 8) != "        ") {
+                invalid = 1
+                next
+            }
+            line = substr($0, 9)
+            if (length(line) >= 4 && substr(line, length(line) - 3) == "; do") {
+                path = substr(line, 1, length(line) - 4)
+                closed = 1
+                in_loop = 0
+            } else {
+                if (length(line) < 2 || substr(line, length(line) - 1) != " " backslash) {
+                    invalid = 1
+                    next
+                }
+                path = substr(line, 1, length(line) - 2)
+            }
+            actual[++path_count] = path
+        }
+        END {
+            if (mutation == "f1-helper-order-swap") {
+                if (path_count != expected_count || !closed) {
+                    exit 2
+                }
+                prefix_count = expected_count - 12
+                for (position = 1; position <= prefix_count; position++) {
+                    if (actual[position] != expected[position]) {
+                        exit 2
+                    }
+                }
+                for (position = 1; position <= 12; position++) {
+                    if (actual[prefix_count + position] != expected[expected_count - position + 1]) {
+                        exit 2
+                    }
+                }
+            } else if (mutation == "f1-trust-lookup-omission") {
+                if (path_count != expected_count - 1 || !closed) {
+                    exit 2
+                }
+                for (position = 1; position <= path_count; position++) {
+                    if (actual[position] != expected[position]) {
+                        exit 2
+                    }
+                }
+            } else {
+                exit 2
+            }
+            if (invalid || loop_count != 1 || in_loop) {
+                exit 2
+            }
+        }
+    ' "${function_source}"; then
+        return 1
+    fi
+}
+
 test_mutation_rejected() {
     local name="$1"
     local mutation="$2"
@@ -1124,6 +1227,122 @@ test_mutation_rejected() {
             ' "${candidate}" >"${candidate}.tmp"
             mv "${candidate}.tmp" "${candidate}"
             ;;
+        f1-wire-preflight-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php|d' "${candidate}"
+            ;;
+        f1-scalar-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactScalar.php|d' "${candidate}"
+            ;;
+        f1-canonical-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactCanonical.php|d' "${candidate}"
+            ;;
+        f1-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactShape.php|d' "${candidate}"
+            ;;
+        f1-relation-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactRelation.php|d' "${candidate}"
+            ;;
+        f1-integrity-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditArtifactIntegrity.php|d' "${candidate}"
+            ;;
+        f1-binding-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditAnchorBinding.php|d' "${candidate}"
+            ;;
+        f1-trust-scalar-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditTrustScalar.php|d' "${candidate}"
+            ;;
+        f1-trust-snapshot-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditTrustSnapshotShape.php|d' "${candidate}"
+            ;;
+        f1-trust-entry-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditTrustEntryShape.php|d' "${candidate}"
+            ;;
+        f1-trust-entry-relation-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Artifact/AuditTrustEntryRelation.php|d' "${candidate}"
+            ;;
+        f1-trust-lookup-omission)
+            run_bounded awk '
+                BEGIN {
+                    backslash = sprintf("%c", 92)
+                    entry = "        src/Internal/Audit/Artifact/AuditTrustEntryRelation.php " backslash
+                    lookup = "        src/Internal/Audit/Artifact/AuditTrustLookup.php; do"
+                }
+                $0 == entry {
+                    if ((getline next_line) <= 0 || next_line != lookup) {
+                        exit 2
+                    }
+                    print "        src/Internal/Audit/Artifact/AuditTrustEntryRelation.php; do"
+                    omitted = 1
+                    next
+                }
+                { print }
+                END {
+                    if (!omitted) {
+                        exit 2
+                    }
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        f1-helper-order-swap)
+            run_bounded awk '
+                BEGIN {
+                    backslash = sprintf("%c", 92)
+                }
+                !swapped && $0 ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactWirePreflight\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactScalar\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactCanonical\.php/ &&
+                        getline fourth > 0 && fourth ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactShape\.php/ &&
+                        getline fifth > 0 && fifth ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactRelation\.php/ &&
+                        getline sixth > 0 && sixth ~ /src\/Internal\/Audit\/Artifact\/AuditArtifactIntegrity\.php/ &&
+                        getline seventh > 0 && seventh ~ /src\/Internal\/Audit\/Artifact\/AuditAnchorBinding\.php/ &&
+                        getline eighth > 0 && eighth ~ /src\/Internal\/Audit\/Artifact\/AuditTrustScalar\.php/ &&
+                        getline ninth > 0 && ninth ~ /src\/Internal\/Audit\/Artifact\/AuditTrustSnapshotShape\.php/ &&
+                        getline tenth > 0 && tenth ~ /src\/Internal\/Audit\/Artifact\/AuditTrustEntryShape\.php/ &&
+                        getline eleventh > 0 && eleventh ~ /src\/Internal\/Audit\/Artifact\/AuditTrustEntryRelation\.php/ &&
+                        getline twelfth > 0 && twelfth ~ /src\/Internal\/Audit\/Artifact\/AuditTrustLookup\.php/) {
+                        if (substr(first, length(first) - 1) != " " backslash || substr(twelfth, length(twelfth) - 3) != "; do") {
+                            exit 2
+                        }
+                        first = substr(first, 1, length(first) - 2) "; do"
+                        twelfth = substr(twelfth, 1, length(twelfth) - 4) " " backslash
+                        print twelfth
+                        print eleventh
+                        print tenth
+                        print ninth
+                        print eighth
+                        print seventh
+                        print sixth
+                        print fifth
+                        print fourth
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    if (fourth != "") print fourth
+                    if (fifth != "") print fifth
+                    if (sixth != "") print sixth
+                    if (seventh != "") print seventh
+                    if (eighth != "") print eighth
+                    if (ninth != "") print ninth
+                    if (tenth != "") print tenth
+                    if (eleventh != "") print eleventh
+                    if (twelfth != "") print twelfth
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
         d2s1-duplicate-entry)
             run_bounded awk '
                 !inserted && $0 ~ /src\/Internal\/Status\/TenantBoundOperationStatusSource\.php/ {
@@ -1323,6 +1542,19 @@ test_mutation_rejected() {
             ;;
     esac
 
+    case "${mutation}" in
+        f1-helper-order-swap|f1-trust-lookup-omission)
+            if ! run_bounded bash -n "${candidate}"; then
+                printf 'f1 inventory mutation is not valid Bash: %s\n' "${name}" >&2
+                return 1
+            fi
+            if ! assert_f1_mutation_shape "${candidate}" "${mutation}"; then
+                printf 'f1 inventory mutation has an invalid path shape: %s\n' "${name}" >&2
+                return 1
+            fi
+            ;;
+    esac
+
     if cmp -s "${EXPORT_SCRIPT}" "${candidate}"; then
         printf 'inventory mutation did not change candidate bytes: %s\n' "${name}" >&2
         return 1
@@ -1493,9 +1725,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 137
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 137
-printf 'required inventory: PASS (137 ordered paths, 137 unique)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 149
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 149
+printf 'required inventory: PASS (149 ordered paths, 149 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1563,6 +1795,19 @@ test_mutation_rejected f1-trust-entry-omission f1-trust-omission
 test_mutation_rejected f1-signer-entry-omission f1-signer-omission
 test_mutation_rejected f1-verifier-entry-omission f1-verifier-omission
 test_mutation_rejected f1-reverse-new-block f1-order-swap
+test_mutation_rejected f1-wire-preflight-entry-omission f1-wire-preflight-omission
+test_mutation_rejected f1-scalar-entry-omission f1-scalar-omission
+test_mutation_rejected f1-canonical-entry-omission f1-canonical-omission
+test_mutation_rejected f1-shape-entry-omission f1-shape-omission
+test_mutation_rejected f1-relation-entry-omission f1-relation-omission
+test_mutation_rejected f1-integrity-entry-omission f1-integrity-omission
+test_mutation_rejected f1-binding-entry-omission f1-binding-omission
+test_mutation_rejected f1-trust-scalar-entry-omission f1-trust-scalar-omission
+test_mutation_rejected f1-trust-snapshot-shape-entry-omission f1-trust-snapshot-shape-omission
+test_mutation_rejected f1-trust-entry-shape-entry-omission f1-trust-entry-shape-omission
+test_mutation_rejected f1-trust-entry-relation-entry-omission f1-trust-entry-relation-omission
+test_mutation_rejected f1-trust-lookup-entry-omission f1-trust-lookup-omission
+test_mutation_rejected f1-helper-reverse-new-block f1-helper-order-swap
 test_mutation_rejected order-swap order-swap
 test_mutation_rejected duplicate-loop duplicate-loop
 test_mutation_rejected heredoc-decoy heredoc-decoy
@@ -1588,4 +1833,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (90 rejected: 76 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (103 rejected: 89 inventory, 14 call-contract)\n'

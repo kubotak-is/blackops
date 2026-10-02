@@ -206,7 +206,19 @@ validate_package() {
         resources/stubs/auth-login.php.stub \
         resources/stubs/auth-logout.php.stub \
         resources/stubs/auth-user-migration.php.stub \
-        resources/stubs/auth-session-migration.php.stub; do
+        resources/stubs/auth-session-migration.php.stub \
+        src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php \
+        src/Internal/Audit/Artifact/AuditArtifactScalar.php \
+        src/Internal/Audit/Artifact/AuditArtifactCanonical.php \
+        src/Internal/Audit/Artifact/AuditArtifactShape.php \
+        src/Internal/Audit/Artifact/AuditArtifactRelation.php \
+        src/Internal/Audit/Artifact/AuditArtifactIntegrity.php \
+        src/Internal/Audit/Artifact/AuditAnchorBinding.php \
+        src/Internal/Audit/Artifact/AuditTrustScalar.php \
+        src/Internal/Audit/Artifact/AuditTrustSnapshotShape.php \
+        src/Internal/Audit/Artifact/AuditTrustEntryShape.php \
+        src/Internal/Audit/Artifact/AuditTrustEntryRelation.php \
+        src/Internal/Audit/Artifact/AuditTrustLookup.php; do
         test -f "${package_root}/${required_path}" \
             || fail "${package_name} archive is missing required path: ${required_path}"
     done
@@ -231,8 +243,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 137
-    test "${required_inventory_unique}" -eq 137
+    test "${required_inventory_count}" -eq 149
+    test "${required_inventory_unique}" -eq 149
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \
