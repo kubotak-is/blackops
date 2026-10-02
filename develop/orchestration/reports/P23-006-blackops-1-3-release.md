@@ -287,6 +287,15 @@ scope checker is amended only for006C Task/Report governance (6efe41a7; prior
 8a2333c4 retained). O2/F1 Product scope and shared resource ownership stay fixed.
 No Git mutation has yet occurred; exact merge/import/commit and Review follow.
 
+P23-006C now has isolated Reel merge70f6193 followed by six explicit Product
+commits through O1, ending18ce42c5242c6d919afc9293353c8ed84800a20b. Final81
+endpoint bytes/modes and1693 runtime bytes match; actual115/66 inventory passes
+in receipt377ac398. D5P is separate37eed06d and contains no public Documentation.
+Root is reconciling scoped management and independent convergence Review; primary
+HEAD/index and mixed work remain preserved. O2/F1 correction review is proof-only:
+O2 three P2s and F1 R5/R6/package remain; all36 Product files are frozen. No release,
+remote push, CI, export or deployment has occurred under this parent yet.
+
 ## Acceptance Criteria
 
 All parent release criteria remain open. Individual Accepted prerequisites retain
@@ -310,10 +319,11 @@ commit separation and reconciliation with published main Documentation.
 
 ## Suggested Next Action
 
-Luna completes the independently reviewed O2/F1 corrections within25/29 paths.
-Root follows measured shape/complexity feedback, then closes proof/source findings and
-owns the frozen common gates. O2 owns the next package turn from125/77; Root
-retains its complete endpoint before transferring the two files to F1. Root also
-freezes the reviewed integration units' exact import provenance before issuing
-the isolated integration Task;006A is complete. F2 issuance
-follows F1 Acceptance; other preparatory authority remains separate from Product.
+Root closes the final006C management commit and preservation review, retaining
+its six source commits and published Reel. O2/F1 third proof corrections have
+been exercised: F1 unit cases and six Node groups pass; remaining AST baseline,
+O2 parse and package AWK mechanics require bounded fixes before final meaningful
+proof closure. All36 Product files stay frozen and matching source quality passes
+remain valid. Root then freezes the common512M full and obtains final Acceptance.
+F2 issuance follows F1 Acceptance; other preparatory authority stays separate
+from Product and all parent release/Owner-preview gates remain open.

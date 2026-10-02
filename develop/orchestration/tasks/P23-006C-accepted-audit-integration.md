@@ -1,6 +1,6 @@
 # P23-006C: Accepted Audit integration through native Replay outcomes
 
-Status: In Progress — exact inputs issued; isolated Git integration pending
+Status: In Review — six source commits and isolated package/convergence checks complete
 Parent: [P23-006](P23-006-blackops-1-3-release.md)
 
 ## Goal and Authority
@@ -303,7 +303,9 @@ proof remain separate parent005/006 work.
 
 ## Remaining Work and Next Action
 
-Start the isolated merge/import after the current remote and primary snapshot
-checks. Complete bounded integration review and local commits. This child ends
-at clean accepted local integration through O1; O2/F1 and all other1.3 dependency,
+All six source units are committed through18ce42c5. Independent Product/Git
+review6d510daa and management content review270659be are Green, with two bounded
+editorial corrections now applied. Root commits final management, records clean
+checkout/primary preservation and closes final evidence review. This child ends
+at accepted local integration through O1; O2/F1 and all other1.3 dependency,
 Documentation and release/delivery gates remain with parent006.

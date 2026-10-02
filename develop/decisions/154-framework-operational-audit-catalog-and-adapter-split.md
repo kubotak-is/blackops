@@ -93,6 +93,20 @@ checkpoint／anchor event is applicable. Parent P23-003D is not Accepted until
 all ordinary nodes and D-control are Accepted. A child requiring an unlisted
 sibling must stop for a DAG correction rather than create an implicit edge.
 
+The independently reviewed [D165](165-retention-hold-audit-adapter.md) amendment splits hold
+place/release into D5H and adds Accepted D4B as a prerequisite solely for the
+C3 Connection identity helper. Purge remains a separate D5 child. This bounded
+edge and [spec116](../spec/116-retention-hold-audit-adapter.md) have authority Green.
+D5H is Accepted (local), with evidence in its
+[Report](../orchestration/reports/P23-003D5H-retention-hold-audit-adapter.md);
+other edges and the parent integration/release requirements remain unchanged.
+
+The independently reviewed [D166](166-retention-purge-audit-adapter.md) amendment defines D5P
+purge separately and adds Accepted D4B solely for the same identity predicate.
+[Spec117](../spec/117-retention-purge-audit-adapter.md) and the exact D5P Task are
+Accepted (local), including source/security review and a frozen full. Other DAG edges and the parent
+integration/release requirements remain unchanged.
+
 ### 2. Accepted Catalog preservation
 
 The following Accepted identity and bytes remain exact:
@@ -214,6 +228,22 @@ increases from exact75 to exact76 solely for the new Internal provider.
 
 ### 7. Downstream source-adapter rules
 
+Storage rotation is split by D168/spec118 into D5R1 native transaction-outcome
+correction, then D5R2 phase-hook and adapter authority/implementation. D5R1 emits
+no AuditRecord and does not activate C3. D5R2 must settle all source rules below
+and its actual dependencies before implementation. Other D5/integration edges
+are unchanged; D5R1 alone does not complete the storage-rotation child.
+
+The independently reviewed D169/spec119 defines D5R2's finite optional phase hook, native-root
+delivery and strict source identities, and explicitly adds Accepted D4B only for
+C3 Connection identity. It requires Accepted C/D1/D5R1. Its authority/implementation
+status belongs to the D5R2 Task/Report; no ordinary activation or other edge changes.
+
+The independently reviewed [D170](170-observer-replay-transaction-outcomes.md)/spec120 split
+defines D5O1 native replay transaction outcomes before D5O2's four-event adapter.
+D5O1 emits no new AuditRecord and consumes no C3 helper. It is locally Accepted;
+its exact Task/Report records native proof. D5O2 remains separate. Other DAG edges remain.
+
 D1 does not authorize a source adapter. Each D2 through D5 child requires a
 new most-specific Decision and exact Task before Product work. That Decision
 must fix, for every emitted event:
@@ -282,11 +312,29 @@ authentication event. Provider provenance is recorded only when supplied by a
 typed provider result; credentials, tokens, request bodies, and throwable
 details never enter a draft.
 
+The D3 result adapter's most-specific authority is
+[Specification113](../spec/113-http-authentication-audit-adapter.md) /
+[D162](162-http-authentication-audit-adapter.md). It fixes the distinct credential
+check and Session-mutation boundaries, fresh evaluation identity, durable result
+gate and inherited exception treatment. Authority review and Product acceptance
+belong to its Task/Report; this pointer does not activate the adapter.
+
 D4 must distinguish no-policy, allow, and deny and must carry a trusted policy
 ID/version, safe reason, and fixed durable／required selection. Privileged
 required delivery must join the exact Framework mutation root. Neither D3 nor
 D4 may infer semantics from a handler result or expose request／operation
 payloads to an Audit producer.
+
+[D163](163-authorization-audit-evaluation-foundation.md) and
+[Specification114](../spec/114-authorization-audit-evaluation-foundation.md)
+define serial D4A typed evaluation and D4B event delivery/same-root adaptation.
+D4A emits no event and does not complete D4. D4B requires its own reviewed
+authority before Product work; current progress belongs to STATE/Task/Report.
+
+[D164](164-authorization-audit-delivery.md) and
+[Specification115](../spec/115-authorization-audit-delivery.md) hold the D4B event
+and native delivery proposal. Their most-specific reviewed contract must be Green
+before scoped implementation; canonical activation remains in D-integration.
 
 `ApplicationAuditRuntimeComposer` remains uncalled until D-integration fixes
 the first canonical caller, provider/config availability, same-Connection

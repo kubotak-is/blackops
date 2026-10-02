@@ -142,6 +142,16 @@
 | [106-phase-23-delivery-plan.md](106-phase-23-delivery-plan.md) | Phase 23のDAG、Migration、独立Gate、Release境界 | Proposal — P23-001 Accepted; Stable `1.2` current / BlackOps `1.3` unreleased proposal |
 | [107-operation-status-audit-adapter.md](107-operation-status-audit-adapter.md) | Per-read tenant-bound Status Audit adapter | Authority Green; D2S1 Accepted; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
 | [108-tenant-scoped-status-source.md](108-tenant-scoped-status-source.md) | Explicit tenant scope, SQL predicates, Status snapshot and before-decode boundary | D2S1 Authority Green; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
+| [111-operation-data-read-audit-adapters.md](111-operation-data-read-audit-adapters.md) | Journal/Outcome read Audit adapters, tenant guard and inherited exception traces | Authority Green; Product progress in D2J Report; `1.3` unreleased |
+| [112-operation-diagnostics-audit-adapter.md](112-operation-diagnostics-audit-adapter.md) | Global Diagnostics read Audit, pre-read authorization and safe exception reconstruction | Authority Green; Product progress in D2X Report; `1.3` unreleased |
+| [113-http-authentication-audit-adapter.md](113-http-authentication-audit-adapter.md) | Explicit HTTP authentication result Audit, durable response gate and credential privacy | Accepted locally; implementation and recovery evidence in D3 Report; `1.3` unreleased |
+| [114-authorization-audit-evaluation-foundation.md](114-authorization-audit-evaluation-foundation.md) | Explicit policy binding and no-policy/allow/deny evaluation | D4A/D4B Accepted (local); canonical activation pending; `1.3` unreleased |
+| [115-authorization-audit-delivery.md](115-authorization-audit-delivery.md) | Authorization event projection, native delivery and mutation transaction boundaries | D4B Accepted (local); canonical activation pending; `1.3` unreleased |
+| [116-retention-hold-audit-adapter.md](116-retention-hold-audit-adapter.md) | Hold mutation and durable audit delivery in one native transaction | D5H Accepted (local); integration pending; `1.3` unreleased |
+| [117-retention-purge-audit-adapter.md](117-retention-purge-audit-adapter.md) | Per-effect purge audit within unchanged native category roots | D5P Accepted (local); ordinary composition pending; `1.3` unreleased |
+| [118-storage-rotation-transaction-outcomes.md](118-storage-rotation-transaction-outcomes.md) | Native rotation commit ambiguity and single finalization | D5R1/D5R2 Accepted (local); `1.3` unreleased |
+| [119-storage-rotation-audit-adapter.md](119-storage-rotation-audit-adapter.md) | Typed rotation phase hook, strict subjects and native-root durable events | D5R2 Accepted (local); `1.3` unreleased |
+| [120-observer-replay-transaction-outcomes.md](120-observer-replay-transaction-outcomes.md) | Native replay root admission, commit ambiguity and failure ordering | D5O1 Accepted (local); `1.3` unreleased |
 
 ## 決定の参照
 
@@ -310,6 +320,16 @@
 | [D155](../decisions/155-operation-read-audit-session-foundation.md) | Operation-read 16-byte nonce／opaque target／fixed draft／one-shot session／fail-closed terminal and Diagnostics authorization foundation | D2 Accepted at `0cd699e...`; parent D incomplete; Stable `1.2` current / `1.3` unreleased |
 | [D156](../decisions/156-operation-status-audit-adapter.md) | Status Audit adapter, trusted read identity and exception trace protection | Decided; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
 | [D157](../decisions/157-tenant-scoped-status-source.md) | Tenant-scoped Status-source prerequisite and legacy-preserving split | D2S1 Authority Green; Product progress in Report/STATE; Stable `1.2` current / `1.3` unreleased |
+| [D163](../decisions/163-authorization-audit-evaluation-foundation.md) | D4A typed evaluation and D4B delivery split | D4A/D4B Accepted (local); canonical activation pending; `1.3` unreleased |
+| [D164](../decisions/164-authorization-audit-delivery.md) | D4B event delivery and native transaction boundaries | Decided; D4B Accepted (local); `1.3` unreleased |
+| [D165](../decisions/165-retention-hold-audit-adapter.md) | D5H hold-only adapter and explicit D4B identity-helper dependency | Decided; D5H Accepted (local); `1.3` unreleased |
+| [D166](../decisions/166-retention-purge-audit-adapter.md) | D5P native-root purge audit and persisted payload tenant | Decided; D5P Accepted (local); `1.3` unreleased |
+| [D168](../decisions/168-storage-rotation-transaction-outcomes.md) | D5R1 native transaction outcomes before the rotation event adapter | Decided; D5R1 Accepted (local); `1.3` unreleased |
+| [D169](../decisions/169-storage-rotation-audit-adapter.md) | D5R2 rotation phase delivery and bounded interruption recovery | Decided; D5R2 Accepted (local); `1.3` unreleased |
+| [D170](../decisions/170-observer-replay-transaction-outcomes.md) | D5O1 native replay transaction outcomes before phase delivery | Decided; D5O1 Accepted (local); `1.3` unreleased |
+| [D160](../decisions/160-operation-data-read-audit-adapters.md) | Journal/Outcome Audit adapters, fixed read execution and inherited trace protection | Decided; Product progress in D2J Report; `1.3` unreleased |
+| [D161](../decisions/161-operation-diagnostics-audit-adapter.md) | Global Diagnostics Audit and fresh same-code exception release | Decided; Product progress in D2X Report; `1.3` unreleased |
+| [D162](../decisions/162-http-authentication-audit-adapter.md) | HTTP credential-check result, Session mutation boundary and durable response gate | Decided; Product progress in D3 Report; `1.3` unreleased |
 
 ## 開発運用の更新
 
