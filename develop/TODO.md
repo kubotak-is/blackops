@@ -1015,5 +1015,5 @@ an observed JSONL projection only, and no current Stable claim is changed.
 - [x] Published Reel a419f375 is merged separately at70f6193; its public Source remains exact.
 - [x] D2J+D2X, D3+D4A+D4B+D5H, D5P, R1, R2 and O1 are imported from pinned payloads in six separate commits. Original child attribution and local evidence are retained.
 - [x] Final81 endpoint bytes/modes and1693 runtime bytes match their selected evidence; actual115/66 package inventory passes.
-- [ ] Independent integration Review and current management closeout: [P23-006C](orchestration/tasks/P23-006C-accepted-audit-integration.md), [Report](orchestration/reports/P23-006C-accepted-audit-integration.md).
+- [x] Independent integration Review and current management closeout (edb12f16; reviewe0a9dd84 Green): [P23-006C](orchestration/tasks/P23-006C-accepted-audit-integration.md), [Report](orchestration/reports/P23-006C-accepted-audit-integration.md).
 - [ ] Parent1.3 dependencies, residual Documentation, final Owner preview, final local/same-SHA CI/export and immutable publication/live proof remain with [P23-006](orchestration/tasks/P23-006-blackops-1-3-release.md). This checkout ends at O1; primary O2/F1 are not imported yet.

@@ -1,12 +1,12 @@
 # P23-006C: Accepted Audit integration through native Replay outcomes
 
-Status: In Review — six isolated source commits and package/convergence checks complete
+Status: Accepted locally — through-O1 integration and preservation verified
 
 ## Summary
 
 Root issued the isolated integration Task and created its separate checkout.
 Published Reel and all six reviewed source units are committed separately.
-Final management and independent convergence Review remain.
+Final management commit and independent convergence Review are Green.
 All94 endpoints and40 child management inputs are available and rehashed.
 Primary O2/F1 implementation continues under its three disjoint owners.
 
@@ -122,12 +122,31 @@ Independent immutable Product/Git review6d510daa is Green; final management
 content review270659be is Green apart from two P3 corrections now applied.
 Actual final commit and preservation evidence remain.
 
+## Final committed review and Acceptance
+
+Management commit `edb12f16e9961c9f10f7cebd61eaa1dd764ba9c3` has sole parent
+18ce42c5 and exactly eight management changes. Corrected capturef5c000d1,
+staged receipt67cfc512 and patch9aed0131 match actual blobs/modes. Checkout is
+clean with executable modes checked; Product/package/public Reel/release inputs
+remain unchanged. Receipt `final-committed-integration.json`7177a007 records the
+command/result and checks; tool wall-time is not a measured commit duration.
+Primary scope7624f692 has zero foreign changes; independent fresh Git checks
+match all five saved HEAD/branch/index buffers.
+
+Root adopts `final-independent-review.md`, SHA256
+`e0a9dd846edea52051570d9b997f3a5cb595f7ede0414d0e6cb36ca86e5586fa`: Green, no
+unresolved finding. Earlier source6d510daa/management270659be reviews are retained.
+Both P3 findings close on the actual commit. Intermediate corrected capture
+still had the D163 separator; final capturef5c000d1 is the closure input. This
+Acceptance checkpoint changes only management status/current STATE/history.
+
 ## Acceptance Criteria
 
-Source/commit separation and package/source convergence are verified. Independent
-Product/Git review6d510daa and management content review270659be are Green.
-Root applied the two P3 table/next-action corrections. Final criteria are marked
-only after the management commit, clean checkout and final preservation review.
+All five criteria pass:94 endpoints/six units/final81 paths; preserved Reel and
+separate D5P; honest child/construction attribution; successful isolated115/66
+package/syntax/STATE/whitespace and preservation; Green final review and clean
+committed checkout. Root accepts this child locally through O1. No O2/F1 or
+parent release Acceptance, fresh full, same-SHA CI/export or deploy is implied.
 
 ## Release Documentation Impact
 
@@ -138,11 +157,11 @@ Parent005/006 retains all-public validation and final Owner preview/delivery.
 
 ## Remaining Issues
 
-Final shared management, fresh primary preservation and independent Review remain. Any semantic conflict or
-unexpected input returns for a bounded authority/worker assignment.
+None within this child. Parent1.3 still requires O2/F1, ordinary adapters/
+composition, E/F/control/G, Worker hardening, all-public Documentation and Owner
+preview, final local/same-SHA CI/export, immutable publication and live proof.
 
 ## Suggested Next Action
 
-Commit the corrected management appendix, capture clean-checkout/primary
-preservation evidence and close the independent final integration review.
-Then continue the parent1.3 dependency and release gates.
+Continue parent006's proof corrections and dependency plan, preserving this
+reviewed isolated series for later accepted imports and final release gates.

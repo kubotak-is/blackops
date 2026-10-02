@@ -1,6 +1,6 @@
 # P23-006C: Accepted Audit integration through native Replay outcomes
 
-Status: In Review — six source commits and isolated package/convergence checks complete
+Status: Accepted locally — isolated through-O1 integration verified
 Parent: [P23-006](P23-006-blackops-1-3-release.md)
 
 ## Goal and Authority
@@ -281,15 +281,15 @@ exit/results and logs under `/tmp/blackops-integration-20261001/`.
 
 ## Acceptance Criteria
 
-- [ ] All94 payload endpoints are verified; the series has the six declared units
+- [x] All94 payload endpoints are verified; the series has the six declared units
   and each final81 path equals its selected accepted payload and recorded mode.
-- [ ] Published Reel is merged and retained; D5P and every public Documentation
+- [x] Published Reel is merged and retained; D5P and every public Documentation
   change remain separate; no old STATE or stale player is replayed.
-- [ ] All management additions preserve child attribution and release boundaries;
+- [x] All management additions preserve child attribution and release boundaries;
   the97/48 construction is identified honestly and no prior full is fabricated.
-- [ ] Actual isolated final inventory/syntax, whitespace/STATE and primary
+- [x] Actual isolated final inventory/syntax, whitespace/STATE and primary
   preservation checks pass; no unassigned path or index/HEAD mutation occurs.
-- [ ] Independent convergence review is Green, isolated checkout is clean,
+- [x] Independent convergence review is Green, isolated checkout is clean,
   resulting refs/evidence and parent remaining work are recorded.
 
 ## Release Documentation Impact
@@ -303,9 +303,9 @@ proof remain separate parent005/006 work.
 
 ## Remaining Work and Next Action
 
-All six source units are committed through18ce42c5. Independent Product/Git
-review6d510daa and management content review270659be are Green, with two bounded
-editorial corrections now applied. Root commits final management, records clean
-checkout/primary preservation and closes final evidence review. This child ends
-at accepted local integration through O1; O2/F1 and all other1.3 dependency,
-Documentation and release/delivery gates remain with parent006.
+Complete at reviewed commit edb12f16e9961c9f10f7cebd61eaa1dd764ba9c3, with six
+source units through18ce42c5 and separate Reel merge70f6193. Final reviewe0a9dd84
+closes both editorial findings and verifies clean checkout/primary preservation.
+Root records only a management Acceptance checkpoint afterward; Product and
+prior evidence stay unchanged. Remaining child work: none. Next Action: continue
+parent006's O2/F1, later implementation, Documentation/Owner preview and release.

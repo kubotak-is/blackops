@@ -1,6 +1,6 @@
 # P23-006: BlackOps 1.3 Release Report
 
-Status: In Progress — O2/F1 initial feedback requires corrections; release goal active
+Status: In Progress — through-O1 integration Accepted; O2/F1 proof closure pending
 
 ## Summary
 
@@ -301,6 +301,14 @@ remote push, CI, export or deployment has occurred under this parent yet.
 All parent release criteria remain open. Individual Accepted prerequisites retain
 their bounded evidence; no aggregate completion percentage is inferred.
 
+### Through-O1 integration closeout (2026-10-02)
+
+006C is locally Accepted. Management commit edb12f16 follows six source units
+through18ce42c5. Final reviewe0a9dd84 closes both P3s, verifies exact blobs/modes
+and clean checkout, and reproduces primary Git buffers. Scope7624f692 preserves
+unrelated bytes/modes and public artifacts. No Product gate is repeated for this
+checkpoint and no remote action occurs. The child Report retains provenance.
+
 ## Release Documentation Impact
 
 Authority remains Experimental Stable1.2.1 with roadmap1.3.0 unreleased; exact
@@ -314,16 +322,13 @@ export, publication or production deployment has occurred under this parent yet.
 Pending ordinary D replay/Outbox/integration, E, F, post-F control, G,004A,
 005, Owner local preview and006 final qualification/publication/delivery.
 Inline ambiguous-commit reconciliation and legacy rotation overflow policy must
-be closed in integration/hardening. Local accepted slices still need reviewed
-commit separation and reconciliation with published main Documentation.
+be closed in integration/hardening. Through-O1 accepted slices have reviewed commit separation and published
+Documentation reconciliation; later accepted work needs its own imports.
 
 ## Suggested Next Action
 
-Root closes the final006C management commit and preservation review, retaining
-its six source commits and published Reel. O2/F1 third proof corrections have
-been exercised: F1 unit cases and six Node groups pass; remaining AST baseline,
-O2 parse and package AWK mechanics require bounded fixes before final meaningful
-proof closure. All36 Product files stay frozen and matching source quality passes
-remain valid. Root then freezes the common512M full and obtains final Acceptance.
-F2 issuance follows F1 Acceptance; other preparatory authority stays separate
-from Product and all parent release/Owner-preview gates remain open.
+006C is locally Accepted at reviewed edb12f16, with six source commits and
+published Reel retained. Continue O2 privacy/AST and F1 AST corrections; matching
+static and F1 functional/Node/package successes remain valid. Independent proof
+closure precedes common512M full and child Acceptance. F2 follows F1 Acceptance;
+later adapters/composition, Documentation/Owner preview and release remain.
