@@ -160,5 +160,8 @@ only when1.3 is released and its package/site results are externally verified.
 [006D](../tasks/P23-006D-o2-f1-accepted-integration.md) owns the next four source/package turns, now
 committed through`f1c871c482a7c80b884cb285acfe34a1a642c92c`. Exact52 final source and8 dedicated
 documents converge, with source-only reuse of the Accepted common full3756.
-Final006D management Review/Acceptance remains pending. No later E1/Outbox
+Final006D Review is Green and Root accepts the bounded integration locally. No later E1/Outbox
 source is imported and no intermediate is independently full-qualified.
+
+006D local Acceptance: final independent review`ca29f790` is Green;
+Root records the reviewed final checkpoint and retains parent1.3 remaining gates.

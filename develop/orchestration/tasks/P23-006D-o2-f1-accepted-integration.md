@@ -1,6 +1,6 @@
 # P23-006D: Accepted Replay audit and signed artifact integration
 
-Status: In Progress — source commits and convergence complete; final Review pending
+Status: Accepted locally — reviewed O2/F1 source integration and management closeout
 Parent: [P23-006](P23-006-blackops-1-3-release.md)
 
 ## Goal and authority
@@ -190,16 +190,35 @@ delivery belong to parent006/005; no new Product/public claim is introduced.
 
 - [x] Independent issuance Green; exact inputs/preimages and ownership fixed.
 - [x] Four source/package commits retain exact attribution and final52 convergence.
-- [ ] Eight dedicated documents and minimal shared summaries retain boundaries.
+- [x] Eight dedicated documents and minimal shared summaries retain boundaries.
 - [x] Input-qualified reuse,149/103 isolated inventory and syntax checks recorded.
-- [ ] Primary buffers/unrelated modes, published Reel/release/archive preservation pass.
-- [ ] Independent final Review Green; Root Report/STATE and clean committed endpoint.
+- [x] Primary buffers/unrelated modes, published Reel/release/archive preservation pass.
+- [x] Independent final Review Green; Root Report/STATE and clean committed endpoint.
 
 ## Remaining Issues and Next Action
 
-Four exact source/package turns and source convergence are complete.
-Management validation and independent final Acceptance remain pending.
-Parent release remains active; Outbox/E1 and later mandatory dependencies are
-separate. Next Action: validate the management boundary and obtain independent final Review.
+No source/integration issue remains for006D after the reviewed final checkpoint.
+Root must confirm its post-commit clean receipt before reporting completion.
+Parent1.3 remains active; current Outbox/E1 proof and later mandatory dependencies
+are separate. Next Action: continue existing O3 early diagnostics and corrected
+E1 verification, then reviewed shared handoff and common full/export gates.
 
 Issued by Root at 2026-10-02T17:58:46+09:00.
+
+## Root local Acceptance — 2026-10-03T17:39:59+09:00
+
+Root read and adopted independent final Review `ca29f790b9d14404564fba39c3cd4c071643f29ba996b2137a044195d8fb0db6` with no open
+findings. The initial editorial P3 was closed by explicitly labeling two stale
+issuance/006C sentences as historical; correction6136e46e retains before/after
+hashes and changes no Product. Four source/package commits and management
+30cd9345 retain exact attribution, final52+8 convergence, actual149/103 package
+checks and primary/published preservation. Acceptance covers that reviewed
+source boundary plus the inspected management closeout delta only.
+
+The final management checkpoint records this Acceptance and the required STATE
+archive. Its post-commit clean SHA/pathset/parent/primary-buffer proof is written
+by Root to `/tmp/blackops-integration-o2-f1-20261002/acceptance/committed.json`;
+that receipt is required before reporting Task completion. No self-referential
+commit hash is embedded in the committed Report. Product/source verification is
+retained from the original qualified environment, with candidate vendor absent;
+this does not satisfy parent006 final same-SHA CI/export or release delivery.

@@ -328,7 +328,7 @@ Documentation reconciliation; later accepted work needs its own imports.
 ## Suggested Next Action
 
 006C remains Accepted;006D has imported Accepted O2/F1 in four exact turns.
-Complete006D independent final Review and clean local checkpoint, then continue
+Verify006D clean Acceptance checkpoint, then continue
 ordinary Outbox/composition, E authoring, remaining F/G, Worker hardening, all-public
 Documentation/Owner preview and final same-SHA release qualification.
 
@@ -337,5 +337,8 @@ Documentation/Owner preview and final same-SHA release qualification.
 [006D](../tasks/P23-006D-o2-f1-accepted-integration.md) owns the next four source/package turns, now
 committed through`f1c871c482a7c80b884cb285acfe34a1a642c92c`. Exact52 final source and8 dedicated
 documents converge, with source-only reuse of the Accepted common full3756.
-Final006D management Review/Acceptance remains pending. No later E1/Outbox
+Final006D Review is Green and Root accepts the bounded integration locally. No later E1/Outbox
 source is imported and no intermediate is independently full-qualified.
+
+006D local Acceptance: final independent review`ca29f790` is Green;
+Root records the reviewed final checkpoint and retains parent1.3 remaining gates.

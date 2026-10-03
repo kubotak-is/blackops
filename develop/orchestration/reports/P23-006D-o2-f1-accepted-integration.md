@@ -1,12 +1,13 @@
 # P23-006D Report
 
-Status: In Progress — exact source integration passed; final Review pending
+Status: Accepted locally — exact source integration and independent final Review Green
 
 ## Summary
 
 Root prepared exact four-turn import of Accepted O2/F1 into the clean006C isolated
 branch. The four isolated source/package commits and convergence checks are complete;
-final006D Review/Acceptance remain pending. No release action occurred.
+independent final Review and Root local Acceptance are now complete. Final
+checkpoint clean proof is required before reporting completion. No release action occurred.
 
 ## Changed Files
 
@@ -30,8 +31,9 @@ requires its reviewed committed export before Acceptance under a separate Task.
   compared short branch name with saved full symbolic ref, second read nested
   preimage metadata at the wrong level. Corrected helper uses symbolic-ref HEAD
   and integration_file metadata. No repository or Git mutation occurred.
-- PHP/static/Node/inventory/remote CI/export/deploy: Not Run for this Task.
-  Matching Accepted evidence will be qualified after actual final convergence.
+- At initial issuance, PHP/static/Node/inventory/remote CI/export/deploy were
+  Not Run. Subsequent isolated syntax/inventory and source-convergence results
+  are recorded below; no PHP/static/Node/remote delivery execution is claimed.
 
 ## Release Documentation Impact
 
@@ -41,17 +43,18 @@ and Release Authority. Parent006 retains all-public same-SHA delivery gates.
 
 ## Acceptance Criteria
 
-Issuance, exact source import and isolated inventory criteria pass. Management
-closure, independent final Review and clean Acceptance checkpoint are pending.
+All six criteria are satisfied by the reviewed source/management inputs and
+required final clean checkpoint receipt. See Root local Acceptance below.
 
 ## Remaining Issues
 
-Management validation, final independent Review and clean Acceptance checkpoint.
+No unresolved006D source or Review finding. Final checkpoint clean proof remains
+a required completion receipt; parent release dependencies remain separate.
 
 ## Suggested Next Action
 
-Root validates management/preservation, obtains independent final Review, and
-commits the local Acceptance checkpoint after Green.
+Root verifies the committed local Acceptance checkpoint, then resumes existing
+Outbox/E1 proof work under their unchanged scoped Tasks.
 
 ## Isolated source integration — 2026-10-03T02:00:43+09:00
 
@@ -87,5 +90,24 @@ PHP/Node/Product gate was rerun just for commits. The Accepted full3756/7934098,
 Acceptancef7b55475 remain qualified original source evidence. Inherited issue
 aggregates1PHPdeprecation/2PHPUnitdeprecations/13notices remain recorded.
 
-Final management validation, independent006D Review and clean Acceptance commit
-remain pending. Parent1.3 and all remote release/delivery gates remain open.
+At the source-convergence checkpoint, management validation and final Review
+were pending. Root local Acceptance below supersedes that status. Parent1.3 and
+all remote release/delivery gates remain open.
+
+## Root local Acceptance — 2026-10-03T17:39:59+09:00
+
+Root read and adopted independent final Review `ca29f790b9d14404564fba39c3cd4c071643f29ba996b2137a044195d8fb0db6` with no open
+findings. The initial editorial P3 was closed by explicitly labeling two stale
+issuance/006C sentences as historical; correction6136e46e retains before/after
+hashes and changes no Product. Four source/package commits and management
+30cd9345 retain exact attribution, final52+8 convergence, actual149/103 package
+checks and primary/published preservation. Acceptance covers that reviewed
+source boundary plus the inspected management closeout delta only.
+
+The final management checkpoint records this Acceptance and the required STATE
+archive. Its post-commit clean SHA/pathset/parent/primary-buffer proof is written
+by Root to `/tmp/blackops-integration-o2-f1-20261002/acceptance/committed.json`;
+that receipt is required before reporting Task completion. No self-referential
+commit hash is embedded in the committed Report. Product/source verification is
+retained from the original qualified environment, with candidate vendor absent;
+this does not satisfy parent006 final same-SHA CI/export or release delivery.

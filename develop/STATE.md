@@ -1,7 +1,7 @@
 # Orchestration State
 
-Updated At: 2026-10-03T02:00:43+09:00
-Status: P23-006D source integration complete; independent final Review pending
+Updated At: 2026-10-03T17:39:59+09:00
+Status: P23-006D Accepted locally; final checkpoint clean proof required
 Current Task: [P23-006D](orchestration/tasks/P23-006D-o2-f1-accepted-integration.md)
 Current Report: [Integration Report](orchestration/reports/P23-006D-o2-f1-accepted-integration.md)
 
@@ -30,11 +30,14 @@ No remote CI/export/push/tag/deployment occurred here. Root owns Acceptance/STAT
  checks. Accepted original full3756/7934098,285MB,512M unchanged and independent
  review12f0d637 remain source evidence; inherited issue aggregates1/2/13 remain.
 - Primary buffers, published Reel, Release Authority and existing archives remain.
- Management validation and independent final006D Review/Acceptance are pending.
+ Managementvalidation65dc6ea4 and committed30cd9345 pass. Final independent
+ reviewca29f790 is Green; two stale historical-status sentences are corrected.
+ Root accepts locally; the final clean checkpoint receipt closes this Task.
 
 ## Remaining Work
 
-Finish006D local Review/Acceptance. Parent1.3 requires ordinary Outbox/composition,
+No unresolved006D finding remains. Final clean checkpoint proof is required.
+Parent1.3 requires ordinary Outbox/composition,
 Inline ambiguous-commit and rotation overflow policy, application authoring,
 persistence/signing/anchor/full verifier/control/G, Worker Mode hardening,
 all-public Documentation/Owner preview, final clean same-SHA CI/export and
@@ -42,9 +45,9 @@ immutable publication with package/site proof. Optional004B/003H stay excluded.
 
 ## Next Action
 
-Root validates the exact management boundary and primary preservation, obtains
-independent final006D Review, then commits local Acceptance after Green.
+Root confirms the final Acceptance commit is clean and preserves exact inputs,
+then continues current Outbox/E1 proof under their separate scoped Tasks.
 Later E1 requires separate reviewed import/export before its own Acceptance.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261002T170121Z-6482ba010e44cc06451df5a0ea750ff15451872912034bf99636e79f2238dd60.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261003T084030Z-6965005e7183257ce0d284a1631c1c649e0d36aab91ab2c1b31d5737fed831bc.md)
 <!-- state-tool:history:end -->
