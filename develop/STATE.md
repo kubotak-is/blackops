@@ -1,55 +1,50 @@
 # Orchestration State
 
-Updated At: 2026-10-02T10:57:11+09:00
-Status: P23-006C Accepted locally; through-O1 isolated integration complete
-Current Task: [P23-006C](orchestration/tasks/P23-006C-accepted-audit-integration.md)
-Current Report: [Integration Report](orchestration/reports/P23-006C-accepted-audit-integration.md)
+Updated At: 2026-10-03T02:00:43+09:00
+Status: P23-006D source integration complete; independent final Review pending
+Current Task: [P23-006D](orchestration/tasks/P23-006D-o2-f1-accepted-integration.md)
+Current Report: [Integration Report](orchestration/reports/P23-006D-o2-f1-accepted-integration.md)
 
 ## Current Boundary
 
-This is the isolated through-O1 integration checkout. Primary branch
-agent/p23-001-blackops-1-3-feasibility and its mixed work remain preserved.
-The Owner authorized completing1.3 under parent006; final local Documentation
-Owner confirmation still precedes publication. Experimental Stable1.2.1 remains
-current and1.3 unreleased. Root owns Git, current STATE and Acceptance.
-
-Base8106c355 preserves accepted1.3 foundations through D2S. Published Reel
-maina419f375 is merged at70f6193, retaining its32 non-summary files exactly.
-The six source units are committed through18ce42c5; D5P37eed06d is separate from
-public Documentation. Scoped management preserves both authorities and original
-local evidence. No release, CI, export, push or deployment occurred here.
+Isolated branch agent/p23-006-accepted-integration now retains Accepted006C
+through-O1 and all published Reel changes plus Accepted O2/F1 source. Primary
+mixed checkout, original ref/index and concurrent Outbox/E1 work remain separate.
+Owner authorized1.3 completion under006. Final local Documentation Owner preview
+still precedes publication. Experimental Stable1.2.1 stays current;1.3 unreleased.
+No remote CI/export/push/tag/deployment occurred here. Root owns Acceptance/STATE.
 
 ## Evidence
 
-- P23-018 is already Accepted and delivered. Its imported Report preserves
-  independent local/browser/live proof and reduced-motion Owner decision D167.
-- Exact Product manifest e323e929 contains94 endpoints over81 destinations in
-  six reviewed units: D2J+D2X, D3+D4A+D4B+D5H, D5P, R1, R2 and O1.
--006A recovers two D5H guards against historical hashes.006B provides reviewed
-  new97/48 package construction, with no historical-byte claim. Their Reports
-  and parent006 preserve the adopted granularity and source attribution.
-- Input81b5a6d3 preserves40 child and six shared management inputs. O1's accepted
-  full3668/7694025 is prior source evidence, not this checkout's same-SHA result.
-- Final81 endpoints and1693 runtime bytes match; actual115/66 package checks
-  pass in receipt377ac398. Management commit edb12f16 and final independent
-  reviewe0a9dd84 are Green; primary scope7624f692 and Git buffers are preserved.
-- Primary O2/F1 proof corrections and later1.3 work remain in their own checkout
-  and are not imported by this Task. Twelve unrelated pre-existing mode-only
-  residuals likewise remain primary-only.
+- Published Reela419f375 merged70f6193;32 non-summary files are preserved.
+-006C Accepted1d4fb9ed retains six attributed source units; D5P37eed06d remains
+ separate from public Documentation and12 unrelated mode changes stay excluded.
+-006D manifestd06a5e79 and actualpreflight78a53005 select final52+8 documents.
+ Four source/package turns115→118→125→137→149 end atf1c871c482a7c80b884cb285acfe34a1a642c92c.
+ Intermediate commits are not independently full-qualified historical snapshots.
+- Final52+8 and all remaining destination bytes/modes converge to their selected
+ inputs.1739 repository runtime and1141 static source inputs match Accepted full.
+ Absent candidate vendor install prevents any candidate-environment/same-SHA
+ execution claim; original primary vendor bytes match the retained input maps.
+- Source convergence5929936e records actual isolated package149/103 and syntax
+ checks. Accepted original full3756/7934098,285MB,512M unchanged and independent
+ review12f0d637 remain source evidence; inherited issue aggregates1/2/13 remain.
+- Primary buffers, published Reel, Release Authority and existing archives remain.
+ Management validation and independent final006D Review/Acceptance are pending.
 
 ## Remaining Work
 
-None for006C. This checkpoint only records local Acceptance on the reviewed
-committed boundary; no new Product check is needed. Parent1.3 still requires
-O2/F1 and ordinary adapters/composition, application authoring, verification/
-anchors/query/export, Worker Mode hardening, all-public Documentation/Owner
-preview and final local/same-SHA release/delivery gates.
+Finish006D local Review/Acceptance. Parent1.3 requires ordinary Outbox/composition,
+Inline ambiguous-commit and rotation overflow policy, application authoring,
+persistence/signing/anchor/full verifier/control/G, Worker Mode hardening,
+all-public Documentation/Owner preview, final clean same-SHA CI/export and
+immutable publication with package/site proof. Optional004B/003H stay excluded.
 
 ## Next Action
 
-Root continues the primary O2/F1 proof work and remaining parent006 dependencies.
-Preserve this isolated series for subsequent accepted imports and final gates.
-No immutable tag or published release is changed by this local checkpoint.
+Root validates the exact management boundary and primary preservation, obtains
+independent final006D Review, then commits local Acceptance after Green.
+Later E1 requires separate reviewed import/export before its own Acceptance.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261002T015711Z-c6231245790fe8f43427c8596a7243c59a690633d1edf23e178a753307f4affe.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261002T170121Z-6482ba010e44cc06451df5a0ea750ff15451872912034bf99636e79f2238dd60.md)
 <!-- state-tool:history:end -->

@@ -69,10 +69,10 @@ are read-only. The configured Documentation Reviewer is read-only.
 | Discovery, Stable retention preflight, CLI projections/list/diagnostics/status | Accepted P23-001/001R/002A..E | Preserve and qualify in final candidate |
 | Audit Catalog, canonical storage, durable delivery and relay | Accepted P23-003A/B/C | Preserve and integrate through accepted contracts |
 | Operation reads, authentication, authorization, hold, purge, rotation adapters | D1/D2/D3/D4/D5H/D5P/D5R1/R2 Accepted; several local only | Integrate, retain independent evidence and separate commits |
-| Observer replay and generic Outbox adapters | Pending source contracts and implementation | Native transaction prerequisites, truthful phase events, same-root proof |
+| Observer replay and generic Outbox adapters | O1/O2 Accepted locally and imported; Outbox pending | Native transaction prerequisites, truthful phase events, same-root proof |
 | Ordinary Audit composition | Pending D-integration | Enable approved paths, enforce tenant/privacy/failure contracts; close Inline ambiguous-commit reconciliation and rotation overflow policy |
 | Application event authoring/projector | Pending E | Explicit versioned API, reference business journey, no inferred business events |
-| Checkpoint/anchor signing and reusable verification | Pending F | Accepted sealed-record inputs, signing/trust/revocation/freshness, crash-safe external anchor |
+| Checkpoint/anchor signing and reusable verification | Pure F1 Accepted locally and imported; remaining F pending | Accepted sealed-record inputs, signing/trust/revocation/freshness, crash-safe external anchor |
 | Checkpoint/anchor control events | Pending D-control after F | Consume accepted typed outcomes; no recursive audit cycle |
 | Query/export/audit-of-audit/retention/hold | Pending G after F/control | Bounded authorized reads/exports, shared verifier, metadata retention/hold |
 | HTTP Worker Mode hardening | Pending004A | Startup/readiness/state/memory/restart/isolation/upgrade/rollback and reviewed Classic migration |
@@ -154,3 +154,11 @@ endpoints. Accepted006B resolves the two gaps in adopted manifeste323e929.
 The separate exact isolated
 integration Task follows verified payloads and current remote inputs. This parent is complete
 only when1.3 is released and its package/site results are externally verified.
+
+## Accepted O2/F1 import
+
+[006D](../tasks/P23-006D-o2-f1-accepted-integration.md) owns the next four source/package turns, now
+committed through`f1c871c482a7c80b884cb285acfe34a1a642c92c`. Exact52 final source and8 dedicated
+documents converge, with source-only reuse of the Accepted common full3756.
+Final006D management Review/Acceptance remains pending. No later E1/Outbox
+source is imported and no intermediate is independently full-qualified.

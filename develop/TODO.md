@@ -1017,3 +1017,12 @@ an observed JSONL projection only, and no current Stable claim is changed.
 - [x] Final81 endpoint bytes/modes and1693 runtime bytes match their selected evidence; actual115/66 package inventory passes.
 - [x] Independent integration Review and current management closeout (edb12f16; reviewe0a9dd84 Green): [P23-006C](orchestration/tasks/P23-006C-accepted-audit-integration.md), [Report](orchestration/reports/P23-006C-accepted-audit-integration.md).
 - [ ] Parent1.3 dependencies, residual Documentation, final Owner preview, final local/same-SHA CI/export and immutable publication/live proof remain with [P23-006](orchestration/tasks/P23-006-blackops-1-3-release.md). This checkout ends at O1; primary O2/F1 are not imported yet.
+
+## Accepted O2/F1 isolated integration
+
+Replay audit O2 and signed-artifact primitives F1 are Accepted locally after
+the shared3756-case full and independent Review. [006D](orchestration/tasks/P23-006D-o2-f1-accepted-integration.md)
+imports their52 final paths and8 documents in four attributed turns, with
+149/103 package checks and source convergence complete. Final integration
+Review/Acceptance remains pending. Parent1.3 dependencies and release gates
+remain; the published Reel and through-O1 integration are preserved.

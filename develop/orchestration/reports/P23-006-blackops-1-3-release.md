@@ -319,7 +319,7 @@ export, publication or production deployment has occurred under this parent yet.
 
 ## Remaining Issues
 
-Pending ordinary D replay/Outbox/integration, E, F, post-F control, G,004A,
+Pending ordinary D Outbox/integration, E, remaining F, post-F control, G,004A,
 005, Owner local preview and006 final qualification/publication/delivery.
 Inline ambiguous-commit reconciliation and legacy rotation overflow policy must
 be closed in integration/hardening. Through-O1 accepted slices have reviewed commit separation and published
@@ -327,8 +327,15 @@ Documentation reconciliation; later accepted work needs its own imports.
 
 ## Suggested Next Action
 
-006C is locally Accepted at reviewed edb12f16, with six source commits and
-published Reel retained. Continue O2 privacy/AST and F1 AST corrections; matching
-static and F1 functional/Node/package successes remain valid. Independent proof
-closure precedes common512M full and child Acceptance. F2 follows F1 Acceptance;
-later adapters/composition, Documentation/Owner preview and release remain.
+006C remains Accepted;006D has imported Accepted O2/F1 in four exact turns.
+Complete006D independent final Review and clean local checkpoint, then continue
+ordinary Outbox/composition, E authoring, remaining F/G, Worker hardening, all-public
+Documentation/Owner preview and final same-SHA release qualification.
+
+## Accepted O2/F1 import
+
+[006D](../tasks/P23-006D-o2-f1-accepted-integration.md) owns the next four source/package turns, now
+committed through`f1c871c482a7c80b884cb285acfe34a1a642c92c`. Exact52 final source and8 dedicated
+documents converge, with source-only reuse of the Accepted common full3756.
+Final006D management Review/Acceptance remains pending. No later E1/Outbox
+source is imported and no intermediate is independently full-qualified.

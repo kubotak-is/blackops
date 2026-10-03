@@ -152,6 +152,8 @@
 | [118-storage-rotation-transaction-outcomes.md](118-storage-rotation-transaction-outcomes.md) | Native rotation commit ambiguity and single finalization | D5R1/D5R2 Accepted (local); `1.3` unreleased |
 | [119-storage-rotation-audit-adapter.md](119-storage-rotation-audit-adapter.md) | Typed rotation phase hook, strict subjects and native-root durable events | D5R2 Accepted (local); `1.3` unreleased |
 | [120-observer-replay-transaction-outcomes.md](120-observer-replay-transaction-outcomes.md) | Native replay root admission, commit ambiguity and failure ordering | D5O1 Accepted (local); `1.3` unreleased |
+| [121-observer-replay-audit-adapter.md](121-observer-replay-audit-adapter.md) | Selected Journal lineage and native-root Replay phase events | Bounded implementation Accepted (local); `1.3` unreleased |
+| [122-audit-signed-artifact-primitives.md](122-audit-signed-artifact-primitives.md) | Canonical checkpoint/receipt, Ed25519 and supplied-trust verification | Bounded implementation Accepted (local); `1.3` unreleased |
 
 ## 決定の参照
 
@@ -327,6 +329,8 @@
 | [D168](../decisions/168-storage-rotation-transaction-outcomes.md) | D5R1 native transaction outcomes before the rotation event adapter | Decided; D5R1 Accepted (local); `1.3` unreleased |
 | [D169](../decisions/169-storage-rotation-audit-adapter.md) | D5R2 rotation phase delivery and bounded interruption recovery | Decided; D5R2 Accepted (local); `1.3` unreleased |
 | [D170](../decisions/170-observer-replay-transaction-outcomes.md) | D5O1 native replay transaction outcomes before phase delivery | Decided; D5O1 Accepted (local); `1.3` unreleased |
+| [D171](../decisions/171-observer-replay-audit-adapter.md) | Four replay events, trusted execution and selected-source identity | Decided; authority Green; `1.3` unreleased |
+| [D172](../decisions/172-audit-signed-artifact-primitives.md) | Pure signed artifact scope and joint O2/F1 verification | Decided; authority Green; `1.3` unreleased |
 | [D160](../decisions/160-operation-data-read-audit-adapters.md) | Journal/Outcome Audit adapters, fixed read execution and inherited trace protection | Decided; Product progress in D2J Report; `1.3` unreleased |
 | [D161](../decisions/161-operation-diagnostics-audit-adapter.md) | Global Diagnostics Audit and fresh same-code exception release | Decided; Product progress in D2X Report; `1.3` unreleased |
 | [D162](../decisions/162-http-authentication-audit-adapter.md) | HTTP credential-check result, Session mutation boundary and durable response gate | Decided; Product progress in D3 Report; `1.3` unreleased |

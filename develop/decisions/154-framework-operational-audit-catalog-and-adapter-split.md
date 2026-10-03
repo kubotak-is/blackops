@@ -386,3 +386,10 @@ different. D5 must adapt the Stable generic source explicitly.
 - P23-003D remains incomplete after D1; later children still own adapters,
   integration, and D-control after F.
 - No Stable capability or compliance claim is created.
+
+[D171](171-observer-replay-audit-adapter.md)/spec121 now define D5O2's four
+finite phase events, historical selected Journal lineage and trusted current
+execution. Its exact Task owns issued-authority status, the common O1 baseline
+and serialized package ownership with F1. It depends on Accepted C/D1/O1 and
+D4B only for Connection identity; F1 is not a semantic dependency. No normal
+composition or other D edge is activated by this adapter child.

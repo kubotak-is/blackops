@@ -31,6 +31,12 @@ Stable `1.2.0` remains current.
 BlackOps `1.3`, Audit Trail delivery, the new key-provider interfaces, and all
 Audit runtime behavior remain unreleased.
 
+Subsequent boundary,2026-10-01: [D172](172-audit-signed-artifact-primitives.md)/
+spec122 and the linked F1 Task define the pure checkpoint/receipt signing and
+verification prerequisite after Accepted A/B/C. Ordinary D/E are not semantic
+prerequisites. F1 adds no C3 caller, provider or activation, and does not complete
+parent F. Its status belongs to that Task; the C3 closeout below is historical.
+
 ## Context
 
 Accepted C2 exposes two transaction-participating stores.
