@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BlackOps\Core\Audit;
 
+use BlackOps\Core\Attribute\PublicApi;
+
 /**
  * @mago-expect lint:cyclomatic-complexity
  * @mago-expect lint:kan-defect
@@ -12,6 +14,7 @@ namespace BlackOps\Core\Audit;
  * @mago-expect lint:no-nested-ternary
  * @mago-expect lint:no-else-clause
  */
+#[PublicApi]
 final readonly class AuditEventDefinition
 {
     /**

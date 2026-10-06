@@ -44,7 +44,14 @@ use BlackOps\Internal\StorageProtection\BopdBinaryEnvelope;
 use BlackOps\Internal\StorageProtection\BopdBinaryEnvelopeCodec;
 use BlackOps\StorageProtection\StoragePurpose;
 use PhpParser\Node;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
@@ -1913,6 +1920,7 @@ final class AuditRecordArchitectureTest extends TestCase
         $sources = $this->sourceFiles($sourceRoot);
         self::assertSame(
             [
+                'Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => 1,
                 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
@@ -1925,6 +1933,13 @@ final class AuditRecordArchitectureTest extends TestCase
         $lookupPath = 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php';
         self::assertSame(
             [
+                [
+                    'path' => 'Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
                 [
                     'path' => $lookupPath,
                     'target' => FrameworkOperationalAuditEventCatalog::class,
@@ -1991,11 +2006,58 @@ final class AuditRecordArchitectureTest extends TestCase
             $sources[$lookupPath] . "\n'FrameworkOperationalAuditEventCatalog::catalog()';\n",
         ));
 
+        $registryPath = 'Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php';
+        $registrySource = $sources[$registryPath];
+        self::assertTrue($this->exactOperationalProviderAssemblyReferenceShape($registrySource));
+        self::assertTrue($this->exactOperationalProviderAssemblyReferenceShape($registrySource
+        . "\n// FrameworkOperationalAuditEventCatalog::catalog();\n"));
+        self::assertTrue($this->exactOperationalProviderAssemblyReferenceShape($registrySource
+        . "\n'FrameworkOperationalAuditEventCatalog::catalog()';\n"));
+        $registryProviderAssignment = '        $operational = FrameworkOperationalAuditEventCatalog::catalog();';
+        $registryMutations = [
+            'registry provider call outside assembly' => $this->replaceProviderSourceOnce(
+                $this->replaceProviderSourceOnce($registrySource, $registryProviderAssignment . "\n", ''),
+                "    public function lookup(): ImmutableAuditEventCatalogLookup\n    {\n",
+                "    public function lookup(): ImmutableAuditEventCatalogLookup\n    {\n"
+                . $registryProviderAssignment
+                . "\n",
+            ),
+            'registry provider call nested in branch' => $this->replaceProviderSourceOnce(
+                $registrySource,
+                $registryProviderAssignment,
+                "        if (true) {\n            \$operational = FrameworkOperationalAuditEventCatalog::catalog();\n        }",
+            ),
+            'registry provider call in unbraced branch' => $this->replaceProviderSourceOnce(
+                $registrySource,
+                $registryProviderAssignment,
+                "        if (false)\n            \$operational = FrameworkOperationalAuditEventCatalog::catalog();",
+            ),
+            'registry provider assignment owner changed' => $this->replaceProviderSourceOnce(
+                $registrySource,
+                $registryProviderAssignment,
+                '        $framework = FrameworkOperationalAuditEventCatalog::catalog();',
+            ),
+            'registry provider target changed' => $this->replaceProviderSourceOnce(
+                $registrySource,
+                $registryProviderAssignment,
+                '        $operational = FrameworkAuditEventCatalog::catalog();',
+            ),
+        ];
+        foreach ($registryMutations as $label => $mutation) {
+            try {
+                token_get_all($mutation, TOKEN_PARSE);
+            } catch (\ParseError $exception) {
+                self::fail($label . ' reference mutation is not valid PHP: ' . $exception->getMessage());
+            }
+            self::assertFalse($this->exactOperationalProviderAssemblyReferenceShape($mutation), $label);
+        }
+
         $providerPath = 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php';
         foreach ($sources as $path => $source) {
             if (
                 $path === $providerPath
                 || $path === $lookupPath
+                || $path === $registryPath
                 || $path === 'Internal/Audit/Retention/RetentionHoldAuditWriter.php'
                 || $path === 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php'
                 || $path === 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php'
@@ -2109,6 +2171,7 @@ final class AuditRecordArchitectureTest extends TestCase
         self::assertSame(
             [
                 'External/OperationalCatalogCaller.php' => 1,
+                'Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => 1,
                 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
@@ -2126,6 +2189,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => '\\BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'fqcn',
+                ],
+                [
+                    'path' => 'Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
                 [
                     'path' => $lookupPath,
@@ -2172,7 +2242,6 @@ final class AuditRecordArchitectureTest extends TestCase
             ],
             $this->operationalProviderReferenceInventory($extraCaller),
         );
-
         $indirectCallers = [
             'External/OperationalCatalogClassStringLiteral.php' => <<<'PHP'
                 <?php
@@ -2356,6 +2425,7 @@ final class AuditRecordArchitectureTest extends TestCase
         $wholePathCaller['Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php'] = '<?php \\BlackOps\\Internal\\Audit\\Catalog\\FrameworkOperationalAuditEventCatalog::catalog();';
         self::assertSame(
             [
+                'Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php' => 1,
                 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
                 'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => 1,
@@ -2369,6 +2439,13 @@ final class AuditRecordArchitectureTest extends TestCase
         );
         self::assertSame(
             [
+                [
+                    'path' => 'Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
+                ],
                 [
                     'path' => 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php',
                     'target' => FrameworkOperationalAuditEventCatalog::class,
@@ -3752,6 +3829,216 @@ final class AuditRecordArchitectureTest extends TestCase
         }
 
         return null;
+    }
+
+    private function exactOperationalProviderAssemblyReferenceShape(string $source): bool
+    {
+        try {
+            $tokens = token_get_all($source, TOKEN_PARSE);
+        } catch (\ParseError) {
+            return false;
+        }
+        if ($this->namespaceName($tokens) !== 'BlackOps\\Internal\\Audit\\Authoring')
+            return false;
+        $references = $this->operationalProviderReferenceInventory(['registry' => $source]);
+        if (
+            count($references) !== 1
+            || $references[0]['kind'] !== 'alias'
+            || $references[0]['receiver'] !== 'FrameworkOperationalAuditEventCatalog'
+        )
+            return false;
+        if (!$this->exactOperationalProviderAssemblyDirectStatement($source))
+            return false;
+
+        $classIndex = null;
+        $classOpening = null;
+        foreach ($tokens as $index => $token) {
+            if (
+                !is_array($token)
+                || $token[0] !== T_CLASS
+                || ($nameIndex = $this->nextSignificantToken($tokens, $index + 1)) === null
+                || !is_array($tokens[$nameIndex])
+                || $tokens[$nameIndex][0] !== T_STRING
+                || $tokens[$nameIndex][1] !== 'ApplicationAuditCatalogRegistry'
+            )
+                continue;
+            if ($classIndex !== null)
+                return false;
+            $classIndex = $index;
+            $classOpening = $this->nextSignificantToken($tokens, $nameIndex + 1);
+            while ($classOpening !== null && $tokens[$classOpening] !== '{')
+                $classOpening = $this->nextSignificantToken($tokens, $classOpening + 1);
+        }
+        if ($classIndex === null || $classOpening === null)
+            return false;
+        $classClosing = $this->matchingBrace($tokens, $classOpening);
+        if ($classClosing === null)
+            return false;
+
+        $assembleOpening = null;
+        $assembleClosing = null;
+        $assembleCount = 0;
+        for ($index = $classOpening + 1; $index < $classClosing; $index++) {
+            $token = $tokens[$index];
+            if (!is_array($token) || $token[0] !== T_FUNCTION)
+                continue;
+            $nameIndex = $this->nextSignificantToken($tokens, $index + 1);
+            if ($nameIndex !== null && $tokens[$nameIndex] === '&')
+                $nameIndex = $this->nextSignificantToken($tokens, $nameIndex + 1);
+            if (
+                $nameIndex === null
+                || !is_array($tokens[$nameIndex])
+                || $tokens[$nameIndex][0] !== T_STRING
+                || $tokens[$nameIndex][1] !== 'assemble'
+            )
+                continue;
+            $assembleCount++;
+            $modifier = $this->previousSignificantToken($tokens, $index - 1);
+            if ($modifier === null || !is_array($tokens[$modifier]) || $tokens[$modifier][0] !== T_PRIVATE)
+                return false;
+            $parameterOpening = $this->nextSignificantToken($tokens, $nameIndex + 1);
+            if ($parameterOpening === null || $tokens[$parameterOpening] !== '(')
+                return false;
+            $parameterClosing = $this->matchingParenthesis($tokens, $parameterOpening);
+            if ($parameterClosing === null)
+                return false;
+            $bodyOpening = $this->nextSignificantToken($tokens, $parameterClosing + 1);
+            while ($bodyOpening !== null && $tokens[$bodyOpening] !== '{' && $tokens[$bodyOpening] !== ';')
+                $bodyOpening = $this->nextSignificantToken($tokens, $bodyOpening + 1);
+            if ($bodyOpening === null || $tokens[$bodyOpening] !== '{')
+                return false;
+            $bodyClosing = $this->matchingBrace($tokens, $bodyOpening);
+            if ($bodyClosing === null)
+                return false;
+            $assembleOpening = $bodyOpening;
+            $assembleClosing = $bodyClosing;
+            $index = $bodyClosing;
+        }
+        if ($assembleCount !== 1 || $assembleOpening === null || $assembleClosing === null)
+            return false;
+
+        $namespace = $this->namespaceName($tokens);
+        $aliases = $this->importAliases($tokens);
+        $providerIndex = null;
+        $providerOpening = null;
+        foreach ($tokens as $index => $token) {
+            if (!is_array($token) || !$this->isNameToken($token))
+                continue;
+            $doubleColon = $this->nextSignificantToken($tokens, $index + 1);
+            $method = $doubleColon === null ? null : $this->nextSignificantToken($tokens, $doubleColon + 1);
+            $opening = $method === null ? null : $this->nextSignificantToken($tokens, $method + 1);
+            if (
+                $doubleColon === null
+                || !is_array($tokens[$doubleColon])
+                || $tokens[$doubleColon][0] !== T_DOUBLE_COLON
+                || $method === null
+                || !is_array($tokens[$method])
+                || $tokens[$method][0] !== T_STRING
+                || $tokens[$method][1] !== 'catalog'
+                || $opening === null
+                || $tokens[$opening] !== '('
+                || $this->resolveClassName($token, $namespace, $aliases)
+                    !== FrameworkOperationalAuditEventCatalog::class
+            )
+                continue;
+            if ($providerIndex !== null)
+                return false;
+            $providerIndex = $index;
+            $providerOpening = $opening;
+        }
+        if ($providerIndex === null || $providerOpening === null)
+            return false;
+        if ($providerIndex <= $assembleOpening || $providerIndex >= $assembleClosing)
+            return false;
+
+        $equals = $this->previousSignificantToken($tokens, $providerIndex - 1);
+        $variable = $equals === null ? null : $this->previousSignificantToken($tokens, $equals - 1);
+        if (
+            $equals === null
+            || $tokens[$equals] !== '='
+            || $variable === null
+            || !is_array($tokens[$variable])
+            || $tokens[$variable][0] !== T_VARIABLE
+            || $tokens[$variable][1] !== '$operational'
+        )
+            return false;
+        $closing = $this->nextSignificantToken($tokens, $providerOpening + 1);
+        if ($closing === null || $tokens[$closing] !== ')')
+            return false;
+        $semicolon = $this->nextSignificantToken($tokens, $closing + 1);
+
+        return $semicolon !== null && $tokens[$semicolon] === ';';
+    }
+
+    private function exactOperationalProviderAssemblyDirectStatement(string $source): bool
+    {
+        try {
+            $nodes = new ParserFactory()
+                ->createForNewestSupportedVersion()
+                ->parse($source);
+            if (!is_array($nodes))
+                return false;
+            $traverser = new NodeTraverser();
+            $traverser->addVisitor(new NameResolver(null, ['replaceNodes' => false]));
+            $nodes = $traverser->traverse($nodes);
+        } catch (\Throwable) {
+            return false;
+        }
+
+        $registryClass = null;
+        foreach (new NodeFinder()->findInstanceOf($nodes, Class_::class) as $class) {
+            if (
+                !$class instanceof Class_
+                || $class->name === null
+                || $class->name->toString() !== 'ApplicationAuditCatalogRegistry'
+            )
+                continue;
+            if ($registryClass !== null)
+                return false;
+            $registryClass = $class;
+        }
+        if (!$registryClass instanceof Class_)
+            return false;
+
+        $assembleMethods = [];
+        foreach ($registryClass->stmts as $statement) {
+            if (
+                $statement instanceof ClassMethod
+                && $statement->name instanceof Identifier
+                && $statement->name->toString() === 'assemble'
+            )
+                $assembleMethods[] = $statement;
+        }
+        if (count($assembleMethods) !== 1 || !$assembleMethods[0]->isPrivate() || $assembleMethods[0]->stmts === null)
+            return false;
+
+        $directCalls = 0;
+        foreach ($assembleMethods[0]->stmts as $statement) {
+            if (!$statement instanceof Expression || !$statement->expr instanceof Assign)
+                continue;
+            $assignment = $statement->expr;
+            if (!$assignment->var instanceof Variable || $assignment->var->name !== 'operational')
+                continue;
+            if (!$assignment->expr instanceof StaticCall)
+                return false;
+            $call = $assignment->expr;
+            if (
+                !$call->class instanceof Name
+                || !$call->name instanceof Identifier
+                || $call->name->toString() !== 'catalog'
+                || $call->args !== []
+            )
+                return false;
+            $resolvedName = $call->class->getAttribute('resolvedName');
+            if (
+                !$resolvedName instanceof Name
+                || ltrim($resolvedName->toString(), '\\') !== FrameworkOperationalAuditEventCatalog::class
+            )
+                return false;
+            $directCalls++;
+        }
+
+        return $directCalls === 1;
     }
 
     private function exactOperationalProviderReferenceShape(string $source): bool

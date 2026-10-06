@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Core\Audit;
 
+use BlackOps\Core\Attribute\PublicApi;
 use RuntimeException;
 
+#[PublicApi]
 final class AuditValidationException extends RuntimeException
 {
     public const int MAX_SAFE_INTEGER = 9_007_199_254_740_991;

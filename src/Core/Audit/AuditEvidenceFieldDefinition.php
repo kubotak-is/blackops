@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BlackOps\Core\Audit;
 
+use BlackOps\Core\Attribute\PublicApi;
+
+#[PublicApi]
 final readonly class AuditEvidenceFieldDefinition
 {
     public function __construct(

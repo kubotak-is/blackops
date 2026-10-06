@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='037639003f8d679bc241dabb29f6c79e0daa93723e12486501d6da4b06a63833'
+reviewed_export_sha='f8f5b5d9a9883228ddd90e6303abc8dc5f827c37f44d16045bf4ea7f9ad2f459'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -19,6 +19,9 @@ printf '%s\n' \
     src/Core/Exception/ConfigurationFailure.php \
     src/Audit/AuditOpaqueIdKeyProvider.php \
     src/Audit/AuditProtectionKeyProvider.php \
+    src/Audit/AuditCatalogDefinition.php \
+    src/Audit/AuditCatalogProvider.php \
+    src/Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php \
     src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php \
     src/Internal/Audit/Artifact/AuditArtifactFailure.php \
     src/Internal/Audit/Artifact/AuditArtifactException.php \
@@ -713,7 +716,13 @@ assert_execution_contract() {
     local runtime_case
     local complete_root
     local missing_root
-    local missing_path='src/Internal/Audit/Storage/AuditStoreFailure.php'
+    local missing_path
+    local missing_paths=(
+        'src/Internal/Audit/Storage/AuditStoreFailure.php'
+        'src/Audit/AuditCatalogDefinition.php'
+        'src/Audit/AuditCatalogProvider.php'
+        'src/Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php'
+    )
 
     if ! extract_function "${EXPORT_SCRIPT}" "${reviewed_function_source}"; then
         return 1
@@ -722,15 +731,17 @@ assert_execution_contract() {
         return 1
     fi
 
-    runtime_case=$((runtime_case_count + 1))
-    runtime_case_count="${runtime_case}"
-    complete_root="${TEMP_ROOT}/runtime-${runtime_case}-complete"
-    missing_root="${TEMP_ROOT}/runtime-${runtime_case}-missing"
-    prepare_runtime_package "${complete_root}"
-    prepare_runtime_package "${missing_root}" "${missing_path}"
-    if ! assert_runtime_function "${function_source}" "${complete_root}" "${missing_root}"; then
-        return 1
-    fi
+    for missing_path in "${missing_paths[@]}"; do
+        runtime_case=$((runtime_case_count + 1))
+        runtime_case_count="${runtime_case}"
+        complete_root="${TEMP_ROOT}/runtime-${runtime_case}-complete"
+        missing_root="${TEMP_ROOT}/runtime-${runtime_case}-missing"
+        prepare_runtime_package "${complete_root}"
+        prepare_runtime_package "${missing_root}" "${missing_path}"
+        if ! assert_runtime_function "${function_source}" "${complete_root}" "${missing_root}"; then
+            return 1
+        fi
+    done
 
     if ! cmp -s "${reviewed_function_source}" "${function_source}"; then
         return 1
@@ -995,6 +1006,55 @@ test_mutation_rejected() {
             ;;
         new-omission)
             run_bounded sed -i '\|src/Internal/Audit/Relay/AuditRelayOutcome.php|d' "${candidate}"
+            ;;
+        e1-definition-omission)
+            run_bounded sed -i '\|src/Audit/AuditCatalogDefinition.php|d' "${candidate}"
+            ;;
+        e1-provider-omission)
+            run_bounded sed -i '\|src/Audit/AuditCatalogProvider.php|d' "${candidate}"
+            ;;
+        e1-registry-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php|d' "${candidate}"
+            ;;
+        e1-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Audit\/AuditCatalogDefinition\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Audit\/AuditCatalogProvider\.php/) {
+                        if (getline third > 0 && third ~ /src\/Internal\/Audit\/Authoring\/ApplicationAuditCatalogRegistry\.php/) {
+                            print third
+                            print second
+                            print first
+                            swapped = 1
+                            next
+                        }
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        e1-duplicate-entry)
+            run_bounded awk '
+                !inserted && $0 ~ /src\/Internal\/Audit\/Authoring\/ApplicationAuditCatalogRegistry\.php/ {
+                    print
+                    print
+                    inserted = 1
+                    next
+                }
+                { print }
+                END {
+                    if (!inserted) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
             ;;
         d1-omission)
             run_bounded sed -i '\|src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php|d' "${candidate}"
@@ -1957,15 +2017,22 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-    test "$(wc -l < "${expected_inventory}")" -eq 159
-    test "$(sort -u "${expected_inventory}" | wc -l)" -eq 159
-    printf 'required inventory: PASS (159 ordered paths, 159 unique)\n'
+test "${runtime_case_count}" -eq 4
+printf 'required inventory runtime omissions: PASS (4 separate missing-file cases)\n'
+test "$(wc -l < "${expected_inventory}")" -eq 162
+test "$(sort -u "${expected_inventory}" | wc -l)" -eq 162
+printf 'required inventory: PASS (162 ordered paths, 162 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
 test_mutation_rejected added-entry added-entry
 test_mutation_rejected duplicate-entry duplicate-entry
 test_mutation_rejected new-entry-omission new-omission
+test_mutation_rejected e1-definition-entry-omission e1-definition-omission
+test_mutation_rejected e1-provider-entry-omission e1-provider-omission
+test_mutation_rejected e1-registry-entry-omission e1-registry-omission
+test_mutation_rejected e1-reverse-new-block e1-order-swap
+test_mutation_rejected e1-duplicate-new-entry e1-duplicate-entry
 test_mutation_rejected d1-entry-omission d1-omission
 test_mutation_rejected d2-entry-omission d2-omission
 test_mutation_rejected d2s1-interface-entry-omission d2s1-interface-omission
@@ -2077,4 +2144,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (115 rejected: 101 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (120 rejected: 106 inventory, 14 call-contract)\n'

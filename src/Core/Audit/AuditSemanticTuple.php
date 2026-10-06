@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace BlackOps\Core\Audit;
 
+use BlackOps\Core\Attribute\PublicApi;
+
 /** @mago-expect lint:kan-defect */
+#[PublicApi]
 final readonly class AuditSemanticTuple
 {
     public function __construct(

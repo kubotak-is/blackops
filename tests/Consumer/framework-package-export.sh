@@ -78,6 +78,9 @@ validate_package() {
         src/Core/Exception/ConfigurationFailure.php \
         src/Audit/AuditOpaqueIdKeyProvider.php \
         src/Audit/AuditProtectionKeyProvider.php \
+        src/Audit/AuditCatalogDefinition.php \
+        src/Audit/AuditCatalogProvider.php \
+        src/Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php \
         src/Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php \
         src/Internal/Audit/Artifact/AuditArtifactFailure.php \
         src/Internal/Audit/Artifact/AuditArtifactException.php \
@@ -253,8 +256,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 159
-    test "${required_inventory_unique}" -eq 159
+    test "${required_inventory_count}" -eq 162
+    test "${required_inventory_unique}" -eq 162
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \
