@@ -4,6 +4,12 @@ Status: Accepted for P23-003C3 — candidate committed and same-SHA package expo
 
 Updated At: 2026-09-04T01:53:16+09:00
 
+Subsequent E foundation: [D174](174-application-audit-catalog-registry.md)/
+spec124 and its exact22-path Task define the public declaration/provider and
+Internal combined registry. It follows Accepted C independently of ordinary D.
+C3 and normal composition remain unchanged; activation later consumes the retained
+lookup. The explicit Outbox/E1 common verification is scheduling only.
+
 ## Current Handoff
 
 P23-003C1, P23-003C2, and P23-003C3 are Accepted.

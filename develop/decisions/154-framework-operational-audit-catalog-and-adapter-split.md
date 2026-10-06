@@ -4,6 +4,13 @@ Status: Parent D incomplete — D1/D2/D2S1 Accepted; adapters remain incomplete;
 
 Updated At: 2026-09-08T11:20:30+09:00
 
+Subsequent generic Outbox source contract: [D173](173-generic-outbox-audit-adapter.md)/
+spec123 and the amended exact19-path D5O3 Task fix the three returned-row events, finite
+Relay/Cli hook, owned same-root delivery and enabled cleanup policy. C/D1 remain
+semantic prerequisites, D4B supplies Connection identity only. O2/F1 are now
+Accepted scheduling baselines; E1 is an independent sibling sharing explicit
+file/resource qualification, not an Outbox feature dependency. No normal activation.
+
 ## Current Handoff
 
 D1/D2 and the D2S1 source prerequisite are Accepted. The Status adapter's

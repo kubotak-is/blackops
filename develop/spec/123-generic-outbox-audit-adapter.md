@@ -1,6 +1,6 @@
 # Specification 123: Generic Outbox Audit Adapter
 
-Status: Decided — finite metric amendment independently Green; bounded correction authorized; BlackOps1.3 unreleased
+Status: Decided — bounded implementation Accepted locally; BlackOps1.3 unreleased
 
 The most-specific contract for [P23-003D5O3](../orchestration/tasks/P23-003D5O3-generic-outbox-audit-adapter.md)
 and [D173](../decisions/173-generic-outbox-audit-adapter.md).

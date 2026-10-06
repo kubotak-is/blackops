@@ -1,6 +1,6 @@
 # D173: Generic Outbox Audit Adapter
 
-Status: Decided — initial and finite metric amendment authority Green; correction pending Acceptance; BlackOps1.3 unreleased
+Status: Decided — bounded implementation Accepted locally; BlackOps1.3 unreleased
 
 ## Decision
 

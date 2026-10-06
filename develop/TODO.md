@@ -11,6 +11,8 @@
 
 ## 現在の作業への導線
 
+- 1.3 Release: [P23-006](orchestration/tasks/P23-006-blackops-1-3-release.md)。統合ブランチでは O2／F1 の6コミットに続き、Outbox `a179781` と Catalog `3baf147` を分離コミット済み。[006E](orchestration/tasks/P23-006E-outbox-catalog-integration.md)で必須Exportは合格し、最終ReviewとローカルAcceptanceも完了。checkpoint pushを進める。1.3全体の残り工程はSTATEと親Reportを参照。
+
 - Status Audit adapter: [D2S Task](orchestration/tasks/P23-003D2S-operation-status-audit-adapter.md)、[Report](orchestration/reports/P23-003D2S-operation-status-audit-adapter.md)。実装と関連レビュー・全件検証が通過。完了条件と配布物検証はReportを正本とする。HTTPへの組込みは親D統合で行う。
 - 1.2.1開発ブランチ同期: [P23-013 Task](orchestration/tasks/P23-013-sync-stable-1-2-1.md)、[Report](orchestration/reports/P23-013-sync-stable-1-2-1.md)。Accepted。既存作業保存、main取込、公開仕様と開発中実装の検証分離、clean SHAのpackage exportまで完了。
 

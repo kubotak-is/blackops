@@ -69,9 +69,9 @@ are read-only. The configured Documentation Reviewer is read-only.
 | Discovery, Stable retention preflight, CLI projections/list/diagnostics/status | Accepted P23-001/001R/002A..E | Preserve and qualify in final candidate |
 | Audit Catalog, canonical storage, durable delivery and relay | Accepted P23-003A/B/C | Preserve and integrate through accepted contracts |
 | Operation reads, authentication, authorization, hold, purge, rotation adapters | D1/D2/D3/D4/D5H/D5P/D5R1/R2 Accepted; several local only | Integrate, retain independent evidence and separate commits |
-| Observer replay and generic Outbox adapters | O1/O2 Accepted locally and imported; Outbox pending | Native transaction prerequisites, truthful phase events, same-root proof |
+| Observer replay and generic Outbox adapters | O1/O2/O3 Accepted locally and imported | Native transaction prerequisites, truthful phase events, same-root proof |
 | Ordinary Audit composition | Pending D-integration | Enable approved paths, enforce tenant/privacy/failure contracts; close Inline ambiguous-commit reconciliation and rotation overflow policy |
-| Application event authoring/projector | Pending E | Explicit versioned API, reference business journey, no inferred business events |
+| Application event authoring/projector | E1 Accepted locally; E projector/journey pending | Explicit versioned API, reference business journey, no inferred business events |
 | Checkpoint/anchor signing and reusable verification | Pure F1 Accepted locally and imported; remaining F pending | Accepted sealed-record inputs, signing/trust/revocation/freshness, crash-safe external anchor |
 | Checkpoint/anchor control events | Pending D-control after F | Consume accepted typed outcomes; no recursive audit cycle |
 | Query/export/audit-of-audit/retention/hold | Pending G after F/control | Bounded authorized reads/exports, shared verifier, metadata retention/hold |
@@ -137,23 +137,14 @@ Stable until actual publication is independently verified.
 
 ## Remaining Work and Next Action
 
-All pending rows above remain. D5O1 is locally Accepted; the bounded replay
-adapter and pure F1 packets are issued and their three Luna owners are correcting source and proof.
-Both packets explicitly adopt the exact sibling scopes, serialized package-file
-ownership, complete union of required test identities and all child-specific
-checks for one shared final qualification. Root verifies the package handoff,
-then runs focused feedback/source review and the frozen final gates. This does
-not amend or waive D5O1's completed standalone full. Corrected authority now
-names O2 25 and F1 29 paths (52 unique); unchanged metrics, exact proof corrections
-and immutable O2-first helper package handoffs remain required. Generic Outbox,
-E1, F2 and Worker startup preparatory authority is Green; F2 issuance follows
-F1 Acceptance.006A is locally Accepted exact historical-guard recovery with no
-primary Product import. Root adopted the reviewed grouped early integration units
-above; actionable manifest8a8a2b34 identifies92 actual payloads among94 unit/path
-endpoints. Accepted006B resolves the two gaps in adopted manifeste323e929.
-The separate exact isolated
-integration Task follows verified payloads and current remote inputs. This parent is complete
-only when1.3 is released and its package/site results are externally verified.
+O3/E1 and the bounded006E integration are locally Accepted after exact commits,
+common3833-case full and all mandatory committed gates. Complete the clean
+management checkpoint/normal branch push, then issue the reviewed F2 persistence
+and Worker-startup preparations from the actual Accepted baseline with explicit
+file/resource ownership. Remaining ordinary D composition/Inline ambiguity/
+rotation overflow, E projector/journey, F/control/G,004A hardening,005 all-public
+Documentation/Owner preview and006 final same-SHA publication/delivery remain.
+Optional003H/004B stay excluded; a checkpoint push is not a release.
 
 ## Accepted O2/F1 import
 
@@ -165,3 +156,54 @@ source is imported and no intermediate is independently full-qualified.
 
 006D local Acceptance: final independent review`ca29f790` is Green;
 Root records the reviewed final checkpoint and retains parent1.3 remaining gates.
+
+## Committed qualification — 2026-10-07T02:39:33+09:00
+
+006E issued review89417398/manifest5b4a8993 produced separate O3
+`a17978181b86b24a5300e3413d4c2a6dd1df746f` and E1
+`3baf147d419c5148bf1989a2968bcb396ed0f3b5`. Unit receiptsc71c87b0/70e53055
+prove exact23/26 paths, linear parents, clean source and primary-buffer preservation.
+Source-applicabilityd176ad3a retains1759 repository runtime bytes/1154 static
+inputs equal to qualified full0f211f9c, with15 unchanged primary vendor inputs.
+The12 inherited unrelated mode differences are explicitly retained at destination
+preflight values. No candidate-environment full or all-repository equality claim.
+
+Actual committed-gates.json SHA256
+`afa7645df29925f5d046e3c703aba01ec01bd39d46a7385051884f4e90e68da3`
+records all five required gates on source3baf147, with literal commands,
+before/after inputs, exit codes, duration and raw logs under
+`/tmp/blackops-integration-o3-e1-20261006/`. Syntax2, inventory162 ordered unique
+paths/120 controls(106+14) plus4 separate runtime omissions, and complete
+version-baseline passed on the original clean committed endpoint.
+
+The initial linked-worktree export failed because Composer included the regular
+`.git` pointer; failed fe02d35e/logd6c0caa8 and cause731a9fd8 remain unchanged.
+Independent review02908bde approves environment-only routing to a detached
+independent clone at the same sourceSHA/tree and identical3350 file hashes/modes.
+The unchanged export script passed there on2026-10-07: receipt
+`4a6df095dc5bb65c3e83b4b32da08f889e856193996a1cebf7e7a46a0d6299dd`,
+logf33dfee2, exit0,6.629485s. Git/Composer each have identical1173 regular-file
+inventories, both strict Composer validation and production autoload generation
+passed, and actual `/tmp/tmp.uB3Fs0ak08` package roots were removed.
+App imageab739e1d is unchanged before/after; original source, clone and primary
+buffers remain unchanged. No source/exclusion/guard/threshold change or gate waiver.
+
+All scoped Product/proof/quality/committed gates are now Green. Final independent
+Review and Root Acceptance/checkpoint remain pending. Stable1.2.1 and public
+Source202/artifact424 stay unchanged; there is no new release CI, Documentation
+delivery, Production deploy, subtree-split identity or14-type API-smoke claim.
+The latter smoke and all-public final Owner preview/publication remain005/006.
+
+## Root local Acceptance — 2026-10-07T02:47:42+09:00
+
+Root read and adopted final independent review
+`7b13cc36fa75e8a1a0562a2c71897ce7b25ced9abe7a44c63aee1967c8ee8210`, with no remaining findings.
+O3 and E1 are locally Accepted on their exact reviewed source/proof, full and
+committed gates;006E's bounded integration is accepted for the clean management
+checkpoint. Source38 is unchanged. The final checkpoint commit/clean proof and
+normal branch push/remote identity are the remaining execution steps.
+The failed linked-worktree export stays Failed; the separately recorded same-SHA
+clone export is the successful mandatory gate. No release or CI claim is added.
+Parent1.3 still requires D composition/Inline ambiguity/rotation overflow,
+E projector/journey, remaining F/control/G,004A,005 all-public Documentation/
+Owner preview and006 final same-SHA qualification/publication/delivery.

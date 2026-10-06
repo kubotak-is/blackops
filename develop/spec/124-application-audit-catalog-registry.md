@@ -1,6 +1,6 @@
 # Specification 124: Application Audit Catalog Registry
 
-Status: Decided — issued authority Green; bounded implementation authorized; BlackOps1.3 unreleased
+Status: Decided — bounded implementation Accepted locally; BlackOps1.3 unreleased
 
 The most-specific contract for [P23-003E1](../orchestration/tasks/P23-003E1-application-audit-catalog-registry.md)
 and [D174](../decisions/174-application-audit-catalog-registry.md).

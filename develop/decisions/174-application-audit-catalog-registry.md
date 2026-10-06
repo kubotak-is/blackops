@@ -1,6 +1,6 @@
 # D174: Application Audit Catalog Registry
 
-Status: Decided — issued authority Green; implementation pending Acceptance; BlackOps1.3 unreleased
+Status: Decided — bounded implementation Accepted locally; BlackOps1.3 unreleased
 
 ## Decision
 

@@ -1,14 +1,14 @@
 # P23-006: BlackOps 1.3 Release Report
 
-Status: In Progress — through-O1 integration Accepted; O2/F1 proof closure pending
+Status: In Progress — through-Outbox/E1 Accepted; final release candidate not frozen
 
 ## Summary
 
-The Owner explicitly made the complete1.3 release the goal on2026-09-29.
-The [Task](../tasks/P23-006-blackops-1-3-release.md) records the remaining mandatory
-dependency graph and release authorization. Accepted CLI and Audit foundation/
-adapter work is preserved;1.3 is still unreleased. This is release orchestration,
-not evidence that any pending dependency or final release gate has passed.
+Accepted dependencies through Outbox and application Catalog are now integrated
+in separate reviewed commits.006E's complete source/full/committed export gates
+and final Review pass. Its management checkpoint/branch preservation precede the
+next mandatory dependency. Stable1.2.1 remains current;1.3 capabilities, final
+Owner preview and same-SHA release/publication/delivery remain in progress.
 
 ## Changed Files
 
@@ -327,10 +327,14 @@ Documentation reconciliation; later accepted work needs its own imports.
 
 ## Suggested Next Action
 
-006C remains Accepted;006D has imported Accepted O2/F1 in four exact turns.
-Verify006D clean Acceptance checkpoint, then continue
-ordinary Outbox/composition, E authoring, remaining F/G, Worker hardening, all-public
-Documentation/Owner preview and final same-SHA release qualification.
+O3/E1 and the bounded006E integration are locally Accepted after exact commits,
+common3833-case full and all mandatory committed gates. Complete the clean
+management checkpoint/normal branch push, then issue the reviewed F2 persistence
+and Worker-startup preparations from the actual Accepted baseline with explicit
+file/resource ownership. Remaining ordinary D composition/Inline ambiguity/
+rotation overflow, E projector/journey, F/control/G,004A hardening,005 all-public
+Documentation/Owner preview and006 final same-SHA publication/delivery remain.
+Optional003H/004B stay excluded; a checkpoint push is not a release.
 
 ## Accepted O2/F1 import
 
@@ -342,3 +346,54 @@ source is imported and no intermediate is independently full-qualified.
 
 006D local Acceptance: final independent review`ca29f790` is Green;
 Root records the reviewed final checkpoint and retains parent1.3 remaining gates.
+
+## Committed qualification — 2026-10-07T02:39:33+09:00
+
+006E issued review89417398/manifest5b4a8993 produced separate O3
+`a17978181b86b24a5300e3413d4c2a6dd1df746f` and E1
+`3baf147d419c5148bf1989a2968bcb396ed0f3b5`. Unit receiptsc71c87b0/70e53055
+prove exact23/26 paths, linear parents, clean source and primary-buffer preservation.
+Source-applicabilityd176ad3a retains1759 repository runtime bytes/1154 static
+inputs equal to qualified full0f211f9c, with15 unchanged primary vendor inputs.
+The12 inherited unrelated mode differences are explicitly retained at destination
+preflight values. No candidate-environment full or all-repository equality claim.
+
+Actual committed-gates.json SHA256
+`afa7645df29925f5d046e3c703aba01ec01bd39d46a7385051884f4e90e68da3`
+records all five required gates on source3baf147, with literal commands,
+before/after inputs, exit codes, duration and raw logs under
+`/tmp/blackops-integration-o3-e1-20261006/`. Syntax2, inventory162 ordered unique
+paths/120 controls(106+14) plus4 separate runtime omissions, and complete
+version-baseline passed on the original clean committed endpoint.
+
+The initial linked-worktree export failed because Composer included the regular
+`.git` pointer; failed fe02d35e/logd6c0caa8 and cause731a9fd8 remain unchanged.
+Independent review02908bde approves environment-only routing to a detached
+independent clone at the same sourceSHA/tree and identical3350 file hashes/modes.
+The unchanged export script passed there on2026-10-07: receipt
+`4a6df095dc5bb65c3e83b4b32da08f889e856193996a1cebf7e7a46a0d6299dd`,
+logf33dfee2, exit0,6.629485s. Git/Composer each have identical1173 regular-file
+inventories, both strict Composer validation and production autoload generation
+passed, and actual `/tmp/tmp.uB3Fs0ak08` package roots were removed.
+App imageab739e1d is unchanged before/after; original source, clone and primary
+buffers remain unchanged. No source/exclusion/guard/threshold change or gate waiver.
+
+All scoped Product/proof/quality/committed gates are now Green. Final independent
+Review and Root Acceptance/checkpoint remain pending. Stable1.2.1 and public
+Source202/artifact424 stay unchanged; there is no new release CI, Documentation
+delivery, Production deploy, subtree-split identity or14-type API-smoke claim.
+The latter smoke and all-public final Owner preview/publication remain005/006.
+
+## Root local Acceptance — 2026-10-07T02:47:42+09:00
+
+Root read and adopted final independent review
+`7b13cc36fa75e8a1a0562a2c71897ce7b25ced9abe7a44c63aee1967c8ee8210`, with no remaining findings.
+O3 and E1 are locally Accepted on their exact reviewed source/proof, full and
+committed gates;006E's bounded integration is accepted for the clean management
+checkpoint. Source38 is unchanged. The final checkpoint commit/clean proof and
+normal branch push/remote identity are the remaining execution steps.
+The failed linked-worktree export stays Failed; the separately recorded same-SHA
+clone export is the successful mandatory gate. No release or CI claim is added.
+Parent1.3 still requires D composition/Inline ambiguity/rotation overflow,
+E projector/journey, remaining F/control/G,004A,005 all-public Documentation/
+Owner preview and006 final same-SHA qualification/publication/delivery.
