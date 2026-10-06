@@ -43,6 +43,12 @@ use BlackOps\Internal\Audit\Record\ValidatedAuditLogicalRecord;
 use BlackOps\Internal\StorageProtection\BopdBinaryEnvelope;
 use BlackOps\Internal\StorageProtection\BopdBinaryEnvelopeCodec;
 use BlackOps\StorageProtection\StoragePurpose;
+use PhpParser\Node;
+use PhpParser\Node\Name;
+use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\ParserFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -64,6 +70,7 @@ final class AuditRecordArchitectureTest extends TestCase
             ...(glob(__DIR__ . '/../../src/Internal/Audit/Protection/*.php') ?: []),
             ...(glob(__DIR__ . '/../../src/Internal/Audit/Projection/*.php') ?: []),
             ...(glob(__DIR__ . '/../../src/Internal/Audit/Outbox/*.php') ?: []),
+            ...(glob(__DIR__ . '/../../src/Internal/Audit/OperationalOutbox/*.php') ?: []),
             ...(glob(__DIR__ . '/../../src/Internal/StorageProtection/BopdBinaryEnvelope*.php') ?: []),
         ];
         foreach ($paths as $path) {
@@ -77,10 +84,71 @@ final class AuditRecordArchitectureTest extends TestCase
                 $class = 'BlackOps\\Internal\\Audit\\Projection\\' . basename($path, '.php');
             if (str_contains($path, '/src/Internal/Audit/Outbox/'))
                 $class = 'BlackOps\\Internal\\Audit\\Outbox\\' . basename($path, '.php');
+            if (str_contains($path, '/src/Internal/Audit/OperationalOutbox/'))
+                $class = 'BlackOps\\Internal\\Audit\\OperationalOutbox\\' . basename($path, '.php');
             if (str_contains($path, '/src/Internal/StorageProtection/'))
                 $class = 'BlackOps\\Internal\\StorageProtection\\' . basename($path, '.php');
             self::assertSame([], new \ReflectionClass($class)->getAttributes(PublicApi::class), $class);
         }
+    }
+
+    public function testGenericOutboxAdapterRemainsInternalAndFinite(): void
+    {
+        $hook = new \ReflectionClass(\BlackOps\Internal\Audit\OperationalOutbox\GenericOutboxAuditHook::class);
+        $writer = new \ReflectionClass(\BlackOps\Internal\Audit\OperationalOutbox\GenericOutboxAuditWriter::class);
+        $phaseHook = new \ReflectionClass(\BlackOps\Transport\PostgreSql\PostgreSqlOutboxPhaseHook::class);
+        $store = new \ReflectionClass(\BlackOps\Transport\PostgreSql\PostgreSqlOutboxStore::class);
+        foreach ([$hook, $writer, $phaseHook, $store] as $reflection) {
+            self::assertSame([], $reflection->getAttributes(PublicApi::class), $reflection->getName());
+        }
+        self::assertTrue($hook->isFinal());
+        self::assertTrue($writer->isFinal());
+        self::assertTrue($phaseHook->isInterface());
+        $phaseMethods = array_map(
+            static fn(\ReflectionMethod $method): string => $method->getName(),
+            $phaseHook->getMethods(),
+        );
+        sort($phaseMethods);
+        self::assertSame(
+            ['assertOperatorEntry', 'assertRelayEntry', 'deadLetterRetryRequested', 'deadLettered', 'retryScheduled'],
+            $phaseMethods,
+        );
+        self::assertSame(
+            [
+                '__clone',
+                '__construct',
+                '__debugInfo',
+                '__serialize',
+                '__unserialize',
+                'assertConnection',
+                'deadLetterRetryRequested',
+                'deadLettered',
+                'retryScheduled',
+            ],
+            $this->declaredPublicMethods($writer),
+        );
+        $constructor = $store->getConstructor();
+        self::assertNotNull($constructor);
+        self::assertSame(
+            \BlackOps\Transport\PostgreSql\PostgreSqlOutboxPhaseHook::class,
+            $constructor->getParameters()[4]->getType()?->getName(),
+        );
+        self::assertTrue($constructor->getParameters()[4]->allowsNull());
+        self::assertNull($constructor->getParameters()[4]->getDefaultValue());
+    }
+
+    /** @return list<string> */
+    private function declaredPublicMethods(\ReflectionClass $reflection): array
+    {
+        $methods = [];
+        foreach ($reflection->getMethods() as $method) {
+            if ($method->getDeclaringClass()->getName() === $reflection->getName() && $method->isPublic()) {
+                $methods[] = $method->getName();
+            }
+        }
+        sort($methods);
+
+        return $methods;
     }
 
     public function testLogicalBoundaryHasInterfaceOnlyAndValidatedResultDoesNotImplementIt(): void
@@ -1091,6 +1159,56 @@ final class AuditRecordArchitectureTest extends TestCase
         );
     }
 
+    public function testO3A2ConsumptionMapIsExactAndRejectsUnlistedSiblings(): void
+    {
+        $map = $this->o3A2AllowedReferences();
+        foreach ($map as $relative => $expected) {
+            $source = file_get_contents(__DIR__ . '/../../src/' . $relative);
+            self::assertIsString($source);
+            self::assertSame($expected, $this->o3A2ProductReferences($source), $relative);
+        }
+
+        $alias = <<<'PHP'
+            <?php
+            namespace BlackOps\Internal\Audit\OperationalOutbox;
+            use BlackOps\Core\Audit\AuditRecordActor as Actor;
+            new Actor(null, $execution);
+            PHP;
+        self::assertSame(['AuditRecordActor'], $this->o3A2ProductReferences($alias));
+        self::assertSame([], $this->o3A2ProductReferences(<<<'PHP'
+            <?php
+            /* new \BlackOps\Core\Audit\AuditRecordActor(null, $execution); */
+            $text = '\BlackOps\Core\Audit\AuditRecordActor';
+            PHP));
+
+        $sibling = <<<'PHP'
+            <?php
+            namespace BlackOps\Internal\Audit\OperationalOutbox;
+            new \BlackOps\Core\Audit\AuditRecordActor(null, $execution);
+            PHP;
+        $relative = 'Internal/Audit/OperationalOutbox/UnlistedSibling.php';
+        $violations = array_values(array_diff($this->o3A2ProductReferences($sibling), $map[$relative] ?? []));
+        self::assertSame(['AuditRecordActor'], $violations);
+
+        $rowRelative = 'Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php';
+        $rowSource = file_get_contents(__DIR__ . '/../../src/' . $rowRelative);
+        self::assertIsString($rowSource);
+        $rowMutation = $rowSource . <<<'PHP'
+
+            new \BlackOps\Core\Audit\AuditRecordActor(null, $reference);
+            PHP;
+        self::assertSame(
+            ['AuditRecordActor', 'AuditTypedReference'],
+            $this->o3A2ProductReferences($rowMutation),
+            'the allowed Row source must resolve an injected unrelated A2 type',
+        );
+        self::assertSame(
+            ['AuditRecordActor'],
+            array_values(array_diff($this->o3A2ProductReferences($rowMutation), $map[$rowRelative])),
+            'the per-file Row allowance must reject the injected unrelated A2 type',
+        );
+    }
+
     public function testA2DeliveryTimestampExceptionIsNarrowAndMutationResistant(): void
     {
         $sourceRoot = realpath(__DIR__ . '/../../src');
@@ -1796,6 +1914,7 @@ final class AuditRecordArchitectureTest extends TestCase
         self::assertSame(
             [
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => 1,
                 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
@@ -1812,6 +1931,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
                 [
                     'path' => 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php',
@@ -1873,6 +1999,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 || $path === 'Internal/Audit/Retention/RetentionHoldAuditWriter.php'
                 || $path === 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php'
                 || $path === 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php'
+                || $path === 'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php'
                 || $path === 'Internal/Audit/Rotation/StorageRotationAuditWriter.php'
             )
                 continue;
@@ -1983,6 +2110,7 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'External/OperationalCatalogCaller.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => 1,
                 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
@@ -2005,6 +2133,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
                 [
                     'path' => 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php',
@@ -2223,6 +2358,7 @@ final class AuditRecordArchitectureTest extends TestCase
             [
                 'Internal/Audit/Catalog/FrameworkOperationalAuditEventCatalog.php' => 1,
                 'Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php' => 1,
+                'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => 1,
                 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php' => 1,
                 'Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
                 'Internal/Audit/Retention/RetentionPurgeAuditWriter.php' => 1,
@@ -2246,6 +2382,13 @@ final class AuditRecordArchitectureTest extends TestCase
                     'receiver' => 'FrameworkOperationalAuditEventCatalog',
                     'method' => 'catalog',
                     'kind' => 'same_namespace',
+                ],
+                [
+                    'path' => 'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php',
+                    'target' => FrameworkOperationalAuditEventCatalog::class,
+                    'receiver' => 'FrameworkOperationalAuditEventCatalog',
+                    'method' => 'catalog',
+                    'kind' => 'alias',
                 ],
                 [
                     'path' => 'Internal/Audit/Replay/ObserverReplayAuditWriterCatalog.php',
@@ -3878,6 +4021,99 @@ final class AuditRecordArchitectureTest extends TestCase
         ];
     }
 
+    /** @return array<string,list<string>> */
+    private function o3A2AllowedReferences(): array
+    {
+        return [
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php' => [],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php' => [],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php' => ['AuditTypedReference'],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php' => [
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditSourceRuntime',
+                'AuditTypedReference',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php' => [
+                'AuditSourceRuntime',
+                'AuditTypedReference',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => ['AuditSourceRuntime'],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+                'AuditTypedReference',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => [
+                'AuditRecordCorrelation',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php' => ['AuditSourceRuntime'],
+        ];
+    }
+
+    /** @return list<string> */
+    private function o3A2ProductReferences(string $source): array
+    {
+        $nodes = new ParserFactory()
+            ->createForNewestSupportedVersion()
+            ->parse($source);
+        self::assertIsArray($nodes);
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new NameResolver());
+        $nodes = $traverser->traverse($nodes);
+        $targets = $this->o3A2ProductTargets();
+        $references = [];
+        foreach (new NodeFinder()->findInstanceOf($nodes, Name::class) as $name) {
+            if (!$name instanceof Name) {
+                continue;
+            }
+            $resolved = $name->getAttribute('resolvedName');
+            $resolvedName = $resolved instanceof Name ? $resolved->toString() : $name->toString();
+            $resolvedName = ltrim($resolvedName, '\\');
+            if (isset($targets[$resolvedName])) {
+                $references[] = $targets[$resolvedName];
+            }
+        }
+        $references = array_values(array_unique($references));
+        sort($references);
+
+        return $references;
+    }
+
+    /** @return array<string,string> */
+    private function o3A2ProductTargets(): array
+    {
+        $targets = [];
+        foreach ([
+            'AuditRecordAction',
+            'AuditRecordActor',
+            'AuditRecordCorrelation',
+            'AuditRecordDraft',
+            'AuditRecordEvent',
+            'AuditRecordEvidence',
+            'AuditRecordOutcome',
+            'AuditRecordPolicy',
+            'AuditRecordResource',
+            'AuditRecordSource',
+            'AuditSourceRuntime',
+            'AuditTypedReference',
+        ] as $type) {
+            $targets['BlackOps\\Core\\Audit\\' . $type] = $type;
+        }
+
+        return $targets;
+    }
+
     /** @return list<string> */
     private function a2DeliveryViolations(
         string $path,
@@ -3929,6 +4165,39 @@ final class AuditRecordArchitectureTest extends TestCase
             ],
             'Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => [],
             'Internal/Audit/Orchestration/AuditProtectedReadGate.php' => ['AuditRecordDraft'],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php' => [],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php' => [],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php' => ['AuditTypedReference'],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php' => [
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditSourceRuntime',
+                'AuditTypedReference',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php' => [
+                'AuditSourceRuntime',
+                'AuditTypedReference',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => ['AuditSourceRuntime'],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php' => [
+                'AuditRecordAction',
+                'AuditRecordActor',
+                'AuditRecordCorrelation',
+                'AuditRecordDraft',
+                'AuditRecordEvent',
+                'AuditRecordEvidence',
+                'AuditRecordOutcome',
+                'AuditRecordPolicy',
+                'AuditRecordResource',
+                'AuditRecordSource',
+                'AuditSourceRuntime',
+                'AuditTypedReference',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => [
+                'AuditRecordCorrelation',
+                'AuditSourceRuntime',
+            ],
+            'Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php' => ['AuditSourceRuntime'],
             'Internal/Audit/Replay/ObserverReplayAuditWriter.php' => ['AuditRecordCorrelation'],
             'Internal/Audit/Replay/ObserverReplayAuditWriterBinding.php' => [
                 'AuditRecordActor',

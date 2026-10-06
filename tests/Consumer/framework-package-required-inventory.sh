@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='f54e217903c7043d86d51626f9ac64676ac1c7bd0c02121287b5e1605d703b63'
+reviewed_export_sha='037639003f8d679bc241dabb29f6c79e0daa93723e12486501d6da4b06a63833'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -148,6 +148,16 @@ printf '%s\n' \
     resources/stubs/auth-logout.php.stub \
     resources/stubs/auth-user-migration.php.stub \
     resources/stubs/auth-session-migration.php.stub \
+    src/Transport/PostgreSql/PostgreSqlOutboxPhaseHook.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php \
+    src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php \
     src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php \
     src/Internal/Audit/Artifact/AuditArtifactScalar.php \
     src/Internal/Audit/Artifact/AuditArtifactCanonical.php \
@@ -843,6 +853,104 @@ assert_f1_mutation_shape() {
     fi
 }
 
+assert_o3_mutation_shape() {
+    local candidate="$1"
+    local mutation="$2"
+    local function_source="${TEMP_ROOT}/${mutation}-function"
+
+    if ! extract_function "${candidate}" "${function_source}"; then
+        return 1
+    fi
+    if ! run_bounded awk -v expected_file="${expected_inventory}" -v mutation="${mutation}" '
+        BEGIN {
+            expected_count = 0
+            while ((getline line < expected_file) > 0) {
+                expected[++expected_count] = line
+            }
+            close(expected_file)
+            backslash = sprintf("%c", 92)
+            loop_marker = "    for required_path in " backslash
+            in_loop = 0
+            closed = 0
+            loop_count = 0
+            path_count = 0
+            invalid = 0
+        }
+        {
+            if (!in_loop) {
+                if ($0 == loop_marker) {
+                    loop_count++
+                    if (closed || loop_count != 1) {
+                        invalid = 1
+                    } else {
+                        in_loop = 1
+                    }
+                }
+                next
+            }
+            if (substr($0, 1, 8) != "        ") {
+                invalid = 1
+                next
+            }
+            line = substr($0, 9)
+            if (length(line) >= 4 && substr(line, length(line) - 3) == "; do") {
+                path = substr(line, 1, length(line) - 4)
+                closed = 1
+                in_loop = 0
+            } else {
+                if (length(line) < 2 || substr(line, length(line) - 1) != " " backslash) {
+                    invalid = 1
+                    next
+                }
+                path = substr(line, 1, length(line) - 2)
+            }
+            actual[++path_count] = path
+        }
+        END {
+            if (invalid || loop_count != 1 || in_loop || !closed || path_count != expected_count) exit 2
+            if (mutation == "o3-order-swap") {
+                o3_start = 0
+                for (position = 1; position <= expected_count; position++) {
+                    if (expected[position] == "src/Transport/PostgreSql/PostgreSqlOutboxPhaseHook.php") {
+                        o3_start = position
+                        break
+                    }
+                }
+                if (o3_start == 0) exit 2
+                for (position = 1; position < o3_start; position++) {
+                    if (actual[position] != expected[position]) exit 2
+                }
+                for (offset = 0; offset < 3; offset++) {
+                    if (actual[o3_start + offset] != expected[o3_start + 2 - offset]) exit 2
+                }
+                for (position = o3_start + 3; position <= expected_count; position++) {
+                    if (actual[position] != expected[position]) exit 2
+                }
+                exit 0
+            }
+            helper_start = 0
+            for (position = 1; position <= expected_count; position++) {
+                if (expected[position] == "src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php") {
+                    helper_start = position
+                    break
+                }
+            }
+            if (mutation != "o3-helper-order-swap" || helper_start == 0) exit 2
+            for (position = 1; position < helper_start; position++) {
+                if (actual[position] != expected[position]) exit 2
+            }
+            for (offset = 0; offset < 7; offset++) {
+                if (actual[helper_start + offset] != expected[helper_start + 6 - offset]) exit 2
+            }
+            for (position = helper_start + 7; position <= expected_count; position++) {
+                if (actual[position] != expected[position]) exit 2
+            }
+        }
+    ' "${function_source}"; then
+        return 1
+    fi
+}
+
 test_mutation_rejected() {
     local name="$1"
     local mutation="$2"
@@ -1161,6 +1269,120 @@ test_mutation_rejected() {
                     if (tenth != "") print tenth
                     if (eleventh != "") print eleventh
                     if (twelfth != "") print twelfth
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        o3-phase-hook-omission)
+            run_bounded sed -i '\|src/Transport/PostgreSql/PostgreSqlOutboxPhaseHook.php|d' "${candidate}"
+            ;;
+        o3-hook-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php|d' "${candidate}"
+            ;;
+        o3-writer-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php|d' "${candidate}"
+            ;;
+        o3-failure-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php|d' "${candidate}"
+            ;;
+        o3-hook-guard-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php|d' "${candidate}"
+            ;;
+        o3-row-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php|d' "${candidate}"
+            ;;
+        o3-snapshot-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php|d' "${candidate}"
+            ;;
+        o3-identity-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php|d' "${candidate}"
+            ;;
+        o3-catalog-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php|d' "${candidate}"
+            ;;
+        o3-projection-omission)
+            run_bounded sed -i '\|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php|d' "${candidate}"
+            ;;
+        o3-order-swap)
+            run_bounded awk '
+                BEGIN {
+                    backslash = sprintf("%c", 92)
+                }
+                !swapped && $0 ~ /src\/Transport\/PostgreSql\/PostgreSqlOutboxPhaseHook\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditHook\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditWriter\.php/) {
+                        if (substr(first, length(first) - 1) != " " backslash ||
+                            substr(second, length(second) - 1) != " " backslash ||
+                            (substr(third, length(third) - 1) != " " backslash && substr(third, length(third) - 3) != "; do")) {
+                            exit 2
+                        }
+                        if (substr(third, length(third) - 3) == "; do") {
+                            first = substr(first, 1, length(first) - 2) "; do"
+                            third = substr(third, 1, length(third) - 4) " " backslash
+                        }
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        o3-helper-order-swap)
+            run_bounded awk '
+                BEGIN {
+                    backslash = sprintf("%c", 92)
+                }
+                !swapped && $0 ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditFailure\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditHookGuard\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditRow\.php/ &&
+                        getline fourth > 0 && fourth ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditSnapshot\.php/ &&
+                        getline fifth > 0 && fifth ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditIdentity\.php/ &&
+                        getline sixth > 0 && sixth ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditCatalog\.php/ &&
+                        getline seventh > 0 && seventh ~ /src\/Internal\/Audit\/OperationalOutbox\/GenericOutboxAuditProjection\.php/) {
+                        if (substr(first, length(first) - 1) != " " backslash ||
+                            substr(second, length(second) - 1) != " " backslash ||
+                            substr(third, length(third) - 1) != " " backslash ||
+                            substr(fourth, length(fourth) - 1) != " " backslash ||
+                            substr(fifth, length(fifth) - 1) != " " backslash ||
+                            substr(sixth, length(sixth) - 1) != " " backslash ||
+                            substr(seventh, length(seventh) - 1) != " " backslash) {
+                            exit 2
+                        }
+                        print seventh
+                        print sixth
+                        print fifth
+                        print fourth
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    if (fourth != "") print fourth
+                    if (fifth != "") print fifth
+                    if (sixth != "") print sixth
+                    if (seventh != "") print seventh
                     next
                 }
                 { print }
@@ -1543,6 +1765,16 @@ test_mutation_rejected() {
     esac
 
     case "${mutation}" in
+        o3-order-swap|o3-helper-order-swap)
+            if ! run_bounded bash -n "${candidate}"; then
+                printf 'o3 inventory mutation is not valid Bash: %s\n' "${name}" >&2
+                return 1
+            fi
+            if ! assert_o3_mutation_shape "${candidate}" "${mutation}"; then
+                printf 'o3 inventory mutation has an invalid path shape: %s\n' "${name}" >&2
+                return 1
+            fi
+            ;;
         f1-helper-order-swap|f1-trust-lookup-omission)
             if ! run_bounded bash -n "${candidate}"; then
                 printf 'f1 inventory mutation is not valid Bash: %s\n' "${name}" >&2
@@ -1725,9 +1957,9 @@ test -f "${EXPORT_SCRIPT}"
 test "$(sha256sum "${EXPORT_SCRIPT}" | cut -d' ' -f1)" = "${reviewed_export_sha}"
 runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
-test "$(wc -l < "${expected_inventory}")" -eq 149
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 149
-printf 'required inventory: PASS (149 ordered paths, 149 unique)\n'
+    test "$(wc -l < "${expected_inventory}")" -eq 159
+    test "$(sort -u "${expected_inventory}" | wc -l)" -eq 159
+    printf 'required inventory: PASS (159 ordered paths, 159 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -1787,6 +2019,18 @@ test_mutation_rejected o2-advance-root-entry-omission o2-advance-root-omission
 test_mutation_rejected o2-begin-root-entry-omission o2-begin-root-omission
 test_mutation_rejected o2-begin-transaction-entry-omission o2-begin-transaction-omission
 test_mutation_rejected o2-reverse-new-block o2-order-swap
+test_mutation_rejected o3-phase-hook-entry-omission o3-phase-hook-omission
+test_mutation_rejected o3-hook-entry-omission o3-hook-omission
+test_mutation_rejected o3-writer-entry-omission o3-writer-omission
+test_mutation_rejected o3-failure-entry-omission o3-failure-omission
+test_mutation_rejected o3-hook-guard-entry-omission o3-hook-guard-omission
+test_mutation_rejected o3-row-entry-omission o3-row-omission
+test_mutation_rejected o3-snapshot-entry-omission o3-snapshot-omission
+test_mutation_rejected o3-identity-entry-omission o3-identity-omission
+test_mutation_rejected o3-catalog-entry-omission o3-catalog-omission
+test_mutation_rejected o3-projection-entry-omission o3-projection-omission
+test_mutation_rejected o3-reverse-new-block o3-order-swap
+test_mutation_rejected o3-helper-reverse-new-block o3-helper-order-swap
 test_mutation_rejected f1-failure-entry-omission f1-failure-omission
 test_mutation_rejected f1-exception-entry-omission f1-exception-omission
 test_mutation_rejected f1-checkpoint-entry-omission f1-checkpoint-omission
@@ -1833,4 +2077,4 @@ test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-com
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (103 rejected: 89 inventory, 14 call-contract)\n'
+printf 'required inventory mutations: PASS (115 rejected: 101 inventory, 14 call-contract)\n'

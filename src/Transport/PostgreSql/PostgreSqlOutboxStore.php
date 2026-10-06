@@ -27,10 +27,16 @@ final readonly class PostgreSqlOutboxStore
     private PostgreSqlOutboxSchema $schema;
 
     public function __construct(
+        #[\SensitiveParameter]
         private Connection $connection,
+        #[\SensitiveParameter]
         private BopdEnvelopeCodec $protection,
+        #[\SensitiveParameter]
         private OperationCodec $codec,
+        #[\SensitiveParameter]
         string $schema = 'blackops',
+        #[\SensitiveParameter]
+        private ?PostgreSqlOutboxPhaseHook $phaseHook = null,
     ) {
         $this->schema = new PostgreSqlOutboxSchema($schema);
     }
@@ -315,11 +321,19 @@ final readonly class PostgreSqlOutboxStore
     }
 
     public function scheduleRetry(
+        #[\SensitiveParameter]
         PostgreSqlOutboxClaim $claim,
+        #[\SensitiveParameter]
         DateTimeImmutable $nextAttemptAt,
+        #[\SensitiveParameter]
         string $fingerprint,
     ): void {
         $this->assertFingerprint($fingerprint);
+        if ($this->phaseHook !== null) {
+            $this->scheduleRetryEnabled($claim, $nextAttemptAt, $fingerprint);
+
+            return;
+        }
         try {
             $updated = $this->connection->executeStatement(
                 "UPDATE {$this->schema->table()} SET state='retry_scheduled', state_version=state_version+1,
@@ -343,9 +357,18 @@ final readonly class PostgreSqlOutboxStore
         }
     }
 
-    public function moveToDeadLetter(PostgreSqlOutboxClaim $claim, string $fingerprint): void
-    {
+    public function moveToDeadLetter(
+        #[\SensitiveParameter]
+        PostgreSqlOutboxClaim $claim,
+        #[\SensitiveParameter]
+        string $fingerprint,
+    ): void {
         $this->assertFingerprint($fingerprint);
+        if ($this->phaseHook !== null) {
+            $this->moveToDeadLetterEnabled($claim, $fingerprint);
+
+            return;
+        }
         try {
             $updated = $this->connection->executeStatement(
                 "UPDATE {$this->schema->table()} SET state='dead_lettered', state_version=state_version+1, dead_lettered_at=CURRENT_TIMESTAMP,
@@ -372,13 +395,22 @@ final readonly class PostgreSqlOutboxStore
     }
 
     public function retryDeadLetter(
+        #[\SensitiveParameter]
         OutboxRecordId $recordId,
+        #[\SensitiveParameter]
         string $actor,
+        #[\SensitiveParameter]
         string $reason,
+        #[\SensitiveParameter]
         DateTimeImmutable $now,
     ): void {
         if (trim($actor) === '' || trim($reason) === '') {
             throw new DeferredTransportException('Dead-letter retry actor and reason are required.');
+        }
+        if ($this->phaseHook !== null) {
+            $this->retryDeadLetterEnabled($recordId, $actor, $reason, $now);
+
+            return;
         }
         try {
             $this->connection->transactional(function () use ($recordId, $actor, $reason, $now): void {
@@ -415,6 +447,194 @@ final readonly class PostgreSqlOutboxStore
         }
     }
 
+    private function scheduleRetryEnabled(
+        #[\SensitiveParameter]
+        PostgreSqlOutboxClaim $claim,
+        #[\SensitiveParameter]
+        DateTimeImmutable $nextAttemptAt,
+        #[\SensitiveParameter]
+        string $fingerprint,
+    ): void {
+        $attempted = false;
+        $known = null;
+        try {
+            $this->phaseHook?->assertRelayEntry($this->connection);
+            $attempted = true;
+            $this->connection->beginTransaction();
+            $this->assertActiveRoot();
+            $row = $this->connection->fetchAssociative(
+                "UPDATE {$this->schema->table()} SET state='retry_scheduled', state_version=state_version+1,
+                    relay_id=NULL, lease_expires_at=NULL, leased_at=NULL, next_attempt_at=:next_attempt,
+                    failure_fingerprint=:fingerprint, failure_fingerprint_version=1
+                 WHERE record_id=:record_id AND relay_id=:relay_id AND fencing_token=:token AND state='leased'
+                 RETURNING record_id::text AS record_id, tenant_type, tenant_id, state_version::text AS state_version",
+                [
+                    'next_attempt' => $this->timestamp($nextAttemptAt),
+                    'fingerprint' => $fingerprint,
+                    'record_id' => $claim->recordId->toString(),
+                    'relay_id' => $claim->relayId,
+                    'token' => $claim->fencingToken,
+                ],
+            );
+            if (!is_array($row)) {
+                $known = 'Outbox relay retry claim is stale.';
+                throw new \LogicException();
+            }
+            $this->phaseHook?->retryScheduled($this->connection, $row);
+            $this->assertActiveRoot();
+            $this->connection->commit();
+            $this->assertIdleRoot();
+        } catch (Throwable) {
+            $this->failEnabled($attempted, $known, 'Failed to schedule PostgreSQL outbox retry.');
+        }
+    }
+
+    private function moveToDeadLetterEnabled(
+        #[\SensitiveParameter]
+        PostgreSqlOutboxClaim $claim,
+        #[\SensitiveParameter]
+        string $fingerprint,
+    ): void {
+        $attempted = false;
+        $known = null;
+        try {
+            $this->phaseHook?->assertRelayEntry($this->connection);
+            $attempted = true;
+            $this->connection->beginTransaction();
+            $this->assertActiveRoot();
+            $row = $this->connection->fetchAssociative(
+                "UPDATE {$this->schema->table()} SET state='dead_lettered', state_version=state_version+1, dead_lettered_at=CURRENT_TIMESTAMP,
+                    relay_id=NULL, lease_expires_at=NULL, leased_at=NULL, next_attempt_at=NULL,
+                    failure_fingerprint=:fingerprint, failure_fingerprint_version=1
+                 WHERE record_id=:record_id AND relay_id=:relay_id AND fencing_token=:token AND state='leased'
+                 RETURNING record_id::text AS record_id, tenant_type, tenant_id, state_version::text AS state_version",
+                [
+                    'fingerprint' => $fingerprint,
+                    'record_id' => $claim->recordId->toString(),
+                    'relay_id' => $claim->relayId,
+                    'token' => $claim->fencingToken,
+                ],
+            );
+            if (!is_array($row)) {
+                $known = 'Outbox relay dead-letter claim is stale.';
+                throw new \LogicException();
+            }
+            $this->phaseHook?->deadLettered($this->connection, $row);
+            $this->assertActiveRoot();
+            $this->connection->commit();
+            $this->assertIdleRoot();
+        } catch (Throwable) {
+            $this->failEnabled($attempted, $known, 'Failed to dead-letter PostgreSQL outbox record.');
+        }
+    }
+
+    private function retryDeadLetterEnabled(
+        #[\SensitiveParameter]
+        OutboxRecordId $recordId,
+        #[\SensitiveParameter]
+        string $actor,
+        #[\SensitiveParameter]
+        string $reason,
+        #[\SensitiveParameter]
+        DateTimeImmutable $now,
+    ): void {
+        $attempted = false;
+        $known = null;
+        try {
+            $this->phaseHook?->assertOperatorEntry($this->connection);
+            $attempted = true;
+            $this->connection->beginTransaction();
+            $this->assertActiveRoot();
+            $selected = $this->connection->fetchAssociative(
+                "SELECT operation_id::text AS operation_id, attempt_count FROM {$this->schema->table()} WHERE record_id=:record_id AND state='dead_lettered' FOR UPDATE",
+                ['record_id' => $recordId->toString()],
+            );
+            if (!is_array($selected)) {
+                $known = 'Outbox record is not dead-lettered.';
+                throw new \LogicException();
+            }
+            $retryAuditId = $this->uuid4();
+            $this->connection->executeStatement(
+                "INSERT INTO {$this->schema->retryAuditTable()} (audit_id, record_id, operation_id, actor, reason, retried_at, previous_attempt_count) VALUES (:audit_id,:record_id,:operation_id,:actor,:reason,:retried_at,:attempt_count)",
+                [
+                    'audit_id' => $retryAuditId,
+                    'record_id' => $recordId->toString(),
+                    'operation_id' => $selected['operation_id'],
+                    'actor' => $actor,
+                    'reason' => $reason,
+                    'retried_at' => $this->timestamp($now),
+                    'attempt_count' => (int) $selected['attempt_count'],
+                ],
+            );
+            $row = $this->connection->fetchAssociative(
+                "UPDATE {$this->schema->table()} SET state='retry_scheduled', state_version=state_version+1, next_attempt_at=:next_attempt, failure_fingerprint=NULL, failure_fingerprint_version=NULL, dead_lettered_at=NULL, relay_id=NULL, lease_expires_at=NULL, leased_at=NULL WHERE record_id=:record_id AND state='dead_lettered'
+                 RETURNING record_id::text AS record_id, tenant_type, tenant_id, state_version::text AS state_version",
+                ['next_attempt' => $this->timestamp($now), 'record_id' => $recordId->toString()],
+            );
+            if (!is_array($row)) {
+                $known = 'Outbox dead-letter retry claim is stale.';
+                throw new \LogicException();
+            }
+            $this->phaseHook?->deadLetterRetryRequested($this->connection, $row, $retryAuditId);
+            $this->assertActiveRoot();
+            $this->connection->commit();
+            $this->assertIdleRoot();
+        } catch (Throwable) {
+            $this->failEnabled($attempted, $known, 'Failed to retry dead-lettered outbox record.');
+        }
+    }
+
+    private function assertActiveRoot(): void
+    {
+        if (
+            !$this->connection->isAutoCommit()
+            || !$this->connection->isTransactionActive()
+            || $this->connection->getTransactionNestingLevel() !== 1
+        ) {
+            throw new \LogicException();
+        }
+    }
+
+    private function assertIdleRoot(): void
+    {
+        if (
+            !$this->connection->isAutoCommit()
+            || $this->connection->isTransactionActive()
+            || $this->connection->getTransactionNestingLevel() !== 0
+        ) {
+            throw new \LogicException();
+        }
+    }
+
+    private function failEnabled(bool $attempted, ?string $known, string $generic): never
+    {
+        $clean = !$attempted || $this->cleanupOwned();
+        throw new DeferredTransportException($clean && $known !== null ? $known : $generic);
+    }
+
+    private function cleanupOwned(): bool
+    {
+        $clean = true;
+        try {
+            if (
+                $this->connection->isAutoCommit()
+                && $this->connection->isTransactionActive()
+                && $this->connection->getTransactionNestingLevel() === 1
+            ) {
+                $this->connection->rollBack();
+            }
+        } catch (Throwable) {
+            $clean = false;
+        }
+        try {
+            $this->connection->close();
+        } catch (Throwable) {
+            $clean = false;
+        }
+
+        return $clean;
+    }
+
     private function assertOwnership(int|string $updated, string $message): void
     {
         if ((int) $updated !== 1) {
@@ -422,7 +642,7 @@ final readonly class PostgreSqlOutboxStore
         }
     }
 
-    private function assertFingerprint(string $fingerprint): void
+    private function assertFingerprint(#[\SensitiveParameter] string $fingerprint): void
     {
         if (preg_match('/\Av1:[a-f0-9]{64}\z/', $fingerprint) !== 1) {
             throw new DeferredTransportException('Outbox failure fingerprint is invalid.');

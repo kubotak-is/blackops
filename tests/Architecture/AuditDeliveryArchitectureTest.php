@@ -52,6 +52,168 @@ use ReflectionParameter;
  */
 final class AuditDeliveryArchitectureTest extends TestCase
 {
+    public function testO3C3OwnershipIsResolvedAndMutationResistant(): void
+    {
+        $sources = $this->o3Sources();
+        $snapshotPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php';
+        $snapshotClass = $this->o3Class($this->parseArchitectureSource($sources[$snapshotPath]));
+        $snapshotMethod = $snapshotClass === null ? null : $this->architectureMethod($snapshotClass, 'read');
+        $snapshotCalls = $snapshotMethod === null ? [] : $this->o3CallNames($this->o3MethodCalls($snapshotMethod));
+        $snapshotNewTargets = $snapshotMethod === null
+            ? []
+            : $this->o3NewTargets($snapshotMethod->stmts ?? [], ['AuditRecordActor', 'AuditTypedReference']);
+        $snapshotStaticCalls = $snapshotMethod === null ? [] : $this->o3StaticCallNames($snapshotMethod->stmts ?? []);
+        sort($snapshotStaticCalls);
+        $writerPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php';
+        $writerClass = $this->o3Class($this->parseArchitectureSource($sources[$writerPath]));
+        $writerMethod = $writerClass === null ? null : $this->architectureMethod($writerClass, 'write');
+        $writerCalls = $writerMethod === null ? [] : $this->o3CallNames($this->o3MethodCalls($writerMethod));
+        self::assertTrue(
+            $this->o3C3Oracle($sources),
+            sprintf(
+                'O3 C3 baseline actual writer calls=%s; snapshot calls=%s; new=%s; static=%s',
+                var_export($writerCalls, true),
+                var_export($snapshotCalls, true),
+                var_export($snapshotNewTargets, true),
+                var_export($snapshotStaticCalls, true),
+            ),
+        );
+
+        $writer = $sources['src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php'];
+        $deliveryMutation = $this->o3ReplaceFirst($writer, 'deliverInCurrentTransaction', 'deliverStandalone');
+        self::assertContains(
+            'deliverStandalone',
+            $this->o3CallNames($this->o3Calls($this->parseArchitectureSource($deliveryMutation))),
+        );
+        self::assertFalse($this->o3C3Oracle([
+            ...$sources,
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => $deliveryMutation,
+        ]));
+
+        $indirectMutation = $this->o3ReplaceFirst(
+            $writer,
+            'deliverInCurrentTransaction($plan, $request)',
+            '{$method}($plan, $request)',
+        );
+        self::assertNotEmpty($this->parseArchitectureSource($indirectMutation));
+        self::assertFalse($this->o3C3Oracle([
+            ...$sources,
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => $indirectMutation,
+        ]));
+
+        $nestedDeliveryMutation = $this->o3ReplaceFirst(
+            $writer,
+            '$values[\'delivery\']->deliverInCurrentTransaction($plan, $request);',
+            'if (false) { $values[\'delivery\']->deliverInCurrentTransaction($plan, $request); }',
+        );
+        self::assertNotEmpty($this->parseArchitectureSource($nestedDeliveryMutation));
+        self::assertFalse($this->o3C3Oracle([
+            ...$sources,
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => $nestedDeliveryMutation,
+        ]));
+
+        $guardPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php';
+        $guardMutation = $this->o3InsertIntoMethodBody($sources[$guardPath], 'entry', '        $connection->commit();');
+        self::assertContains(
+            'commit',
+            $this->o3CallNames($this->o3Calls($this->parseArchitectureSource($guardMutation))),
+        );
+        self::assertFalse($this->o3C3Oracle([...$sources, $guardPath => $guardMutation]));
+
+        $projectionPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php';
+        $projectionMutation = $this->o3InsertIntoMethodBody(
+            $sources[$projectionPath],
+            'occurredAt',
+            '        $clock->now();',
+        );
+        self::assertContains(
+            'now',
+            $this->o3CallNames($this->o3Calls($this->parseArchitectureSource($projectionMutation))),
+        );
+        self::assertFalse($this->o3C3Oracle([...$sources, $projectionPath => $projectionMutation]));
+
+        $snapshotPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php';
+        $snapshotMutation = $this->o3InsertIntoMethodBody(
+            $sources[$snapshotPath],
+            'read',
+            '        $values[\'delivery\']->deliverInCurrentTransaction($plan, $request);',
+        );
+        self::assertContains(
+            'deliverInCurrentTransaction',
+            $this->o3CallNames($this->o3Calls($this->parseArchitectureSource($snapshotMutation))),
+        );
+        self::assertFalse($this->o3C3Oracle([...$sources, $snapshotPath => $snapshotMutation]));
+    }
+
+    public function testO3C3KeepsResolvedAliasesAndInertTextOutOfTheGraph(): void
+    {
+        $source = <<<'PHP'
+            <?php
+            namespace Example;
+            use BlackOps\Core\Audit\AuditSourceRuntime as Runtime;
+            /* Runtime::Wrong; ->deliverStandalone(); */
+            $relay = Runtime::Relay;
+            $cli = \BlackOps\Core\Audit\AuditSourceRuntime::Cli;
+            $text = 'deliverStandalone';
+            PHP;
+        $nodes = $this->parseArchitectureSource($source);
+        self::assertSame(['Cli', 'Relay'], $this->o3RuntimeConstants($nodes));
+        self::assertSame([], $this->o3CallNames($this->o3Calls($nodes)));
+
+        $mutant = $source . "\n\$delivery->deliverStandalone(\$plan, \$request);\n";
+        self::assertSame(
+            ['deliverStandalone'],
+            $this->o3CallNames($this->o3Calls($this->parseArchitectureSource($mutant))),
+        );
+    }
+
+    public function testGenericOutboxUsesOneCurrentTransactionDeliveryEdgeAndNoActivation(): void
+    {
+        $root = realpath(__DIR__ . '/../../');
+        self::assertIsString($root);
+        $writerPath = $root . '/src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php';
+        $hookPath = $root . '/src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php';
+        $storePath = $root . '/src/Transport/PostgreSql/PostgreSqlOutboxStore.php';
+        $writer = file_get_contents($writerPath);
+        $hook = file_get_contents($hookPath);
+        $store = file_get_contents($storePath);
+        self::assertIsString($writer);
+        self::assertIsString($hook);
+        self::assertIsString($store);
+        self::assertSame(1, substr_count($writer, 'deliverInCurrentTransaction('));
+        self::assertSame(0, substr_count($writer, 'deliverStandalone('));
+        self::assertSame(0, substr_count($writer, 'PostgreSqlAuditRecordStore'));
+        self::assertSame(0, substr_count($writer, 'AuditOutboxRelayRuntime'));
+        self::assertStringContainsString('implements PostgreSqlOutboxPhaseHook', $hook);
+        foreach ([
+            'assertRelayEntry',
+            'assertOperatorEntry',
+            'retryScheduled',
+            'deadLettered',
+            'deadLetterRetryRequested',
+        ] as $method) {
+            self::assertSame(1, substr_count($hook, 'public function ' . $method . '('), $method);
+        }
+        self::assertSame(3, substr_count($writer, "'outbox.delivery."));
+        self::assertSame(3, substr_count($store, 'RETURNING record_id::text AS record_id'));
+        self::assertStringContainsString('state_version::text AS state_version', $store);
+        self::assertStringContainsString('private ?PostgreSqlOutboxPhaseHook $phaseHook = null', $store);
+        self::assertStringNotContainsString('new GenericOutboxAuditHook', $store);
+        self::assertStringNotContainsString('new GenericOutboxAuditWriter', $store);
+
+        $standaloneMutation = str_replace('deliverInCurrentTransaction(', 'deliverStandalone(', $writer, $count);
+        self::assertSame(1, $count);
+        self::assertStringNotContainsString('deliverInCurrentTransaction(', $standaloneMutation);
+        $returningMutation = str_replace(
+            'RETURNING record_id::text AS record_id',
+            'RETURNING operation_id',
+            $store,
+            $count,
+        );
+        self::assertSame(3, $count);
+        self::assertStringNotContainsString('RETURNING record_id::text AS record_id', $returningMutation);
+    }
+
     public function testExactProductionInventoryModifiersAndApiMarkerBoundary(): void
     {
         $root = realpath(__DIR__ . '/../../');
@@ -504,6 +666,68 @@ final class AuditDeliveryArchitectureTest extends TestCase
         $baseline = $this->c3DeclarationBaseline($sources);
         self::assertSame([], $this->c3DeclarationViolations($sources, $baseline));
 
+        $withoutMetadata = $sources;
+        unset(
+            $withoutMetadata['src/Audit/AuditCatalogDefinition.php'],
+            $withoutMetadata['src/Audit/AuditCatalogProvider.php'],
+        );
+        self::assertSame($expected, $this->c3Inventory($withoutMetadata));
+        self::assertSame(
+            [],
+            $this->c3DeclarationViolations($withoutMetadata, $this->c3DeclarationBaseline($withoutMetadata)),
+        );
+
+        $unlisted = $sources;
+        $unlisted['src/Audit/UnlistedC3Declaration.php'] = <<<'PHP'
+            <?php
+
+            namespace BlackOps\Audit;
+
+            final class UnlistedC3Declaration {}
+            PHP;
+        self::assertNotEmpty($this->c3DeclarationViolations($unlisted, $baseline));
+
+        $requestConstructors = [];
+        foreach ($sources as $path => $source) {
+            $count = $this->c3ConstructorCalls(
+                $source,
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest',
+            );
+            if ($count > 0) {
+                $requestConstructors[$path] = $count;
+            }
+        }
+        ksort($requestConstructors);
+        self::assertSame(
+            [],
+            $this->c3ReferenceViolations($sources),
+            sprintf(
+                'C3 baseline maps actual direct=%s; receivers=%s; AuditDeliveryRequest constructors=%s',
+                var_export($this->c3DirectCalls($sources), true),
+                var_export($this->c3DirectCallReceivers($sources), true),
+                var_export($requestConstructors, true),
+            ),
+        );
+        $definitionPath = 'src/Audit/AuditCatalogDefinition.php';
+        $definitionEdge = $sources;
+        $definitionEdge[$definitionPath] .= "\n\$delivery->deliverStandalone(\$request);\n";
+        self::assertIsArray(token_get_all($definitionEdge[$definitionPath], TOKEN_PARSE));
+        self::assertSame(1, $this->c3DirectCalls($definitionEdge)['deliverStandalone'][$definitionPath]);
+        self::assertContains('direct-call-inventory', $this->c3ReferenceViolations($definitionEdge));
+
+        $providerPath = 'src/Audit/AuditCatalogProvider.php';
+        $providerEdge = $sources;
+        $providerEdge[$providerPath] .= "\nnew \\BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator();\n";
+        self::assertIsArray(token_get_all($providerEdge[$providerPath], TOKEN_PARSE));
+        self::assertSame(1, $this->c3ConstructorCalls(
+            $providerEdge[$providerPath],
+            'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator',
+        ));
+        self::assertContains(
+            'constructor-inventory:BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryCoordinator',
+            $this->c3ReferenceViolations($providerEdge),
+        );
+
         $extra = $sources;
         $extra['src/Internal/Audit/Orchestration/Nested/Decoy.php'] = '<?php';
         self::assertNotEmpty($this->c3DeclarationViolations($extra, $baseline));
@@ -593,7 +817,27 @@ final class AuditDeliveryArchitectureTest extends TestCase
     public function testC3ReferenceOracleIsSemanticAndRejectsIndirectOrDynamicCallers(): void
     {
         $sources = $this->c3Sources();
-        self::assertSame([], $this->c3ReferenceViolations($sources));
+        $requestConstructors = [];
+        foreach ($sources as $path => $source) {
+            $count = $this->c3ConstructorCalls(
+                $source,
+                'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest',
+            );
+            if ($count > 0) {
+                $requestConstructors[$path] = $count;
+            }
+        }
+        ksort($requestConstructors);
+        self::assertSame(
+            [],
+            $this->c3ReferenceViolations($sources),
+            sprintf(
+                'C3 baseline maps actual direct=%s; receivers=%s; AuditDeliveryRequest constructors=%s',
+                var_export($this->c3DirectCalls($sources), true),
+                var_export($this->c3DirectCallReceivers($sources), true),
+                var_export($requestConstructors, true),
+            ),
+        );
         $rotationHookExtra = $sources;
         $hookPath = 'src/Internal/Audit/Rotation/StorageRotationAuditHook.php';
         self::assertArrayHasKey($hookPath, $rotationHookExtra);
@@ -619,6 +863,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
                 ],
                 'deliverInCurrentTransaction' => [
                     'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 2,
+                    'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => 1,
                     'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
                     'src/Internal/Audit/Replay/ObserverReplayAuditWriterEmission.php' => 1,
                     'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
@@ -1061,6 +1306,17 @@ final class AuditDeliveryArchitectureTest extends TestCase
             PHP;
         self::assertNotEmpty($this->c3ForbiddenReferenceViolations($generalProjection));
 
+        $projectionRole = $sources;
+        $projectionRole['src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php'] .= <<<'PHP'
+
+            new GenericOutboxAuditProjection();
+            PHP;
+        self::assertIsArray(token_get_all(
+            $projectionRole['src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php'],
+            TOKEN_PARSE,
+        ));
+        self::assertNotEmpty($this->c3ForbiddenReferenceViolations($projectionRole));
+
         $fallbackDelivery = $sources;
         $fallbackDelivery['src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php'] = str_replace(
             "    private function buildId(): string\n    {",
@@ -1273,6 +1529,14 @@ final class AuditDeliveryArchitectureTest extends TestCase
         foreach (array_keys($sources) as $path) {
             if (
                 str_starts_with($path, 'src/Audit/')
+                && !in_array(
+                    $path,
+                    [
+                        'src/Audit/AuditCatalogDefinition.php',
+                        'src/Audit/AuditCatalogProvider.php',
+                    ],
+                    true,
+                )
                 || str_starts_with($path, 'src/Internal/Audit/Orchestration/')
                 || $path === 'src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php'
                 || $path === 'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php'
@@ -2459,6 +2723,49 @@ final class AuditDeliveryArchitectureTest extends TestCase
         ];
     }
 
+    private function o3WriterEmissionRole(ClassMethod $write): bool
+    {
+        $deliveryCalls = array_values(array_filter(
+            $this->o3MethodCalls($write),
+            static fn(Node $call): bool => (
+                $call instanceof Node\Expr\MethodCall
+                && $call->name instanceof Node\Identifier
+                && $call->name->toString() === 'deliverInCurrentTransaction'
+            ),
+        ));
+        if (count($deliveryCalls) !== 1 || !$deliveryCalls[0] instanceof Node\Expr\MethodCall) {
+            return false;
+        }
+        $delivery = $deliveryCalls[0];
+        if (
+            !$delivery->var instanceof Node\Expr\ArrayDimFetch
+            || !$delivery->var->var instanceof Node\Expr\Variable
+            || $delivery->var->var->name !== 'values'
+            || !$delivery->var->dim instanceof Node\Scalar\String_
+            || $delivery->var->dim->value !== 'delivery'
+            || count($delivery->args) !== 2
+            || !$delivery->args[0]->value instanceof Node\Expr\Variable
+            || $delivery->args[0]->value->name !== 'plan'
+            || !$delivery->args[1]->value instanceof Node\Expr\Variable
+            || $delivery->args[1]->value->name !== 'request'
+            || $this->o3NewTargets($write->stmts ?? [], ['AuditDeliveryRequest']) !== ['AuditDeliveryRequest']
+        ) {
+            return false;
+        }
+        foreach ($write->stmts ?? [] as $statement) {
+            if (!$statement instanceof Node\Stmt\TryCatch) {
+                continue;
+            }
+            foreach ($statement->stmts as $tryStatement) {
+                if ($tryStatement instanceof Node\Stmt\Expression && $tryStatement->expr === $delivery) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     /** @return list<string> */
     private function c3ReferencedTargetClasses(string $source): array
     {
@@ -2636,6 +2943,9 @@ final class AuditDeliveryArchitectureTest extends TestCase
             if (!str_contains($text, $needle)) {
                 continue;
             }
+            if ($needle === 'Projection' && $this->c3IsAdoptedProjectionReference($tokens, $index, $path)) {
+                continue;
+            }
             if (
                 $needle === 'Projection'
                 && $path === 'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php'
@@ -2658,6 +2968,61 @@ final class AuditDeliveryArchitectureTest extends TestCase
             }
 
             return true;
+        }
+
+        return false;
+    }
+
+    /** @param list<array{0:int,1:string,2:int}|string> $tokens */
+    private function c3IsAdoptedProjectionReference(array $tokens, int $index, string $path): bool
+    {
+        $token = $tokens[$index] ?? null;
+        if (
+            !is_array($token)
+            || !in_array($token[0], [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED, T_NAME_RELATIVE], true)
+        ) {
+            return false;
+        }
+        [$namespace, $aliases] = $this->c3NameContext($tokens);
+        if (
+            $this->c3ResolveName($token[1], $namespace, $aliases)
+            !== 'BlackOps\\Internal\\Audit\\OperationalOutbox\\GenericOutboxAuditProjection'
+        ) {
+            return false;
+        }
+        if ($path === 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php') {
+            $previous = $this->c3PreviousToken($tokens, $index - 1);
+
+            return $previous !== null && is_array($tokens[$previous]) && $tokens[$previous][0] === T_CLASS;
+        }
+        if ($path !== 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php') {
+            return false;
+        }
+        $next = $this->c3NextToken($tokens, $index + 1);
+        if ($next !== null && $this->c3Operator($tokens[$next], [T_DOUBLE_COLON])) {
+            $method = $this->c3NextToken($tokens, $next + 1);
+
+            return (
+                $method !== null
+                && is_array($tokens[$method])
+                && $tokens[$method][0] === T_STRING
+                && in_array($tokens[$method][1], ['capture', 'occurredAt', 'opaqueId', 'draft'], true)
+            );
+        }
+        for ($cursor = $index - 1; $cursor >= 0; $cursor--) {
+            $candidate = $tokens[$cursor];
+            if ($candidate === ';') {
+                break;
+            }
+            if (is_array($candidate) && $candidate[0] === T_USE) {
+                return true;
+            }
+            if (
+                is_array($candidate)
+                && in_array($candidate[0], [T_CLASS, T_FUNCTION, T_INTERFACE, T_TRAIT, T_ENUM], true)
+            ) {
+                break;
+            }
         }
 
         return false;
@@ -3282,6 +3647,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             ],
             'deliverInCurrentTransaction' => [
                 'src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => 2,
+                'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => 1,
                 'src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => 1,
                 'src/Internal/Audit/Replay/ObserverReplayAuditWriterEmission.php' => 1,
                 'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
@@ -3308,6 +3674,9 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'appendRequired|src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php' => ['$this->records'],
             'deliverInCurrentTransaction|src/Internal/Audit/Authorization/AuthorizationAuditAttempt.php' => [
                 '$values',
+                '$values',
+            ],
+            'deliverInCurrentTransaction|src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => [
                 '$values',
             ],
             'deliverInCurrentTransaction|src/Internal/Audit/Orchestration/AuditMutationTransactionCoordinator.php' => [
@@ -3378,6 +3747,7 @@ final class AuditDeliveryArchitectureTest extends TestCase
             'BlackOps\\Internal\\Audit\\Orchestration\\AuditDeliveryRequest' => [
                 'src/Internal/Audit/Authentication/DurableAuthenticationAuditEventWriter.php' => 1,
                 'src/Internal/Audit/Authorization/AuthorizationAuditEventFactory.php' => 1,
+                'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => 1,
                 'src/Internal/Audit/Orchestration/AuditProtectedReadGate.php' => 2,
                 'src/Internal/Audit/Replay/ObserverReplayAuditWriterEmission.php' => 1,
                 'src/Internal/Audit/Retention/RetentionHoldAuditWriter.php' => 1,
@@ -4474,5 +4844,503 @@ final class AuditDeliveryArchitectureTest extends TestCase
             || $this->isThisProperty($comparison->left, $property)
             && $this->isVariableNamed($comparison->right, 'connection')
         );
+    }
+
+    /** @return array<string,string> */
+    private function o3Sources(): array
+    {
+        $root = realpath(__DIR__ . '/../../');
+        self::assertIsString($root);
+        $paths = [
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php',
+            'src/Transport/PostgreSql/PostgreSqlOutboxPhaseHook.php',
+            'src/Transport/PostgreSql/PostgreSqlOutboxStore.php',
+        ];
+        $sources = [];
+        foreach ($paths as $path) {
+            $source = file_get_contents($root . '/' . $path);
+            self::assertIsString($source);
+            $sources[$path] = $source;
+        }
+
+        return $sources;
+    }
+
+    /** @param array<string,string> $sources */
+    private function o3C3Oracle(array $sources): bool
+    {
+        $writerPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php';
+        $hookPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php';
+        $guardPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php';
+        $snapshotPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php';
+        $projectionPath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php';
+        $failurePath = 'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php';
+
+        $writerClass = $this->o3Class($this->parseArchitectureSource($sources[$writerPath]));
+        $hookClass = $this->o3Class($this->parseArchitectureSource($sources[$hookPath]));
+        if ($writerClass === null || $hookClass === null) {
+            return false;
+        }
+        $write = $this->architectureMethod($writerClass, 'write');
+        if ($write === null) {
+            return false;
+        }
+        $writerSequence = [
+            'read',
+            'definition',
+            'recordId',
+            'discriminator',
+            'tenantReference',
+            'occurredAt',
+            'opaqueId',
+            'opaqueId',
+            'draft',
+            'forDraft',
+            'deliverInCurrentTransaction',
+        ];
+        $actualWriterSequence = array_values(array_filter(
+            $this->o3CallNames($this->o3MethodCalls($write)),
+            static fn(string $name): bool => in_array($name, $writerSequence, true),
+        ));
+        if ($actualWriterSequence !== $writerSequence) {
+            return false;
+        }
+        if (!$this->o3WriterEmissionRole($write)) {
+            return false;
+        }
+
+        $owners = [];
+        foreach ($sources as $path => $source) {
+            $nodes = $this->parseArchitectureSource($source);
+            foreach ($this->o3CallNames($this->o3Calls($nodes)) as $name) {
+                $owners[$name][$path] = ($owners[$name][$path] ?? 0) + 1;
+            }
+            foreach ($this->o3FunctionNames($nodes) as $name) {
+                $owners[$name][$path] = ($owners[$name][$path] ?? 0) + 1;
+            }
+        }
+        foreach ([
+            'forDraft' => [$writerPath, 1],
+            'deliverInCurrentTransaction' => [$writerPath, 1],
+            'usesConnection' => [$writerPath, 1],
+            'now' => [$projectionPath, 1],
+            'derive' => [$projectionPath, 1],
+            'assertConnection' => [$hookPath, 5],
+        ] as $name => [$path, $count]) {
+            if (($owners[$name] ?? []) !== [$path => $count]) {
+                return false;
+            }
+        }
+        foreach (['deliverStandalone', 'appendRequired', 'appendDurable', 'deliverInMutationTransaction'] as $name) {
+            if (isset($owners[$name])) {
+                return false;
+            }
+        }
+        foreach (['call_user_func', 'forward_static_call', 'Closure'] as $name) {
+            if (isset($owners[$name])) {
+                return false;
+            }
+        }
+
+        foreach (['isAutoCommit', 'isTransactionActive', 'getTransactionNestingLevel'] as $name) {
+            if (
+                ($owners[$name] ?? []) !== [$guardPath => 2, 'src/Transport/PostgreSql/PostgreSqlOutboxStore.php' => 3]
+            ) {
+                return false;
+            }
+        }
+        foreach ($this->o3HelperPaths() as $path) {
+            $names = $this->o3CallNames($this->o3Calls($this->parseArchitectureSource($sources[$path])));
+            if (
+                array_intersect($names, [
+                    'beginTransaction',
+                    'commit',
+                    'rollBack',
+                    'close',
+                    'executeStatement',
+                    'fetchAssociative',
+                    'fetchAllAssociative',
+                    'transactional',
+                ]) !== []
+            ) {
+                return false;
+            }
+        }
+
+        if (!$this->o3HookMethodsHaveExactRuntimeOrder($hookClass)) {
+            return false;
+        }
+        if (!$this->o3SnapshotHasOnlyPureCopyEdges($sources[$snapshotPath])) {
+            return false;
+        }
+        if (!$this->o3FailureHasOnlyCommonExceptionConstruction($sources)) {
+            return false;
+        }
+        if (
+            $this->o3NewTargets(
+                $this->parseArchitectureSource($sources[$writerPath]),
+                ['AuditDeliveryCoordinator', 'PostgreSqlOutboxStore'],
+            ) !== []
+        ) {
+            return false;
+        }
+
+        return $this->o3StoreHasOwnedRoots($sources['src/Transport/PostgreSql/PostgreSqlOutboxStore.php']);
+    }
+
+    /** @return list<string> */
+    private function o3HelperPaths(): array
+    {
+        return [
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php',
+            'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php',
+        ];
+    }
+
+    private function o3HookMethodsHaveExactRuntimeOrder(Class_ $class): bool
+    {
+        $expected = [
+            'assertRelayEntry' => ['writer', 'assertConnection', 'entry', 'Relay'],
+            'assertOperatorEntry' => ['writer', 'assertConnection', 'entry', 'Cli'],
+            'retryScheduled' => ['writer', 'assertConnection', 'root', 'read', 'retryScheduled', 'Relay'],
+            'deadLettered' => ['writer', 'assertConnection', 'root', 'read', 'deadLettered', 'Relay'],
+            'deadLetterRetryRequested' => [
+                'writer',
+                'assertConnection',
+                'root',
+                'read',
+                'deadLetterRetryRequested',
+                'Cli',
+            ],
+        ];
+        foreach ($expected as $name => $sequence) {
+            $method = $this->architectureMethod($class, $name);
+            if ($method === null) {
+                return false;
+            }
+            $calls = $this->o3CallNames($this->o3MethodCalls($method));
+            $relevant = array_values(array_filter($calls, static fn(string $call): bool => in_array(
+                $call,
+                [
+                    'writer',
+                    'assertConnection',
+                    'entry',
+                    'root',
+                    'read',
+                    'retryScheduled',
+                    'deadLettered',
+                    'deadLetterRetryRequested',
+                ],
+                true,
+            )));
+            $withoutRuntime = array_values(array_filter(
+                $sequence,
+                static fn(string $call): bool => !in_array($call, ['Relay', 'Cli'], true),
+            ));
+            if ($relevant !== $withoutRuntime || $this->o3RuntimeConstants($method->stmts ?? []) !== [end($sequence)]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function o3SnapshotHasOnlyPureCopyEdges(string $source): bool
+    {
+        $nodes = $this->parseArchitectureSource($source);
+        $class = $this->o3Class($nodes);
+        if ($class === null) {
+            return false;
+        }
+        $method = $this->architectureMethod($class, 'read');
+        if ($method === null) {
+            return false;
+        }
+        $names = $this->o3CallNames($this->o3MethodCalls($method));
+        $newTargets = $this->o3NewTargets($method->stmts ?? [], ['AuditRecordActor', 'AuditTypedReference']);
+        $static = $this->o3StaticCallNames($method->stmts ?? []);
+        sort($static);
+
+        return (
+            count(array_filter($names, static fn(string $name): bool => $name === 'toArray')) === 3
+            && $newTargets === ['AuditRecordActor', 'AuditTypedReference', 'AuditTypedReference']
+            && $static === [
+                'AuditRecordCorrelation::fromArray',
+                'AuditValidationException::assertSafeString',
+                'GenericOutboxAuditFailure::fresh',
+            ]
+            && array_intersect($names, [
+                'now',
+                'derive',
+                'forDraft',
+                'deliverInCurrentTransaction',
+                'usesConnection',
+                'beginTransaction',
+                'commit',
+            ]) === []
+        );
+    }
+
+    /** @param array<string,string> $sources */
+    private function o3FailureHasOnlyCommonExceptionConstruction(array $sources): bool
+    {
+        $found = [];
+        foreach ($sources as $path => $source) {
+            foreach ($this->o3NewTargets(
+                $this->parseArchitectureSource($source),
+                ['AuditDeliveryException'],
+            ) as $target) {
+                $found[$target][$path] = ($found[$target][$path] ?? 0) + 1;
+            }
+        }
+
+        return (
+            ($found['AuditDeliveryException'] ?? []) === [
+                'src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php' => 1,
+            ]
+        );
+    }
+
+    private function o3StoreHasOwnedRoots(string $source): bool
+    {
+        $class = $this->o3Class($this->parseArchitectureSource($source));
+        if ($class === null) {
+            return false;
+        }
+        foreach ([
+            'scheduleRetryEnabled' => 'retryScheduled',
+            'moveToDeadLetterEnabled' => 'deadLettered',
+            'retryDeadLetterEnabled' => 'deadLetterRetryRequested',
+        ] as $methodName => $phase) {
+            $method = $this->architectureMethod($class, $methodName);
+            if ($method === null) {
+                return false;
+            }
+            $calls = $this->o3CallNames($this->o3MethodCalls($method));
+            $begin = array_search('beginTransaction', $calls, true);
+            $phaseIndex = array_search($phase, $calls, true);
+            $commit = array_search('commit', $calls, true);
+            $idle = array_search('assertIdleRoot', $calls, true);
+            if (!is_int($begin) || ($calls[$begin + 1] ?? null) !== 'assertActiveRoot') {
+                return false;
+            }
+            if (!is_int($phaseIndex) || ($calls[$phaseIndex + 1] ?? null) !== 'assertActiveRoot') {
+                return false;
+            }
+            if (!is_int($commit) || !is_int($idle) || $commit <= $phaseIndex || $idle <= $commit) {
+                return false;
+            }
+            $strings = $this->o3StringValues($method);
+            $returning = array_values(array_filter($strings, static fn(string $value): bool => str_contains(
+                $value,
+                'RETURNING',
+            )));
+            if (
+                count($returning) !== 1
+                || !str_contains(
+                    $returning[0],
+                    'record_id::text AS record_id, tenant_type, tenant_id, state_version::text AS state_version',
+                )
+            ) {
+                return false;
+            }
+            if (
+                $methodName === 'retryDeadLetterEnabled'
+                && !array_filter($strings, static fn(string $value): bool => str_contains($value, 'INSERT INTO'))
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** @param Node $node @return list<string> */
+    private function o3StringValues(Node $node): array
+    {
+        $values = [];
+        foreach (new NodeFinder()->find(
+            $node,
+            static fn(Node $candidate): bool => (
+                $candidate instanceof Node\Scalar\String_
+                || $candidate instanceof Node\Scalar\Encapsed
+            ),
+        ) as $literal) {
+            if ($literal instanceof Node\Scalar\String_) {
+                $values[] = $literal->value;
+                continue;
+            }
+            if ($literal instanceof Node\Scalar\Encapsed) {
+                $values[] = implode('', array_map(static fn(Node $part): string => $part
+                    instanceof Node\Scalar\EncapsedStringPart
+                        ? $part->value
+                        : '', $literal->parts));
+            }
+        }
+
+        return $values;
+    }
+
+    /** @param list<Node> $nodes @return list<Node> */
+    private function o3Calls(array $nodes): array
+    {
+        $calls = new NodeFinder()->find(
+            $nodes,
+            static fn(Node $node): bool => (
+                $node instanceof Node\Expr\MethodCall
+                || $node instanceof Node\Expr\NullsafeMethodCall
+                || $node instanceof Node\Expr\StaticCall
+            ),
+        );
+
+        return array_values(array_filter($calls, static fn(Node $node): bool => $node instanceof Node));
+    }
+
+    /** @return list<Node> */
+    private function o3MethodCalls(ClassMethod $method): array
+    {
+        return $this->o3Calls($method->stmts ?? []);
+    }
+
+    /** @param list<Node> $nodes @return list<string> */
+    private function o3CallNames(array $nodes): array
+    {
+        $names = [];
+        foreach ($nodes as $node) {
+            if (
+                (
+                    $node instanceof Node\Expr\MethodCall
+                    || $node instanceof Node\Expr\NullsafeMethodCall
+                    || $node instanceof Node\Expr\StaticCall
+                )
+                && $node->name instanceof Node\Identifier
+            ) {
+                $names[] = $node->name->toString();
+            }
+        }
+
+        return $names;
+    }
+
+    /** @param list<Node> $nodes @return list<string> */
+    private function o3StaticCallNames(array $nodes): array
+    {
+        $names = [];
+        foreach ($this->o3Calls($nodes) as $node) {
+            if (
+                !$node instanceof Node\Expr\StaticCall
+                || !$node->class instanceof Name
+                || !$node->name instanceof Node\Identifier
+            ) {
+                continue;
+            }
+            $resolved = $node->class->getAttribute('resolvedName');
+            $class = $resolved instanceof Name ? $resolved->toString() : $node->class->toString();
+            $parts = explode('\\', ltrim($class, '\\'));
+            $names[] = end($parts) . '::' . $node->name->toString();
+        }
+
+        return $names;
+    }
+
+    /** @param list<Node> $nodes @param list<string> $only @return list<string> */
+    private function o3NewTargets(array $nodes, array $only): array
+    {
+        $targets = [];
+        foreach (new NodeFinder()->findInstanceOf($nodes, Node\Expr\New_::class) as $new) {
+            if (!$new instanceof Node\Expr\New_ || !$new->class instanceof Name) {
+                continue;
+            }
+            $resolved = $new->class->getAttribute('resolvedName');
+            $class = $resolved instanceof Name ? $resolved->toString() : $new->class->toString();
+            $parts = explode('\\', ltrim($class, '\\'));
+            $target = end($parts);
+            if (in_array($target, $only, true)) {
+                $targets[] = $target;
+            }
+        }
+        sort($targets);
+
+        return $targets;
+    }
+
+    /** @param list<Node> $nodes @return list<string> */
+    private function o3RuntimeConstants(array $nodes): array
+    {
+        $values = [];
+        foreach (new NodeFinder()->findInstanceOf($nodes, Node\Expr\ClassConstFetch::class) as $fetch) {
+            if (
+                !$fetch instanceof Node\Expr\ClassConstFetch
+                || !$fetch->class instanceof Name
+                || !$fetch->name instanceof Node\Identifier
+            ) {
+                continue;
+            }
+            $resolved = $fetch->class->getAttribute('resolvedName');
+            $class = $resolved instanceof Name ? $resolved->toString() : $fetch->class->toString();
+            $parts = explode('\\', ltrim($class, '\\'));
+            if (end($parts) === 'AuditSourceRuntime') {
+                $values[] = $fetch->name->toString();
+            }
+        }
+        sort($values);
+
+        return $values;
+    }
+
+    /** @param list<Node> $nodes @return list<string> */
+    private function o3FunctionNames(array $nodes): array
+    {
+        $names = [];
+        foreach (new NodeFinder()->findInstanceOf($nodes, Node\Expr\FuncCall::class) as $call) {
+            if ($call instanceof Node\Expr\FuncCall && $call->name instanceof Name) {
+                $names[] = strtolower($call->name->toString());
+            }
+        }
+
+        return $names;
+    }
+
+    /** @param list<Node> $nodes */
+    private function o3Class(array $nodes): ?Class_
+    {
+        foreach (new NodeFinder()->findInstanceOf($nodes, Class_::class) as $class) {
+            if ($class instanceof Class_) {
+                return $class;
+            }
+        }
+
+        return null;
+    }
+
+    private function o3ReplaceFirst(string $source, string $search, string $replace): string
+    {
+        $position = strpos($source, $search);
+        self::assertNotFalse($position, $search);
+
+        return substr_replace($source, $replace, $position, strlen($search));
+    }
+
+    private function o3InsertIntoMethodBody(string $source, string $method, string $text): string
+    {
+        $function = strpos($source, 'function ' . $method . '(');
+        self::assertNotFalse($function, $method);
+        $position = strpos($source, '{', $function);
+        self::assertNotFalse($position, $method);
+
+        return substr_replace($source, "\n" . $text, $position + 1, 0);
     }
 }

@@ -207,6 +207,16 @@ validate_package() {
         resources/stubs/auth-logout.php.stub \
         resources/stubs/auth-user-migration.php.stub \
         resources/stubs/auth-session-migration.php.stub \
+        src/Transport/PostgreSql/PostgreSqlOutboxPhaseHook.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHook.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditSnapshot.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php \
+        src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php \
         src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php \
         src/Internal/Audit/Artifact/AuditArtifactScalar.php \
         src/Internal/Audit/Artifact/AuditArtifactCanonical.php \
@@ -243,8 +253,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 149
-    test "${required_inventory_unique}" -eq 149
+    test "${required_inventory_count}" -eq 159
+    test "${required_inventory_unique}" -eq 159
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \
