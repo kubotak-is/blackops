@@ -1,13 +1,14 @@
 # P23-006E: Outbox audit and Application Catalog integration — Report
 
-Status: Accepted locally — final clean checkpoint and remote preservation pending
+Status: Accepted — separate commits, required gates and clean remote checkpoint complete
 
 ## Summary
 
-Root adopted final independent review7b13cc36 and locally accepts O3/E1 and
-the bounded integration. The separate source commits and all mandatory committed
-gates pass. Only the clean management checkpoint and authorized normal branch
-push/remote identity remain for006E;1.3 release work continues under parent006.
+O3/E1 and006E are Accepted. Separate source commits, full3833/8383264 and all
+mandatory committed gates pass; final review7b13cc36 is Green. Clean management
+checkpointf01e16b is stored at the verified remote integration branch. Primary
+mixed work, unrelated modes and published Documentation remain preserved.
+The1.3 release goal continues under parent006.
 
 ## Changed Files
 
@@ -35,9 +36,8 @@ byte-identical. No PHP or public artifact validation is invalidated by preparati
 
 ## Acceptance Criteria
 
-Source, attribution, qualification, preservation and independent final Review
-are complete. Root Acceptance is recorded. The final clean checkpoint criterion
-remains open until the management commit and actual clean proof are recorded.
+All scoped criteria are complete, including final Review, Root Acceptance/STATE,
+clean management commit and actual normal push/remote identity proof.
 
 ## Release Documentation Impact
 
@@ -47,13 +47,13 @@ same-SHA release delivery remain005/006. No deployment performed.
 
 ## Remaining Issues
 
-Final clean management checkpoint, normal branch push and remote identity.
-Parent1.3 release dependencies remain outside this bounded integration.
+None within006E. Parent1.3 capability, Documentation/Owner preview and final
+release/publication/delivery requirements remain open.
 
 ## Suggested Next Action
 
-Commit this reviewed management/Acceptance checkpoint, verify clean source and
-primary preservation, push the integration branch normally and record its OID.
+Issue reviewed F2 persistence and Worker-startup preparation against the current
+Accepted baseline, keeping explicit ownership and all final release gates.
 
 ## Version baseline execution boundary — 2026-10-06T15:54:50+09:00
 
@@ -220,3 +220,24 @@ clone export is the successful mandatory gate. No release or CI claim is added.
 Parent1.3 still requires D composition/Inline ambiguity/rotation overflow,
 E projector/journey, remaining F/control/G,004A,005 all-public Documentation/
 Owner preview and006 final same-SHA qualification/publication/delivery.
+
+## Clean checkpoint and remote preservation — 2026-10-07T02:55:15+09:00
+
+The reviewed management/Acceptance commit is
+`f01e16b78da19685000ad57cb9a68fb7a04ba283`, parent3baf147. Actual receipt
+`acfc060e8e6574c62630bcb60cbb4e648a53d51d5a98909869df2ba9bb632de3`
+proves exact19 paths, clean endpoint, unchanged final38 source, all unrelated
+files/modes and original primary buffers. STATE/diff checks passed;396 local
+management links resolve. Root closes the final clean-checkpoint criterion.
+
+A normal non-force push created
+`origin/agent/p23-006-accepted-integration` at that exactSHA. Actual push and
+remote `git ls-remote --heads` evidence is retained in checkpoint-pushed.json,
+SHA256 `7f90eaf9b155d95dba19115f2e0f1f09e3e054d92d0c3f5c767f0a5d3dfa6044`.
+No main update, tag, final CI, release or deployment occurred. This small
+management follow-up records that completed checkpoint; its own final commit
+and push identity are captured externally, without changing qualified source.
+
+No006E issue remains. Continue the parent1.3 dependency graph from this Accepted
+baseline; final Owner local Documentation preview and same-SHA publication/
+delivery remain mandatory.

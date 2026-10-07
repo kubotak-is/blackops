@@ -5,10 +5,10 @@ Status: In Progress — through-Outbox/E1 Accepted; final release candidate not 
 ## Summary
 
 Accepted dependencies through Outbox and application Catalog are now integrated
-in separate reviewed commits.006E's complete source/full/committed export gates
-and final Review pass. Its management checkpoint/branch preservation precede the
-next mandatory dependency. Stable1.2.1 remains current;1.3 capabilities, final
-Owner preview and same-SHA release/publication/delivery remain in progress.
+in separate reviewed commits, with all scoped gates and final Review passed.
+006E completed a clean checkpoint and verified normal remote branch preservation.
+The next mandatory dependencies can proceed. Stable1.2.1 remains current; final
+Owner preview and1.3 same-SHA qualification/publication/delivery remain open.
 
 ## Changed Files
 
@@ -327,14 +327,14 @@ Documentation reconciliation; later accepted work needs its own imports.
 
 ## Suggested Next Action
 
-O3/E1 and the bounded006E integration are locally Accepted after exact commits,
-common3833-case full and all mandatory committed gates. Complete the clean
-management checkpoint/normal branch push, then issue the reviewed F2 persistence
-and Worker-startup preparations from the actual Accepted baseline with explicit
-file/resource ownership. Remaining ordinary D composition/Inline ambiguity/
-rotation overflow, E projector/journey, F/control/G,004A hardening,005 all-public
-Documentation/Owner preview and006 final same-SHA publication/delivery remain.
-Optional003H/004B stay excluded; a checkpoint push is not a release.
+006E completed its separate source commits, required gates, final independent
+Review, Root Acceptance, clean checkpoint and normal remote branch preservation.
+Issue the already reviewed F2 persistence and Worker-startup preparations with
+actual baseline/caller/migration/package inventories and explicit file/resource
+ownership. Ordinary D composition/Inline ambiguity/rotation overflow, E projector/
+journey, remaining F/control/G,004A hardening,005 all-public Documentation/Owner
+preview and006 final same-SHA publication/delivery remain. Optional003H/004B
+stay excluded. The1.3 release goal is still active.
 
 ## Accepted O2/F1 import
 
@@ -397,3 +397,24 @@ clone export is the successful mandatory gate. No release or CI claim is added.
 Parent1.3 still requires D composition/Inline ambiguity/rotation overflow,
 E projector/journey, remaining F/control/G,004A,005 all-public Documentation/
 Owner preview and006 final same-SHA qualification/publication/delivery.
+
+## Clean checkpoint and remote preservation — 2026-10-07T02:55:15+09:00
+
+The reviewed management/Acceptance commit is
+`f01e16b78da19685000ad57cb9a68fb7a04ba283`, parent3baf147. Actual receipt
+`acfc060e8e6574c62630bcb60cbb4e648a53d51d5a98909869df2ba9bb632de3`
+proves exact19 paths, clean endpoint, unchanged final38 source, all unrelated
+files/modes and original primary buffers. STATE/diff checks passed;396 local
+management links resolve. Root closes the final clean-checkpoint criterion.
+
+A normal non-force push created
+`origin/agent/p23-006-accepted-integration` at that exactSHA. Actual push and
+remote `git ls-remote --heads` evidence is retained in checkpoint-pushed.json,
+SHA256 `7f90eaf9b155d95dba19115f2e0f1f09e3e054d92d0c3f5c767f0a5d3dfa6044`.
+No main update, tag, final CI, release or deployment occurred. This small
+management follow-up records that completed checkpoint; its own final commit
+and push identity are captured externally, without changing qualified source.
+
+No006E issue remains. Continue the parent1.3 dependency graph from this Accepted
+baseline; final Owner local Documentation preview and same-SHA publication/
+delivery remain mandatory.

@@ -297,10 +297,9 @@ No new public route name, deployment or reader journey is implied by E1 Acceptan
 
 ## Remaining Work and Next Action
 
-No scoped implementation or verification issue remains.006E owns the final
-management checkpoint/normal branch push. Continue parent1.3 D composition,
-E projector/journey, remaining F/control/G,004A,005 Owner preview and006 release.
-Optional003H/004B remain excluded.
+No scoped issue remains.006E has completed the clean checkpoint and remote
+branch preservation. Continue the parent1.3 dependencies from the Accepted
+baseline; final Owner preview and release/publication remain mandatory.
 
 ## Historical issuance closure — 2026-10-02T17:41:44+09:00
 
