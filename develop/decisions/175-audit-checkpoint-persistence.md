@@ -56,8 +56,8 @@ Root accepted the bounded47-path implementation on2026-10-09 after final evidenc
 review2ccd882b and fixed-input full3915/8591759, including native18/524. The
 [F2 Report](../orchestration/reports/P23-003F2-audit-checkpoint-persistence.md)
 records actual gates, failed iterations, inherited diagnostics and evidence-loss
-limits. Source9768edf4 and its clean committed export passed; the remote checkpoint
-remains a distinct execution step. This
+limits. Source9768edf4 and its clean committed export passed; checkpointcbec640
+was pushed and its exact remote SHA verified. This
 Acceptance grants no signer, release, seal, activation or R9 authority and does
 not declare1.3 released.
 

@@ -1,12 +1,12 @@
 # P23-003F2: Audit Checkpoint Persistence Report
 
-Status: Accepted locally — implementation, isolated source commit and committed export; remote checkpoint pending
+Status: Accepted — implementation, isolated commits, committed export and remote preservation
 
 ## Summary
 
 Accepted integration was recovered at remote ecb8288 after /tmp was lost in the
 host restart. The isolated F2 source commit is now9768edf4; its committed export
-passed, with shared checkpoint and remote push still pending.
+passed. Management checkpointcbec640 is committed and remotely verified.
 F2 scope47/Product29 is implemented under spec125 §§13–15. Independent Product
 reviews e106abb9/0b55f013 close the source findings; Documentation8b1c0d43 and
 Root1610300e close the narrow note changes. No Product expansion or waiver follows.
@@ -23,7 +23,7 @@ actual3915case identities are frozen. The final full passed3915tests/8591759asse
 at unchanged512M with no errors/failures/skips; inherited issue counts remain below.
 Independent final evidence review2ccd882b is Green. Root records local implementation
 Acceptance on2026-10-09T15:23:41+09:00; isolated commit/export are complete and
-the management checkpoint/push remain.
+the management checkpoint/push and exact remote proof are complete.
 Primary buffers and
 unrelated work are preserved; current recovery limitations remain explicit.
 
@@ -910,6 +910,25 @@ This export belongs to source SHA9768edf4, not a later management checkpoint.
 No full/static/Consumer rerun was needed for byte-identical integration. Final
 release same-SHA CI/export, publication and Documentation delivery remain006.
 
+### Committed checkpoint and remote preservation — 2026-10-09
+
+Root committed `cbec640cb0bf5624f1dc7cedf47fc6bf14cafa13`, direct parent9768edf4,
+with exactly nine adopted management paths plus the one real destination CAS
+archive. Manifest00d8f193, staged patchceb1f8ae and receipt62e1ed9c prove its ten
+paths/blobs and clean state;47 Product/support inputs are unchanged.
+
+The initial sandbox push failed before network access because github.com could
+not be resolved. The authorized normal retry pushed ecb8288..cbec640 to the existing
+`agent/p23-006-accepted-integration` branch. A separate `git ls-remote` read returned
+exactlycbec640cb0bf5624f1dc7cedf47fc6bf14cafa13. Receipt36a7dbc9 retains both results;
+approval waiting is not claimed as Git or package runtime. No force push, main
+merge, tag, publication or production deployment occurred.
+
+This receipt follow-up changes only the already authorized management envelope
+and its actual STATE archive; it does not change the exported source. The remote
+SHA above is an observed predecessor checkpoint, avoiding a self-referential
+receipt claim. Final release same-SHA requirements remain parent006.
+
 ## Release Documentation Impact
 
 Task records actual Experimental Stable1.2.1 Framework/Skeleton tuple, unreleased
@@ -936,7 +955,7 @@ their earlier issuance was not implementation Acceptance.
 | Architecture/package boundaries | Accepted; current four guards48/83335; inventory192paths/167mutations/4runtime omissions. No runtime signing/release/seal activation. |
 | Quality, Consumer, full and cleanup | Accepted; retained strict gates, Community and final3915/8591759 at512M. Inherited issue aggregates remain disclosed. |
 | Independent Transaction/Security and Documentation | Green; final2ccd882b plus unchanged note9c544339's reviewed Documentation closure. |
-| Isolated integration/export/checkpoint/push | Source9768edf4 and clean committed export passed. Shared checkpoint/remote proof remain; no1.3 release claim. |
+| Isolated integration/export/checkpoint/push | Accepted: source9768edf4, clean committed export, ten-path checkpointcbec640 and exact normal remote proof36a7dbc9. No1.3 release claim. |
 
 Final review independently attributes every diagnostic to14 predecessor identities
 in six files identical to the accepted base, with no F2 issue. Attributionddbccf62
@@ -950,14 +969,15 @@ through final addendum09142cb8. Current static, package, Consumer, format and
 required unit-correction evidence is retained above. The Final full, exact identity
 comparison, native/guard coverage, final management-ID scan and cleanup passed.
 Independent evidence review and Root local implementation Acceptance are complete.
-Isolated source commit and committed export passed; management checkpoint/push remain.
+Isolated source/export and management checkpoint/normal remote proof are complete.
+No F2 implementation or delivery issue remains; broader1.3 work remains below.
 No suppression, baseline or threshold waiver has been granted. Historical failed
 receipts remain failed and unavailable artifacts remain explicitly distinguished.
 Full F/control/G/Worker/Docs/release also remain.
 
 ## Suggested Next Action
 
-Complete the bounded management checkpoint, its own STATE CAS and normal
-accepted-branch push with exact remote-SHA proof. Then settle the remaining-F
-signing-release/trusted-control provenance choices against the accepted source.
+Settle the remaining-F signing-release/trusted-control provenance choices against
+the accepted source, using inventory1cce966a/923dfc8d. Obtain bounded independent
+Review and an exact Task Packet before assigning Production implementation.
 Parent1.3 implementation and release work remains.

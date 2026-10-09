@@ -140,8 +140,8 @@ Stable until actual publication is independently verified.
 006E completed its separate source commits, required gates, final independent
 Review, Root Acceptance, clean checkpoint and normal remote branch preservation.
 [F2 persistence](P23-003F2-audit-checkpoint-persistence.md) is Accepted locally,
-committed as9768edf4 and qualified by clean committed export. Complete its bounded
-management checkpoint/push, then settle remaining-F signing-release and trusted
+committed as9768edf4 and qualified by clean committed export. Checkpointcbec640
+is pushed with exact remote proof. Settle remaining-F signing-release and trusted
 control provenance with exact caller/guard/file ownership. Worker-startup issuance
 still requires its separate current inventory and bounded Stable Reference closure.
 Ordinary D composition/Inline ambiguity/rotation overflow, E projector/

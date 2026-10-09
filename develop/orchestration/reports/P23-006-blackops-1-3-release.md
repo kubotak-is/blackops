@@ -6,8 +6,8 @@ Status: In Progress — F2 persistence Accepted and committed; final release can
 
 Accepted dependencies through Outbox/Catalog and F2 persistence are integrated
 in separate reviewed source commits. F2 source9768edf4 passed its assigned gates,
-independent final Review and clean committed export; its management checkpoint
-and normal branch push follow. Stable1.2.1 remains current; remaining implementation,
+independent final Review and clean committed export. Checkpointcbec640 was pushed
+and matched the independently read remote SHA. Stable1.2.1 remains current; remaining implementation,
 Owner preview and1.3 same-SHA qualification/publication/delivery remain open.
 
 ## Changed Files
@@ -326,8 +326,9 @@ in5.874055s, loge4632e91, at16:16:24–16:16:30+09:00. Approval waiting is separ
 That export qualifies this source SHA, not a later management checkpoint.
 
 The current checkpoint is limited to the nine adopted management paths and the
-accepted checkout's actual STATE CAS archive. Normal push and exact remote proof
-follow. F2 grants no signing/release/seal/control/runtime activation; remaining F
+accepted checkout's actual STATE CAS archive. Checkpointcbec640 contains exactly
+ten such paths and is remotely preserved; receipt36a7dbc9 proves the normal push
+and independent exact remote read. F2 grants no signing/release/seal/control/runtime activation; remaining F
 and the final1.3 Owner/CI/export/publication/delivery gates remain open.
 
 ## Release Documentation Impact
@@ -344,16 +345,16 @@ and production delivery remain pending.
 Pending ordinary D composition, E projector/journey, remaining F, post-F control,
 G,004A,005, Owner local preview and006 final qualification/publication/delivery.
 Inline ambiguous-commit reconciliation and legacy rotation overflow policy remain.
-F2 persistence has its reviewed source commit/export; its remote management
-checkpoint is next. It does not complete signing, seal or the full F contract.
+F2 persistence has its reviewed source commit/export and remotely verified
+management checkpoint. It does not complete signing, seal or the full F contract.
 
 ## Suggested Next Action
 
 006E completed its separate source commits, required gates, final independent
 Review, Root Acceptance, clean checkpoint and normal remote branch preservation.
 [F2 persistence](../tasks/P23-003F2-audit-checkpoint-persistence.md) is Accepted locally,
-committed as9768edf4 and qualified by clean committed export. Complete its bounded
-management checkpoint/push, then settle remaining-F signing-release and trusted
+committed as9768edf4 and qualified by clean committed export. Checkpointcbec640
+is pushed with exact remote proof. Settle remaining-F signing-release and trusted
 control provenance with exact caller/guard/file ownership. Worker-startup issuance
 still requires its separate current inventory and bounded Stable Reference closure.
 Ordinary D composition/Inline ambiguity/rotation overflow, E projector/

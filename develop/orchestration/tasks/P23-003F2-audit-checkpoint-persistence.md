@@ -1,6 +1,6 @@
 # P23-003F2: Audit Checkpoint Persistence
 
-Status: Accepted locally — implementation, isolated source commit and committed export; remote checkpoint pending; BlackOps 1.3 unreleased
+Status: Accepted — implementation, isolated commits, committed export and remote preservation; BlackOps 1.3 unreleased
 
 ## Goal and authority
 
@@ -363,7 +363,8 @@ and all predecessor identities, with inherited diagnostic issues disclosed. The
 delivery/record checkboxes close after the actual isolated source commit and
 destination checkpoint; they do not reopen accepted Product inputs. Source commit
 9768edf47f200cc28666da2d28a1d98adb6bec6d contains exactly51 reviewed paths, and its
-clean committed export passed on2026-10-09. Shared checkpoint/push remain.
+clean committed export passed on2026-10-09. Management checkpointcbec640 was
+pushed normally and its exact remote SHA verified (receipt36a7dbc9).
 
 ## Release Documentation Impact
 
@@ -430,7 +431,9 @@ from those remaining1.3 gates.
 ## Remaining work and Next Action
 
 The adopted corrections, fixed-input final gates and independent review passed;
-Root accepts the implementation locally. The isolated source commit and its
-committed export passed; finish the bounded management checkpoint and push. Later signing/
+Root accepts the implementation and its bounded isolated delivery. Source9768edf4,
+committed export and management checkpointcbec640 with exact remote proof are complete.
+Next adopt/review the remaining-F signing-release and trusted-control provenance
+contract before issuing its exact implementation packet. Later signing/
 anchor/full verifier, D-control/G and other parent006 dependencies remain.
 No F2 or full1.3 completion is implied by this packet.
