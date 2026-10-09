@@ -157,6 +157,7 @@
 | [123-generic-outbox-audit-adapter.md](123-generic-outbox-audit-adapter.md) | Native generic Outbox events and owned transaction cleanup | Accepted locally; normal activation pending; `1.3` unreleased |
 | [124-application-audit-catalog-registry.md](124-application-audit-catalog-registry.md) | Public declaration/provider and trusted combined Catalog registry | Accepted locally; normal activation pending; `1.3` unreleased |
 | [125-audit-checkpoint-persistence.md](125-audit-checkpoint-persistence.md) | Complete closed-segment proof and immutable checkpoint persistence | Accepted locally and committed; signing/seal remain later F; `1.3` unreleased |
+| [126-audit-anchor-intent-state.md](126-audit-anchor-intent-state.md) | Pure complete AnchorIntent state and explicit authenticated-restore handoff | Adopted pure F3 contract; implementation pending; `1.3` unreleased |
 
 ## 決定の参照
 
@@ -337,6 +338,7 @@
 | [D173](../decisions/173-generic-outbox-audit-adapter.md) | Returned-row Outbox authority and owned cleanup | Decided; bounded implementation Accepted locally; `1.3` unreleased |
 | [D174](../decisions/174-application-audit-catalog-registry.md) | Public metadata capture, reference rejection and explicit joint qualification | Decided; bounded implementation Accepted locally; `1.3` unreleased |
 | [D175](../decisions/175-audit-checkpoint-persistence.md) | Persistence-only checkpoint authority, crash recovery and migration coverage | Decided; bounded implementation Accepted and committed; `1.3` unreleased |
+| [D176](../decisions/176-audit-anchor-intent-state.md) | Exact AnchorIntent wire with prepared binding and original claim ownership | Decided; exact F3 packet issued; `1.3` unreleased |
 | [D160](../decisions/160-operation-data-read-audit-adapters.md) | Journal/Outcome Audit adapters, fixed read execution and inherited trace protection | Decided; Product progress in D2J Report; `1.3` unreleased |
 | [D161](../decisions/161-operation-diagnostics-audit-adapter.md) | Global Diagnostics Audit and fresh same-code exception release | Decided; Product progress in D2X Report; `1.3` unreleased |
 | [D162](../decisions/162-http-authentication-audit-adapter.md) | HTTP credential-check result, Session mutation boundary and durable response gate | Decided; Product progress in D3 Report; `1.3` unreleased |

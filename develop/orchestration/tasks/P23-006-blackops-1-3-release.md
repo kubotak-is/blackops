@@ -137,17 +137,19 @@ Stable until actual publication is independently verified.
 
 ## Remaining Work and Next Action
 
-006E completed its separate source commits, required gates, final independent
-Review, Root Acceptance, clean checkpoint and normal remote branch preservation.
-[F2 persistence](P23-003F2-audit-checkpoint-persistence.md) is Accepted locally,
-committed as9768edf4 and qualified by clean committed export. Checkpointcbec640
-is pushed with exact remote proof. Settle remaining-F signing-release and trusted
-control provenance with exact caller/guard/file ownership. Worker-startup issuance
-still requires its separate current inventory and bounded Stable Reference closure.
-Ordinary D composition/Inline ambiguity/rotation overflow, E projector/
-journey, remaining F/control/G,004A hardening,005 all-public Documentation/Owner
-preview and006 final same-SHA publication/delivery remain. Optional003H/004B
-stay excluded. The1.3 release goal is still active.
+F2 persistence is Accepted, committed as9768edf4 and qualified by clean committed
+export; managementcbec640 and receiptf590f3a are pushed with independent remote
+proof. [F3 state](P23-003F3-audit-anchor-intent-state.md) now has adopted authority,
+Green independent review and exact39-path implementation ownership in the accepted
+checkout. Complete its implementation, qualification, Review and isolated commit.
+F4 durable/external state, F5 signing-release/control/current-trust/seal and F6
+complete verification remain mandatory. Online/control contract proposals are
+retained preparation, not implemented or accepted capabilities.
+Ordinary D composition/Inline ambiguity/rotation overflow, E projector/journey,
+D-control/G,004A hardening,005 all-public Documentation/Owner preview and006
+same-SHA qualification/publication/delivery remain. Worker-startup issuance still
+requires bounded Stable Reference closure. Optional003H/004B stay excluded.
+The1.3 release goal remains active.
 
 ## Accepted O2/F1 import
 

@@ -1,14 +1,17 @@
 # P23-006: BlackOps 1.3 Release Report
 
-Status: In Progress — F2 persistence Accepted and committed; final release candidate not frozen
+Status: In Progress — F2 committed/pushed; F3 exact implementation packet issued
 
 ## Summary
 
 Accepted dependencies through Outbox/Catalog and F2 persistence are integrated
-in separate reviewed source commits. F2 source9768edf4 passed its assigned gates,
-independent final Review and clean committed export. Checkpointcbec640 was pushed
-and matched the independently read remote SHA. Stable1.2.1 remains current; remaining implementation,
-Owner preview and1.3 same-SHA qualification/publication/delivery remain open.
+in separate reviewed source commits. F2 source9768edf4 passed assigned gates,
+independent Review and clean committed export; cbec640/f590f3a are pushed with
+independent remote proof. F3's pure A5 contract is now adopted after Green bounded
+r2 authority review and its exact39-path packet is issued to the configured
+worker. Its implementation/testing/Acceptance are still pending; use the F3
+Report for current execution evidence. Stable1.2.1 remains current. Remaining
+implementation, final Owner preview and1.3 publication/delivery remain open.
 
 ## Changed Files
 
