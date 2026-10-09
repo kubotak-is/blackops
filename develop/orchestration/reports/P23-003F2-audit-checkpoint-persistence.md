@@ -1,11 +1,12 @@
 # P23-003F2: Audit Checkpoint Persistence Report
 
-Status: Accepted locally — implementation and final evidence; isolated commit/export/checkpoint pending
+Status: Accepted locally — implementation, isolated source commit and committed export; remote checkpoint pending
 
 ## Summary
 
-Accepted integration remains at ecb8288, rechecked on the remote2026-10-09 and
-recreated as a clean independent clone after /tmp was lost in the host restart.
+Accepted integration was recovered at remote ecb8288 after /tmp was lost in the
+host restart. The isolated F2 source commit is now9768edf4; its committed export
+passed, with shared checkpoint and remote push still pending.
 F2 scope47/Product29 is implemented under spec125 §§13–15. Independent Product
 reviews e106abb9/0b55f013 close the source findings; Documentation8b1c0d43 and
 Root1610300e close the narrow note changes. No Product expansion or waiver follows.
@@ -21,7 +22,8 @@ Store final deltadac106fd/material addendum09142cb8. Full manifest8e3861fc and
 actual3915case identities are frozen. The final full passed3915tests/8591759assertions
 at unchanged512M with no errors/failures/skips; inherited issue counts remain below.
 Independent final evidence review2ccd882b is Green. Root records local implementation
-Acceptance on2026-10-09T15:23:41+09:00; isolated commit/export/checkpoint/push remain.
+Acceptance on2026-10-09T15:23:41+09:00; isolated commit/export are complete and
+the management checkpoint/push remain.
 Primary buffers and
 unrelated work are preserved; current recovery limitations remain explicit.
 
@@ -870,6 +872,44 @@ container identities/images, no transient test container and unchanged app/PG
 images. The explicitly restarted original PostgreSQL remains healthy; its F2
 schemas are absent. Community's separate generated/resource cleanup remains valid.
 
+### Isolated source commit and committed export — 2026-10-09
+
+After Root Acceptance, payload304d495d froze exactly47 implementation paths plus
+the four dedicated F2 Task/Report/spec125/D175 documents. The staged patch15c74637
+matched every reviewed blob and accepted destination mode:41new/10existing,
+51paths total. Primary index buffers and all unrelated destination files/modes
+remained unchanged. Existing Community script0644 stayed0644 in this clone;
+primary0755 stayed untouched. No older Website or unrelated primary management
+was overlaid.
+
+Root committed `9768edf47f200cc28666da2d28a1d98adb6bec6d` with direct parent
+`ecb82889dd3afaeafe39649784501d30733bfb05`, message
+`feat(audit): persist verified checkpoints for closed segments`. Receiptc9d8a185
+confirms exactly51 committed paths, matching blobs and a clean resulting checkout.
+
+The initial unprivileged export-orchestration invocation stopped at read-only
+Docker image inspection with socket permission denied; the package command had
+not started. The approved retry executed `bash tests/Consumer/framework-package-export.sh`
+in `.phpunit.cache/f2-orchestration/accepted-integration` at that clean source SHA.
+Receipt `run-20261009T161624091213-committed-export/receipt.json` records
+16:16:24.263822–16:16:30.138253+09:00, exit0,5.874055seconds, unchanged appimageab739e1d
+and script626dcd1f. Approval wait is excluded. Log
+`e4632e917f9fecebc2fec7b828d7b808efe056cfb21f0b648f71d81f1d0478dd`
+proves matching Git/Composer inventories, package checks, strict Composer and
+production autoload generation. The script asserts its temporary tree removal;
+the wrapper confirms clean checkout, unchanged HEAD and all51 payload bytes.
+
+Root updated the primary STATE by its own CAS (8d777c3f) and the accepted clone
+by its separate CAS (2bf61aab,73lines/4454bytes), with before/after checks passing.
+Only the actual destination archive20261009T071948Z-f53bba5c is included in this
+management checkpoint; primary archives are preserved in the primary tree. All
+implementation/record Acceptance checkboxes are now closed; committing/pushing
+the management receipt remains an explicit delivery action.
+
+This export belongs to source SHA9768edf4, not a later management checkpoint.
+No full/static/Consumer rerun was needed for byte-identical integration. Final
+release same-SHA CI/export, publication and Documentation delivery remain006.
+
 ## Release Documentation Impact
 
 Task records actual Experimental Stable1.2.1 Framework/Skeleton tuple, unreleased
@@ -896,7 +936,7 @@ their earlier issuance was not implementation Acceptance.
 | Architecture/package boundaries | Accepted; current four guards48/83335; inventory192paths/167mutations/4runtime omissions. No runtime signing/release/seal activation. |
 | Quality, Consumer, full and cleanup | Accepted; retained strict gates, Community and final3915/8591759 at512M. Inherited issue aggregates remain disclosed. |
 | Independent Transaction/Security and Documentation | Green; final2ccd882b plus unchanged note9c544339's reviewed Documentation closure. |
-| Isolated integration/export/checkpoint/push | Pending actual execution under the adopted annex. Source Acceptance does not claim these receipts or a1.3 release. |
+| Isolated integration/export/checkpoint/push | Source9768edf4 and clean committed export passed. Shared checkpoint/remote proof remain; no1.3 release claim. |
 
 Final review independently attributes every diagnostic to14 predecessor identities
 in six files identical to the accepted base, with no F2 issue. Attributionddbccf62
@@ -910,13 +950,14 @@ through final addendum09142cb8. Current static, package, Consumer, format and
 required unit-correction evidence is retained above. The Final full, exact identity
 comparison, native/guard coverage, final management-ID scan and cleanup passed.
 Independent evidence review and Root local implementation Acceptance are complete.
-Isolated commit/export/checkpoint/push remain.
+Isolated source commit and committed export passed; management checkpoint/push remain.
 No suppression, baseline or threshold waiver has been granted. Historical failed
 receipts remain failed and unavailable artifacts remain explicitly distinguished.
 Full F/control/G/Worker/Docs/release also remain.
 
 ## Suggested Next Action
 
-Follow the adopted integration
-annex for the isolated source commit, committed export, management checkpoint and
-normal accepted-branch push. Parent1.3 implementation and release work remains.
+Complete the bounded management checkpoint, its own STATE CAS and normal
+accepted-branch push with exact remote-SHA proof. Then settle the remaining-F
+signing-release/trusted-control provenance choices against the accepted source.
+Parent1.3 implementation and release work remains.

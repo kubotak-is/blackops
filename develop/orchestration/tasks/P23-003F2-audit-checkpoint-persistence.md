@@ -1,6 +1,6 @@
 # P23-003F2: Audit Checkpoint Persistence
 
-Status: Accepted locally — implementation and final evidence; isolated commit/export/checkpoint pending; BlackOps 1.3 unreleased
+Status: Accepted locally — implementation, isolated source commit and committed export; remote checkpoint pending; BlackOps 1.3 unreleased
 
 ## Goal and authority
 
@@ -352,16 +352,18 @@ cleanup evidence before Acceptance; no dirty inventory proves committed export.
   new mutations; no activation, signer, seed, release or seal path appears.
 - [x] Assigned quality/Consumer and one exact full pass at unchanged512M with
   all predecessor/new cases and unchanged input maps; cleanup is proved.
-- [ ] Independent Transaction/Security and narrow Documentation reviews Green;
+- [x] Independent Transaction/Security and narrow Documentation reviews Green;
   Root records local Acceptance and a separately attributable integration commit.
-- [ ] Report records actual release impact, commands/results, evidence limits,
+- [x] Report records actual release impact, commands/results, evidence limits,
   remaining1.3 work and Next Action; STATE CAS passes.
 
 Root records local implementation Acceptance on2026-10-09T15:23:41+09:00 after
 independent final evidence review2ccd882b. Final3915/8591759 includes native18/524
 and all predecessor identities, with inherited diagnostic issues disclosed. The
-two remaining delivery/record checkboxes close after the actual isolated source
-commit and destination checkpoint; they do not reopen accepted Product inputs.
+delivery/record checkboxes close after the actual isolated source commit and
+destination checkpoint; they do not reopen accepted Product inputs. Source commit
+9768edf47f200cc28666da2d28a1d98adb6bec6d contains exactly51 reviewed paths, and its
+clean committed export passed on2026-10-09. Shared checkpoint/push remain.
 
 ## Release Documentation Impact
 
@@ -428,7 +430,7 @@ from those remaining1.3 gates.
 ## Remaining work and Next Action
 
 The adopted corrections, fixed-input final gates and independent review passed;
-Root accepts the implementation locally. Execute the adopted isolated commit,
-committed export, management checkpoint and push. Later signing/
+Root accepts the implementation locally. The isolated source commit and its
+committed export passed; finish the bounded management checkpoint and push. Later signing/
 anchor/full verifier, D-control/G and other parent006 dependencies remain.
 No F2 or full1.3 completion is implied by this packet.

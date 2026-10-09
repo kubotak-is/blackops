@@ -1,13 +1,13 @@
 # P23-006: BlackOps 1.3 Release Report
 
-Status: In Progress — through-Outbox/E1 Accepted; final release candidate not frozen
+Status: In Progress — F2 persistence Accepted and committed; final release candidate not frozen
 
 ## Summary
 
-Accepted dependencies through Outbox and application Catalog are now integrated
-in separate reviewed commits, with all scoped gates and final Review passed.
-006E completed a clean checkpoint and verified normal remote branch preservation.
-The next mandatory dependencies can proceed. Stable1.2.1 remains current; final
+Accepted dependencies through Outbox/Catalog and F2 persistence are integrated
+in separate reviewed source commits. F2 source9768edf4 passed its assigned gates,
+independent final Review and clean committed export; its management checkpoint
+and normal branch push follow. Stable1.2.1 remains current; remaining implementation,
 Owner preview and1.3 same-SHA qualification/publication/delivery remain open.
 
 ## Changed Files
@@ -309,29 +309,54 @@ and clean checkout, and reproduces primary Git buffers. Scope7624f692 preserves
 unrelated bytes/modes and public artifacts. No Product gate is repeated for this
 checkpoint and no remote action occurs. The child Report retains provenance.
 
+## F2 persistence implementation and isolated export — 2026-10-09
+
+[F2 Report](P23-003F2-audit-checkpoint-persistence.md) records Root local Acceptance
+at15:23:41+09:00 after independent final evidence review2ccd882b. Full3915tests/
+8591759assertions includes native18/524 and all3833predecessor+82new identities;
+no errors/failures/skips. Existing1 PHP deprecation/2 PHPUnit deprecations/13notices
+remain disclosed and independently attributed to unchanged predecessor files.
+Strict quality, architecture/package inventory and Community clean-install passed.
+
+Source `9768edf47f200cc28666da2d28a1d98adb6bec6d` contains only47 scoped paths plus
+four dedicated documents, direct parentecb8288. Payload304d495d/receiptc9d8a185
+prove exact committed blobs/modes and clean state, preserving primary mixed
+files/index and the accepted Website. Its clean committed package export passed
+in5.874055s, loge4632e91, at16:16:24–16:16:30+09:00. Approval waiting is separate.
+That export qualifies this source SHA, not a later management checkpoint.
+
+The current checkpoint is limited to the nine adopted management paths and the
+accepted checkout's actual STATE CAS archive. Normal push and exact remote proof
+follow. F2 grants no signing/release/seal/control/runtime activation; remaining F
+and the final1.3 Owner/CI/export/publication/delivery gates remain open.
+
 ## Release Documentation Impact
 
 Authority remains Experimental Stable1.2.1 with roadmap1.3.0 unreleased; exact
 starting refs are in the Task. No capability/API/command/configuration or public
 Source/route changes in this management phase. Source/Search/LLM bytes are retained
-in the baseline; final全公開Source/Artifact checks belong to005/006. No remote CI,
-export, publication or production deployment has occurred under this parent yet.
+in the baseline; final全公開Source/Artifact checks belong to005/006. The F2 child
+source-SHA export above is complete; final release same-SHA CI/export, publication
+and production delivery remain pending.
 
 ## Remaining Issues
 
-Pending ordinary D Outbox/integration, E, remaining F, post-F control, G,004A,
-005, Owner local preview and006 final qualification/publication/delivery.
-Inline ambiguous-commit reconciliation and legacy rotation overflow policy must
-be closed in integration/hardening. Through-O1 accepted slices have reviewed commit separation and published
-Documentation reconciliation; later accepted work needs its own imports.
+Pending ordinary D composition, E projector/journey, remaining F, post-F control,
+G,004A,005, Owner local preview and006 final qualification/publication/delivery.
+Inline ambiguous-commit reconciliation and legacy rotation overflow policy remain.
+F2 persistence has its reviewed source commit/export; its remote management
+checkpoint is next. It does not complete signing, seal or the full F contract.
 
 ## Suggested Next Action
 
 006E completed its separate source commits, required gates, final independent
 Review, Root Acceptance, clean checkpoint and normal remote branch preservation.
-Issue the already reviewed F2 persistence and Worker-startup preparations with
-actual baseline/caller/migration/package inventories and explicit file/resource
-ownership. Ordinary D composition/Inline ambiguity/rotation overflow, E projector/
+[F2 persistence](../tasks/P23-003F2-audit-checkpoint-persistence.md) is Accepted locally,
+committed as9768edf4 and qualified by clean committed export. Complete its bounded
+management checkpoint/push, then settle remaining-F signing-release and trusted
+control provenance with exact caller/guard/file ownership. Worker-startup issuance
+still requires its separate current inventory and bounded Stable Reference closure.
+Ordinary D composition/Inline ambiguity/rotation overflow, E projector/
 journey, remaining F/control/G,004A hardening,005 all-public Documentation/Owner
 preview and006 final same-SHA publication/delivery remain. Optional003H/004B
 stay excluded. The1.3 release goal is still active.

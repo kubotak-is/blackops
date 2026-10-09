@@ -72,7 +72,7 @@ are read-only. The configured Documentation Reviewer is read-only.
 | Observer replay and generic Outbox adapters | O1/O2/O3 Accepted locally and imported | Native transaction prerequisites, truthful phase events, same-root proof |
 | Ordinary Audit composition | Pending D-integration | Enable approved paths, enforce tenant/privacy/failure contracts; close Inline ambiguous-commit reconciliation and rotation overflow policy |
 | Application event authoring/projector | E1 Accepted locally; E projector/journey pending | Explicit versioned API, reference business journey, no inferred business events |
-| Checkpoint/anchor signing and reusable verification | Pure F1 Accepted locally and imported; remaining F pending | Accepted sealed-record inputs, signing/trust/revocation/freshness, crash-safe external anchor |
+| Checkpoint/anchor signing and reusable verification | Pure F1 and F2 persistence Accepted and committed; remaining F pending | Accepted sealed-record inputs, signing/trust/revocation/freshness, crash-safe external anchor |
 | Checkpoint/anchor control events | Pending D-control after F | Consume accepted typed outcomes; no recursive audit cycle |
 | Query/export/audit-of-audit/retention/hold | Pending G after F/control | Bounded authorized reads/exports, shared verifier, metadata retention/hold |
 | HTTP Worker Mode hardening | Pending004A | Startup/readiness/state/memory/restart/isolation/upgrade/rollback and reviewed Classic migration |
@@ -139,9 +139,12 @@ Stable until actual publication is independently verified.
 
 006E completed its separate source commits, required gates, final independent
 Review, Root Acceptance, clean checkpoint and normal remote branch preservation.
-Issue the already reviewed F2 persistence and Worker-startup preparations with
-actual baseline/caller/migration/package inventories and explicit file/resource
-ownership. Ordinary D composition/Inline ambiguity/rotation overflow, E projector/
+[F2 persistence](P23-003F2-audit-checkpoint-persistence.md) is Accepted locally,
+committed as9768edf4 and qualified by clean committed export. Complete its bounded
+management checkpoint/push, then settle remaining-F signing-release and trusted
+control provenance with exact caller/guard/file ownership. Worker-startup issuance
+still requires its separate current inventory and bounded Stable Reference closure.
+Ordinary D composition/Inline ambiguity/rotation overflow, E projector/
 journey, remaining F/control/G,004A hardening,005 all-public Documentation/Owner
 preview and006 final same-SHA publication/delivery remain. Optional003H/004B
 stay excluded. The1.3 release goal is still active.

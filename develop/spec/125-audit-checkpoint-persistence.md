@@ -1,6 +1,6 @@
 # Specification 125: Audit Checkpoint Persistence
 
-Status: Decided — bounded implementation Accepted locally; isolated delivery pending; BlackOps 1.3 unreleased
+Status: Decided — bounded implementation Accepted and committed; BlackOps 1.3 unreleased
 
 This is the most-specific persistence-only contract for
 [P23-003F2](../orchestration/tasks/P23-003F2-audit-checkpoint-persistence.md)
