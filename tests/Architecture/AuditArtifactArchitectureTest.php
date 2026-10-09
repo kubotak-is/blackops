@@ -207,8 +207,78 @@ final class AuditArtifactArchitectureTest extends TestCase
             }
             $source = file_get_contents($file->getPathname());
             self::assertIsString($source);
-            self::assertFalse($this->hasArtifactReference($source), $file->getPathname() . ' outside artifact caller');
+            $relative = str_replace(DIRECTORY_SEPARATOR, '/', substr($file->getPathname(), strlen($root) + 1));
+            self::assertFalse(
+                $this->hasArtifactReference($source, $this->allowedExternalArtifactTypes($relative)),
+                $file->getPathname() . ' outside artifact caller',
+            );
         }
+    }
+
+    public function testF2ArtifactOwnersAndCallCountsAreExactAndMutationResistant(): void
+    {
+        $root = dirname(__DIR__, 2) . '/src';
+        $sources = $this->sourceFiles($root);
+        $actual = $this->externalArtifactStaticCallInventory($sources);
+        self::assertSame(
+            [
+                'Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php' => [
+                    AuditCheckpointCodec::class . '::signingInput' => 1,
+                ],
+                'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php' => [
+                    AuditCheckpointCodec::class . '::decode' => 1,
+                    AuditCheckpointCodec::class . '::signingInput' => 1,
+                ],
+                'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php' => [
+                    AuditArtifactVerifier::class . '::checkpoint' => 3,
+                    AuditCheckpointCodec::class . '::signingInput' => 1,
+                    AuditTrustSnapshotCodec::class . '::key' => 2,
+                ],
+            ],
+            $actual,
+        );
+
+        $bytesPath = 'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php';
+        $bytes = $sources[$bytesPath];
+        $removed = $sources;
+        $removed[$bytesPath] = $this->replaceFirst(
+            $bytes,
+            'AuditCheckpointCodec::decode(self::bounded($bytes))',
+            'self::bounded($bytes)',
+        );
+        self::assertNotSame($actual, $this->externalArtifactStaticCallInventory($removed));
+
+        $added = $sources;
+        $added[$bytesPath] .= "\n\\BlackOps\\Internal\\Audit\\Artifact\\AuditCheckpointCodec::decode('');\n";
+        self::assertNotSame($actual, $this->externalArtifactStaticCallInventory($added));
+
+        $inert = $sources;
+        $inert[$bytesPath] .= <<<'PHP'
+
+            // BlackOpsInternalAuditArtifactAuditCheckpointCodec::decode('') is inert text.
+            $message = 'AuditTrustSnapshotCodec::key';
+            PHP;
+        self::assertSame($actual, $this->externalArtifactStaticCallInventory($inert));
+
+        $allowed = $this->allowedExternalArtifactTypes($bytesPath);
+        self::assertSame(
+            [
+                AuditCheckpointCodec::class,
+            ],
+            $allowed,
+        );
+        self::assertFalse(
+            $this->hasArtifactReference(
+                $bytes . "\n\\BlackOps\\Internal\\Audit\\Artifact\\AuditCheckpointCodec::decode('');\n",
+                $allowed,
+            ),
+            'the owner allowlist is type-only; the reviewed call inventory rejects additions',
+        );
+        self::assertTrue($this->hasArtifactReference($bytes . <<<'PHP'
+
+            $class = 'BlackOps\Internal\Audit\Artifact\AuditCheckpointCodec';
+            class_exists($class);
+            PHP, $allowed), 'an allowed F1 type used through a class-string sink is still an unreviewed caller');
     }
 
     public function testResolvedCallerGuardCoversDirectAliasGroupAndDynamicMutations(): void
@@ -238,6 +308,7 @@ final class AuditArtifactArchitectureTest extends TestCase
             '<?php $class = "BlackOps\\\\Internal\\\\Audit\\\\Artifact\\\\AuditArtifactSigner"; $callable = [$class, "checkpoint"]; $callable([], "", [], "");',
             '<?php $class = "BlackOps\\\\Internal\\\\Audit\\\\Artifact\\\\AuditArtifactSigner"; register_shutdown_function($class);',
             '<?php $class = "BlackOps\\\\Internal\\\\Audit\\\\Artifact\\\\AuditArtifactSigner"; $callback = [$class, "checkpoint"]; call_user_func($callback, [], "", [], "");',
+            '<?php $class = "BlackOps\\\\Internal\\\\Audit\\\\Artifact\\\\AuditArtifactSigner"; $callback = [$class, "checkpoint"]; \\Closure::fromCallable($callback);',
             '<?php $callback = "BlackOps\\\\Internal\\\\Audit\\\\Artifact\\\\AuditArtifactSigner::checkpoint"; $callback([], "", [], "");',
             '<?php $callback = "BlackOps\\\\Internal\\\\Audit\\\\Artifact\\\\AuditArtifactSigner::checkpoint"; call_user_func_array($callback, [[], "", [], ""]);',
             '<?php $callback = "BlackOps\\\\Internal\\\\Audit\\\\Artifact\\\\AuditArtifactSigner::checkpoint"; register_shutdown_function($callback);',
@@ -1395,7 +1466,8 @@ final class AuditArtifactArchitectureTest extends TestCase
         }
     }
 
-    private function hasArtifactReference(string $source): bool
+    /** @param list<class-string> $allowedTypes */
+    private function hasArtifactReference(string $source, array $allowedTypes = []): bool
     {
         try {
             $nodes = $this->parseSource($source);
@@ -1403,6 +1475,8 @@ final class AuditArtifactArchitectureTest extends TestCase
             return true;
         }
         $artifactTypes = array_fill_keys($this->types(), true);
+        $directForbiddenTypes = array_fill_keys(array_values(array_diff($this->types(), $allowedTypes)), true);
+        $callbackTargets = $this->artifactCallbackTargets();
         $importNames = [];
         $importNodes = array_merge(
             new NodeFinder()->findInstanceOf($nodes, GroupUse::class),
@@ -1427,14 +1501,14 @@ final class AuditArtifactArchitectureTest extends TestCase
             if (isset($importNames[spl_object_id($name)])) {
                 continue;
             }
-            if (isset($artifactTypes[$this->resolvedName($name, '')])) {
+            if (isset($directForbiddenTypes[$this->resolvedName($name, '')])) {
                 return true;
             }
         }
         $values = [];
         foreach (new NodeFinder()->findInstanceOf($nodes, Assign::class) as $assign) {
             if ($assign->var instanceof Variable && is_string($assign->var->name)) {
-                $resolved = $this->artifactValue($assign->expr, $values, $artifactTypes);
+                $resolved = $this->artifactValue($assign->expr, $values, $artifactTypes, $callbackTargets);
                 if ($resolved !== null) {
                     $values[$assign->var->name] = $resolved;
                 }
@@ -1448,11 +1522,22 @@ final class AuditArtifactArchitectureTest extends TestCase
             if (!in_array(
                 $function,
                 [
+                    'array_filter',
+                    'array_map',
+                    'array_reduce',
+                    'array_walk',
+                    'array_walk_recursive',
                     'class_exists',
+                    'forward_static_call',
+                    'forward_static_call_array',
                     'interface_exists',
                     'trait_exists',
+                    'is_callable',
                     'is_a',
                     'is_subclass_of',
+                    'iterator_apply',
+                    'preg_filter',
+                    'preg_replace_callback',
                     'register_shutdown_function',
                     'register_tick_function',
                     'set_error_handler',
@@ -1460,13 +1545,16 @@ final class AuditArtifactArchitectureTest extends TestCase
                     'spl_autoload_register',
                     'call_user_func',
                     'call_user_func_array',
+                    'uasort',
+                    'uksort',
+                    'usort',
                 ],
                 true,
             )) {
                 continue;
             }
             foreach ($call->args as $argument) {
-                if ($this->artifactValue($argument->value, $values, $artifactTypes) !== null) {
+                if ($this->artifactValue($argument->value, $values, $artifactTypes, $callbackTargets) !== null) {
                     return true;
                 }
             }
@@ -1474,6 +1562,11 @@ final class AuditArtifactArchitectureTest extends TestCase
         foreach (new NodeFinder()->findInstanceOf($nodes, New_::class) as $new) {
             if ($new->class instanceof Variable && is_string($new->class->name) && isset($values[$new->class->name])) {
                 return true;
+            }
+            foreach ($new->args as $argument) {
+                if ($this->artifactValue($argument->value, $values, $artifactTypes, $callbackTargets) !== null) {
+                    return true;
+                }
             }
         }
         foreach (new NodeFinder()->findInstanceOf($nodes, StaticCall::class) as $call) {
@@ -1484,18 +1577,30 @@ final class AuditArtifactArchitectureTest extends TestCase
             ) {
                 return true;
             }
+            if (
+                $call->class instanceof Name
+                && $call->name instanceof Identifier
+                && $this->resolvedName($call->class, '') === 'Closure'
+                && $call->name->toString() === 'fromCallable'
+            ) {
+                foreach ($call->args as $argument) {
+                    if ($this->artifactValue($argument->value, $values, $artifactTypes, $callbackTargets) !== null) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
 
-    /** @param array<string,string> $values @param array<string,bool> $artifactTypes */
-    private function artifactValue(?Node $node, array $values, array $artifactTypes): ?string
+    /** @param array<string,string> $values @param array<string,bool> $artifactTypes @param array<string,true> $callbackTargets */
+    private function artifactValue(?Node $node, array $values, array $artifactTypes, array $callbackTargets): ?string
     {
         if ($node instanceof String_) {
             if (isset($artifactTypes[$node->value])) {
                 return $node->value;
             }
-            if (isset($this->artifactCallbackTargets()[$node->value])) {
+            if (isset($callbackTargets[$node->value])) {
                 return $node->value;
             }
             return null;
@@ -1513,12 +1618,12 @@ final class AuditArtifactArchitectureTest extends TestCase
                 && $method->key === null
                 && $method->value instanceof String_
             ) {
-                $className = $this->artifactValue($class->value, $values, $artifactTypes);
+                $className = $this->artifactValue($class->value, $values, $artifactTypes, $callbackTargets);
                 if ($className === null) {
                     return null;
                 }
                 $target = $className . '::' . $method->value->value;
-                return isset($this->artifactCallbackTargets()[$target]) ? $target : null;
+                return isset($callbackTargets[$target]) ? $target : null;
             }
         }
         if (
@@ -2360,6 +2465,79 @@ final class AuditArtifactArchitectureTest extends TestCase
         }
         ksort($sources);
         return $sources;
+    }
+
+    /** @return array<string,string> */
+    private function sourceFiles(string $root): array
+    {
+        $sources = [];
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root)) as $file) {
+            if (!$file instanceof \SplFileInfo || !$file->isFile() || $file->getExtension() !== 'php') {
+                continue;
+            }
+            $path = realpath($file->getPathname());
+            self::assertIsString($path);
+            $source = file_get_contents($path);
+            self::assertIsString($source);
+            $relative = substr($path, strlen($root) + 1);
+            self::assertIsString($relative);
+            $sources[str_replace(DIRECTORY_SEPARATOR, '/', $relative)] = $source;
+        }
+        ksort($sources);
+
+        return $sources;
+    }
+
+    /** @return list<class-string> */
+    private function allowedExternalArtifactTypes(string $relativePath): array
+    {
+        return match ($relativePath) {
+            'Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php' => [AuditCheckpointCodec::class],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php' => [
+                AuditCheckpointCodec::class,
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php' => [
+                AuditArtifactException::class,
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php' => [
+                AuditArtifactVerifier::class,
+                AuditCheckpointCodec::class,
+                AuditTrustSnapshotCodec::class,
+            ],
+            default => [],
+        };
+    }
+
+    /** @param array<string,string> $sources @return array<string,array<string,int>> */
+    private function externalArtifactStaticCallInventory(array $sources): array
+    {
+        $targets = array_fill_keys($this->types(), true);
+        $inventory = [];
+        foreach ($sources as $path => $source) {
+            if (str_starts_with($path, 'Internal/Audit/Artifact/')) {
+                continue;
+            }
+            $nodes = $this->parseSource($source);
+            $calls = [];
+            foreach (new NodeFinder()->findInstanceOf($nodes, StaticCall::class) as $call) {
+                if (!$call->class instanceof Name || !$call->name instanceof Identifier) {
+                    continue;
+                }
+                $class = $this->resolvedName($call->class, '');
+                if (!isset($targets[$class])) {
+                    continue;
+                }
+                $key = $class . '::' . $call->name->toString();
+                $calls[$key] = ($calls[$key] ?? 0) + 1;
+            }
+            if ($calls !== []) {
+                ksort($calls);
+                $inventory[$path] = $calls;
+            }
+        }
+        ksort($inventory);
+
+        return $inventory;
     }
 
     /** @return array<string,string> */

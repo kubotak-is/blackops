@@ -617,7 +617,13 @@ final class AuditRecordArchitectureTest extends TestCase
         self::assertSame(['Internal/Audit/Protection/AuditProtectedBodyCodec.php' => 1], $counts['->outboxForRead(']);
         $protected = $this->protectedCallsites($sourceRoot);
         self::assertSame(['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1], $protected['protectRecord']);
-        self::assertSame(['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1], $protected['unprotectRecord']);
+        self::assertSame(
+            [
+                'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php' => 1,
+                'Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1,
+            ],
+            $protected['unprotectRecord'],
+        );
         self::assertSame(['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1], $protected['protectOutbox']);
         self::assertSame(
             [
@@ -675,15 +681,68 @@ final class AuditRecordArchitectureTest extends TestCase
         self::assertSame(
             [
                 'External/PostgreSqlAuditRecordStore.php' => 1,
+                'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php' => 1,
                 'Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1,
             ],
             $combined['unprotectRecord'],
         );
         self::assertNotSame(
-            ['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1],
+            [
+                'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php' => 1,
+                'Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1,
+            ],
             $combined['unprotectRecord'],
             'same-basename outside sources must not overwrite the authorized owner',
         );
+    }
+
+    public function testF2ClosedSegmentRecordAddsOnlyOneRecordUnprotectorWithoutWriteOrFinalizerEdges(): void
+    {
+        $path = 'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php';
+        $sourceRoot = realpath(__DIR__ . '/../../src');
+        self::assertNotFalse($sourceRoot);
+        $source = file_get_contents($sourceRoot . '/' . $path);
+        self::assertIsString($source);
+        $code = $this->phpCodeWithoutCommentsAndStrings($source);
+        self::assertSame(1, substr_count($code, '->unprotectRecord('));
+        foreach ([
+            '->protectRecord(',
+            '->protectOutbox(',
+            '->unprotectOutbox(',
+            'AuditRecordFinalizer',
+            'CompleteAuditRecord',
+            'AuditSegmentCloseResult',
+            'AuditArtifactSigner',
+            'PublicApi',
+            '->append(',
+        ] as $forbidden) {
+            self::assertStringNotContainsString($forbidden, $code, $path);
+        }
+        $proofPath = 'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecordProof.php';
+        $proof = file_get_contents($sourceRoot . '/' . $proofPath);
+        self::assertIsString($proof);
+        self::assertSame(0, substr_count($this->phpCodeWithoutCommentsAndStrings($proof), '->unprotectRecord('));
+
+        $sources = $this->sourceFiles($sourceRoot);
+        $direct = $this->protectedCallsitesFromSources($sources);
+        $removed = $sources;
+        $removed[$path] = str_replace('->unprotectRecord(', '->removedCall(', $source, $count);
+        self::assertSame(1, $count);
+        self::assertNotSame($direct, $this->protectedCallsitesFromSources($removed));
+
+        $added = $sources;
+        $added[$path] .= "\n\$codec->protectRecord(\$value);\n";
+        self::assertNotSame($direct, $this->protectedCallsitesFromSources($added));
+
+        $dynamic = $sources;
+        $dynamic[$path] = str_replace('->unprotectRecord(', '->{$method}(', $source, $count);
+        self::assertSame(1, $count);
+        self::assertNotSame($direct, $this->protectedCallsitesFromSources($dynamic));
+        self::assertGreaterThan(0, $this->dynamicInvocationCount($dynamic[$path]));
+
+        $comment = $sources;
+        $comment[$path] .= "\n// ->protectRecord()\n// ->unprotectOutbox()\n";
+        self::assertSame($direct, $this->protectedCallsitesFromSources($comment));
     }
 
     public function testValidatorAndProjectorExposeOnlyTheBoundedA2Seams(): void
@@ -1333,6 +1392,8 @@ final class AuditRecordArchitectureTest extends TestCase
             'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['snapshot' => 3],
             'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['assert' => 5],
             'Internal/Audit/Artifact/AuditTrustLookup.php' => ['assertSignedAt' => 2],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php' => ['parse' => 1],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php' => ['read' => 2],
         ];
         foreach ($expectedTimestampOwners as $relative => $expected) {
             $path = $sourceRoot . '/' . $relative;
@@ -4312,6 +4373,13 @@ final class AuditRecordArchitectureTest extends TestCase
     private function o3A2AllowedReferences(): array
     {
         return [
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php' => [
+                'AuditTypedReference',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransaction.php' => [],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php' => [
+                'AuditValidationException',
+            ],
             'Internal/Audit/OperationalOutbox/GenericOutboxAuditFailure.php' => [],
             'Internal/Audit/OperationalOutbox/GenericOutboxAuditHookGuard.php' => [],
             'Internal/Audit/OperationalOutbox/GenericOutboxAuditRow.php' => ['AuditTypedReference'],
@@ -4320,10 +4388,12 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditRecordCorrelation',
                 'AuditSourceRuntime',
                 'AuditTypedReference',
+                'AuditValidationException',
             ],
             'Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php' => [
                 'AuditSourceRuntime',
                 'AuditTypedReference',
+                'AuditValidationException',
             ],
             'Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php' => ['AuditSourceRuntime'],
             'Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php' => [
@@ -4339,6 +4409,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditRecordSource',
                 'AuditSourceRuntime',
                 'AuditTypedReference',
+                'AuditValidationException',
             ],
             'Internal/Audit/OperationalOutbox/GenericOutboxAuditWriter.php' => [
                 'AuditRecordCorrelation',
@@ -4394,6 +4465,7 @@ final class AuditRecordArchitectureTest extends TestCase
             'AuditRecordSource',
             'AuditSourceRuntime',
             'AuditTypedReference',
+            'AuditValidationException',
         ] as $type) {
             $targets['BlackOps\\Core\\Audit\\' . $type] = $type;
         }
@@ -4507,6 +4579,28 @@ final class AuditRecordArchitectureTest extends TestCase
             'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['AuditRecordTime'],
             'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['AuditRecordTime'],
             'Internal/Audit/Artifact/AuditTrustLookup.php' => ['AuditRecordTime'],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php' => ['AuditRecordTime'],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php' => ['AuditRecordTime'],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php' => ['AuditRecordTime'],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php' => [
+                'AuditProtectedBodyCodec',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecordProof.php' => [
+                'AuditProtectedBodyCodec',
+                'AuditProtectionException',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentReader.php' => [
+                'AuditPartitionIdDeriver',
+                'AuditProtectedBodyCodec',
+                'AuditProtectionException',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php' => [
+                'AuditPartitionIdDeriver',
+                'AuditProtectedBodyCodec',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php' => [
+                'AuditProtectionException',
+            ],
             'Internal/Audit/Read/AuditReadEventWriter.php' => ['AuditRecordDraft'],
             'Internal/Audit/Read/OperationReadAuditSession.php' => ['AuditRecordDraft'],
             'Internal/Audit/Read/OperationReadAuditSessionFactory.php' => [

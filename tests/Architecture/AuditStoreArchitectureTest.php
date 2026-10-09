@@ -607,7 +607,10 @@ final class AuditStoreArchitectureTest extends TestCase
         self::assertSame(
             [
                 'protectRecord' => ['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1],
-                'unprotectRecord' => ['Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1],
+                'unprotectRecord' => [
+                    'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php' => 1,
+                    'Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => 1,
+                ],
                 'protectOutbox' => ['Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1],
                 'unprotectOutbox' => [
                     'Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => 1,
@@ -2633,6 +2636,108 @@ final class AuditStoreArchitectureTest extends TestCase
     private function allowedB2StorageReferences(): array
     {
         return [
+            'Internal/Audit/Checkpoint/AuditCheckpointPreparation.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBinding.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPredecessor.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+                'PostgreSqlAuditSchema',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransaction.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentEndpoint.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentPages.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentQueries.php' => [
+                'PostgreSqlAuditSchema',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+                'PostgreSqlAuditStoredRecordHydrator',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecordProof.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+                'PostgreSqlAuditStoredRecordHydrator',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+                'PostgreSqlAuditSchema',
+                'PostgreSqlAuditStoredRecordHydrator',
+            ],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentReader.php' => [
+                'AuditStoreException',
+                'AuditStoreFailure',
+                'PostgreSqlAuditSchema',
+                'PostgreSqlAuditStoredRecordHydrator',
+            ],
             'Internal/Application/ApplicationAuditRuntime.php' => [
                 'PostgreSqlAuditRecordStore',
             ],

@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='f8f5b5d9a9883228ddd90e6303abc8dc5f827c37f44d16045bf4ea7f9ad2f459'
+reviewed_export_sha='626dcd1f1ae20562c388fc891877457529eb5b3f91714a152d328461ebbd5075'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -103,6 +103,35 @@ printf '%s\n' \
     src/Internal/Retention/AuditedRetentionPurgeService.php \
     src/Transport/PostgreSql/PostgreSqlStorageProtectionRotationPhaseHook.php \
     src/Transport/PostgreSql/PostgreSqlObserverReplayPhaseHook.php \
+    src/Internal/Audit/Checkpoint/AuditCheckpointPreparation.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSchema.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentReader.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php \
+    src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php \
+    src/Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentQueries.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecordProof.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransaction.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPredecessor.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBinding.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointInteger.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentEndpoint.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php \
+    src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentPages.php \
     src/Internal/Audit/Storage/AuditStoreFailure.php \
     src/Internal/Audit/Storage/AuditStoreException.php \
     src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -140,6 +169,7 @@ printf '%s\n' \
     migrations/postgresql/Version20260808100000.php \
     migrations/postgresql/Version20260829000000.php \
     migrations/postgresql/Version20260901000000.php \
+    migrations/postgresql/Version20261001000000.php \
     resources/stubs/operation.php.stub \
     resources/stubs/operation-value.php.stub \
     resources/stubs/operation-outcome.php.stub \
@@ -962,6 +992,32 @@ assert_o3_mutation_shape() {
     fi
 }
 
+swap_required_inventory_neighbors() {
+    local candidate="$1"
+    local first_path="$2"
+    local second_path="$3"
+
+    run_bounded awk -v first_path="${first_path}" -v second_path="${second_path}" '
+        !swapped && index($0, first_path) {
+            first_line = $0
+            if (getline second_line > 0 && index(second_line, second_path)) {
+                print second_line
+                print first_line
+                swapped = 1
+                next
+            }
+            print first_line
+            if (second_line != "") print second_line
+            next
+        }
+        { print }
+        END {
+            if (!swapped) exit 2
+        }
+    ' "${candidate}" >"${candidate}.tmp"
+    mv "${candidate}.tmp" "${candidate}"
+}
+
 test_mutation_rejected() {
     local name="$1"
     local mutation="$2"
@@ -1443,6 +1499,273 @@ test_mutation_rejected() {
                     if (fifth != "") print fifth
                     if (sixth != "") print sixth
                     if (seventh != "") print seventh
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        f2-entry-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php|d' "${candidate}"
+            ;;
+        f2-preparation-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/AuditCheckpointPreparation.php|d' "${candidate}"
+            ;;
+        f2-schema-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSchema.php|d' "${candidate}"
+            ;;
+        f2-reader-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentReader.php|d' "${candidate}"
+            ;;
+        f2-migration-omission)
+            run_bounded sed -i '\|migrations/postgresql/Version20261001000000.php|d' "${candidate}"
+            ;;
+        f2-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/Audit\/Checkpoint\/AuditCheckpointPreparation\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointSchema\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditClosedSegmentReader\.php/ &&
+                        getline fourth > 0 && fourth ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointStore\.php/) {
+                        print fourth
+                        print third
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    if (fourth != "") print fourth
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        f2-migration-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /migrations\/postgresql\/Version20260901000000\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /migrations\/postgresql\/Version20261001000000\.php/) {
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        f2-row-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php|d' "${candidate}"
+            ;;
+        f2-body-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php|d' "${candidate}"
+            ;;
+        f2-segment-parser-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php|d' "${candidate}"
+            ;;
+        f2-queries-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentQueries.php|d' "${candidate}"
+            ;;
+        f2-graph-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php|d' "${candidate}"
+            ;;
+        f2-record-proof-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecordProof.php|d' "${candidate}"
+            ;;
+        f2-transaction-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransaction.php|d' "${candidate}"
+            ;;
+        f2-rows-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php|d' "${candidate}"
+            ;;
+        f2-predecessor-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPredecessor.php|d' "${candidate}"
+            ;;
+        f2-binding-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBinding.php|d' "${candidate}"
+            ;;
+        f2-trust-workflow-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php|d' "${candidate}"
+            ;;
+        f2-preparation-workflow-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php|d' "${candidate}"
+            ;;
+        f2-transaction-policy-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php|d' "${candidate}"
+            ;;
+        f2-workflow-policy-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointPreparationWorkflow\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointTransactionPolicy\.php/) {
+                        print second
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    next
+                }
+                { print }
+                END {
+                    if (!swapped) exit 2
+                }
+            ' "${candidate}" >"${candidate}.tmp"
+            mv "${candidate}.tmp" "${candidate}"
+            ;;
+        f2-integer-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointInteger.php|d' "${candidate}"
+            ;;
+        f2-segment-text-fields-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php|d' "${candidate}"
+            ;;
+        f2-segment-lifecycle-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php|d' "${candidate}"
+            ;;
+        f2-partition-state-parser-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php|d' "${candidate}"
+            ;;
+        f2-segment-relations-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php|d' "${candidate}"
+            ;;
+        f2-segment-neighbors-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php|d' "${candidate}"
+            ;;
+        f2-segment-endpoint-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentEndpoint.php|d' "${candidate}"
+            ;;
+        f2-checkpoint-bytes-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php|d' "${candidate}"
+            ;;
+        f2-stored-binding-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php|d' "${candidate}"
+            ;;
+        f2-segment-binding-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php|d' "${candidate}"
+            ;;
+        f2-segment-record-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php|d' "${candidate}"
+            ;;
+        f2-segment-pages-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentPages.php|d' "${candidate}"
+            ;;
+        f2-validator-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointInteger.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php'
+            ;;
+        f2-validator-text-lifecycle-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php'
+            ;;
+        f2-validator-lifecycle-partition-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php'
+            ;;
+        f2-validator-partition-relations-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php'
+            ;;
+        f2-validator-relations-neighbors-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php'
+            ;;
+        f2-validator-neighbors-endpoint-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentEndpoint.php'
+            ;;
+        f2-validator-endpoint-bytes-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentEndpoint.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php'
+            ;;
+        f2-validator-bytes-stored-binding-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php'
+            ;;
+        f2-validator-stored-segment-binding-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php'
+            ;;
+        f2-validator-segment-binding-record-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php'
+            ;;
+        f2-validator-record-pages-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php' \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentPages.php'
+            ;;
+        f2-validator-pages-storage-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentPages.php' \
+                'src/Internal/Audit/Storage/AuditStoreFailure.php'
+            ;;
+        f2-helper-order-swap)
+            run_bounded awk '
+                !swapped && $0 ~ /src\/Internal\/Audit\/Checkpoint\/AuditCheckpointPreparationRowShape\.php/ {
+                    first = $0
+                    if (getline second > 0 && second ~ /src\/Internal\/Audit\/Checkpoint\/AuditCheckpointPreparationBody\.php/ &&
+                        getline third > 0 && third ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditSegmentRowParser\.php/ &&
+                        getline fourth > 0 && fourth ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditClosedSegmentQueries\.php/ &&
+                        getline fifth > 0 && fifth ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditClosedSegmentGraph\.php/ &&
+                        getline sixth > 0 && sixth ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditClosedSegmentRecordProof\.php/ &&
+                        getline seventh > 0 && seventh ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointTransaction\.php/ &&
+                        getline eighth > 0 && eighth ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointRows\.php/ &&
+                        getline ninth > 0 && ninth ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointPredecessor\.php/ &&
+                        getline tenth > 0 && tenth ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointBinding\.php/ &&
+                        getline eleventh > 0 && eleventh ~ /src\/Internal\/Audit\/Checkpoint\/PostgreSqlAuditCheckpointTrustWorkflow\.php/) {
+                        print second
+                        print third
+                        print fourth
+                        print fifth
+                        print sixth
+                        print seventh
+                        print eighth
+                        print ninth
+                        print tenth
+                        print eleventh
+                        print first
+                        swapped = 1
+                        next
+                    }
+                    print first
+                    if (second != "") print second
+                    if (third != "") print third
+                    if (fourth != "") print fourth
+                    if (fifth != "") print fifth
+                    if (sixth != "") print sixth
+                    if (seventh != "") print seventh
+                    if (eighth != "") print eighth
+                    if (ninth != "") print ninth
+                    if (tenth != "") print tenth
+                    if (eleventh != "") print eleventh
                     next
                 }
                 { print }
@@ -2019,9 +2342,9 @@ runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
 test "${runtime_case_count}" -eq 4
 printf 'required inventory runtime omissions: PASS (4 separate missing-file cases)\n'
-test "$(wc -l < "${expected_inventory}")" -eq 162
-test "$(sort -u "${expected_inventory}" | wc -l)" -eq 162
-printf 'required inventory: PASS (162 ordered paths, 162 unique)\n'
+    test "$(wc -l < "${expected_inventory}")" -eq 192
+    test "$(sort -u "${expected_inventory}" | wc -l)" -eq 192
+    printf 'required inventory: PASS (192 ordered paths, 192 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -2098,6 +2421,52 @@ test_mutation_rejected o3-catalog-entry-omission o3-catalog-omission
 test_mutation_rejected o3-projection-entry-omission o3-projection-omission
 test_mutation_rejected o3-reverse-new-block o3-order-swap
 test_mutation_rejected o3-helper-reverse-new-block o3-helper-order-swap
+    test_mutation_rejected f2-entry-omission f2-entry-omission
+    test_mutation_rejected f2-reverse-new-block f2-order-swap
+    test_mutation_rejected f2-preparation-entry-omission f2-preparation-omission
+    test_mutation_rejected f2-schema-entry-omission f2-schema-omission
+    test_mutation_rejected f2-reader-entry-omission f2-reader-omission
+    test_mutation_rejected f2-migration-entry-omission f2-migration-omission
+    test_mutation_rejected f2-migration-order-swap f2-migration-order-swap
+    test_mutation_rejected f2-row-shape-entry-omission f2-row-shape-omission
+    test_mutation_rejected f2-body-entry-omission f2-body-omission
+    test_mutation_rejected f2-segment-parser-entry-omission f2-segment-parser-omission
+    test_mutation_rejected f2-queries-entry-omission f2-queries-omission
+    test_mutation_rejected f2-graph-entry-omission f2-graph-omission
+    test_mutation_rejected f2-record-proof-entry-omission f2-record-proof-omission
+    test_mutation_rejected f2-transaction-entry-omission f2-transaction-omission
+    test_mutation_rejected f2-rows-entry-omission f2-rows-omission
+    test_mutation_rejected f2-predecessor-entry-omission f2-predecessor-omission
+    test_mutation_rejected f2-binding-entry-omission f2-binding-omission
+    test_mutation_rejected f2-trust-workflow-entry-omission f2-trust-workflow-omission
+    test_mutation_rejected f2-preparation-workflow-entry-omission f2-preparation-workflow-omission
+    test_mutation_rejected f2-transaction-policy-entry-omission f2-transaction-policy-omission
+    test_mutation_rejected f2-workflow-policy-reverse-new-block f2-workflow-policy-order-swap
+    test_mutation_rejected f2-integer-entry-omission f2-integer-omission
+    test_mutation_rejected f2-segment-text-fields-entry-omission f2-segment-text-fields-omission
+    test_mutation_rejected f2-segment-lifecycle-entry-omission f2-segment-lifecycle-omission
+    test_mutation_rejected f2-partition-state-parser-entry-omission f2-partition-state-parser-omission
+    test_mutation_rejected f2-segment-relations-entry-omission f2-segment-relations-omission
+    test_mutation_rejected f2-segment-neighbors-entry-omission f2-segment-neighbors-omission
+    test_mutation_rejected f2-segment-endpoint-entry-omission f2-segment-endpoint-omission
+    test_mutation_rejected f2-checkpoint-bytes-entry-omission f2-checkpoint-bytes-omission
+    test_mutation_rejected f2-stored-binding-entry-omission f2-stored-binding-omission
+    test_mutation_rejected f2-segment-binding-entry-omission f2-segment-binding-omission
+    test_mutation_rejected f2-segment-record-entry-omission f2-segment-record-omission
+    test_mutation_rejected f2-segment-pages-entry-omission f2-segment-pages-omission
+    test_mutation_rejected f2-validator-integer-text-order-swap f2-validator-order-swap
+    test_mutation_rejected f2-validator-text-lifecycle-order-swap f2-validator-text-lifecycle-order-swap
+    test_mutation_rejected f2-validator-lifecycle-partition-order-swap f2-validator-lifecycle-partition-order-swap
+    test_mutation_rejected f2-validator-partition-relations-order-swap f2-validator-partition-relations-order-swap
+    test_mutation_rejected f2-validator-relations-neighbors-order-swap f2-validator-relations-neighbors-order-swap
+    test_mutation_rejected f2-validator-neighbors-endpoint-order-swap f2-validator-neighbors-endpoint-order-swap
+    test_mutation_rejected f2-validator-endpoint-bytes-order-swap f2-validator-endpoint-bytes-order-swap
+    test_mutation_rejected f2-validator-bytes-stored-binding-order-swap f2-validator-bytes-stored-binding-order-swap
+    test_mutation_rejected f2-validator-stored-segment-binding-order-swap f2-validator-stored-segment-binding-order-swap
+    test_mutation_rejected f2-validator-segment-binding-record-order-swap f2-validator-segment-binding-record-order-swap
+    test_mutation_rejected f2-validator-record-pages-order-swap f2-validator-record-pages-order-swap
+    test_mutation_rejected f2-validator-pages-storage-order-swap f2-validator-pages-storage-order-swap
+    test_mutation_rejected f2-reverse-helper-block f2-helper-order-swap
 test_mutation_rejected f1-failure-entry-omission f1-failure-omission
 test_mutation_rejected f1-exception-entry-omission f1-exception-omission
 test_mutation_rejected f1-checkpoint-entry-omission f1-checkpoint-omission
@@ -2142,6 +2511,7 @@ test_call_contract_mutation_rejected logical-or-composer-continuation logical-or
 test_call_contract_mutation_rejected logical-and-git-continuation logical-and-git-continuation
 test_call_contract_mutation_rejected pipeline-composer-continuation pipeline-composer-continuation
 test_call_contract_mutation_rejected command-substitution-git-continuation command-substitution-git-continuation
+test_call_contract_mutation_rejected f2-if-wrapped-call if-wrapped-call
 test_call_contract_mutation_rejected resolution-override resolution-override
-printf 'required inventory call-contract mutations: PASS (14 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (120 rejected: 106 inventory, 14 call-contract)\n'
+printf 'required inventory call-contract mutations: PASS (15 rejected before runtime/SHA)\n'
+printf 'required inventory mutations: PASS (167 rejected: 152 inventory, 15 call-contract)\n'

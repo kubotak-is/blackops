@@ -1,0 +1,75 @@
+# Audit Checkpoint Persistence
+
+F1（[Audit signed-artifact primitives](../../develop/spec/122-audit-signed-artifact-primitives.md)）は、既存のcanonical codec、Trust検証、署名と検証を担う純粋な境界である。
+F2（[Audit checkpoint persistence specification](../../develop/spec/125-audit-checkpoint-persistence.md)）は、閉じたAudit Segmentの境界と、F1が署名する入力をPostgreSQLへ固定する内部機能である。
+SegmentのRecord列を現在のDatabaseから読み直して完全性を確認し、署名処理とは別のTransactionで不変な準備行をCommitする。
+
+この機能はBlackOps 1.3.0の提案に属する。現在のRelease AuthorityはExperimental Stable `1.2.1`であり、F2はStableのCapabilityとして提供していない。
+F1は署名済みArtifactの形式・Trust・署名を扱い、F2はその入力を永続化する。後続のF authorityは、保存済みの境界とbytesを使って認可、seal、Releaseを判断する処理の総称であり、F2には含まれない。[Decision 175](../../develop/decisions/175-audit-checkpoint-persistence.md)にこの境界の判断を記録する。
+
+## 処理の境界
+
+F2には二つの操作がある。
+
+- `prepare` は、呼び出し元が選択・認証して渡したTrust Snapshotとcheckpoint key refを入力として、閉じたSegmentの証明と署名対象となるF1のunsigned bytesを一度だけ準備し、準備行をCommitする。F2はSnapshotを選択・取得・認証せず、渡されたSnapshotの形状、現在のkey、role、時刻を検査してFingerprintを固定する。
+- `persist` は、F1で作成した完全なcheckpoint bytesを同じ準備行へ一度だけ結び付け、完全なbytesとHashをCommitする。
+
+どちらの操作も、呼び出し元が渡したSegment close結果を証明の代わりに使わない。Store自身のConnectionで、Partition、対象Segment、前後のSegment、Record列を同じRepeatable Read Transactionから読み取る。
+
+F2はprivate keyやseedを取得せず、署名、完全なcheckpoint bytesのRelease、Segmentのseal、Runtime登録、通常のControl認可も行わない。後続のF authorityが、保存済みの境界とbytesを使ってこれらの処理を別途判断する。
+
+## 内部グラフと境界
+
+内部の入口は`AuditCheckpointPreparation`、`PostgreSqlAuditCheckpointSchema`、`PostgreSqlAuditClosedSegmentReader`、`PostgreSqlAuditCheckpointStore`に限定する。準備処理の責務を`PostgreSqlAuditCheckpointPreparationWorkflow`、Transactionの観測・分類を`PostgreSqlAuditCheckpointTransactionPolicy`へ分ける。行の型とbyteaを検査するPreparationの補助、Segment行を解釈して証明グラフを組み立てるReaderの補助を、固定した内部グラフとして構成する。Readerは同じConnectionとSchemaからQueryとRecordProofを構築し、Graphはstaticな検証として呼び出す。
+
+共通の整数境界を`PostgreSqlAuditCheckpointInteger`、SegmentのテキストとLifecycleを`PostgreSqlAuditSegmentTextFields`と`PostgreSqlAuditSegmentLifecycle`、Partition状態を`PostgreSqlAuditPartitionStateParser`が担当する。Preparationは行Shapeを確認してからBodyを読む。
+
+`PostgreSqlAuditClosedSegmentRelations`、`PostgreSqlAuditClosedSegmentNeighbors`、`PostgreSqlAuditClosedSegmentEndpoint`は、Graphの隣接行、edgeとtoken、endpointを分担する。Relationsが関係値を検査し、Neighborsが前後Segmentを読み、Endpointが境界行を照合する。
+
+`PostgreSqlAuditClosedSegmentRecord`は一件のprotected recordを読み、`PostgreSqlAuditClosedSegmentPages`はRecordを用いて固定32件のpageを走査し、RecordProofへ証明集計を返す。
+
+Storeのpersist、Workflowのprepare、Transactionの実行状態とPolicyの純粋な判定を分担する補助も、同じ内部グラフに含める。`PostgreSqlAuditCheckpointBytes`はbyteaを復元し、F1のcanonical unsigned入力を生成し、complete bytesを検証する。complete bytesの検証はmalformedな入力を修復しない。`PostgreSqlAuditCheckpointStoredBinding`は保存済みcomplete rowのidentityを照合し、準備時に固定したVersionに対してSegmentの現在のstate/versionが整合するかを検査し、`PostgreSqlAuditCheckpointSegmentBinding`はboundary、range、head・timeのbindingを検査する。Storeは`prepare`の入力境界を確認した後にWorkflowへ一度だけ委譲し、`persist`の完全bytes、現在Trust、binding、Insertを保持する。Workflowは一つのrootでReader、Rows、Predecessor、既存PreparationのRetryまたは新規作成、Commitを順序付ける。StoreとWorkflowは別Connectionや別SchemaのReaderを受け取らない。
+
+TransactionPolicyはConnection markerのroot/owned判定と失敗分類だけを行い、Transactionがbegin、Isolation、Commit、Rollback、close、phaseを保持する。
+
+Transaction補助は、呼び出し元のrootへ参加せず、開始、Isolation、Commit、Rollbackの所有状態を管理する。ドメイン失敗と所有Rollbackの成功では再利用可能なready状態へ戻し、Storage failure、状態が不明な失敗、cleanup失敗では終端の隔離状態へ遷移する。`close()`の試行は一度だけ記録し、その境界を後から巻き戻さない。Commit応答の消失やRollback・closeの失敗を、同じStoreでの再試行や勝者の推測へ変換しない。回復は新しいConnection、Store、rootから行う。
+
+F1の署名境界はcanonical unsigned bytesで固定する。Preparationの行とBodyはF1の入力形状とcanonical signing inputを確認し、先行checkpointとpersist入力も同じbyte表現で比較する。F2自身はsigner、private key、seed、complete-byteのReleaseを呼ばず、保存したbytesの再試行を新しい署名や鍵選択へ置き換えない。Trustの検証結果はこの境界を越えて署名権限やseal権限を与えない。
+
+## 閉じたSegmentの証明
+
+証明Readerは、まず期待するTenantから正規のPartition IDを導出し、Partition行と対象Segment行を同じPartition lockの下で確認する。System PartitionはTenant列を二つとも`NULL`、Tenant Partitionは二つの値をともに一致させる。Tenant条件を満たさない行は、protected bodyを読む前に有限のStorage failureとして扱う。
+
+対象Segmentには`closed`または、既存の完全なcheckpointを再試行する場合だけ`sealed`を許可する。`Version`と`closed_at`は永続Segment行から読み取り、形式・範囲・前後関係を検査して証明境界へ束縛する。Sequence範囲、Record count、Record hash chain、前後のSegmentの境界、close fencing tokenなど、Record列と既存式から導出できる値は、復号済みRecordと隣接行から検証・再計算する。Recordは固定32件のKeyset pageで読み、順序、連番、直前Hash、物理Index列と復号結果を一件ずつ確認する。Pageをまたいでも累積するのは先頭Hash、末尾Hash、Sequence、件数だけである。
+
+Genesis Segmentには前のcheckpointを要求しない。後続Segmentには直前Segmentの永続化済みcheckpointを要求し、そのHashと範囲を現在の証明へ結び付ける。任意の最新checkpointを選んだり、欠落したSegmentを補ったりしない。
+
+## PostgreSQLの不変データ
+
+Migration `Version20261001000000`は、次の二表を追加する。
+
+`audit_checkpoint_preparations`は、生成したcheckpoint ID、PartitionとSegment、閉じた時点のVersionとfencing token、F1 unsigned bytes、選択した鍵の公開Fingerprintを保存する。SegmentごとのUnique制約により、同じSegmentについて準備を置き換えない。
+
+`audit_checkpoints`は、準備行に対応するcheckpoint Hashと完全なbytesを保存する。準備行へのForeign Key、HashのUnique制約、bytesの長さとHashの形式をDatabase側でも検査する。F2のStoreにはUPDATE、DELETE、UPSERTの経路を置かない。
+
+Migrationの`down`は不可逆である。監査の入力と完全なbytesを自動削除するRollbackは提供しない。
+
+## Retryと失敗境界
+
+`prepare`の新規処理では、信頼済みClockを一度だけ読み、同じ時刻で一つのUUIDv7を生成する。Commit後の同じ境界へのRetryは、保存済みのID、unsigned bytes、Version、token、Fingerprintを読み直して同じ結果を返す。Retry時に新しいClock、UUID、Snapshot、鍵選択を行わない。
+
+`persist`の同一ID・同一bytes・同一HashのRetryは、保存済みの完全な行を確認した後にStorage idempotencyとして成功する。この成功は、現在の鍵が有効であることや、bytesをReleaseできることを意味しない。同じIDでbytesまたはHashが異なる場合、同じSegmentへ別のcheckpointを置こうとした場合、または準備時点の境界が変わった場合はIntegrity failureとして扱う。
+
+新規の`persist`では、現在のClockから一度だけ得た検証時刻で、呼び出し元が渡したTrust Snapshotと選択済みkey ref、今回の署名、準備時のFingerprint、直前checkpointを検証する。`sealedAt`はB2の`closed_at`境界、`signedAt`は準備時に固定した署名入力時刻であり、初回`persist`の現在時刻へ置き換えない。保存済み完全行の同一bytes Retryはstorage-onlyの成功として扱い、この現在Trust検証や新しい署名・時刻・key選択を再実行しない。
+
+Transactionの開始、Isolation設定、Lock、Insert、Commit、Rollbackのどこで失敗しても、呼び出し元のTransactionへ参加しない。Commit応答を失った場合は永続化の成否を推測せず、Connectionを閉じて隔離する。新しいConnectionとStoreで保存済みの不変行を読み、同一bytesであることを確認してからRetryする。失敗したroot内で勝者を読み直したり、新しいIDやbytesを自動生成したりしない。
+
+同時実行でRepeatable ReadのSnapshotから勝者が見えない場合も、古いrootで再試行しない。Storeは有限のStorage failureを返してrootを閉じ、回復処理は新しいConnectionから開始する。
+
+## 機密情報とRelease境界
+
+Tenant ID、鍵参照、信頼済みSnapshot、protected body、seed、bytesは、例外、debug、serialize、trace、SQLメッセージへ出力しない。F2はSnapshotの出所を認証せず、Framework Catalogのself-hashだけで信頼性を確立しない。認証済みのContextと署名、seal、Releaseの判断は後続のF authorityが担当する。
+
+F2の実装やMigrationを追加しても、Stable `1.2.1`の公開Capability、GuideのRoute、Command、Configuration、署名済みArtifactのReleaseを変更しない。Community Boardの公開READMEとclean-install Consumerが示すMigration数だけは、Framework `14`件とApplication `5`件の合計`19`件へ更新する。これはMigration journeyの件数であり、Audit checkpoint機能の公開宣言ではない。
+
+実行済みの検証結果はTask ReportとRootのAcceptance evidenceで管理する。DocumentationのSourceを確認できても、未実行のNative PostgreSQL、Race、Migration upgrade、Package export、BrowserまたはRelease artifact検証を完了扱いにしない。

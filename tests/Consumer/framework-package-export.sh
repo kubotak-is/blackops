@@ -162,6 +162,35 @@ validate_package() {
         src/Internal/Retention/AuditedRetentionPurgeService.php \
         src/Transport/PostgreSql/PostgreSqlStorageProtectionRotationPhaseHook.php \
         src/Transport/PostgreSql/PostgreSqlObserverReplayPhaseHook.php \
+        src/Internal/Audit/Checkpoint/AuditCheckpointPreparation.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSchema.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentReader.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php \
+        src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php \
+        src/Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentQueries.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecordProof.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransaction.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPredecessor.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBinding.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointInteger.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentEndpoint.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRecord.php \
+        src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentPages.php \
         src/Internal/Audit/Storage/AuditStoreFailure.php \
         src/Internal/Audit/Storage/AuditStoreException.php \
         src/Internal/Audit/Storage/AuditAppendResult.php \
@@ -199,6 +228,7 @@ validate_package() {
         migrations/postgresql/Version20260808100000.php \
         migrations/postgresql/Version20260829000000.php \
         migrations/postgresql/Version20260901000000.php \
+        migrations/postgresql/Version20261001000000.php \
         resources/stubs/operation.php.stub \
         resources/stubs/operation-value.php.stub \
         resources/stubs/operation-outcome.php.stub \
@@ -256,8 +286,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 162
-    test "${required_inventory_unique}" -eq 162
+    test "${required_inventory_count}" -eq 192
+    test "${required_inventory_unique}" -eq 192
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \
