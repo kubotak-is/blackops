@@ -13,6 +13,7 @@
 
 - Audit Checkpoint persistence: [F2 Task](orchestration/tasks/P23-003F2-audit-checkpoint-persistence.md)、[Report](orchestration/reports/P23-003F2-audit-checkpoint-persistence.md)。実装をAcceptedとし、`9768edf4`へ分離コミット。全3,915件、独立Review、コミット済みExportは合格。管理checkpoint `cbec640`のpushとremote SHA一致も確認済み。署名・anchor・seal・完全検証と1.3全体の公開工程は未完了。
 - Audit AnchorIntent state: [F3 Task](orchestration/tasks/P23-003F3-audit-anchor-intent-state.md)、[Report](orchestration/reports/P23-003F3-audit-anchor-intent-state.md)。全A5状態遷移と、保存時に認証するclaim/chain bindingの契約は独立authority review Green。39ファイルの実装をLuna workerへ発行。署名・制御ポリシー・外部通信・sealの実装と検証は後続Fに残る。
+- Audit Anchor永続化: [F4 Task](orchestration/tasks/P23-003F4-audit-anchor-durable-external.md)、[Report](orchestration/reports/P23-003F4-audit-anchor-durable-external.md)。チェックポイント単位の不変な予約、同じチェーンでの継続、保存フレームの8192バイト上限を仕様127／D177で採用。全14操作のSQL・署名・外部通信・復旧契約と実装範囲は未発行。F3の受け入れと後続の実装・検証が必要。
 
 - 1.3 Release: [P23-006](orchestration/tasks/P23-006-blackops-1-3-release.md)。統合ブランチでは O2／F1 の6コミットに続き、Outbox `a179781` と Catalog `3baf147` を分離コミット済み。[006E](orchestration/tasks/P23-006E-outbox-catalog-integration.md)で必須Exportは合格し、最終ReviewとローカルAcceptanceも完了。checkpoint `f01e16b` の通常pushとremote SHA一致も確認済み。1.3全体の残り工程はSTATEと親Reportを参照。
 
