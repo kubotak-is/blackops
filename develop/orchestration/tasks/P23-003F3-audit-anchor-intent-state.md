@@ -1,6 +1,6 @@
 # P23-003F3: Audit AnchorIntent State
 
-Status: In Progress — exact39-path Luna implementation; reviewed authority adopted
+Status: In Progress — exact41-path reviewed decomposition issued; Product Acceptance pending
 
 ## Goal and Authority
 
@@ -8,7 +8,7 @@ Implement the complete deterministic current A5 AnchorIntent state prerequisite
 under [specification126](../../spec/126-audit-anchor-intent-state.md) and
 [D176](../../decisions/176-audit-anchor-intent-state.md), preserving all mandatory
 remaining F and parent[006](P23-006-blackops-1-3-release.md) release obligations.
-Root authorizes only the39 Product/support paths listed below under this packet.
+Root authorizes only the41 Product/support paths listed below under this packet.
 
 ## Workspace and Ownership
 
@@ -71,13 +71,13 @@ requirements remain open. Report:[P23-003F3](../reports/P23-003F3-audit-anchor-i
 
 ## Exact issued ownership
 
-The following39 Product/support paths are the complete issued worker allowlist.
+The following41 Product/support paths are the complete issued worker allowlist.
 The worker owns their implementation and chat handoff only. Root owns this Task,
 Report/specification/Decision, index/TODO/STATE, runtime receipts and all Git.
-Independent authority review r2 is Green and Root's Ready amendment issues this
-list. No directory wildcard grants further helpers.
+Independent authority review r2 and the2026-10-11 bounded decomposition
+amendment below authorize this list. No directory wildcard grants further helpers.
 
-New Product paths, exactly the21 filenames in specification126 §7:
+New Product paths, exactly the23 filenames in specification126 §7:
 
 ```text
 src/Internal/Audit/Anchor/AuditAnchorState.php
@@ -86,6 +86,7 @@ src/Internal/Audit/Anchor/AuditAnchorException.php
 src/Internal/Audit/Anchor/AuditAnchorConfiguration.php
 src/Internal/Audit/Anchor/AuditAnchorIntent.php
 src/Internal/Audit/Anchor/AuditAnchorIntentShape.php
+src/Internal/Audit/Anchor/AuditAnchorScalar.php
 src/Internal/Audit/Anchor/AuditAnchorPreparedShape.php
 src/Internal/Audit/Anchor/AuditAnchorReceiptShape.php
 src/Internal/Audit/Anchor/AuditAnchorCanonical.php
@@ -100,6 +101,7 @@ src/Internal/Audit/Anchor/AuditAnchorPreCallTransition.php
 src/Internal/Audit/Anchor/AuditAnchorPostCallTransition.php
 src/Internal/Audit/Anchor/AuditAnchorReceiptTransition.php
 src/Internal/Audit/Anchor/AuditAnchorExternalOutcome.php
+src/Internal/Audit/Anchor/AuditAnchorReconciliationShape.php
 src/Internal/Audit/Anchor/AuditAnchorReceiptBody.php
 ```
 
@@ -128,7 +130,7 @@ docs/internal/audit-anchor-intent-state.md
 
 The existing Record/Artifact guards gain only the exact Time/ReceiptBody edges
 specified in126, preserving all earlier positives/mutations. Package scripts
-gain the exact21 paths, matching order/hash and omission controls; no existing
+gain the exact23 paths, matching order/hash and omission controls; no existing
 path/control disappears. No Outbox/F1/F2 Product edit, other architecture guard,
 public-API inventory, migration, runtime composition, source publisher/provider,
 baseline/configuration/dependency or documentation website path is allowed.
@@ -137,8 +139,8 @@ storage/origin/current-trust boundaries, with no new Stable/runtime claim.
 
 ## Frozen acceptance criteria
 
-- [ ] All39 allowed paths and no foreign Product/configuration/index changes;
- 21 new internal types, exact named entry APIs, at most10 methods/type and5
+- [ ] All41 allowed paths and no foreign Product/configuration/index changes;
+ 23 new internal types, exact named entry APIs, at most10 methods/type and5
  ordinary arguments; no quality waiver or arbitrary outside caller.
 - [ ] Complete current A5 pure matrix and specification126 §9 proof families;
  actual named-claim positives and wrong-purpose/expected hash/token negatives;
@@ -274,3 +276,161 @@ shared runtime lease; only the assigned local Node/shell checks are permitted.
 Documentation preservation5862b76a contains146 unchanged accepted public Source
 files and424 retained primary artifacts. The latter are historical preservation,
 not a new accepted-checkout build. F3 changes no Website generation input.
+
+## Implementation ownership split — 2026-10-10
+
+Root assigns `/root/f3_state_worker` the36 owned paths other than the three
+architecture guards. `/root/f3_guard_worker` owns exactly
+`tests/Architecture/AuditAnchorStateArchitectureTest.php`,
+`tests/Architecture/AuditRecordArchitectureTest.php`, and
+`tests/Architecture/AuditArtifactArchitectureTest.php`. The original worker has
+released these files with current changes preserved. No ownership overlaps and
+no new path or acceptance waiver is introduced. The exact partition is retained
+in E3 implementation-ownership.json; the union is the issued39 paths.
+
+Root alone runs all PHP/Docker/DB/format/static/guard/full gates. The guard worker
+may inspect changing Product only for implementing its tests and must coordinate
+the final callable/dependency map with the Product worker. Both freeze before
+Root's combined candidate gates. Source review/test evidence is bound to actual
+hashes, not to a concurrent draft. Both return chat handoffs; neither writes this
+Task, Report, STATE, baseline, dependency or Git. All §9 semantic proof controls
+and the full final run remain mandatory.
+
+## Root affected architecture iteration
+
+After both worker scopes freeze, Root may execute the three affected architecture
+classes together to diagnose the new semantic guard and its two existing owner
+edges. This is iteration within the existing scope; the final full suite remains
+mandatory and replaces same-input focused reruns at final qualification.
+
+```bash
+docker compose -f compose.yaml -f .phpunit.cache/f3-orchestration/20261009/compose.override.yaml run --rm -T app php vendor/bin/phpunit --display-all-issues --cache-directory .phpunit.cache/f3 --filter 'Audit(AnchorState|Record|Artifact)ArchitectureTest' tests/Architecture --log-junit .phpunit.cache/f3/guards.xml
+```
+
+Root retains exact commands, current runner/source/config hashes, fresh JUnit and
+actual selected identities. The private runner now has this bounded `guards`
+action; its Python syntax check passed. No PHP execution or acceptance is claimed
+by adding the action. Worker resource ownership and all39 paths are unchanged.
+
+
+## Root combined diagnostic iteration
+
+For the next coherently frozen39-path correction, Root may collect the previously
+failed unit, format, lint/analyze and affected guard diagnostics in one sequential
+runner invocation. Owned formatting precedes read-only checks; its successor
+manifest is retained. A failed check remains Failed and the batch exits nonzero.
+Any source/runtime drift stops the batch immediately. The runner does not add a
+full/native suite, skip a final gate, permit worker runtime or accept failed output.
+This groups already-issued affected commands; the full Acceptance contract is
+unchanged. Root may shorten the selected list when unchanged successful evidence
+can be reused.
+
+```bash
+python3 .phpunit.cache/f3-orchestration/20261009/run.py --diagnose format-owned format unit lint analyze guards
+```
+
+The exact Docker commands remain those above and are recorded per action in each
+receipt. The private runner only extends its existing diagnostic action allowlist
+to `unit` and `guards`; no execution/failure/input-preservation logic changes.
+
+
+## Reviewed decomposition issuance — 2026-10-11
+
+Root adopts specification126 §10 / D176's two-owner resolution after independent
+review5552a9901a27c9f8e4f0f6d451eea01f32699edae3861387cb9e8a7119ffc3a8
+and input manifestf7ff4068221630f8c76abb65d0831e591e25ddd235eb5646b5d4548d1ab21c44.
+This supersedes the earlier scope counts only: exactly41 Product/support paths,
+23 Product types, main worker38 and guard worker3. Historical39/36 receipts above
+remain historical; their hashes are not recomputed as if they qualified41 paths.
+
+Main worker owns the existing36 non-architecture files plus exactly
+src/Internal/Audit/Anchor/AuditAnchorScalar.php and
+src/Internal/Audit/Anchor/AuditAnchorReconciliationShape.php. Guard worker retains
+only the three named architecture files. No ownership overlap, other helper,
+Product/configuration/public-doc path or threshold/baseline exception is allowed.
+Root retains governance/Report/STATE/runtime/Acceptance/Git. Both return chat
+handoffs and freeze before Root gates; the exact41-path map is in E3 scope.json
+and implementation-ownership.json. No PHP/Docker/shared DB runtime is delegated.
+
+Implement §10 exactly, including strict outcome refinement and fresh public-hash
+failure remapping. Add the meaningful Intent::fromArray persisted-hash regression
+within the existing owned test paths. Preserve all §9 semantic controls and the
+existing partial-field negatives. Update the exact type/method/argument/dependency/
+caller and moved scalar/immutability/receipt guard maps; retain every negative
+mutation and inert positive. The earlier PostCall ::__invalid extraction label is
+not automatically an accepted selector or call-site waiver; qualify actual AST
+arguments and permitted named candidate revisions. Coordinate final maps with the
+main worker before submitting the candidate.
+
+The two package paths change the required src inventory from213 to215; retain all
+older omission/order controls and add each of the two new ones. Pin the actual
+updated exported source manifest under the existing proof procedure, never a
+predicted digest. Unchanged Node proof is reusable after byte comparison; changed
+package shell syntax and actual inventory/export controls remain required.
+
+Root re-runs changed/failed format/unit/lint/analyze/guard lanes against a newly
+frozen41-path manifest, then performs the existing strict/final full/discovery/
+package proof. Planned branch budgets are not Mago PASS. DC-01..03 are addressed
+by the contract but remain implementation obligations, alongside existing PR/GR
+findings. Independent source/guard and internal-note implementation agreement,
+Acceptance, isolated commit, clean committed export and remote preservation remain.
+No later F4/F5/F6, parent release or final Owner preview gate is removed.
+
+
+## Bounded r6 review corrections — 2026-10-11
+
+The actual r5 native batch and independent read-only r6 review expose remaining
+implementation/proof defects under the existing §§6/8/9/10 contract. Root issues
+the corrections below within the existing main38/guard3 ownership after the
+reviewer acknowledges its fixed r6 snapshot. The snapshot preserves all41 bytes
+of manifest65eedc18; the successor may change only the issued checkout paths.
+This adds no helper, API, dependency, threshold or acceptance waiver.
+
+Main Luna corrects these existing obligations:
+
+1. Frame::create admits every creation-field scalar, grammar and coupled input
+   before expectation/time/hash construction. Wrong scalar types, nested values
+   and malformed predecessor pairs fail IntegrityInvalid even when another valid
+   expectation would conflict. Use the existing Shape assertions and native strict
+   admission; a new Frame->Scalar caller is not authorized by §10.
+2. Guard::advance reuses assertExpected exactly as §10 requires. Preserve expected
+   version/hash/token checks, finite failure mapping and one-step revision/origin.
+3. Every named claim/settlement/scheduling path checks supplied-time rollback
+   before date arithmetic/capacity. Prove simultaneous stale-time and near-year9999
+   overflow selects TransitionConflict and returns no changed frame. Preserve
+   input, CAS, purpose, state, due/expiry and capacity precedence in full.
+4. Shape::assertClosed rejects wrong member count before array_keys, array_filter,
+   array_diff or any width-dependent traversal/canonicalization. Keep exact key
+   sets, detached values, privacy and finite failure mapping.
+5. Prepared post_call_uncertain requires a positive attempt. A recomputed valid
+   state hash does not admit attempt0 with an otherwise plausible unleased schedule.
+6. Node keeps exactly the eight named proof cases, covers the actual six scheduling
+   families including expired post-call reclaim, and uses real reconciliation
+   claims before reconciliation outcomes. PHP executes the actual named sequences
+   and compares each resulting frame/hash/schedule and applicable receipt bytes
+   with independently computed Node vectors. Product addSeconds or snapshot
+   rehashing alone is not the expected oracle. Retain all configured delay values,
+   complete success/lookup paths, attempts/boundaries and existing negative controls.
+
+Guard Luna corrects the observed nonexistent Frame return expectation, exception
+class/owner confusion, obsolete ExternalOutcome literal ownership, inert literal
+mutations and the duplicate-CAS assumption. Each required mutation must match and
+change the intended current formatted source, and the semantic checker must reject
+it. Preserve all inert positive controls and the exact APIs/dependencies/callers.
+Follow the consolidated r6 review for the remaining CAS polarity/operands/failure,
+supplied-time/rollback/capacity, count-first, candidate-revision/origin/restore and
+exact DateTime formatting controls. Do not merely adjust expected counts, allow
+arbitrary selectors or delete a mandatory mutation because the source moved.
+
+Both workers return actual current hashes, changed paths and precise callable/map
+coordination. Main may run the already-issued changed Node fixture/test commands;
+unchanged shell proof is reused. Neither runs PHP/Docker/DB or edits governance/
+STATE/Git. Keep current186-entry baseline, complexity15, method10/ordinary-arg5 and
+512M limits. If a real authority/cap conflict remains, return the concrete measured
+proposal before adding a helper or changing a signature/caller map.
+
+Root freezes the successor after both disjoint scopes stop changing, runs affected
+format/unit/lint/analyze/guard lanes and audits changed Node results. Then close
+the bounded independent findings and existing final strict/full/discovery/package/
+internal-note gates. No r6 runtime result or successor acceptance is inferred from
+this issuance. Isolated commit/export/push and all parent1.3 stages remain required.

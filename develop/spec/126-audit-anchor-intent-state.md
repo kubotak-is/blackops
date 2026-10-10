@@ -193,7 +193,7 @@ finite and overflow returns no revision.
 
 ## 7. Exact implementation family and callable boundary
 
-All21 new Product files are under src/Internal/Audit/Anchor. They are internal,
+All23 new Product files are under src/Internal/Audit/Anchor. They are internal,
 with zero outside Production callers in F3. Non-enum classes are final; immutable
 carriers/configuration are readonly. Every carrier hides values in
 SensitiveParameterValue and exposes data only through its explicit projections.
@@ -206,8 +206,9 @@ fresh value-free F3 exception. No public fields expose raw carrier data.
 | AuditAnchorFailure | String enum: ConfigurationInvalid, IntegrityInvalid, TransitionConflict, ResourceUnavailable with C1-style lowercase codes. |
 | AuditAnchorException | constructor(AuditAnchorFailure), failure(), code(); fixed message Audit anchor state transition failed.; code0/null previous. |
 | AuditAnchorConfiguration | constructor(mixed leaseDurationSeconds=300,mixed retryDelaySeconds=300); public readonly native ints after validation, each1..86400. Mixed admission makes wrong-type configuration a finite failure. No maxAttempts setting. |
-| AuditAnchorIntent | Private construction; static fromArray(array):self; toArray():array, state():AuditAnchorState, version():int; closed shape/hash validation and detached projection. |
-| AuditAnchorIntentShape | Count-first38-key/native scalar admission, normalized field order and delegation to the two state-shape helpers. |
+| AuditAnchorIntent | Private construction; static fromArray(array):self; toArray():array, state():AuditAnchorState, version():int; closed shape/hash validation, detached projection and exact transition immutability policy under §10. |
+| AuditAnchorIntentShape | Count-first38-key admission, normalized field order, scalar delegation and the two state-shape helpers. |
+| AuditAnchorScalar | Stateless native scalar admission; the exact seven methods, fixed callers and bounds in §10. No coercion or new policy input. |
 | AuditAnchorPreparedShape | Exact prepared/rejected nullability and phase/mode/status/attempt/schedule/lease matrix. |
 | AuditAnchorReceiptShape | Exact accepted/receipt/ack matrix, predecessor version/hash and receipt chronology/internal-hash consistency. |
 | AuditAnchorCanonical | StateHash and raw-idempotency LP formulas; the two receipt internal typed-ENC formulas. No raw-key retention, no signer. |
@@ -221,7 +222,8 @@ fresh value-free F3 exception. No public fields expose raw carrier data.
 | AuditAnchorPreCallTransition | constructor(AuditAnchorConfiguration); lookup(), callStart(), reclaim() for original external owner/pre-call states. |
 | AuditAnchorPostCallTransition | constructor(AuditAnchorConfiguration); result(), reconcile(), reclaim() for the exact original/reconciliation owner and post-call phase. |
 | AuditAnchorReceiptTransition | constructor(AuditAnchorConfiguration); inputClaim(), persistClaim(), acknowledgementClaim(), inputPersist(), persist(), acknowledge(), reclaim(). |
-| AuditAnchorExternalOutcome | Closed8 external-result and closed5 reconciliation/closed6 found-object validation; exact state/checkpoint/anchor binding. No authentication or I/O claim. |
+| AuditAnchorExternalOutcome | Closed8 external-result validation and existing reconciliation/lookup entry points delegating only their wire normalization to ReconciliationShape. No authentication or I/O claim. |
+| AuditAnchorReconciliationShape | Stateless closed5 reconciliation and nested closed6 found-object normalization; only ExternalOutcome::reconciliation may call it. |
 | AuditAnchorReceiptBody | Builds16-field unsigned receipt and calls only F1 AuditAnchorReceiptCodec::signingInput for its canonical bytes/public semantic hash; validates/derives internal receipt hashes. No signer/verifier/private F1 helper access. |
 
 Every named claim signature is
@@ -320,7 +322,7 @@ Required families include:
   Container/runtime activation, origin-selector bypass, direct append, extra wire
   field, disabled expectation, public marker and privacy
   regression are rejected. Harmless comments/strings remain positive controls.
-- Actual package required-path list/order and an omission control for each21 new
+- Actual package required-path list/order and an omission control for each23 new
   Product path, preserving every old control. Final committed export uses the
   accepted committed source and is not inferred from an uncommitted archive.
 
@@ -332,3 +334,163 @@ retain those proofs against real composed boundaries; they cannot use a boolean
 or a reconstructed origin as evidence. Signing/current key/material/freshness,
 ordinary Required gate, control exemptions and final seal remain mandatory F5.
 F6 retains the complete graph/verification closure. No pure PASS marks those done.
+
+## 10. Adopted bounded responsibility decomposition
+
+The2026-10-11 amendment adds exactly AuditAnchorScalar.php and
+AuditAnchorReconciliationShape.php to §7. The two owners and existing-type moves
+below replace the earlier duplicate validation without changing A5 semantics,
+named transition signatures, the38-field intent or companion shapes. They do not
+authorize another helper, outside Product caller, quality waiver or dependency.
+All data parameters remain SensitiveParameter, including the Scalar allowed array.
+
+Scalar is final and stateless, with exactly these public static methods:
+
+```php
+text(#[SensitiveParameter] mixed $value, int $minimum = 1, int $maximum = 256): string;
+hash(#[SensitiveParameter] mixed $value, string $mode = 'required'): ?string;
+integer(#[SensitiveParameter] mixed $value, int $minimum, int $maximum): int;
+nullableInteger(#[SensitiveParameter] mixed $value, int $minimum, int $maximum): ?int;
+nullableTimestamp(#[SensitiveParameter] mixed $value): ?string;
+nullableAllowed(#[SensitiveParameter] mixed $value, #[SensitiveParameter] array $allowed): void;
+nullableText(#[SensitiveParameter] mixed $value): ?string;
+```
+
+Text retains AuditStringValidator::assertSafe, UTF-8/NFC/no-Cc-or-Cf and byte
+bounds. Hash retains required/nullable lowercase64-hex admission. Integer tests
+native int identity before inclusive bounds; no string/float/bool coercion is
+permitted. NullableAllowed accepts literal null or strict membership in the fixed
+string vocabulary. Nullable methods reuse their non-null owner; nullable time
+calls Anchor Time only. Existing enclosing admission catches retain fresh finite
+failure remapping; this lower helper does not retain rejected values or causes.
+
+| Scalar method | Complete Product callers |
+| --- | --- |
+| text | IntentShape::assertText; Scalar::nullableText |
+| hash | IntentShape::assertHash |
+| integer | IntentShape::normalize; Scalar::nullableInteger; LeaseOrigin::positiveInteger; ExternalOutcome::positiveInteger; ReconciliationShape::normalize |
+| nullableInteger; nullableTimestamp; nullableAllowed; nullableText | IntentShape::normalize only |
+
+Bounds/modes/vocabularies are fixed at those sites. Attempt0..32 remains distinct
+from version1..MAX_SAFE_INTEGER. Origin/result positiveInteger wrappers retain
+native int returns and fixed1..MAX bounds. Required updatedAt calls Time directly.
+Shape's public assertText/assertHash wrappers remain; other callers gain no direct
+Scalar edge. Shape retains normalize/assertClosed/assertText/assertHash/
+assertPartition, count-first closure,38-key order and all cross-field admission.
+Only its four obsolete private scalar helpers disappear.
+
+ReconciliationShape is final and stateless with exactly public static
+normalize(#[SensitiveParameter] array $value):array and private static
+assertSegment(#[SensitiveParameter] mixed $value):void. Normalize's precise return is:
+
+```text
+{schemaVersion:int,kind:string,
+ outcome:'external_object_found'|'external_object_absent'|'lookup_unavailable',
+ foundObject:null|{anchorObjectRef:string,anchorObjectVersion:int,
+  acceptedObjectHash:string,acceptedAnchoredAt:string,segmentId:string,
+  previousAnchorReceiptHash:?string},
+ reasonCode:?string}
+```
+
+ExternalOutcome::reconciliation is its sole outside-type Product caller; lookup
+still forwards to reconciliation and PreCall/PostCall retain their Outcome entries.
+Normalize admits exact closed5 and text, directly guards schema/kind, then uses
+direct strict in_array outcome admission to establish the native finite union.
+Found requires an array, null reason, closed6 and exact native/hash/time/UUID
+validation. Absent requires null foundObject/null reason; unavailable requires
+null foundObject/the exact lookup_unavailable reason. Return detached validated
+scalars. No boolean-vector/index trick, cast or asserted docblock replaces proof.
+
+Dependencies are only Shape::{assertClosed,assertText,assertHash}, Scalar::integer,
+Time::assertTimestamp, the existing safe-int constant and finite failure types.
+The private segment check retains the exact lowercase36-byte UUIDv7 regex and
+Shape text admission. Normalize catches Throwable and throws fresh IntegrityInvalid
+without cause. No Intent/Frame/Origin/Guard dependency or state/CAS/I/O enters here.
+Remove the moved segment helper from ExternalOutcome. Its typed positiveInteger
+wrapper uses Scalar; result and all public signatures remain unchanged.
+
+Guard::advance reuses assertExpected and calls only
+Intent::assertTransitionImmutable(#[SensitiveParameter] array $current,
+#[SensitiveParameter] array $candidate):void for the existing complete13-branch
+immutability policy. Guard is that method's sole caller. Preserve exact comparisons,
+first receipt-input/public-hash installation exceptions and accepted-field rules.
+Admission stays CAS, supplied time/rollback, capacity, immutability, one revision,
+origin derivation/preservation/clearing and restore. No computed revision field or
+general mutation becomes caller-controlled; named entry checks remain earlier.
+
+Binding removes only its duplicate closed/text/hash methods and uses Shape wrappers.
+UUID/time, immutable association, privacy and fresh exception handling remain;
+Frame::restore stays the sole binding-association caller. LeaseOrigin changes only
+positiveInteger reuse; the complete actual-claim/delta0/1/2 matrix stays in place.
+No field-group or origin-association type is added.
+
+ReceiptShape keeps all state/nullability/lease/chronology checks and its public
+assertPublicReceiptHash forwarding wrapper. ReceiptBody owns the existing internal
+hash/body and public semantic-hash checks, with exactly these four static methods:
+
+```php
+public build(#[SensitiveParameter] AuditAnchorIntent $intent,
+    #[SensitiveParameter] string $signingKeyRef, #[SensitiveParameter] string $signedAt): array;
+public assertPersistedHashes(#[SensitiveParameter] array $value,
+    #[SensitiveParameter] string $signingKeyRef, #[SensitiveParameter] string $acceptedAnchoredAt,
+    #[SensitiveParameter] string $receiptSignedAt): void;
+public assertPublicReceiptHash(#[SensitiveParameter] AuditAnchorIntent $intent): void;
+private unsignedBody(#[SensitiveParameter] array $value,
+    #[SensitiveParameter] string $signingKeyRef, #[SensitiveParameter] string $acceptedAnchoredAt,
+    #[SensitiveParameter] string $receiptSignedAt): array;
+```
+
+Exact callers: ReceiptShape::assert -> ReceiptBody::assertPersistedHashes;
+ReceiptShape::assertPublicReceiptHash -> ReceiptBody::assertPublicReceiptHash;
+ReceiptBody::{build,assertPersistedHashes} -> unsignedBody;
+ReceiptBody::assertPublicReceiptHash and ReceiptTransition::{inputPersist,persist}
+-> build. The public-hash check must itself catch Throwable and throw fresh
+IntegrityInvalid with no cause: Intent::fromArray calls it outside normalize's
+catch. Neither body check may call Intent::fromArray or Frame::restore recursively.
+
+The assembler emits the same16 unsigned fields. Build remains the sole F1
+signingInput site, once per derivation. Persisted hashes use the same assembler
+and existing Canonical typed-ENC formulas without F1. Public hashes use build and
+hash_equals. No signer, decoder, verifier or actual receipt durability is added.
+
+These measured design budgets guide implementation; they are not native results.
+Each actual class must pass unchanged Mago thresholds, at most10 own methods and
+five ordinary arguments. No boolean packing or baseline exception is permitted.
+
+| Type suffix | Branch budget | Own methods | Maximum ordinary arguments |
+| --- | ---: | ---: | ---: |
+| Binding | 7 | 7 | 2 |
+| Canonical | 3 | 8 | 2 |
+| Claims | 8 | 5 | 5 |
+| Configuration | 4 | 2 | 1 |
+| Exception | 0 | 3 | 0 |
+| Expectation | 10 | 5 | 1 |
+| ExternalOutcome | 12 | 5 | 1 |
+| Failure | 0 | 0 | 0 |
+| Frame | 10 | 10 | 5 |
+| Intent | 13 | 9 | 2 |
+| IntentShape | 11 | 5 | 3 |
+| LeaseOrigin | 13 | 9 | 2 |
+| PostCallTransition | 11 | 6 | 5 |
+| PreCallTransition | 9 | 6 | 5 |
+| PreparedShape | 13 | 4 | 1 |
+| ReceiptBody | 10 | 4 | 4 |
+| ReceiptShape | 14 | 2 | 1 |
+| ReceiptTransition | 15 | 10 | 5 |
+| ReconciliationShape | 10 | 2 | 1 |
+| Scalar | 13 | 7 | 3 |
+| State | 0 | 0 | 0 |
+| Time | 11 | 4 | 2 |
+| TransitionGuard | 8 | 2 | 5 |
+
+Final guards enforce the exact new APIs/callers, moved text/immutability/body
+validation and unchanged sole Time/Core and Body::build/F1 edges. Preserve all
+earlier negative mutations and inert positives. Each new package path gains its
+own omission/order control. Existing scalar/nullability/outcome/chronology/privacy/
+CAS/wrong-purpose/receipt and complete transition proofs remain mandatory.
+Add a valid persisted intent with a wrong public receipt hash and recomputed state
+hash through Intent::fromArray; it must fail as fresh IntegrityInvalid with no
+previous cause. The native union, all receiving classes, independent Product/guard/
+internal-document agreement, full suite and committed export remain unqualified
+until their actual assigned evidence passes. §9 and all later durable obligations
+are unchanged.
