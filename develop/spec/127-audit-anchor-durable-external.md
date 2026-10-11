@@ -7,7 +7,9 @@ Status: Bounded reservation/frame choices adopted; complete F4 issuance pending;
 This specification refines the mandatory remaining F4 work in current
 [105](105-blackops-1-3-capability-contract.md),
 [106](106-phase-23-delivery-plan.md) and
-[126](126-audit-anchor-intent-state.md). It adopts the two reviewed choices below.
+[126](126-audit-anchor-intent-state.md). It adopts the two reviewed choices below and uses the independently reviewed
+[provider protocol](128-audit-anchor-provider-protocol.md) adopted in
+[D178](../decisions/178-audit-anchor-provider-protocol.md).
 It is not yet the complete local fourteen-operation SQL/provider contract or an
 implementation allowlist. [D177](../decisions/177-audit-anchor-reservation-and-frame-bound.md)
 records the decision; [F4 Task](../orchestration/tasks/P23-003F4-audit-anchor-durable-external.md)

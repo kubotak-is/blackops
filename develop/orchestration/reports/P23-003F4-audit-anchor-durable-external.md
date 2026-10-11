@@ -1,17 +1,20 @@
 # P23-003F4: Durable Audit Anchor and External Effect Report
 
-Status: Preparation — bounded choices adopted; no Product issuance or Acceptance
+Status: Preparation — reservation/frame and provider contracts adopted; no Product issuance or Acceptance
 
 ## Summary
 
 Root adopted one immutable checkpoint reservation, exact chain identity and
 checkpoint-first recovery, including current v1's same-C continuation requirement,
 and an inclusive8192-byte canonical frame cap. Specification127/D177 retain these
-choices. Complete local14/provider/provenance implementation remains unissued.
+choices. Root also adopts the independently reviewed provider protocol in
+specification128/D178, preserving exact request/result, same-session COMMIT/flush
+ordering and native qualification conditions. Complete local14/provider/provenance
+implementation remains unissued.
 
 ## Changed Files
 
-Root created specification127, D177 and this Task/Report; bounded index/TODO links
+Root created specifications127/128, D177/D178 and this Task/Report; bounded index/TODO links
 and STATE refer to the new authority. P and the accepted integration checkout get
 matching new documents while their existing unrelated histories remain separate.
 No Product, test, schema/migration, dependency/configuration or Website is changed.
@@ -90,3 +93,73 @@ all41 unchanged F3 hashes: Passed,0.003275seconds, receipt8597944a19c1e56f16e6ae
 Primary management `git diff --check` and accepted-checkout `git diff --check`
 both exited0 in under one second. Root recorded the bounded adoption in both STATE files through state.mjs CAS;
 post-write checks pass at P dcb265c5 / C2117e796,106 lines/7106 bytes each. These checks do not qualify any Product behavior.
+
+
+## Independent adoption review and remote preservation — 2026-10-12
+
+The staged six-document adoption review is Green within management scope:
+E3/f4-reservation-frame-adoption-review-r1.md SHA256
+aa152d11b764d32d25a188f1588348b297c4a9e5f37c2756bf70388b69b669e6,
+inputs849831101cd0768c3706b4ca682c9c89999f27e2b3265cf7a7567fda56f257c6.
+SF-01, reservation/recovery/native joins and the8192-byte bound match the reviewed
+contract. Product issuance, parser/native behavior and F4 Acceptance remain open.
+
+Root committed exactly those six paths separately as
+181929926d2bd3e9393bed6652a009665206a789. The staged and committed blob inventories
+match; receipt E3/f4-management-committed.json SHA256
+32ec72c9e23551df561e577e13bdac9d35653c2ddf0c7b5db185f16189e77c78.
+F3-only TODO work stayed outside this commit and was committed separately later.
+Push succeeded, and independent ls-remote returned descendant
+d417849ddda7491804ab8fa753e0907c882b38c3 on agent/p23-006-accepted-integration.
+Remote receipt aec667474cc81d53354b286740c8ca4a57d4aaad961693bfc2414f5a34843336
+records the exact read command, exit0 and0.269198644seconds. Initial sandbox DNS
+failure was followed by the successful approved retry. No CI/export/publication/
+deployment or Product Acceptance is inferred from this remote preservation.
+
+
+## Reviewed provider protocol promotion — 2026-10-12
+
+Root adopts specification128/D178 from reviewed exact proposalf00ed501 after
+r1 review3ab73b77 and Green F4-EP-01 correction reviewd8441b4a. Exact15/16 inputs,
+flat21 result, conditional immutable replay, same physical primary identity,
+normal COMMIT-before-saved-LSN flush order, separate timeout/deadline and all
+native discriminating cases are preserved. F4 remains Draft for complete Product
+issuance; this does not qualify actual SQL, TLS, durability or current F5 authority.
+
+Seven management paths belong to this bounded promotion: new specification128 and
+D178; specification127 cross-link; this Task/Report; and the existing specification
+index/TODO F4 rows. P/C narrative documents match, while navigation is edited
+individually to preserve checkout-specific content. F3 worker paths are unowned
+and unchanged by this promotion; its corrections continue separately.
+
+Root rechecked all10 selected r2 inputs. Nine hashes remain equal. Only
+specification126 changed from17c9d66c to cab93721 for the adopted two-owner
+internal decomposition. The old bytes are committed atf5ecb639; §§1–6 and8 match
+exactly. §9 changes the required Product inventory21->23; §7/10 contain the
+internal decomposition. No provider request/result/A5 admission or failure
+boundary changed. The complete old/current hashes and promotion comparison are
+retained in the adoption receipt; this is not reuse based only on a status label.
+
+Release Documentation Impact remains no public Source/API/command/configuration/
+capability or current-release change: this is internal unreleased management
+contract only. Both existing release-authority files remain untouched; Stable and
+roadmap tuples stay as recorded above. No new Source/Search/LLM/browser build,
+same-SHA CI/export, provider deployment or Documentation delivery is claimed.
+Final all-public/Owner preview and release delivery remain parent005/006 work.
+
+Remaining Issues: complete local14/provenance/F5/root/ownership contracts, issue
+and implement the actual provider, prove every native precondition, then close
+independent Review/Acceptance and all F4/F5/F6 obligations. Next Action: finish F3
+correction/Acceptance and freeze complete dependency/implementation packets.
+
+
+Provider promotion checks passed: five P/C narrative mirrors, all local links in
+those documents, no trailing whitespace, and scoped accepted-checkout diff check.
+The promotion-check receiptc1b6dae53425ab9d8827e12b2e9aabcdb0fa73939709cb4fdc281b3d53691b4c
+records0.008502seconds and exact seven-path hashes at that checkpoint.
+Adoption receipt3a1808312032074c3d9217364502fbbe1c6531e358834f6f3e0ff1cb93d8d4b5
+records proposal/review inputs and independently preserved navigation edits.
+The current Report summary is an editorial follow-up to that captured checkpoint.
+A read-only JSON inspection initially treated selectedInputs as a map; it exited1
+without writes and the corrected list inspection completed. No Product gate was
+involved. Independent promoted-text review and the separate commit remain next.

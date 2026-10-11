@@ -1,6 +1,6 @@
 # P23-003F4: Durable Audit Anchor and External Effect
 
-Status: Draft — bounded reservation/frame choices adopted; Product work not issued
+Status: Draft — reservation/frame and provider contracts adopted; Product work not issued
 
 ## Goal
 
@@ -13,7 +13,7 @@ settles reservation identity and frame admission; it does not complete this task
 
 ## Ownership and permitted work
 
-Root owns this management preparation, specification127, D177, its Report, bounded
+Root owns this management preparation, specifications127/128, D177/D178, its Report, bounded
 specification index/TODO references and STATE. Preserve both checkouts' unrelated
 history. The accepted integration checkout is the future implementation base;
 the mixed primary Product/index and its older Website are not implementation inputs.
@@ -30,6 +30,11 @@ F3 continues separately under its existing38/3 ownership and acceptance criteria
   original request/receipt and attempt/terminal behavior survive retries/restart.
 - Inclusive8192-byte canonical whole-frame admission, with exact closed structure
   and authenticated association; other envelopes/artifacts retain separate bounds.
+- The independently reviewed [provider protocol](../../spec/128-audit-anchor-provider-protocol.md):
+  exact conditional request/result, separate primary/TLS/privileges and normal
+  COMMIT followed by the same-session saved-LSN barrier before exposing decisions.
+  [D178](../../decisions/178-audit-anchor-provider-protocol.md) records adoption;
+  actual SQL/adapter implementation and native preconditions remain unqualified.
 
 ## Required issuance and Acceptance
 
@@ -54,6 +59,9 @@ F3 continues separately under its existing38/3 ownership and acceptance criteria
 This issuance preparation changes management only. Root checks targeted current
 authority against independent review729a27c6, the SF-01 qualification, exact links,
 checkout-specific index preservation, scope/diff and STATE via state.mjs.
+For provider promotion, compare specification128 with reviewed proposalf00ed501
+and r1/r2 findings, preserving all native/release boundaries. Check current inputs,
+exact cross-links and separate seven-path management ownership before commit.
 No PHP/Node Product test, DB, browser, CI, export or deploy is selected for this
 management edit. The complete executable Product/native verification plan and
 resource owners must be frozen before Product issuance, not inferred from this list.
