@@ -222,6 +222,9 @@ final class AuditArtifactArchitectureTest extends TestCase
         $actual = $this->externalArtifactStaticCallInventory($sources);
         self::assertSame(
             [
+                'Internal/Audit/Anchor/AuditAnchorReceiptBody.php' => [
+                    AuditAnchorReceiptCodec::class . '::signingInput' => 1,
+                ],
                 'Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php' => [
                     AuditCheckpointCodec::class . '::signingInput' => 1,
                 ],
@@ -259,6 +262,28 @@ final class AuditArtifactArchitectureTest extends TestCase
             $message = 'AuditTrustSnapshotCodec::key';
             PHP;
         self::assertSame($actual, $this->externalArtifactStaticCallInventory($inert));
+
+        $receiptPath = 'Internal/Audit/Anchor/AuditAnchorReceiptBody.php';
+        $receipt = $sources[$receiptPath];
+        $wrongReceiptMethod = $this->replaceFirst(
+            $receipt,
+            'AuditAnchorReceiptCodec::signingInput(',
+            'AuditAnchorReceiptCodec::decode(',
+        );
+        self::assertNotSame($actual, $this->externalArtifactStaticCallInventory([
+            ...$sources,
+            $receiptPath => $wrongReceiptMethod,
+        ]));
+        $extraReceiptCall = $sources;
+        $extraReceiptCall[$receiptPath] .= "\nAuditAnchorReceiptCodec::signingInput([]);\n";
+        self::assertNotSame($actual, $this->externalArtifactStaticCallInventory($extraReceiptCall));
+        $inertReceipt = $sources;
+        $inertReceipt[$receiptPath] .= <<<'PHP'
+
+            // AuditAnchorReceiptCodec::decode is inert text.
+            $message = 'AuditAnchorReceiptCodec::signingInput';
+            PHP;
+        self::assertSame($actual, $this->externalArtifactStaticCallInventory($inertReceipt));
 
         $allowed = $this->allowedExternalArtifactTypes($bytesPath);
         self::assertSame(
@@ -2492,6 +2517,7 @@ final class AuditArtifactArchitectureTest extends TestCase
     private function allowedExternalArtifactTypes(string $relativePath): array
     {
         return match ($relativePath) {
+            'Internal/Audit/Anchor/AuditAnchorReceiptBody.php' => [AuditAnchorReceiptCodec::class],
             'Internal/Audit/Checkpoint/AuditCheckpointPreparationBody.php' => [AuditCheckpointCodec::class],
             'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php' => [
                 AuditCheckpointCodec::class,

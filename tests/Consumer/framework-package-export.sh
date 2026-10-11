@@ -250,6 +250,29 @@ validate_package() {
         src/Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php \
         src/Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php \
         src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php \
+        src/Internal/Audit/Anchor/AuditAnchorState.php \
+        src/Internal/Audit/Anchor/AuditAnchorFailure.php \
+        src/Internal/Audit/Anchor/AuditAnchorException.php \
+        src/Internal/Audit/Anchor/AuditAnchorConfiguration.php \
+        src/Internal/Audit/Anchor/AuditAnchorIntent.php \
+        src/Internal/Audit/Anchor/AuditAnchorIntentShape.php \
+        src/Internal/Audit/Anchor/AuditAnchorScalar.php \
+        src/Internal/Audit/Anchor/AuditAnchorPreparedShape.php \
+        src/Internal/Audit/Anchor/AuditAnchorReceiptShape.php \
+        src/Internal/Audit/Anchor/AuditAnchorCanonical.php \
+        src/Internal/Audit/Anchor/AuditAnchorTime.php \
+        src/Internal/Audit/Anchor/AuditAnchorBinding.php \
+        src/Internal/Audit/Anchor/AuditAnchorExpectation.php \
+        src/Internal/Audit/Anchor/AuditAnchorLeaseOrigin.php \
+        src/Internal/Audit/Anchor/AuditAnchorFrame.php \
+        src/Internal/Audit/Anchor/AuditAnchorTransitionGuard.php \
+        src/Internal/Audit/Anchor/AuditAnchorClaims.php \
+        src/Internal/Audit/Anchor/AuditAnchorPreCallTransition.php \
+        src/Internal/Audit/Anchor/AuditAnchorPostCallTransition.php \
+        src/Internal/Audit/Anchor/AuditAnchorReceiptTransition.php \
+        src/Internal/Audit/Anchor/AuditAnchorExternalOutcome.php \
+        src/Internal/Audit/Anchor/AuditAnchorReconciliationShape.php \
+        src/Internal/Audit/Anchor/AuditAnchorReceiptBody.php \
         src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php \
         src/Internal/Audit/Artifact/AuditArtifactScalar.php \
         src/Internal/Audit/Artifact/AuditArtifactCanonical.php \
@@ -286,8 +309,8 @@ validate_package() {
             }
         ' "${BASH_SOURCE[0]}" | sort -u | wc -l
     })"
-    test "${required_inventory_count}" -eq 192
-    test "${required_inventory_unique}" -eq 192
+    test "${required_inventory_count}" -eq 215
+    test "${required_inventory_unique}" -eq 215
 
     test -d "${package_root}/src" || fail "${package_name} archive is missing src/"
     test -n "$(find "${package_root}/src" -type f -name '*.php' -print -quit)" \

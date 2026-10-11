@@ -1385,6 +1385,8 @@ final class AuditRecordArchitectureTest extends TestCase
         }
 
         $expectedTimestampOwners = [
+            'Core/Audit/AuditRecordDraft.php' => ['__construct' => 1],
+            'Internal/Audit/Anchor/AuditAnchorTime.php' => ['assertTimestamp' => 1],
             'Internal/Audit/Artifact/AuditArtifactShape.php' => [
                 'anchorUnsigned' => 2,
                 'checkpointUnsigned' => 2,
@@ -1392,8 +1394,26 @@ final class AuditRecordArchitectureTest extends TestCase
             'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['snapshot' => 3],
             'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['assert' => 5],
             'Internal/Audit/Artifact/AuditTrustLookup.php' => ['assertSignedAt' => 2],
+            'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php' => ['canonicalNow' => 2],
             'Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php' => ['parse' => 1],
             'Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php' => ['read' => 2],
+            'Internal/Audit/Delivery/AuditOutboxStateSnapshot.php' => ['assertTimestamp' => 1],
+            'Internal/Audit/Delivery/AuditOutboxTransition.php' => [
+                'addSeconds' => 1,
+                'assertTransitionTime' => 1,
+            ],
+            'Internal/Audit/Outbox/PostgreSqlAuditOutboxStore.php' => ['assertTimestamp' => 1],
+            'Internal/Audit/Protection/AuditIngressEnvelope.php' => ['__construct' => 1],
+            'Internal/Audit/Protection/AuditIngressEnvelopeCodec.php' => ['decode' => 1],
+            'Internal/Audit/Protection/AuditStoredRecord.php' => ['fromArray' => 1],
+            'Internal/Audit/Record/AuditRecordStamp.php' => ['__construct' => 1],
+            'Internal/Audit/Record/AuditRecordValidator.php' => ['validateGrammar' => 3],
+            'Internal/Audit/Storage/PostgreSqlAuditRecordStore.php' => [
+                'canonicalNow' => 1,
+                'stateValues' => 1,
+                'validateDurableLogical' => 1,
+            ],
+            'Internal/Audit/Storage/PostgreSqlAuditStoredRecordHydrator.php' => ['hydrate' => 1],
         ];
         foreach ($expectedTimestampOwners as $relative => $expected) {
             $path = $sourceRoot . '/' . $relative;
@@ -1401,6 +1421,26 @@ final class AuditRecordArchitectureTest extends TestCase
             self::assertIsString($source);
             self::assertSame($expected, $this->auditTimestampCallInventory($source), $relative);
         }
+        $actualTimestampOwners = [];
+        foreach ($this->sourceFiles($sourceRoot) as $relative => $source) {
+            $calls = $this->auditTimestampCallInventory($source);
+            if ($calls !== [])
+                $actualTimestampOwners[$relative] = $calls;
+        }
+        ksort($expectedTimestampOwners);
+        ksort($actualTimestampOwners);
+        self::assertSame($expectedTimestampOwners, $actualTimestampOwners, 'no unlisted timestamp caller is allowed');
+        $anchorTime = $sourceRoot . '/Internal/Audit/Anchor/AuditAnchorTime.php';
+        $anchorTimeSource = file_get_contents($anchorTime);
+        self::assertIsString($anchorTimeSource);
+        $wrongAnchorMethod = str_replace(
+            'AuditRecordTime::assertTimestamp(',
+            'AuditRecordTime::parseTimestamp(',
+            $anchorTimeSource,
+            $replacements,
+        );
+        self::assertSame(1, $replacements);
+        self::assertSame([], $this->auditTimestampCallInventory($wrongAnchorMethod));
         $artifact = $sourceRoot . '/Internal/Audit/Artifact/AuditArtifactShape.php';
         $source = file_get_contents($artifact);
         self::assertIsString($source);
@@ -4575,6 +4615,7 @@ final class AuditRecordArchitectureTest extends TestCase
                 'AuditRecordSource',
                 'AuditSourceRuntime',
             ],
+            'Internal/Audit/Anchor/AuditAnchorTime.php' => ['AuditRecordTime'],
             'Internal/Audit/Artifact/AuditArtifactShape.php' => ['AuditRecordTime'],
             'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['AuditRecordTime'],
             'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['AuditRecordTime'],

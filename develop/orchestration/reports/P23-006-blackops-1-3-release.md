@@ -641,3 +641,16 @@ Remaining mandatory work is F3 delivery,F4/F5/F6,ordinary D/E,D-control/G,004A,
 Next Action: Root completes this fixed full run and isolates the accepted F3
 source; prepare exact shared-authority/provenance and F4 issuance in parallel
 without touching the running candidate.
+
+
+## F3 implementation Acceptance — 2026-10-12T03:39:28+09:00
+
+F3 local implementation is Accepted after independent reviews and one fixed final
+full:3986 tests/8634246 assertions,zero error/failure/skip,307MB under512M.
+All3915 F2 identities plus71 new cases ran;candidate/runtime inputs stayed fixed.
+Existing diagnostic block is exactly unchanged. Full proof6dccb3b6 and F3 Report
+retain source hashes and logs. Source commit,committed export and remote proof
+are next;no1.3 publication or final same-SHA evidence is claimed.
+Management checkpoint8f314f31 is already pushed/remote-matched separately.
+Shared authority/provenance before real F4 remains the next implementation contract;
+F4/F5/F6,ordinary D/E,D-control/G,004A,005 and006 remain mandatory.

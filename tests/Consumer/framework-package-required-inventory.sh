@@ -7,7 +7,7 @@ EXPORT_SCRIPT="${SCRIPT_DIR}/framework-package-export.sh"
 TEMP_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "${TEMP_ROOT}"' EXIT
 
-reviewed_export_sha='626dcd1f1ae20562c388fc891877457529eb5b3f91714a152d328461ebbd5075'
+reviewed_export_sha='dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717'
 
 expected_inventory="${TEMP_ROOT}/expected-inventory"
 printf '%s\n' \
@@ -191,6 +191,29 @@ printf '%s\n' \
     src/Internal/Audit/OperationalOutbox/GenericOutboxAuditIdentity.php \
     src/Internal/Audit/OperationalOutbox/GenericOutboxAuditCatalog.php \
     src/Internal/Audit/OperationalOutbox/GenericOutboxAuditProjection.php \
+    src/Internal/Audit/Anchor/AuditAnchorState.php \
+    src/Internal/Audit/Anchor/AuditAnchorFailure.php \
+    src/Internal/Audit/Anchor/AuditAnchorException.php \
+    src/Internal/Audit/Anchor/AuditAnchorConfiguration.php \
+    src/Internal/Audit/Anchor/AuditAnchorIntent.php \
+    src/Internal/Audit/Anchor/AuditAnchorIntentShape.php \
+    src/Internal/Audit/Anchor/AuditAnchorScalar.php \
+    src/Internal/Audit/Anchor/AuditAnchorPreparedShape.php \
+    src/Internal/Audit/Anchor/AuditAnchorReceiptShape.php \
+    src/Internal/Audit/Anchor/AuditAnchorCanonical.php \
+    src/Internal/Audit/Anchor/AuditAnchorTime.php \
+    src/Internal/Audit/Anchor/AuditAnchorBinding.php \
+    src/Internal/Audit/Anchor/AuditAnchorExpectation.php \
+    src/Internal/Audit/Anchor/AuditAnchorLeaseOrigin.php \
+    src/Internal/Audit/Anchor/AuditAnchorFrame.php \
+    src/Internal/Audit/Anchor/AuditAnchorTransitionGuard.php \
+    src/Internal/Audit/Anchor/AuditAnchorClaims.php \
+    src/Internal/Audit/Anchor/AuditAnchorPreCallTransition.php \
+    src/Internal/Audit/Anchor/AuditAnchorPostCallTransition.php \
+    src/Internal/Audit/Anchor/AuditAnchorReceiptTransition.php \
+    src/Internal/Audit/Anchor/AuditAnchorExternalOutcome.php \
+    src/Internal/Audit/Anchor/AuditAnchorReconciliationShape.php \
+    src/Internal/Audit/Anchor/AuditAnchorReceiptBody.php \
     src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php \
     src/Internal/Audit/Artifact/AuditArtifactScalar.php \
     src/Internal/Audit/Artifact/AuditArtifactCanonical.php \
@@ -1508,6 +1531,80 @@ test_mutation_rejected() {
             ' "${candidate}" >"${candidate}.tmp"
             mv "${candidate}.tmp" "${candidate}"
             ;;
+        f3-state-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorState.php|d' "${candidate}"
+            ;;
+        f3-failure-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorFailure.php|d' "${candidate}"
+            ;;
+        f3-exception-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorException.php|d' "${candidate}"
+            ;;
+        f3-configuration-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorConfiguration.php|d' "${candidate}"
+            ;;
+        f3-intent-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorIntent.php|d' "${candidate}"
+            ;;
+        f3-intent-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorIntentShape.php|d' "${candidate}"
+            ;;
+        f3-scalar-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorScalar.php|d' "${candidate}"
+            ;;
+        f3-prepared-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorPreparedShape.php|d' "${candidate}"
+            ;;
+        f3-receipt-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorReceiptShape.php|d' "${candidate}"
+            ;;
+        f3-canonical-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorCanonical.php|d' "${candidate}"
+            ;;
+        f3-time-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorTime.php|d' "${candidate}"
+            ;;
+        f3-binding-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorBinding.php|d' "${candidate}"
+            ;;
+        f3-expectation-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorExpectation.php|d' "${candidate}"
+            ;;
+        f3-origin-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorLeaseOrigin.php|d' "${candidate}"
+            ;;
+        f3-frame-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorFrame.php|d' "${candidate}"
+            ;;
+        f3-guard-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorTransitionGuard.php|d' "${candidate}"
+            ;;
+        f3-claims-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorClaims.php|d' "${candidate}"
+            ;;
+        f3-pre-call-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorPreCallTransition.php|d' "${candidate}"
+            ;;
+        f3-post-call-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorPostCallTransition.php|d' "${candidate}"
+            ;;
+        f3-receipt-transition-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorReceiptTransition.php|d' "${candidate}"
+            ;;
+        f3-outcome-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorExternalOutcome.php|d' "${candidate}"
+            ;;
+        f3-reconciliation-shape-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorReconciliationShape.php|d' "${candidate}"
+            ;;
+        f3-receipt-body-omission)
+            run_bounded sed -i '\|src/Internal/Audit/Anchor/AuditAnchorReceiptBody.php|d' "${candidate}"
+            ;;
+        f3-order-swap)
+            swap_required_inventory_neighbors "${candidate}" \
+                'src/Internal/Audit/Anchor/AuditAnchorState.php' \
+                'src/Internal/Audit/Anchor/AuditAnchorFailure.php'
+            ;;
         f2-entry-omission)
             run_bounded sed -i '\|src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php|d' "${candidate}"
             ;;
@@ -2342,9 +2439,9 @@ runtime_case_count=0
 assert_inventory "${EXPORT_SCRIPT}"
 test "${runtime_case_count}" -eq 4
 printf 'required inventory runtime omissions: PASS (4 separate missing-file cases)\n'
-    test "$(wc -l < "${expected_inventory}")" -eq 192
-    test "$(sort -u "${expected_inventory}" | wc -l)" -eq 192
-    printf 'required inventory: PASS (192 ordered paths, 192 unique)\n'
+    test "$(wc -l < "${expected_inventory}")" -eq 215
+    test "$(sort -u "${expected_inventory}" | wc -l)" -eq 215
+    printf 'required inventory: PASS (215 ordered paths, 215 unique)\n'
 
 test_mutation_rejected comment-only comment
 test_mutation_rejected existing-entry-removal existing-removal
@@ -2421,6 +2518,30 @@ test_mutation_rejected o3-catalog-entry-omission o3-catalog-omission
 test_mutation_rejected o3-projection-entry-omission o3-projection-omission
 test_mutation_rejected o3-reverse-new-block o3-order-swap
 test_mutation_rejected o3-helper-reverse-new-block o3-helper-order-swap
+test_mutation_rejected f3-state-entry-omission f3-state-omission
+test_mutation_rejected f3-failure-entry-omission f3-failure-omission
+test_mutation_rejected f3-exception-entry-omission f3-exception-omission
+test_mutation_rejected f3-configuration-entry-omission f3-configuration-omission
+test_mutation_rejected f3-intent-entry-omission f3-intent-omission
+test_mutation_rejected f3-intent-shape-entry-omission f3-intent-shape-omission
+test_mutation_rejected f3-scalar-entry-omission f3-scalar-omission
+test_mutation_rejected f3-prepared-shape-entry-omission f3-prepared-shape-omission
+test_mutation_rejected f3-receipt-shape-entry-omission f3-receipt-shape-omission
+test_mutation_rejected f3-canonical-entry-omission f3-canonical-omission
+test_mutation_rejected f3-time-entry-omission f3-time-omission
+test_mutation_rejected f3-binding-entry-omission f3-binding-omission
+test_mutation_rejected f3-expectation-entry-omission f3-expectation-omission
+test_mutation_rejected f3-origin-entry-omission f3-origin-omission
+test_mutation_rejected f3-frame-entry-omission f3-frame-omission
+test_mutation_rejected f3-guard-entry-omission f3-guard-omission
+test_mutation_rejected f3-claims-entry-omission f3-claims-omission
+test_mutation_rejected f3-pre-call-entry-omission f3-pre-call-omission
+test_mutation_rejected f3-post-call-entry-omission f3-post-call-omission
+test_mutation_rejected f3-receipt-transition-entry-omission f3-receipt-transition-omission
+test_mutation_rejected f3-outcome-entry-omission f3-outcome-omission
+test_mutation_rejected f3-reconciliation-shape-entry-omission f3-reconciliation-shape-omission
+test_mutation_rejected f3-receipt-body-entry-omission f3-receipt-body-omission
+test_mutation_rejected f3-reverse-new-block f3-order-swap
     test_mutation_rejected f2-entry-omission f2-entry-omission
     test_mutation_rejected f2-reverse-new-block f2-order-swap
     test_mutation_rejected f2-preparation-entry-omission f2-preparation-omission
@@ -2514,4 +2635,4 @@ test_call_contract_mutation_rejected command-substitution-git-continuation comma
 test_call_contract_mutation_rejected f2-if-wrapped-call if-wrapped-call
 test_call_contract_mutation_rejected resolution-override resolution-override
 printf 'required inventory call-contract mutations: PASS (15 rejected before runtime/SHA)\n'
-printf 'required inventory mutations: PASS (167 rejected: 152 inventory, 15 call-contract)\n'
+printf 'required inventory mutations: PASS (191 rejected: 176 inventory, 15 call-contract)\n'
