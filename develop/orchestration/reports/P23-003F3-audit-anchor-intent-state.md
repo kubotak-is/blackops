@@ -1,28 +1,29 @@
 # P23-003F3: Audit AnchorIntent State Report
 
-Status: In Progress — focused units/lint pass; static, guard and independent findings remain
+Status: Qualifying — r11 independent reviews Green; final full suite running
 
 ## Summary
 
-The reviewed pure A5 contract is separately committed/pushed at f5ecb639.
-The actual fifth native batch passed format,52tests/496assertions and lint under
-the unchanged186-entry baseline. Analyze failed with6 errors; the affected
-architecture suite had32tests/82545assertions and4 failures. The returned Body and
-State-guard corrections form a frozen41-path r6 candidate but have not run.
-Independent source review1718726a is Changes Required and identifies remaining
-creation/count-first admission, positive post-call attempt, rollback-before-capacity,
-CAS reuse, three array annotations, actual transition/vector proof and guard controls.
-Root issued the bounded corrections under existing38/3 ownership. The reviewer
-retains an immutable r6 snapshot while the accepted-checkout successor changes;
-runtime is idle until both workers freeze the new candidate.
-The adopted §10 decomposition has23 Product types, main38 plus three guard paths.
-Final full/Deptrac/package qualification, independent Acceptance and Product commit
-remain open. Historical failed evidence below is retained, not superseded by a
-focused PASS or a worker correction handoff.
+The pure A5 authority and its bounded decomposition/correction record are separately
+committed. F4 management1819299 and F3 managementd417849 are pushed and independently
+matched to the remote branch. The23-type/41-path F3 Product remains uncommitted
+and unaccepted; no release or published capability changes are claimed.
 
-The unchanged A5 wire needs companion immutable chain/receipt-ID and claim-origin
-information for truthful later authenticated restart; those inputs are explicitly
-not self-authenticating F3 capabilities.
+Root r11 has independent Product/guard closure and internal Documentation
+agreement Green. All66 units/837 assertions,32 architecture tests/90497 assertions,
+format, lint/analyzer, Deptrac, package inventory and remaining read-only gates pass.
+The package preserves all old167 controls and adds24, for191 rejected mutations;
+215 required source paths retain the original ordering and F1 controls.
+
+The final full suite is Running on the independently reviewed41-path manifest:
+3986 discovered cases, including every3915 F2 predecessor and71 new cases.
+Root started session60775 at2026-10-12T03:09:20+09:00 with the unchanged512M budget.
+Full success, Root Acceptance, isolated Product commit, clean committed export and
+remote preservation remain open. F4 provider authority and its review/remote record
+are separately committed/pushed asba3d1c54/c0035f11; no F4 Product is issued.
+Historical failed receipts below retain their actual inputs and results. Pure
+carrier/hash validity still does not authenticate F4 durable history or replace
+mandatory F5/F6 and parent release work.
 
 ## Changed Files
 
@@ -41,6 +42,7 @@ these choices on2026-10-09. F4/F5/F6 and the full1.3 goal are not reduced.
 
 ## Commands and Results
 
+Historical preparation (subsequent execution receipts follow below).
 Initial preparation reads: clean accepted branch/status; current A5, F1/F2/parent006,
 workflow109 and existing Outbox types. Product implementation, PHPUnit, Node
 fixtures, static gates and native/external runtime are **Not Run**; independent
@@ -89,9 +91,11 @@ not native execution or implementation Acceptance.
 
 ## Acceptance Criteria
 
-No implementation criterion is marked complete. Exact APIs/ownership/verification
-and independent authority review are ready for the issued worker. This Report
-grants no runtime activation or release.
+The frozen scope, complete pure-state/proof/guard controls, package inventory and
+independent Product/internal-note review requirements are qualified for the r11
+bytes. Root retains source/mode/index preservation. The mandatory final full
+suite is Running; source Acceptance, source commit, committed package export and
+remote preservation are pending. No runtime activation or release is granted.
 
 ## Release Documentation Impact
 
@@ -102,11 +106,11 @@ all-public review, final Owner preview and release/delivery proof.
 
 ## Remaining Issues and Suggested Next Action
 
-The configured workers correct the issued41-path scope after bounded independent
-review; Root owns serialized gates and Acceptance. Freeze the corrected candidate,
-qualify its changed inputs and remaining final gates, then isolate, commit and export.
-Remaining upper goal: F4/F5/F6, ordinary D/E, D-control/G,004A,005 Owner preview,
-006 same-SHA qualification, publication, Documentation delivery and live proof.
+Root monitors the final full suite on fixed r11, compares its actual JUnit identities
+to discovery and retained F2, then performs Acceptance and isolated source delivery.
+No worker is editing the candidate. Remaining upper goal: F4/F5/F6, ordinary D/E,
+D-control/G,004A,005 Owner preview,006 same-SHA qualification, publication,
+Documentation delivery and live proof.
 
 ## Root issuance receipt — 2026-10-09
 
@@ -742,3 +746,442 @@ proof and run affected lanes; close remaining source/guard/internal-note review,
 then final strict/full/discovery/package, Acceptance and isolated commit/export/push.
 Suggested Next Action: workers return corrected actual source and exact maps;
 Root qualifies that successor, preserving fixed r6 and r5 failed evidence.
+
+
+## Management commits and independent remote proof — 2026-10-12
+
+Root separated F4 reservation/frame adoption into181929926d2bd3e9393bed6652a009665206a789
+and the F3 authority/decomposition/correction record into
+d417849ddda7491804ab8fa753e0907c882b38c3. The latter contains exactly specification126,
+D176, this Task and Report, and the F3-only TODO correction. F4's six files are a
+separate parent commit. Neither commit contains Product changes. Exact committed
+blob verification is retained in E3/f3-management-committed.json
+099aa19b4804fa3ccf16e0c1a032647afc60f5f425f68a269a029b1ad7813631.
+
+Root's push succeeded. The independent command
+`git -C .phpunit.cache/f2-orchestration/accepted-integration ls-remote --heads origin refs/heads/agent/p23-006-accepted-integration`
+returned d417849ddda7491804ab8fa753e0907c882b38c3, exit0,0.269198644seconds.
+The initial sandbox attempt exited128 due to DNS; the approved retry is the
+successful read. Receipt E3/f3-f4-management-remote-receipt.json SHA256
+aec667474cc81d53354b286740c8ca4a57d4aaad961693bfc2414f5a34843336
+also records the two exact commit inventories and empty accepted-checkout index.
+This is remote preservation, not same-SHA CI, release, export or deploy.
+
+## Actual r7 handoff and diagnostic batch — 2026-10-12
+
+Root reconciled all38 actual main files against worker manifest
+9f1f4dbf6e82daa44345f17925be023c9bdf867a3eec6670cd945d5cb45648a5.
+Guard's final read-only map comparison confirmed the actual Frame->JCS safe-integer
+constant dependency and all three guard hashes. The combined41-file input manifest
+is767a425ddb2af1a963faaa1c26c1684ef5282d67f4a1d74524a3f31c3967c771;
+freeze receiptb3b77bf140b88a029ac4936db5486f50677438fe6606e7dd221fe7bc6d9f863c.
+No source outside the two disjoint worker scopes was authorized.
+
+Worker Node24.18.0 commands from the primary root used the absolute accepted
+checkout fixture path. In order, they were `node <fixture> --write`,
+`node --test --test-isolation=none --test-reporter=tap <fixture>`,
+`node <fixture> --check`, and `git -C <accepted-checkout> diff --check`.
+Here fixture is
+`/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/tests/Fixtures/Audit/audit-anchor-state-golden.mjs`.
+All exited0. The recorded pre-run timestamp was2026-10-11T08:49:36+09:00;
+per-command start and shell wall times were not recorded and are not estimated.
+TAP itself reports178.298653ms,8tests/8pass/0fail/0cancel/0skip/0todo.
+Root matched all eight exact names required by the Task. Proof describes six
+scheduling families with seven branches, including both pre-call statuses.
+MJS945cd32ffab50f76564fc2a179641318aab751eee35519b747797925a2dd7fb2 and
+JSONb99c7d4bb7659ab2ba47b0deaf77dc595d0484028443d649af9dc2c590656e4d
+are actual r7 inputs. Node logs are E3/worker/f3-node-{write,tap,check}-r7.log;
+TAPe6d380c5e14443cd9985cb484e5f95faa84b5137731028d79e7adfeda2fbb7a3.
+Root handoff auditf41a7f8a063d2349330aa5e0423726c2e6955b6503e98aca65becd38d33d4b84
+retains actual input/log hashes. Node's own PASS does not establish PHP parity.
+
+Root ran the already-issued command:
+
+```bash
+python3 .phpunit.cache/f3-orchestration/20261009/run.py --diagnose format-owned format unit lint analyze guards
+```
+
+The runner's unchanged SHA is8922d9a754307f9365e7d726914c9f016c84516f557ff7a2d5c8e14643e387ca.
+All commands used the existing primary Compose environment and accepted /app mount,
+unchanged dependencies/baseline and512M configuration. PostgreSQL was healthy;
+no other BlackOps runtime was active. The batch completed exit1 at01:29:24 JST.
+Exact literal argv, start/end timestamps, source/config/vendor/environment hashes,
+exit/log hashes and before/after input checks are retained per-action and in
+E3/iteration-r7-native-attribution.json SHA256
+a2a678f7dde3b1a6a5ee3aa50f717096d5d4a26ce3bed0113ab48e7511b26275.
+
+| Action | Actual result | Command seconds | E3 directory |
+| --- | --- | ---: | --- |
+| Owned PHP format | Passed;8 owned files formatted |2.146844|run-20261012T012901538944-format-owned|
+| PHP format check | Passed |2.039735|run-20261012T012905817126-format|
+| Anchor unit suite | Failed;59tests/680assertions/4failures/0errors/0skips |4.232193|run-20261012T012909567230-unit|
+| Mago lint | Failed;2errors/6warnings/2help; baseline186 unchanged |1.704238|run-20261012T012915399611-lint|
+| Mago analyze | Passed exit0;648warnings/467help disclosed |2.126175|run-20261012T012918744820-analyze|
+| Three affected architecture classes | Failed exit255 before tests; final-method collision |1.545048|run-20261012T012922436437-guards|
+
+Each directory contains output.log and receipt.json. Unit JUnit
+beeeec784957953d13cf46d3ce1daf72c98fba8ccc092b28d6665ce8fdcb9c43 is fresh
+and parseable. The guard JUnit is fresh but empty, so it supplies no passing or
+failing test-case count. Total command execution is13.794233seconds; approval
+waiting and snapshot bookkeeping are separate. No full suite has run for F3.
+The formatter changed only the eight permitted PHP files and retained modes;
+all subsequent input-preservation checks passed. Its exact successor manifest is
+run-20261012T012901538944-format-owned/formatted-manifest.json SHA256
+d26d9158522bd592bccfcfc95e23fb6d8bbc86fc3a3e98fc3edb2c9502842033.
+
+The four unit failures are PreCall and PostCall reclaim-delay cases, the
+below32 absent-result schedule, and the actual1/31/32 attempt-vector comparison.
+Lint reports Frame complexity16 and ReceiptTransition17 against15. The guard's
+isNull name collides with PHPUnit Assert's final method; this is a load error,
+not evidence that semantic mutations passed. Root retained all41 formatted bytes
+in E3/f3-r7-review-snapshot; snapshot receipt70875301aedaab389eab2113b1a3402e7022ed3bf43eceb5f8dc6855ea52b105.
+
+Root issued corrections within main38/guard3. Main must reconcile the actual A5
+request/configuration/sequences with independently derived Node expectations and
+reduce the two measured complexities without new helpers, weakened checks or
+threshold changes. Guard returned only the private helper and three callers
+renamed to isNullConstFetch, hash
+eccbab3a867a46d6292a20b62ea0b2afe56ee19bff58bc4a2dcb8c696d8e2aac;
+Record/Artifact are unchanged. Root checked the four-line semantic rename diff.
+This correction has not been executed. Runtime is idle while main edits continue;
+both scopes must freeze before the next combined manifest and affected gates.
+
+Remaining Issues: bounded runtime/source findings, independent review closure,
+final strict/full/package/Documentation agreement, Acceptance and isolated source
+commit/export/push. Next Action: receive exact corrections, reconcile final maps,
+freeze the successor and run affected gates. All parent1.3 obligations remain.
+
+
+Root's2026-10-12 preservation check also passed:2323 primary non-governance files,
+all three primary index views,2317 existing unowned accepted files, no added
+unowned files, and146 public Sources remain unchanged. Receipt
+E3/preservation-20261012-r7-correction.json SHA256
+e37b0f5fba621158a6c418198d6e193e6d840dbe12114c2f951113de5835aef8;
+1.029872seconds. This is preservation, not a new Website qualification.
+The independent reviewer is comparing the fixed r7 snapshot against prior
+findings while the main worker corrects live owned files. It runs no runtime and
+has no Product write ownership; no r7 review result is claimed yet.
+
+STATE's first proposed heading did not match its required `## Evidence` section.
+Both writes were rejected before mutation, and old SHA checks stayed unchanged.
+After correcting the heading, both CAS writes and checks passed at P3a1b3f1b /
+C065ab18c,107lines/6775bytes. This was a management input rejection only.
+
+## Actual r8 diagnostics and consolidated correction scope — 2026-10-12
+
+Root ran the same assigned diagnostic command and unchanged runner8922d9a7
+against combined41 manifestc34a0e09; owned formatting changed no bytes. The
+accepted checkout, primary Compose environment,6498 vendor files, baseline186,
+512M budget and image remained pinned. All input-preservation checks passed.
+The exact literal commands, argv, start/end times, log hashes and fresh JUnit
+results are retained in E3/iteration-r8-native-attribution.json SHA256
+`a5aae82469a2bde4d139f848e9529ce528f12f63a0ecec25747bc4d0177cae92`.
+
+| Action | Actual result | Command seconds | E3 directory |
+| --- | --- | ---: | --- |
+| Owned PHP format | Passed;0 files changed |1.634265|run-20261012T014141339895-format-owned|
+| PHP format check | Passed |2.180593|run-20261012T014144602000-format|
+| Anchor units | Passed;59tests/694assertions/0failures/errors/skips |4.728555|run-20261012T014148748459-unit|
+| Mago lint | Failed;ReceiptTransition complexity16 against15;5warnings/2help |1.693254|run-20261012T014155251568-lint|
+| Mago analyze | Passed exit0;648warnings/467help |2.217925|run-20261012T014158568704-analyze|
+| Affected architecture classes | Failed;32tests/85144assertions/2failures/0errors/skips |36.816781|run-20261012T014202343241-guards|
+
+Total command execution49.271373seconds excludes approval and snapshot work.
+Fresh unit JUnitfe6fa7ac and guard JUnite7f6a791 are retained under those directories.
+The guard failures are an incorrect nested reconciliation caller-map expectation
+and a count-first mutation replacement that matched zero source occurrences.
+All41 r8 bytes remain in E3/f3-r8-review-snapshot; receipt92d72ad9. No F3 full
+suite ran. Frame's earlier complexity and all four earlier unit failures closed.
+
+The main r8 manifesteb66a233 and dependency mape170d3f4 matched actual bytes.
+Worker Node inputs MJS26c1e26c/JSON7d99737d have eight exact named passes, no
+failures/skips, TAP70e81ee6 and171.182287ms. These commands used relative accepted
+checkout paths; exact shell cwd/start timestamps were not retained. Reported tool
+wall times are not substituted for shell measurement. The stale prior-MJS metadata
+was clarified against actual hashes; no duplicate run was required for that alone.
+
+Independent fixed-r7 review E3/f3-product-guard-review-r3.md SHA256
+`00083d525b1674ca55e5e2d8589bea2ea1ecc7f4b05d511e83ee93506211b31d`
+is Changes Required, inputs4d8480dc. It closes PR03/PR05 and retains prior closed
+lanes without approving r8 or later sources. Remaining PR04/06 require nullable
+predecessor-pair admission before CAS/time, receipt-input rollback precedence,
+actual embedded references, NFC/byte/calendar/nullability/origin substitutions,
+and full non-genesis found-lookup Node/PHP parity with distinct predecessor object
+and receipt hashes. Remaining GR01..05 require all-family callable scanning,
+reference timestamp writes, consumed literal classes, executed count/expectation
+controls and reaching-value CAS snapshots, with discriminating negatives and
+inert positives. Internal note implementation agreement is still Not Verified.
+
+Root issued only main38/guard3 corrections under the existing packet. The minimal
+Product changes add predecessor null-pair validation and remove an unreachable
+empty-string fallback from a private operation map called only with three fixed
+literals. No helper, public API, threshold, baseline or failure-order waiver is
+introduced. Root rejected the first successor proof because its found path still
+used genesis; main now derives linked predecessor7 and distinct object/receipt
+hashes independently. Guard returned corrected source, final SHA256
+`fe631d63b074d71bc8f9a4caceed498bcf7b785125e8c3a80631e92978a39b39`;
+Recordf3942a28 and Artifact346324c3 remain unchanged. These changes have no native
+PASS yet. Freeze the returned combined successor, run affected gates, then close
+independent findings and final qualification before Acceptance or Product commit.
+
+## Actual r9 static closure and final proof corrections — 2026-10-12
+
+Root r9 combines main worker r10 manifestba61770e/map23724dac and final guard
+fe631d63. Root checked all38 main hashes, the three guard hashes, eight exact Node
+case names and actual TAP8pass/0fail/0skip. The non-genesis fixture uses predecessor7,
+found object8 and distinct object/receipt hashes. MJS379447cb/JSON2fc5dd01 and
+Node logs0c1aa5b2/5e40dd1b/890f4995 are retained in E3/worker. Literal primary-root
+commands, start times02:00:03/09/13 JST and measured real times0.09/0.21/0.09s
+are in f3-callable-dependency-map-r10.md; TAP reports177.347791ms.
+Root freeze E3/iteration-r9-freeze.json SHA256
+dcddaf020f43420267571dd25d3bc18a921446a2c040343ef806f8c8271d3fc1
+pins initial41 manifest4a70008c. No runtime used the main worker's earlier r9.
+
+The unchanged runner executed the same assigned six-action diagnostic command.
+Owned format changed only ReceiptTransition, StateArchitectureTest, CanonicalTest
+and FrameTest, preserving modes. Final formatted manifest15e84b8c pins all41 paths.
+Native attribution E3/iteration-r9-native-attribution.json SHA256
+b3b3e9fd35bd7b9b0c9d3f7eb8f61c1ba469f79c267d9bc38a2911379f18d2f2
+retains every literal argv, start/end time, input snapshot and log/output hash.
+
+| Action | Actual result | Command seconds | E3 directory |
+| --- | --- | ---: | --- |
+| Owned format | Passed;4 owned files formatted |1.913455|run-20261012T020211953130-format-owned|
+| Format check | Passed |2.281787|run-20261012T020215949398-format|
+| Anchor units | Failed;64tests/738assertions/1error/1failure/0skips |5.548004|run-20261012T020220218335-unit|
+| Mago lint | Passed exit0;6warnings/2help |1.805565|run-20261012T020228683585-lint|
+| Mago analyze | Passed exit0;648warnings/467help |2.447293|run-20261012T020232475042-analyze|
+| Architecture classes | Failed;32tests/85281assertions/1failure/0errors/skips |44.993140|run-20261012T020236721995-guards|
+
+Total command execution58.989244seconds; every input-preservation check passed.
+All earlier class-complexity errors are resolved without a waiver. Unit JUnit
+9e68b4b4 and guard JUnite4f82928 are fresh and retained. The new intent scalar
+negative invokes canonical hashing on an input that cannot be canonicalized;
+the linked lookup proof reports a mismatched first successor previous hash.
+Worker diagnosis must preserve independent Node derivation and actual rejection
+coverage. The guard wrongly includes Frame intent-construction callers in its
+separate ReceiptBody signing-input expected map; the earlier mutation-control
+failure is no longer reported. A passing guard suite is still required.
+
+Root snapshot E3/f3-r9-review-snapshot retains every formatted byte; receipt
+63a89122adf16686c75e0a897a477aff44438341d7acff3e8bc58701106fe2d6.
+Runtime is terminal/idle. Only affected main proof/fixture and guard paths are
+released;23 Product paths stay frozen, allowing successful static evidence to be
+reused if their inputs remain unchanged. No full suite/Acceptance is claimed.
+Next Action: close these proof defects, run the affected tests/format, and obtain
+bounded independent closure before final strict/full/package qualification.
+
+## Actual r10 focused closure — 2026-10-12
+
+Root verified main worker r11 manifest3fdfbbb4/mapaf86186c and guard a8dcd0e7.
+Only IntentTest, the State architecture test and Node MJS/JSON changed from r9;
+all23 Product files, configuration, source dependencies and runtime inputs remain
+unchanged. Node8pass/0fail/0skip uses MJS30295cfc and JSONa2e73d19. Exact commands,
+start02:07:15/26/31 JST and measured real0.08/0.08/0.21seconds are in the worker
+r11 map; log hashesb5a9ea44/e81d4d5d/2b9c89a6 are retained under E3/worker.
+The independent found trace now seeds the actual linked request before deriving
+its eight revisions. The NFC negative reaches intent admission directly.
+
+Combined41 manifestfd56fc99 and freeze684ee09e preceded the following actual
+Root command, with unchanged runner/runtime/512M and no worker writes:
+
+```bash
+python3 .phpunit.cache/f3-orchestration/20261009/run.py --diagnose format-owned format unit guards
+```
+
+| Action | Actual result | Command seconds | E3 directory |
+| --- | --- | ---: | --- |
+| Owned format | Passed;0 changes |1.696476|run-20261012T020929288439-format-owned|
+| Format check | Passed |2.153317|run-20261012T020932668423-format|
+| Anchor units | Passed;64tests/820assertions/0failures/errors/skips |4.808142|run-20261012T020937431977-unit|
+| Architecture classes | Passed;32tests/90460assertions/0failures/errors/skips |35.921301|run-20261012T020944008772-guards|
+
+Actual command execution44.579236seconds; all input-preservation checks passed.
+Fresh unit JUnit4db2af20 and guard JUnitb8b03b6e are retained with exact command
+argv/start/end times/log hashes in E3/iteration-r10-native-attribution.json SHA256
+`61f209573bfda060778de5fbd544fbe8b30ef8de218e5404948e9c5eec4dbb45`.
+Mago source targets src and examples/quickstart/app; only four test/fixture paths
+differ from r9. Product/config/vendor/environment equality was checked, so r9
+successful lint6warnings/2help and analyze648warnings/467help are Reused.
+No static gate or diagnostic is silently relaxed. Node/shell syntax evidence is
+reused only for matching actual bytes. Focused counts are not a full-suite total.
+
+All41 final bytes are preserved in E3/f3-r10-review-snapshot, receipt
+`245ce29305e8a2e38bbe7ec5806ab5da7247e638087c2a2a8f26ee8bd7511386`.
+Independent reviewer receives only bounded r3 PR04/06 and GR01..05 closure plus
+measured native cap evidence; previously closed lanes are retained. A separate
+configured read-only Documentation reviewer checks the unchanged internal note
+against the unchanged23 Product files. Root's remaining Composer/Deptrac/
+discovery/package/identifier/diff/STATE gates are running; full has not started.
+No implementation Acceptance or F3 Product commit exists yet.
+
+## Final prerequisites and bounded review corrections — 2026-10-12
+
+Root's command `python3 .phpunit.cache/f3-orchestration/20261009/run.py composer
+deptrac discovery inventory identifiers diff state` stopped at the first failing
+package lane. Composer validate strict passed1.606068s; Deptrac passed4.217519s,
+7698 allowed, zero violations/skipped/uncovered/warnings/errors. Fresh test discovery
+passed2.071621s,3984 unique identities: all3915 retained F2 identities plus64
+Anchor units and five new architecture methods. This is discovery, not execution.
+Comparison receipta7ea2b58 normalizes numbered/named datasets explicitly. The
+first read-only normalization omitted the named dataset marker and stopped before
+creating a receipt; correcting it required no test rerun or waiver.
+
+Inventory failed exit1 in0.596895s with no stdout. identifiers/diff/state were not
+run by this stopped batch. Native attribution
+E3/final-prerequisite-attribution-r1.json SHA256
+`63727730a51d7f1b4c8e948973d2beae631e9d514cf054779e7d2cc1c7e67d28`
+retains exact commands/inputs/logs,8.492103 commandseconds. The relevant E3
+run directories are021211592038-composer,021214705136-deptrac,
+021220481079-discovery and021225202185-inventory, all prefixedrun-20261012T.
+
+Root ran `bash -x` on the same absolute accepted inventory script, capturing only
+the isolated local package diagnostic, no real export/Composer/network invocation.
+The trace failed the complete positive at actual validate_package. It ran exit1
+in0.696682889s and preserved both inputs; log035fdc33 and its JSON receipt remain
+in E3/package-inventory-diagnostic-r1.*. Worker diagnosis found the export loop
+and expected inventory already contain215 unique ordered paths, but export's
+required-count and unique-count assertions remain192. Root corrected the handoff's
+file attribution: these are export lines312–313, not the inventory script's
+already215 lines2442–2443. Root issued only192→215 plus the inventory's refreshed
+reviewed export hash and assigned changed shell checks; all mutation controls stay.
+
+The configured Documentation Reviewer returned narrow implementation agreement
+Green on unchanged note7a3fdfa3 and r9/r10 Product23. Report
+E3/f3-internal-documentation-agreement-r1.md SHA256
+`d9ad0009d19297d36fcd136fdc9d20b8381780c7a47ed13cc2c904041d8578fc`,
+inputs `2d57c272e020579dece56a097c9848dc687672a8f30a5086268e2fe565016c51`.
+This closes the bounded note-to-source agreement at those bytes; it does not
+supply full qualification or waive independent Product findings.
+
+Independent r10 source review has confirmed remaining bounded corrections despite
+the focused PASS. The State guard must require direct executed delegate/count/CAS
+statements rather than accept short-circuit calls or dead outer branches. Guard
+worker returned these controls as8836e293, not yet natively executed. Product
+persist's well-formed wrong public hash must reject before maximum-version
+capacity failure. Root confirms spec126 §10 permits persist→ReceiptBody::build;
+restore this semantic comparison and remove only private active's unreachable
+three-literal map fallback, subject to actual unchanged caps. No new helper/API
+or waiver is issued. Main must also discriminate NFC admission independently of
+stale hash and actual embedded references through restore/intent admission.
+The reviewer is consolidating exact remaining proofs; no r10 Product approval is
+claimed. Product/test/guard changes affect only the existing owned paths.
+
+Full has not started. Next Action: obtain the combined corrected manifest and
+bounded review closure, rerun affected gates and changed package proof, refresh
+actual test discovery if case identities changed, then execute the final full
+suite once on that fixed candidate. Root owns all PHP/shared runtime and Git.
+
+
+## Reviewed r11 candidate and final full start — 2026-10-12
+
+The five fixed-r10 findings are consolidated in Product review r4
+`6175ce5b20763070aeb7713bcea96ff55e19e2c0ecb8c9030e20ad9ccd686e66`.
+Main restored the authorized receipt semantic-hash comparison before capacity,
+removed only an unreachable private fixed-purpose fallback, and supplied actual
+MAX-version, NFC creation and embedded-reference restore discriminators. Guard
+changes pin the leading count branch, direct CAS/delegate statements and sole
+fresh throws; disabled/dead/return-before-throw cases are rejected. Seven paths
+differ from r10, with ReceiptTransition the only Product class change.
+
+Package correction first retargeted the old F1 helper-order mutation to the new
+Anchor tail. Root rejected that scope regression despite the local PASS. The
+successor places the23 Anchor paths before the original contiguous12 F1 helpers,
+retains all192 older paths in relative order and restores the original F1 mutator
+byte-for-byte. Root's subsequent pre-freeze audit found the final printed167/152
+summary stale: actual invocations are191/176. The worker changed only that summary
+and returned r16. No old mutation was removed or retargeted in the final candidate.
+
+Main38 manifest9b4ee382 and map b096438d are retained under E3/worker as
+`f3-main38-manifest-r16.sha256` and `f3-callable-dependency-map-r16.md`.
+The exact map SHA is
+`b096438d5537f065f0ed7844bd2bb07ba3e6a56df6016c1f93b3e3a79156565d`.
+Root freeze `iteration-r11-freeze.json` has SHA256
+`d07af33b1cbe3a9b43f4a0b1ea5d154255c2303bb9c2668ac00b3f854385eaf0`.
+All41 actual inputs matched the disjoint38/3 worker handoffs. The pre-freeze
+bookkeeping assertions failed before candidate writes/runtime and were corrected;
+no rejected audit was treated as qualification.
+
+Worker r16 commands used primary cwd and the absolute accepted-checkout script
+paths, as recorded in its map. At02:38:09+09:00, `/usr/bin/time -p bash -n` on
+both package scripts passed0.00s; logpackage-bash-n-r16.log SHA256
+`ac148848dd5934439bb7dabf6eae3bce3ec40974ded29a3d32a9d64386347ab6`.
+At02:38:14+09:00, `/usr/bin/time -p bash` on required-inventory.sh passed9.14s;
+logpackage-inventory-r16.log SHA256
+`44389fa2aa7d3a35c4e5ded232de77e9d9bcf4e8c164bc80ff13cb380b989356`.
+Actual result:215 ordered/unique paths,4 separate runtime omissions,191 rejected
+mutations (176 inventory,15 call-contract). Export script SHA256
+`dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717`;
+inventory script SHA256
+`d814fe52b38f962f8bd627417344bb192d22114fcd63d094705a8cfe78f3dc20`.
+This is the local inventory proof, not a real committed export.
+
+Root ran `python3 .phpunit.cache/f3-orchestration/20261009/run.py --diagnose
+format-owned format unit lint analyze guards deptrac`, session49328, terminalexit0.
+All commands use the previously recorded runtime and6498 unchanged vendor files.
+The formatter changed four owned files before the immutable snapshot. No later
+verification changed source/configuration/runtime. Actual command durations:
+
+| Action | Result | Wrapper seconds | E3 run directory (run-20261012T prefix) |
+| --- | --- | ---: | --- |
+| Owned format | Passed;4 owned files | 1.581345 | 024018897716-format-owned |
+| Source/test format check | Passed | 1.939054 | 024022007239-format |
+| Anchor units | 66 tests/837 assertions;zero error/failure/skip | 4.530808 | 024027061186-unit |
+| Mago lint | Passed;6 warnings/2 help;baseline186 unchanged | 1.513160 | 024033069033-lint |
+| Mago analyzer | Passed;648 warnings/467 help | 2.157721 | 024036012696-analyze |
+| Three architecture guards | 32 tests/90497 assertions;zero error/failure/skip | 32.766122 | 024039648757-guards |
+| Deptrac | 7698 allowed;zero violation/skipped/uncovered/warning/error | 4.231453 | 024115204227-deptrac |
+
+Actual native command sum48.719663s, separate from approval/agent waits. Attribution
+E3/iteration-r11-native-attribution.json SHA256
+`a26a728a8163db64dc1a71eac3102fb4dc7ee962a65584b7614b5516efb46bd4`
+contains exact argv/start/end/environment/log and fresh JUnit hashes.
+Formatted manifest SHA256
+`cfece74cf17785dfa942e539ef54eccd42f09061a11fbb59655cfaf1f5243e37`;
+immutable41-path snapshot receipt SHA256
+`83447e50ace785e169953929f5b00d9c0c35ad8a0607bd8fe757a61cb68e0042`.
+Unit JUnitf48da4e3 and guard JUnit07b43ebf are retained. Unchanged Node eight-case
+proof and composer strict success are reused for their actual matching inputs.
+
+Independent Product/guard r5 is Green, closing all five r4 findings with earlier
+closed lanes retained: E3/f3-product-guard-review-r5.md SHA256
+`6916b54cab64ac869ef34027173829434540244b5aecd1d9684669faafc41c41`,
+inputs `7bb1ce7fc9cc602a5a830916eba575b7f2dd76895d7ff0e8721ca7e42a9b1536`.
+No threshold/API/privacy or supplied-authenticated-history waiver was used.
+The separate Documentation applicability r2 is Green for the one-class delta and
+unchanged note: E3/f3-internal-documentation-agreement-r2.md SHA256
+`629cb061350eac2cd68af4b5aef64ed5ee6d65da111a7d82e5965bab7604cefd`,
+inputs `5c5d68287ee8f1519789a997e1247930cf1be08b29550f62baeb8459fcc4b534`.
+Its native-evidence limitation is preserved; Root supplies the actual r11 gates.
+
+Root's separate `run.py discovery identifiers diff state` passed every action,
+terminalsession74478. Discovery2.378572s,identifier scan0.029271s (expectedexit1,
+zero matches),diff0.014394s,STATE0.057318s. Exact receipts/logs are in
+E3/final-prerequisite-attribution-r2.json SHA256
+`2abe9059c9d3eca277e5a09a19e25fa18574dddecbd6e2eb89868f5bd2097fda`.
+Fresh discovery contains3986 unique cases, all3915 F2 cases plus71 new. Comparison
+E3/final-discovery-comparison-r2.json SHA256
+`575b63397cb050d05571b1dc844eaa78068b3a4c9478dce3fa1a53cd1ffbde58`
+records every identity. Root corrected two read-only normalization attempts before
+recording the comparison: JUnit dotted classnames map to PHP namespaces; named
+datasets lose exactly one outer quote pair, preserving inner quotes. No Product,
+test or gate rerun/waiver resulted from that evidence-processing correction.
+
+Fresh preservation E3/preservation-r11-before-full.json SHA256
+`13c0096b87038f4e6720d9f160b5eb77cc2fae17412d81b766e651f4f7337c7c`
+confirms2323 primary non-governance files and all three index views unchanged,
+2317 unowned accepted files unchanged/no added unowned path, and146 unchanged
+public Sources. There is no new Website/browser/Search/LLM artifact claim.
+
+The single final full run started at2026-10-12T03:09:20.571790+09:00 via
+`python3 .phpunit.cache/f3-orchestration/20261009/run.py full`, session60775.
+Literal Docker/PHPUnit argv and ongoing status are in
+E3/run-20261012T030920550572-full/receipt.json; output.log is the live log.
+It uses the unchanged512M budget, accepted /app and exclusive Root PostgreSQL.
+Status is Running; no full result or Acceptance is claimed before terminal proof.
+No other PHP/DB gate or worker Product edit runs concurrently.
+
+Remaining Issues: final full identity/result/input comparison, Root Acceptance,
+separate source commit, clean committed package export and remote proof.
+Next Action: monitor this one full run without restarting successful prefix;
+then close the above source-delivery gates. Later F4/F5/F6 and parent1.3 work remain.

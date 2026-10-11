@@ -447,3 +447,197 @@ and push identity are captured externally, without changing qualified source.
 No006E issue remains. Continue the parent1.3 dependency graph from this Accepted
 baseline; final Owner local Documentation preview and same-SHA publication/
 delivery remain mandatory.
+
+## F3 issuance and parallel remaining-F preparation — 2026-10-10
+
+F3 adopted authority checkpointf5ecb63 is committed/pushed with independent remote
+match; its39-path implementation remains unaccepted and uncommitted. F3 Report
+owns the current worker/gate evidence. F4 source inventory is complete in E3,
+with35 selected hashes: no durable anchor component/provider exists yet, exact
+origin authentication and provider correlation/absence/retry identity require
+contract choices. It adds no whole-database anti-rollback requirement.
+The bounded F5 correction/ordinary-service review d348bdf8 is Green; both
+initial-floor/consumer acquisition and delegate installation findings are closed.
+Reviewed proposals are online8b3a25f7, control6ab8f6c6 and ordinary8bf54282, with
+selected-input record380394f4. They remain unadopted design directions pending
+permanent authority amendments and exact F4 joins/file ownership. No F3 authority
+was reopened. The real scheduler/provider/evaluator/handler/C3 chain is specified
+but unimplemented. F4 provider and whole-carrier authentication research remains
+bounded preparation. No future capability is inferred from these design records.
+
+F4 direction review5040ecc2 is Green for compatibility of the separate PostgreSQL
+provider and finite delegated whole-carrier provenance direction. It does not
+adopt or implement them. Exact input/result/hash/size limits, commit durability
+and endpoint identity, finite permission/pregenesis-reservation/receipt joins,
+SQL roles and owned files/native proof remain drafting obligations. F3's second
+actual PHP/static iteration still fails; its scoped correction and independent
+review take precedence over issuing dependent Product.
+
+Root's unadopted exact provider proposal9bab78d9 now fixes15 native request members,
+body limits, exact binary key/replay identity, flat21 result columns, finite A5
+mapping and actual COMMIT/primary/TLS/privilege boundaries. The proposed existing-row
+WAL flush barrier is explicitly an inference awaiting independent/native proof;
+SQL visibility alone is not durable acceptance. The independent reviewer has this
+exact proposal and official PostgreSQL18 references. No provider implementation,
+new migration, permission or runtime scope is issued.
+The local sequencing note d4321d15 separates shared real authority/provenance
+prerequisites from complete F4/F5 acceptance and identifies atomic reservation plus
+genesis as the candidate crash-safe raw-idempotency-key boundary. Both local drafts
+are in E3; neither replaces permanent authority or the full release obligations.
+
+
+## F3 third iteration and F4 provider correction — 2026-10-10
+
+F3 remains unaccepted after the actual third iteration:51tests/463assertions/
+5receipt errors, strict lint7errors/analyzer13errors, and affected architecture
+32tests/86272assertions/4failures. Its Report retains input-preserved logs and
+assigns correction without changing quality limits. Internal Documentation
+wording findings DOC-01..04 are closed by02a09ac8; final implementation agreement
+is still unverified. No new source commit or release capability is claimed.
+
+F4 exact proposal f00ed501 replaces9bab78d9 after independent r1 finding EP-01.
+The actual order is held decision and saved LSN, standalone COMMIT, then a bounded
+same-physical-session flush check; all decisions remain provisional until success.
+Independent bounded r2 d8441b4a is Green for the correction, with10 stable inputs.
+This is unadopted contract evidence, not a native durability result. Exact local14
+operations/history/receipt joins, finite F5 authorization and owned implementation
+packets still precede Product issuance. The dependency proposal d4321d15 remains
+unadopted. Full mandatory1.3 scope and final Owner preview/publication gates remain.
+
+
+## F3 fourth iteration and bounded F4 provenance review — 2026-10-10
+
+F3 remains unaccepted. The fourth exact39-path diagnostic batch passes formatting
+but fails unit51tests/365assertions/27errors, lint5errors/analyzer3errors and guards
+32tests/84131assertions/1error/2failures. All27 unit errors share the newly regressed
+external reconciliation admission. Root assigned the concrete fix and a measured
+helper-decomposition proposal before any scope expansion; quality limits are
+unchanged. Exact logs and the empty runtime lease are in the F3 Report. No F3
+source commit, full qualification or release capability is claimed.
+
+The finite F4/F5 anchor provenance proposal received independent direction Green,
+review4944bc0d (12 stable inputs). Its two finite permissions, ten-field reservation,
+eleven-field revision, atomic genesis, actual claim-history association and
+receipt-ID join remain unadopted. Root applied the review's two existing-contract
+clarifications: every non-null installed origin is authenticated even after lease
+expiry, and the receipt key is immutable at the earlier F5 reservation before
+copying into A5 input-persist. Current proposal0ec4bf13 retains original reviewed
+437fef06 separately; no Product or runtime change is authorized by the review.
+
+Bounded local-slot investigation0b47fc4d (19 unchanged inputs) recommends a
+checkpoint-plus-chain creation/recovery key and a separate exact-chain lock;
+expected predecessor stays immutable content, not a retry identity discriminator.
+F2 checkpoint uniqueness does not settle cross-destination intent fan-out. Root's
+slot choice, exact SQL/14-operation transactions, parser/history/resource bounds,
+finite authority adoption and owned implementation remain open. The full F4/F5/F6,
+D-control/G, ordinary D/E,004A,005 Owner preview and006 release/delivery gates remain.
+
+
+## F3 recovery and reviewed decomposition issuance — 2026-10-11
+
+Fresh F3 recovery unit evidence passes52 tests/494 assertions with no errors,
+failures or skips at unchanged input436cb898; log0685c07b/JUnit5956397b retain
+actual output. This resolves the prior27-error regression, not static/guard/full
+Acceptance. Root adopts independent review5552a990's exact two-owner resolution
+in spec126 §10/D176 and issues41 paths (main38/guard3). The Task/Report retain
+exact scope, DC-01..03 corrections, runtime ownership and unchanged final gates.
+F3 remains uncommitted/unaccepted; HEADf5ecb639 and earlier accepted Product commits
+are unchanged. No release gate or full1.3 scope is removed.
+
+F4 frame-size investigation2d467fb7 computes a conservative8025-byte canonical
+carrier bound and recommends8192; it is unadopted and supplies no parser/history/
+native resource proof. F4/F5 preparation continues after exact contract choices.
+Remaining mandatory implementation/integration,004A,005 Owner preview and006
+same-SHA release/delivery work remain as recorded in STATE and the child reports.
+
+
+## F3 measured progress and remaining review findings — 2026-10-11
+
+The fifth native batch passed format,52 unit tests/496 assertions and lint under
+the unchanged186-entry baseline. Analyze still failed6 errors and architecture
+checks4 assertions. Two returned Body/guard corrections are frozen but Not Run.
+Independent source review also found creation-input/failure-order and meaningful
+Node/PHP transition-vector coverage gaps. Root holds runtime pending the bounded
+correction; no F3 Acceptance, full qualification or Product commit is claimed.
+The child Report retains attribution5b0ce6de, input65eedc18 and exact remaining gates.
+F2's accepted source9768edf and committed F3 authorityf5ecb63 remain preserved.
+
+F4 slot/frame review729a27c6 recommends immutable checkpoint reservation with the
+continued v1 chain restriction and an8192-byte cap; permanent adoption/native proof
+remain pending. All mandatory F4/F5/F6, D-control/G, ordinary integration,004A,
+005 Owner preview and006 same-SHA release/delivery gates remain. BlackOps1.3 is
+unreleased; the goal continues without a release-date or completion-percent claim.
+
+
+## Bounded F4 reservation and frame adoption — 2026-10-11
+
+Root adopts specification127/D177 after independent slot/frame review729a27c6:
+one immutable reservation per checkpoint, checkpoint-first authenticated recovery,
+exact-C coordination and current-v1 same-C continuation, plus inclusive8192-byte
+canonical frame admission. SF-01's existing chain restriction is explicit.
+The new F4 Task remains Draft for complete Product issuance; local14 SQL/provider/
+provenance/parser/history/resource contracts and all native proof remain mandatory.
+F4 Report retains adoption7a3317cb and management check8597944a; no runtime,
+public capability, release authority or later F5/F6/release gate is changed.
+
+
+## Remote management checkpoint and actual F3 r7 result — 2026-10-12
+
+F4 bounded adoption1819299 and F3 authority/correctiond417849 are separate
+management commits, pushed to agent/p23-006-accepted-integration. Root's independent
+remote read matches d417849ddda7491804ab8fa753e0907c882b38c3; remote receipt
+aec667474cc81d53354b286740c8ca4a57d4aaad961693bfc2414f5a34843336 is in E3.
+F3 Product remains uncommitted/unaccepted. Primary mixed work is preserved.
+
+F3 r7's Node8 cases pass, but actual PHP parity is not closed:59 unit cases /
+680assertions include4 failures. Format and analyze pass; lint has2 complexity
+errors, and the guard suite cannot load due to a final-method name collision.
+Root retained exact inputs/logs/JUnit in attributiona2a678f7 and issued bounded
+main38/guard3 corrections without lowering acceptance. F3 Report owns details.
+F2 remains Accepted; the new failures do not rewrite its retained evidence.
+F4/F5/F6, ordinary D/E, D-control/G,004A,005 final Owner preview and006 same-SHA
+CI/export/Framework/Skeleton publication/Documentation delivery remain mandatory.
+Next Action: freeze and qualify the corrected F3 candidate, close independent
+review, accept and isolate its Product commit/export before later integration.
+
+## Anchor qualification checkpoint — 2026-10-12
+
+F3 remains unaccepted. Root r10 passed64 units/820 assertions and32 architecture
+tests/90460 assertions, with0failures/errors/skips; static lint/analyze pass with
+disclosed warnings. Final Composer and Deptrac passed (7698 allowed, no violations).
+Discovery contains3984 cases, preserving3915 F2 identities. Full has not started:
+package export still had two stale192-count assertions against215 paths, and
+independent source review identified bounded executed-AST controls, receipt-hash
+failure precedence and discriminating proof gaps. Corrections staywithinmain38 /
+guard3; no quality threshold or release scope is reduced. Exact evidence and
+commands are in the F3 Report, including61f20957 focused and63727730 prerequisite
+receipts. Narrow internal Documentation agreement d9ad0009 is Green for its fixed
+candidate, without Product Acceptance.
+
+F4's reviewed provider contract is separately committed/pushed as
+ba3d1c54064aa2c7bb0798211aa3235b11cf4aa3. Promotion reviewa004d9a5 is Green;
+all seven committed management blobs match reviewed bytes and independent remote
+read matchesba3d1c54 (88b5e12d). No Product, Website, same-SHA release CI or deploy
+was included. Complete F4/F5 issuance and implementation, F6, ordinary D/E,
+D-control/G,004A,005 full-public Source/Search/LLM plus final local Owner preview,
+and006 CI/export/publication/Documentation delivery/live proof remain. Stable1.2.1
+is unchanged;1.3 is unreleased. Next Action: close current F3 corrections and final
+qualification, accept and separately commit/export/push, then continue mandatory
+F4/F5 prerequisites. No release-date or completion-percent is asserted.
+
+
+## F3 reviewed final qualification — 2026-10-12
+
+F3 immutable r11 is independently Green (Product/guard6916b54c,
+Documentation applicability629cb061). Root qualified66 units/837 assertions,
+32 architecture tests/90497 assertions,unchanged strict thresholds and exact
+package controls215paths/191mutations. Final full is Running,session60775,
+E3/run-20261012T030920550572-full,discovery3986 retainingall3915 F2 cases.
+No F3 Acceptance/source commit/export result is inferred. Latest management
+commitc0035f11 is pushed/independently remote-matched after providerba3d1c54.
+Original mixed tree/index and newer accepted Website remain preserved.
+Remaining mandatory work is F3 delivery,F4/F5/F6,ordinary D/E,D-control/G,004A,
+005 all-public/Owner preview,and006 same-SHA release/publication/delivery.
+Next Action: Root completes this fixed full run and isolates the accepted F3
+source; prepare exact shared-authority/provenance and F4 issuance in parallel
+without touching the running candidate.
