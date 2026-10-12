@@ -1,91 +1,89 @@
 # Orchestration State
 
-Updated At: 2026-10-12T19:34:33+09:00
-Status: BlackOps 1.3 active; F5 authority adopted, exact implementation preparation
+Updated At: 2026-10-12T20:12:01+09:00
+Status: BlackOps 1.3 active; F5 real prerequisite contract preparation
 Current Task: [P23-003F5](orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md)
 Current Report: [P23-003F5 Report](orchestration/reports/P23-003F5-audit-signing-authority-production-and-seal.md)
 
 ## Current Boundary
 
-Parent006 authorizes implementation, independent Review, separated commits/push,
+Parent006 authorizes implementation,independent Review,separated commits/push,
 publication and delivery toward1.3. Final local Documentation Owner confirmation
 precedes publication. Experimental Stable1.2.1 remains current;1.3 is unreleased.
-Accepted checkout is .phpunit.cache/f2-orchestration/accepted-integration,
-branch agent/p23-006-accepted-integration. F3 source ab8f035c and management
-6239a15d6f9108b49c38d60b7e20a61dc87bf2aa are pushed and independently remote-matched.
-F5 authority governance is committed separately as
-cb4f4d5dc5314515af2b16cf98ed8ef9f2a00bb9, pushed and independently remote-matched.
-Current follow-up changes record that delivery and exact-issuance preparation.
+Accepted checkout C=.phpunit.cache/f2-orchestration/accepted-integration,
+branch agent/p23-006-accepted-integration,HEAD ba93d9c09f35775ec0bcfe4820162dbf83299cd0.
+F3 source ab8f035c/management6239a15d and F5 authority governance cb4f4d5/delivery
+ba93d9c are committed,pushed and independently remote-matched. The current F5
+Task/Report/STATE preparation checkpoint is not yet committed at this write.
 
 Primary branch agent/p23-001-blackops-1-3-feasibility / HEAD8106c355 remains mixed.
-Preserve primary Product/modes/index and unrelated Documentation; preserve the
-newer accepted Website. Root owns governance, STATE, Acceptance, Git and native
-leases. No F5 Product/test/migration/configuration file or runtime resource is
-issued. Independent direction adoption does not authorize implementation alone.
+Preserve primary Product/modes/index and unrelated Documentation; preserve C's
+newer Website. Root owns governance,STATE,Acceptance,Git and native leases.
+No F5 Product/test/migration/config file or native qualification resource is issued.
+Root's one disposable filesystem capability probe is finished,container absent,
+lease closed/actions[]. No shared DB or Product worker is active.
 
-Root adopted specifications129–132/D179 after Green independent review694c79b5,
-input record3575b55c. Only adoption/status/bookkeeping changed after the reviewed
-29-file candidate82ffe51b. Existing105/106,122/D172,125/D175 and dependency clauses
-are reconciled;127/128 and F1/F2/F3 wires are preserved. F5 AC1 is complete;
-AC2–6 remain open. No Stable capability or actual runtime behavior is established.
+Authority129–132/D179 was adopted after Green independent review694c79b5 with
+existing-authority reconciliation. F5 AC1 is complete;AC2–6 stay open. Direction,
+source inventories,SQL review and capability probe are not Product Acceptance.
 
 ## Evidence
 
-E3=.phpunit.cache/f3-orchestration/20261009; E5=.phpunit.cache/f5-orchestration/20261012.
-F3 is Accepted: exact41 paths, reviewed manifestcfece74c, independent Product
-6916b54c and internal-note629cb061. Full6dccb3b6 proves3986tests/8634246assertions,
-zero failure/error/skip,307MB under512M, all3915 predecessor plus71 new identities.
-Inherited diagnostics remain byte-identical to F2. Committed export673b8c4b passed
-in6.280996s; source remote6860129d and management remote3989c6da prove delivery.
-Unchanged F3 gates need no repetition for governance edits. Release same-SHA
-CI/export and public delivery remain additional obligations.
+E3=.phpunit.cache/f3-orchestration/20261009;E5=.phpunit.cache/f5-orchestration/20261012.
+F3 Accepted:exact41 Product paths;full6dccb3b6 proves3986tests/8634246assertions,
+zero failure/error/skip,307MB under512M,3915 predecessor+71 new identities.
+Inherited diagnostics remain unchanged. Committed export673b8c4b passed6.280996s;
+source/management remote proofs6860129d/3989c6da. No unchanged F3 test repetition.
+F5 authority24-path commitcb4f4d5 and deliveryba93d9c have exact stage/commit proof
+and independent remote34e72746/e32b52af. They are governance,not1.3 CI/publication.
 
-F5 direction review confirms eight core signing fields plus optional ordinary,
-nine permissions, twelve receipt-binding fields and ten sign-context fields.
-Same-envelope aggregate actor, Required-before-release, online/G separation,
-atomic Anchor provenance, full history and real F2-origin requirements are kept.
-Management r2 checks passed937 local links,2323 primary non-governance files/modes,
-all three primary index views,41 F3 paths and146 accepted public Sources.
-Adoption transformation30689eed covers42 governance files across the two checkouts.
-Post-adoption386152a5 checked941 links and preserved inputs. Final stage80ab8e77/
-6962ad87 and committedd5ace0d3 prove the exact24 paths and clean checkout. Remote
-34e72746 proves cb4f4d5 after the sandbox DNS failure and approved network retry.
-No PHP/Node Product, DB, browser, build, CI, export or deploy gate ran for F5.
+SQL proposald3dc8e4b received bounded independent Green64f9b74f/inputs5819f2a8.
+Root selects seven immutable collections/two dispatch indexes,statement immutable
+triggers and F5-only1s lock/5s statement timeouts as complete-packet candidates.
+Exact DDL6eb42122 recommends28 statements/Version20261012000000,not yet reserved.
+Actual composition11a695ff/inputs3f6ee835 preserves real identity,compiled fixed
+policy/evaluator/handler,one protected-record graph and F2 persisted outcomes.
+Root chooses same-graph composeForCheckpointProduction and explicitly incomplete
+held checkpoint stage as candidates; favors lazy scheduler composition to preserve
+retention plan/purge requirements. Exact selector/index/lazy wiring is investigated.
 
-Next-issuance inventoryb6d86bfd and source boundary0d23a684 require actual signed
-checkpoint reservation, candidate and persisted outcome before F4. Source-support
-inventoryec07bc05/inputs0150a7fb identifies JCS, flat Artifact preflight,
-Projection-specific filesystem primitives and existing Doctrine migration seams.
-It proves no ready authority parser/custody/runtime. Received SQL proposald3dc8e4b/
-inputsc54dbe9a is unadopted: seven immutable tables,two retry indexes,actual F2
-projection,RR/fence/ambiguity ownership and capture/recheck endpoints. Private-file
-inventory7c8e85e3/inputsae745d03 finds no existing maintenance-owned private spool.
-Root has not selected capture custody or adopted the SQL/API/native resources.
+Filesystem probe8d5a39e1 passed on pinned ab739e1d/PHP8.5.7 in0.650617606s:
+private modes/UID,exclusive creation,flock,same-inode writes,file/directory fsync,
+hard-link no-replace and unlinked plain descriptor. Expected one native warning;
+fchmod absent. No extension requirement adopted. First sandbox Docker-socket
+failure occurred before start; approved retry ran once. No network/DB/repository/
+vendor/env mount. Tmpfs capability is not production durability/F5 qualification.
+Source environment inventoryac13cc3e separates declaration from measured proof.
+
+Root proposal7308d9bf/inputs1b006e2d specifies raw preflight,local custody,anonymous
+history capture outside the floor,complete current-issuer replay under it,and
+fenced SQL endpoint recheck. Independent review is active; owner/mode refinement,
+archive link-crash cleanup,exact record/API map and native fault resources remain
+open. One explorer prepares native fault verification; another prepares exact
+selector/lazy composition. Their writable scopes are only named ignored outputs.
+No PHP/Node Product,DB,browser,Website build,CI/export or deploy gate ran for F5.
 
 ## Remaining Work
 
-Freeze exact owner/API/SQL/parser/custody/resources and executable verification.
-In particular, arbitrary-length SQL history and every required historical issuer
-must join current locked restriction checks without SQL under the control floor,
-unbounded memory or a lifetime history cap. Capture/revalidation mechanics remain
-unselected; no weaker cached permission or hypothetical origin is approved.
-
-Implement and qualify real shared authority plus attributed checkpoint production;
-complete F4 local14/history/lease/receipt/provider; full F5 ordinary/control release,
-current trust/freshness and seal; F6 verifier. F -> D-control -> G remains mandatory.
-Ordinary D/Inline ambiguity/rotation overflow; E projector/journey;004A hardening;
-005 all-public Source/Search/LLM and final local Owner preview;006 same-SHA CI/export,
-Framework/Skeleton publication, Documentation delivery and live proof remain.
-Optional003H/004B are excluded. No external blocker or unanswered Owner decision.
+Finish the exact complete prerequisite packet and independent review before Luna.
+Freeze emitted SQL,API/caller/parser/custody/record/resource maps and actual
+checkpoint producer verification. No codec-only or fixture origin substitutes.
+Implement and qualify real attributed reservation/preparation/candidate/persisted
+outcome; then F4 local14/history/lease/receipt/provider,full F5 ordinary/control
+Required release/current trust/freshness/seal,and F6. Absent F4/D keeps real bytes
+held/pending and scheduler unavailable; no successful acknowledgement is invented.
+F -> D-control -> G remains mandatory,along with ordinary D/Inline ambiguity/
+rotation overflow,E projector/journey,004A hardening,005 all-public Source/Search/
+LLM and local Owner preview,006 same-SHA CI/export,Framework/Skeleton publication,
+Documentation delivery and live proof. Optional003H/004B excluded. No external
+blocker or unanswered Owner decision; no defensible release date yet.
 
 ## Next Action
 
-Consolidate SQL proposal,parser/private-file custody,history/current-restriction
-join and real producer/Required/F4 ownership into the exact shared prerequisite.
-Obtain its independent review before assigning Luna. Native
-resources and complete meaningful proof must be explicit. A codec-only or fixture
-origin cannot close the real prerequisite or full F5. Preserve final Owner preview
-and all mandatory integration/release/delivery gates.
+Root consolidates the independent custody findings,exact selector/lazy wiring,
+DDL and native fault resources; resolves the remaining protocol choices; freezes
+and independently reviews the complete real-prerequisite packet before Luna.
+Retain isolated commit scope,final Owner preview and mandatory release gates.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261012T103433Z-886728934681a6bb580420788b356cc873888daa4fcb76736663c3d9cf4b7c6f.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261012T111201Z-72488e96bce7c145122facafe2e50a4956e063fbf9c1301f45b6359eb209ef3c.md)
 <!-- state-tool:history:end -->

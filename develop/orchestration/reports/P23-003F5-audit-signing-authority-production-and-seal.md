@@ -187,3 +187,87 @@ links from the archive directory, rather than their original develop/ base; it
 stopped before staging. The following commit command found no staged changes
 and made no commit. Root corrected the checker to respect verbatim STATE archive
 semantics; no archive body or Product file was rewritten for that false positive.
+
+
+## Exact prerequisite preparation — 2026-10-12T19:46:46+09:00
+
+Previous goal turn is progress: cb4f4d5/ba93d9c are clean and independently remote-
+matched (final remote receipte32b52af). Root rechecked current C HEAD/status and
+Task. SQL proposal d3dc8e4b has a read-only independent reviewer; its author now
+investigates concrete ordinary/control composition; a separate explorer inventories
+native environment declarations. Root owns parser/custody/history joins and the
+new Task-scoped disposable filesystem capability probe. No Product/native F5
+qualification lease is implied. Initial guessed image blackops-app was absent;
+compose.yaml identifies blackops/framework:dev and actual image inspection resolves
+ab739e1d3bb8 with configured app user. No image build/pull or shared DB action ran.
+
+
+## Native feasibility and concrete prerequisite proposals — 2026-10-12T20:09:39+09:00
+
+Summary: one Task-authorized filesystem capability probe Passed; the SQL portion
+received Green independent review. Root drafted the bounded parser/custody/history
+handoff and requested its independent review. Actual composition and exact DDL
+recommendations are received, not implemented/accepted Product. No F5 AC closes
+on this evidence. C remains on the separate accepted-integration branch; primary
+mixed Product/index and newer Website are preserved.
+
+Commands and Results:
+
+| Command / owner / input | Result / duration / evidence |
+| --- | --- |
+| Root `python3 .phpunit.cache/f5-orchestration/20261012/run-custody-capability.py`, script4827095f/runner e0fdde1c, initial sandbox | Failed before container start: Docker socket permission. Image command0.019945831s; E5/custody-capability-image-failure.json. No probe gate ran in that attempt. |
+| Same exact Root command, approved execution, pinned image ab739e1d | Passed: image inspection0.075603874s; actual isolated container probe0.650617606s; E5/custody-capability-result.json SHA2568d5a39e1633fbeb5028bf9c9cfaeb18c0676fa6fac5534ebf4482e869ce90194. Literal Docker argv/start/end/exit, stdout/stderr and input hashes are retained there. |
+| Root container-absence read / lease close | Exit0; owned container absent; script unchanged; lease closed/actions[]. No DB, repository/vendor/env/network mount or shared service. |
+| Source-only independent SQL review | Green recommendation64f9b74f/inputs5819f2a8;28 substantive inputs unchanged, Task/STATE context advances recorded separately. No SQL/native test ran. |
+
+The runtime was PHP8.5.7/Linux64-bit, app UID1000. The expected native operations
+passed: empty private temporary-file UID/mode, private directory/exclusive file,
+chmod-before-data, separate-handle nonblocking flock, same-inode write/truncate,
+file/directory fsync, hard-link no-replace and owned unlink, and reading/writing
+the plain unlinked descriptor after its directory was removed. The one captured
+warning was the deliberate no-replace hard-link failure. fchmod is absent; optional
+POSIX euid/groups are present in this image, but no extension requirement is adopted.
+The sixteen-MiB disposable tmpfs result is feasibility, not production-filesystem
+power-loss, concurrency/crash/F5 qualification. PHP/Node Product tests, DB, browser,
+build, CI/export and deployment remain Not Run for this management/diagnostic scope.
+Unchanged successful F3 gates are reused only for their accepted input.
+
+Decisions and Assumptions: Root carries the reviewed seven immutable/two dispatch
+SQL design, immutable triggers and F5-only1s/5s timeouts into the complete packet.
+Exact DDL6eb42122/selected inputs and composition11a695ff/inputs3f6ee835 are separate
+recommendations. The new composer path must reuse the actual protection graph,
+real authorization and F2; no fixture credential or duplicated provider graph.
+The incomplete checkpoint stage creates actual attributed persisted outcomes,
+holds bytes and returns unavailable until F4/D joins exist. A lazy scheduler
+accessor is preferred to expanding retention plan/purge startup requirements.
+
+Root parser/custody/history proposal7308d9bf/inputs1b006e2d preserves unlimited
+history with bounded memory: anonymous per-invocation descriptor capture outside
+the floor, full current historical-issuer replay under it, then actual fenced SQL
+endpoint recheck. It explicitly leaves owner/mode refinement, archive hard-link
+crash cleanup, exact record/caller map and native fault resources for review and
+freeze. It is not issued code or an authority result. Source environment inventory
+ac13cc3e separates declared PHP/extension requirements from retained runtime proof.
+
+Changed Files: only the F5 Task/Report, STATE and tool-generated STATE archives;
+ignored evidence/proposals above. Public API/Capability/Release/configuration/
+Source/route/Search/LLM inputs are unchanged by this step. No release promotion,
+Documentation delivery or Product deployment is claimed. Parent005/006 retain
+all-public artifact review and final local Owner confirmation.
+
+Acceptance: F5 AC1 remains complete; AC2–6 remain open. Remaining Issues: exact
+complete prerequisite issuance/qualification; F4/full F5/F6, ordinary D/E,
+D-control/G,004A,005 and006. No repeated external blocker or unanswered Owner
+choice. Next Action: finish bounded custody review, literal selector/lazy wiring
+and native fault resources, resolve the explicit choices and independently review
+the assembled real-prerequisite packet before Luna. Management checks/commit
+scope and actual remote preservation are recorded in the following receipts.
+
+Management verification Passed: E5/prerequisite-checkpoint-validation.json
+SHA25642d34b2b3576e2fdd97c113cf5f6d370f287e93b65dabddaaf803c79cf2526d3
+checks the five owned C governance paths,10 local links,2323 primary non-governance
+files/modes,all three primary index views and146 accepted public Sources. Both
+STATE checks and C diff--check passed. CAS receipt5cb751b3 records exact commands,
+timings and the two state hashes. This result note is the only post-check content
+addition; final stage-plan r2 and staged diff/byte checks cover its actual bytes.
+No Product verification was repeated for this report addition.

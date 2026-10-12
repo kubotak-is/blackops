@@ -134,3 +134,64 @@ AC2–6 and full F5 remain open. Exact SQL/API/native resources, the bounded-mem
 SQL-history/current-issuer-check join, real attributed checkpoint production and
 all release/seal composition remain unissued. This does not authorize a smaller
 fixture/codec-only substitute. The Report records the actual checks and evidence.
+
+
+## Root native prerequisite feasibility scope — 2026-10-12T19:46:46+09:00
+
+The preceding goal turn made progress: authority adopted and delivered in cb4f4d5,
+with delivery bookkeeping ba93d9c pushed and independently remote-matched. Current
+Product bytes are unchanged. Root now owns a single isolated filesystem capability
+probe to make the exact parser/custody/history contract concrete. This diagnostic
+is not Product implementation, native F5 qualification or a child Acceptance gate.
+
+Allowed diagnostic outputs are E5/custody-capability-probe.php, its runner/lease,
+command/stdout/stderr/input/result JSON, and the ignored contract proposals/reviews.
+E5=.phpunit.cache/f5-orchestration/20261012. Root alone may run the pinned existing
+image sha256:ab739e1d3bb8d9c7b6696401f7d4821eff72ae870db703feb537015a4fa14f5d
+(blackops/framework:dev, configured user app) with network none, read-only root,
+dropped capabilities, no-new-privileges, a read-only diagnostic mount and a fresh
+16MiB /tmp tmpfs. There is no repository/vendor/.env/credential/DB/network mount,
+shared service or Product worker lease. Container removal is mandatory after exit.
+
+Verify function availability and actual native empty temporary-file UID/mode,
+exclusive private-directory/file creation, chmod-before-sensitive-write, bounded
+read/write/seek/truncate, flock contention, file/directory fsync, hard-link
+publication/cleanup, and an unlinked descriptor surviving its private namespace.
+Use generated nonsecret bytes only, return finite metadata/booleans, and retain
+literal command/image/script hashes, timing and errors. Do not infer full crash,
+concurrency, authorization, archive, parser or release behavior from this probe.
+No application dependency or extension requirement is adopted by running it.
+
+
+## Exact prerequisite investigations and closed probe — 2026-10-12T20:09:39+09:00
+
+Current accepted base is ba93d9c09f35775ec0bcfe4820162dbf83299cd0. The one Root
+feasibility probe finished and its lease actions are empty; no Product/native
+qualification lease is active. Root proposes the complete capture/locked-replay/
+fenced-revalidation mechanism in E5/authority-filesystem-history-contract-proposal-r1.md
+7308d9bf with inputs1b006e2d. Independent read-only review owns only the matching
+review/input files. The owner/mode refinement, archive crash cleanup, exact
+record/caller maps and fault resources remain decisions before Product issuance.
+
+The SQL recommendation d3dc8e4b passed bounded independent review64f9b74f. Root
+selects its seven immutable collections/two dispatch indexes, native immutable
+statement triggers and F5-only 1s lock/5s statement timeouts as the candidate for
+the complete packet, not as a standalone issued migration. Exact DDL6eb42122
+recommends28 statements and Version20261012000000; that version is not reserved
+or implemented by this record.
+
+The real composition proposal11a695ff/inputs3f6ee835 supplies actual identity,
+compiler/evaluator/handler/F2/provenance construction. Root selects the same-graph
+composeForCheckpointProduction seam and explicitly incomplete checkpoint stage
+as candidates. It must hold real persisted bytes and raise safe unavailable while
+actual F4/D continuations are absent; no full no-work/Required/scheduler success
+is implied. Root prefers lazy F scheduler composition so retention plan/purge
+keep their existing construction requirements. Exact selector SQL/index and lazy
+factory/caller map are separately investigated, not inferred from the proposal.
+
+Read-only owners write only their named ignored outputs: composition investigator
+owns checkpoint-selector-lazy-composition-proposal-r1.md and input JSON; environment
+investigator owns native-authority-fault-verification-proposal-r1.md and input JSON.
+No overlapping Product/file ownership, shared DB, test/build or runtime lease.
+Root owns the final contract, Task/Report/STATE, complete-packet review and issuance.
+All remaining AC2–6 and parent release gates stay open.
