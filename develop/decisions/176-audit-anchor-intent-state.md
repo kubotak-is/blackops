@@ -1,6 +1,6 @@
 # D176: Audit AnchorIntent State Boundary
 
-Status: Decided — pure F3 contract adopted; implementation Acceptance pending
+Status: Decided — pure F3 contract and implementation Accepted
 
 ## Context
 
@@ -54,3 +54,13 @@ implementation and native evidence must still close them. The review was Changes
 Required on the old draft and is not reported as a Green implementation review.
 Complete A5, privacy, authenticated-restore limits and later F4/F5/F6 obligations
 remain unchanged. The F3 Task/Report retain exact ownership, evidence and gates.
+
+
+## Implementation Acceptance — 2026-10-12
+
+Root accepts the complete pure contract after independent Product/guard and
+internal Documentation review,actual final3986-case qualification and clean
+committed package export. Source ab8f035c is independently remote-matched on the
+isolated integration branch. The F3 Report retains exact evidence and disclosed
+inherited diagnostics. This changes no contract,public wire,Stable capability or
+F4/F5/F6 responsibility; parent1.3 release qualification remains mandatory.

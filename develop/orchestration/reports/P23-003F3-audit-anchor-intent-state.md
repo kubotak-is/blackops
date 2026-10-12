@@ -1,13 +1,14 @@
 # P23-003F3: Audit AnchorIntent State Report
 
-Status: Implementation Accepted — final full and independent reviews Green; source delivery pending
+Status: Accepted — implementation, committed export and remote source preservation complete
 
 ## Summary
 
 The pure A5 authority and its bounded decomposition/correction record are separately
 committed. F4 management1819299 and F3 managementd417849 are pushed and independently
-matched to the remote branch. The23-type/41-path F3 Product remains uncommitted
-and unaccepted; no release or published capability changes are claimed.
+matched to the remote branch. The23-type/41-path F3 Product is Accepted and
+committed as ab8f035c,with clean committed export and independent remote proof.
+No release or published capability changes are claimed.
 
 Root r11 has independent Product/guard closure and internal Documentation
 agreement Green. All66 units/837 assertions,32 architecture tests/90497 assertions,
@@ -20,7 +21,7 @@ retaining all3915 F2 identities and71 new cases. Peak307MB stays within512M.
 Existing diagnostics are byte-identical to F2; they are disclosed below. The fixed
 candidate and all source/configuration/vendor/runtime inputs remained unchanged.
 Root accepts the implementation and its independent reviews at this boundary.
-Isolated source commit,clean committed export and remote proof remain pending.
+Isolated source commit,clean committed export and remote proof are complete.
 Management checkpoint8f314f31 is committed,pushed and independently remote-matched;
 F4 authorityba3d1c54/closeoutc0035f11 remain separate from Product.
 Historical failed receipts below retain their actual inputs and results. Pure
@@ -1262,3 +1263,59 @@ or Product edit. Their contracts remain unadopted and implementation unissued.
 Remaining Issues: source commit,clean committed export and remote preservation.
 Next Action: Root stages only the41 reviewed Product/support paths plus directly
 related F3 acceptance governance,checks exact staged blobs,commits and exports.
+
+
+## Source delivery Acceptance — 2026-10-12T16:57:51+09:00
+
+Root closes all seven frozen F3 acceptance criteria. The accepted source is
+`ab8f035c60469663ba75a724ea22cca62e86516a` on
+`agent/p23-006-accepted-integration`: exactly41 Product/support paths and5
+directly related acceptance/governance paths. Staged and committed blobs match
+the reviewed manifest; D5P and unrelated Documentation are excluded. The source
+was clean before and after the actual committed package export.
+
+The export command `bash .phpunit.cache/f2-orchestration/accepted-integration/tests/Consumer/framework-package-export.sh`
+passed on2026-10-12,10:47:36.060148–10:47:42.341266+09:00,exit0 in6.280996s.
+Its actual Git/Composer archives,215 required paths,production autoload and strict
+Composer checks passed with source inputs preserved and temporary cleanup complete.
+E3/run-20261012T104736038793-export/receipt.json SHA256
+`da6fd394b2078bbbf5e2000c8d5ca5b7e128e4ad029ce778c8b15eb3839bf1e1`;
+output.log SHA256`e4632e917f9fecebc2fec7b828d7b808efe056cfb21f0b648f71d81f1d0478dd`.
+E3/f3-committed-export-proof.json SHA256
+`673b8c4b2d2b12c0e1e8e9f6f97137228f9778916e2c9f538ba294da0007474e`
+binds those results to the clean committed source. Approval waiting is excluded
+from the measured export command time. No native runtime remains active.
+
+Normal push to the integration branch exited0,session3024. Independent
+`git -C .phpunit.cache/f2-orchestration/accepted-integration ls-remote --heads origin refs/heads/agent/p23-006-accepted-integration`
+exited0 in0.284072927s and returned the complete source SHA above.
+E3/f3-source-remote-proof.json SHA256
+`6860129da2629319d4ff8ea7bb2c4081b49485197f649de84bff43f610b2934e`
+retains both literal commands and terminal logs. Total push duration was not
+separately instrumented; tool wait durations are not called command duration.
+
+The final3986-case qualification,independent Product/guard and internal-note
+reviews remain applicable: this closeout changes only management text. No PHP,
+Node,Website or full test is repeated. Primary mixed Product/index and newer
+accepted Website remain preserved. Experimental Stable1.2.1 and unreleased1.3.0
+are unchanged. Child export and remote branch preservation do not constitute
+final release same-SHA CI,Framework/Skeleton publication or Documentation delivery.
+
+Remaining Issues for F3: none. Upper-goal remaining work: shared authority and
+attributed checkpoint production before real F4; F4 durable authenticated anchor,
+F5 signing/current trust/provenance/seal,F6 verifier,ordinary D/E,D-control/G,
+004A hardening,005 all-public Source/Search/LLM and final local Owner preview,
+006 same-SHA CI/export/publication/Documentation delivery/live verification.
+Next Action: Root promotes the independently reviewed shared authority/provenance
+contract and freezes exact F4/F5 APIs,files,native resources and verification
+before issuing bounded implementation to Luna. No external blocker is pending.
+
+
+Closeout management checks: exact10-path scope,783 existing local links,all41
+reviewed Product/support hashes and2323 primary non-governance files plus all
+three index views passed. Both STATE check/CAS/check cycles passed;accepted
+`git diff --check` exited0 in0.010331s and final STATE checks passed in0.043587s /
+0.043342s. E3/f3-delivery-management-checks.json SHA256
+`a894b5414f0c23100b741637d9c104b6b2c19cc113eb9463f16125800facea53`
+retains input preservation,command arguments,actual timings and logs. This result
+adds no Product execution or publication claim.

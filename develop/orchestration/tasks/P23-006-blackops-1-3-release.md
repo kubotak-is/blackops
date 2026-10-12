@@ -72,7 +72,7 @@ are read-only. The configured Documentation Reviewer is read-only.
 | Observer replay and generic Outbox adapters | O1/O2/O3 Accepted locally and imported | Native transaction prerequisites, truthful phase events, same-root proof |
 | Ordinary Audit composition | Pending D-integration | Enable approved paths, enforce tenant/privacy/failure contracts; close Inline ambiguous-commit reconciliation and rotation overflow policy |
 | Application event authoring/projector | E1 Accepted locally; E projector/journey pending | Explicit versioned API, reference business journey, no inferred business events |
-| Checkpoint/anchor signing and reusable verification | Pure F1 and F2 persistence Accepted and committed; remaining F pending | Accepted sealed-record inputs, signing/trust/revocation/freshness, crash-safe external anchor |
+| Checkpoint/anchor signing and reusable verification | Pure F1,F2 persistence and F3 state Accepted and committed; remaining F pending | Accepted sealed-record inputs, signing/trust/revocation/freshness, crash-safe external anchor |
 | Checkpoint/anchor control events | Pending D-control after F | Consume accepted typed outcomes; no recursive audit cycle |
 | Query/export/audit-of-audit/retention/hold | Pending G after F/control | Bounded authorized reads/exports, shared verifier, metadata retention/hold |
 | HTTP Worker Mode hardening | Pending004A | Startup/readiness/state/memory/restart/isolation/upgrade/rollback and reviewed Classic migration |
@@ -139,9 +139,10 @@ Stable until actual publication is independently verified.
 
 F2 persistence is Accepted, committed as9768edf4 and qualified by clean committed
 export; managementcbec640 and receiptf590f3a are pushed with independent remote
-proof. [F3 state](P23-003F3-audit-anchor-intent-state.md) now has adopted authority,
-Green independent review and exact39-path implementation ownership in the accepted
-checkout. Complete its implementation, qualification, Review and isolated commit.
+proof. [F3 state](P23-003F3-audit-anchor-intent-state.md) is Accepted: exact41 paths,
+independent reviews and3986-case final qualification. Source ab8f035c has clean
+committed export and independent remote proof. Next,freeze shared authority and
+attributed checkpoint production before the complete F4 implementation contract.
 F4 durable/external state, F5 signing-release/control/current-trust/seal and F6
 complete verification remain mandatory. Online/control contract proposals are
 retained preparation, not implemented or accepted capabilities.

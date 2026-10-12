@@ -1,6 +1,6 @@
 # Specification 126: Audit AnchorIntent State
 
-Status: Adopted — pure F3 implementation contract; BlackOps1.3 unreleased
+Status: Adopted — pure F3 implementation Accepted; BlackOps1.3 unreleased
 
 This document governs the pure state prerequisite of
 [P23-003F3](../orchestration/tasks/P23-003F3-audit-anchor-intent-state.md).

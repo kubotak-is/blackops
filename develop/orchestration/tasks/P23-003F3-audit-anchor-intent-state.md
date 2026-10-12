@@ -1,6 +1,6 @@
 # P23-003F3: Audit AnchorIntent State
 
-Status: Implementation Accepted — fixed r11 qualified; source delivery pending
+Status: Accepted — implementation, committed export and remote source preservation complete
 
 ## Goal and Authority
 
@@ -63,9 +63,9 @@ at closure; a website build is not implied by this no-impact classification.
 
 ## Remaining Work and Next Action
 
-Implement F3, run its assigned gates, obtain independent implementation and
-Documentation Review, then accept and commit it. Continue concrete online
-authority/key and external control-policy/provenance contracts for F5 integration.
+F3 is Accepted and delivered on the isolated integration branch as ab8f035c;
+its clean committed export and independent remote match passed. Continue concrete
+online authority/key and external control-policy/provenance contracts for F5 integration.
 All F4/F5/F6, ordinary D/E, D-control/G,004A,005 and006 publication/delivery
 requirements remain open. Report:[P23-003F3](../reports/P23-003F3-audit-anchor-intent-state.md).
 
@@ -156,7 +156,7 @@ storage/origin/current-trust boundaries, with no new Stable/runtime claim.
  result by adding separate test totals.
 - [x] Independent Transaction/Security and narrow internal Documentation reviews
  are Green; Root accepts the implementation and exact evidence.
-- [ ] Isolated source commit, clean committed package export and normal remote
+- [x] Isolated source commit, clean committed package export and normal remote
  branch preservation; primary mixed work remains preserved. This is child
  delivery, not final release same-SHA CI or publication.
 
@@ -449,3 +449,13 @@ criterion remains open until source commit,clean committed export and remote pro
 Full qualification6dccb3b6 and the Report retain exact commands/logs/times.
 Next Action: isolated source delivery. This accepts only pure F3,not F4/F5/F6
 or any Stable/runtime/release capability. Parent1.3 obligations remain unchanged.
+
+
+## Source delivery closure — 2026-10-12T16:57:51+09:00
+
+All seven criteria are complete. Source `ab8f035c60469663ba75a724ea22cca62e86516a`
+contains the exact41 accepted Product/support paths and5 related governance paths.
+Clean committed export exited0,6.280996s; proof673b8c4b. Normal push exited0;
+independent remote match6860129d confirms the same SHA. The Report retains actual
+commands,logs,input preservation and inherited diagnostics. No release capability
+is promoted. F4/F5/F6 and parent1.3 publication/delivery remain mandatory.
