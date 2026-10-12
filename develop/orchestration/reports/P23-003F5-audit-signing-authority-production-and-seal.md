@@ -271,3 +271,54 @@ STATE checks and C diff--check passed. CAS receipt5cb751b3 records exact command
 timings and the two state hashes. This result note is the only post-check content
 addition; final stage-plan r2 and staged diff/byte checks cover its actual bytes.
 No Product verification was repeated for this report addition.
+
+
+## Delivery and bounded protocol correction — 2026-10-12T20:55:57+09:00
+
+The exact five-path governance checkpoint is committed as
+8d6357da9a137c4b23c1854fff93fcac49708deb on the accepted-integration branch.
+Final stage-plan9123dd84,staged4b78de5c and committed9f06e22c prove exact paths/bytes
+and clean C. Push ended with exit0; independent ls-remote returned the exact SHA
+in0.351955329s. E5/prerequisite-checkpoint-remote-proof.json SHA256
+fc492a9e6046bae48f19d3ec4864fd7da88262d41734fa75182851fa593a566a
+retains actual command/session outcomes. This is governance preservation,not
+Product delivery,release CI/export or deploy. Final source Product is still F3.
+
+The custody review462666d8/inputs b0f0b41e found FH-01: the proposed extra one-link
+rule for signed archived policies prevented exact-object restart after a crash
+between link and temporary cleanup. Root selected the smaller policy-only rule:
+positive link count with exact authenticated bytes and renewed file/directory
+durability; clean only the current owned temporary,no enumeration or unknown-alias
+deletion. Source/seed/floor one-link rules remain. Root also made independent
+archive-write roles and the trusted shared temporary-directory category explicit.
+Proposal r2 cc0314f9/input2f767f17 received Green75cd36c1/inputs71bd9ec8;FH-01 is
+closed at proposed-protocol level. Native recovery proof and exact issuance remain
+open. No unqualified implementation,installation refinement or Stable capability
+is accepted by this review.
+
+Received selector/lazy addendum f2391720/inputs32472659 provides literal metadata
+queries,one proposed B2 partial index(statement29),six-method lazy runtime and two
+factory accessor changes. The narrow nonlocking Checkpoint capture projection
+must remain distinct from fenced mutation admission. Root selects an actual
+READ ONLY capture root after its RR declaration; discovery must never lock every
+history row. No source methods or migration version are issued yet.
+
+Received native fault plan684a807c/inputs58f8ff0e proposes child-only inode-scoped
+libc interposition plus real permission,tmpfs exhaustion,flock and process death.
+Compiler/loader availability and PHP propagation of fflush/fclose errors are
+Not Run. A libc hook firing is not proof PHP exposes its failure. Calibrate the
+selected symbols/results before freezing mandatory native cases; an unhit/masked
+boundary must be resolved explicitly,no Product callback/test flag/false PASS.
+The closed success-probe lease cannot authorize this new calibration.
+
+The independent reviewer now owns only E5/checkpoint-composition-sql-review-r1.md
+and its selected-input JSON: emitted DDL/literal selector/real evaluator/one-graph
+composition/lazy retention lifetime. It reuses the prior Green SQL and custody
+protocol reviews. Root owns remaining record/API maps and the next separately
+scoped diagnostic/qualification lease. No Product or shared DB worker is active.
+
+Remaining Issues/Next Action: obtain the bounded composition/SQL findings; Root
+calibrates native error observability under a new explicit isolated scope,freezes
+exact record/type/caller/resource maps and reviews the assembled real checkpoint
+packet before Luna. F5 AC2–6,F4,F6,D/E/G,004A,005/Owner preview and006 publication/
+delivery remain mandatory. No external blocker or defensible release-day estimate.
