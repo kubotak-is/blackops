@@ -15,10 +15,13 @@ current AnchorIntent state machine, including its canonical hashes, exact retry
 schedule, original claim purpose and immutable preparation binding. No subset of
 the fourteen operations can qualify the state prerequisite.
 
-The remaining F delivery order is pure F3 state; F4 durable intent/lease/receipt
-and external-adapter primitives; F5 actual signing-release authorization, online
-trust/key acquisition, authenticated control provenance and final seal integration;
+The responsibility split remains pure F3 state;F4 durable intent/lease/receipt
+and external-adapter primitives;F5 actual signing-release authorization,online
+trust/key acquisition,authenticated control provenance and final seal integration;
 F6 complete record/checkpoint/anchor/freshness verification and final F qualification.
+The adopted most-specific129–132/D179 dependency order places real shared F5
+authority and attributed checkpoint production before native F4,then completes
+F5 release/seal after real F4. A hypothetical port cannot prove F4 origin.
 The F5 current-context/freshness check must exist before its seal CAS and cannot
 depend on a later F6 acceptance. F signing-release and trusted-control work remains
 mandatory within that integration, not an optional child or release waiver.

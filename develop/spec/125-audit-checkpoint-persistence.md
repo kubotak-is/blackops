@@ -402,13 +402,17 @@ control path must prove provenance without accepting a caller selector or making
 D-control implementation a prerequisite of Accepted F. The two recursion
 exemptions (sign-access and checkpoint/receipt control ingress) stay distinct.
 
-### R9: recommended later authorization decision, for Root to adopt and review
+### R9: later signing authority and its adopted most-specific contract
 
 Name this mandatory remaining work **F signing-release authorization and trusted
 control provenance**, integrated with F5/final F qualification. It is not an
 optional follow-up, a new artificial child, or a request for external permission.
-Root can settle the following bounded implementation choices in its later exact
-authority. They are recommendations here, not additions to F1/F2 or existing wire.
+The original recommendations below are refined by the adopted contracts
+[129](129-audit-online-authority-and-seed-custody.md),[130](130-audit-control-authority-and-production-provenance.md),
+[131](131-audit-ordinary-sign-service.md) and[132](132-audit-anchor-authenticated-provenance.md).
+Adopted D179 makes those the most-specific later-F authority; it does not add
+behavior to Accepted F1/F2 or issue a Product caller. Exact implementation joins
+and qualification remain mandatory.
 
 Recommended separate ordinary sign target:
 
@@ -433,8 +437,10 @@ Recommended context (separately versioned from Query):
  authorizationDecision,requestedAt,nonce,requestRef}
 ```
 
-actor/tenant are the existing null-or-exact-typed-reference shapes, validated with
-existing typed-reference rules. The target partition must equal the partition
+The initial single-reference actor recommendation is superseded in131 by the
+same execution context's closed aggregate {principal,execution},with two validated
+non-null typed references. Tenant retains the existing null-or-typed-reference
+shape. This is a separate sign-context choice,not a Query context change. The target partition must equal the partition
 derived from the same context tenant; context substitution cannot redirect it.
 Decision is `allow|deny|unavailable`; requestedAt is trusted UTC microseconds. The trusted
 Framework operation captures a fresh 16-byte CSPRNG nonce and encodes 32 lowercase
@@ -450,13 +456,12 @@ after making its decision. Private construction/closed factory ownership and
 architecture caller maps must establish provenance; a valid hash, serialized
 array, boolean allow or user-selected actor/tenant does not. Requested and
 unavailable use the Catalog's Durable path and their later-frozen idempotency
-identity; accessed uses Required/null key. The precise trusted actor/execution
-source, authorization policy, requested-ingress timing, Durable idempotency
-identity, denial/unavailability precedence and Draft field mapping must be
-adopted and tested with the actual integration. In particular, do not infer
-Operation-read requested-before-authorization ordering or a request key from this
-post-decision context alone. These are exact remaining Root choices; a wire alone
-cannot establish them.
+identity; accessed uses Required/null key. Specification131 fixes the actual Console actor/tenant source,preparation grant,
+real fixed Operation/policy/evaluator/handler,post-decision requested timing,
+Durable identities,denial precedence and Draft mapping. Its implementation must
+still prove the actual same-envelope path and Required-before-release. Do not
+infer Operation-read requested-before-authorization ordering or treat this wire
+alone as permission.
 
 Recommended control provenance is a distinct, final internal Framework control
 issuer entry with fixed target/family `system:global/audit-control-v1`. Its accepted
@@ -469,13 +474,12 @@ invocation's origin and exact fixed target, not an inference from record content
 or a new `isControl` flag. Cryptographic roles remain checkpoint/anchor, never a
 new F1 role named audit-control-v1.
 
-Root must confirm that invocation-origin interpretation of the control family,
-then freeze the concrete issuer, private capability factory and exact Framework
-caller map before implementation. If a persisted stream-origin claim is instead
-required, current B2 rows cannot prove it; Root must explicitly define its trusted
-producer and durable binding. Do not classify every system segment as exempt.
-Both choices can be decided by Root; neither requires asking the owner merely
-because the detail was previously reserved. Full ordinary/control proof includes
+Specification130 fixes invocation origin through distinct closed producer entries
+and authenticates persisted production with signed reservations/candidates/outcomes,
+externally rooted policy history and exact actual F2 bytes. Neither system tenant
+nor segment contents imply control. The exact issuer,SQL projection and construction/
+caller maps still require reviewed issuance before implementation. This resolves
+the authority choice without claiming Accepted F2 already provides those owners. Full ordinary/control proof includes
 same unsigned artifact with substituted actor/tenant/ID/hash/nonce, forged context,
 wrong entry origin, attempted control downgrade, Required append failure and
 commit response loss (zero bytes), legitimate control no-recursion, and restart
@@ -1968,3 +1972,21 @@ property readonly keywords from final readonly RecordProof preserves effective
 readonly reflection; no state contract changes. Actual formatted gates must
 prove these corrections. CurrentCC16/difficulty12.14 are measured failures;
 estimated improvement is not a result or permission for another extraction.
+
+
+## 16. Adopted later-F acquisition and provenance refinement — 2026-10-12
+
+Specifications129–132/D179 refine later-F responsibilities only. F2's public
+prepare/persist APIs,seven preparation columns,standalone RR roots,one new-work
+Clock/UUID capture,immutable body/ref/fingerprint and zero Clock/UUID/trust replay
+remain unchanged. Recover the signed reservation's original ref; reacquire online
+authority after prepare,before signing and before first complete persistence.
+The authenticated online lease has the same endpoints as its trust snapshot so
+F2's own Clock/window check continues to enforce its accepted contract.
+
+A later exact F-owned admission projection must read actual F2 slot presence under
+the B2 fence before reserving production. No helper reuse,new getter,namespace
+allowlist or in-root F2 prepare/persist call is authorized by this direction alone.
+Every adopted caller and read must appear in the later exact packet and guards.
+Actual complete-candidate storage and signed persisted outcome remain later F;
+F2 bytes or replay success grants no current release,origin or seal permission.

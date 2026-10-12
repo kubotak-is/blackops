@@ -11,6 +11,8 @@
 
 ## 現在の作業への導線
 
+- Audit署名・認証基盤: [F5 Task](orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md)、[Report](orchestration/reports/P23-003F5-audit-signing-authority-production-and-seal.md)。仕様129–132／D179を独立Review Green後に採用。オンラインの信頼情報、署名権限、実際の生成履歴、通常署名の認可、Anchor履歴の認証を定めた。次は実際のCheckpoint生成まで含む実装契約と検証条件を固定する。実装ファイル・SQL・API・検証資源は未発行。F4と接続した最終署名・sealまでがF5の必須範囲。
+
 - Audit Checkpoint persistence: [F2 Task](orchestration/tasks/P23-003F2-audit-checkpoint-persistence.md)、[Report](orchestration/reports/P23-003F2-audit-checkpoint-persistence.md)。実装をAcceptedとし、`9768edf4`へ分離コミット。全3,915件、独立Review、コミット済みExportは合格。管理checkpoint `cbec640`のpushとremote SHA一致も確認済み。署名・anchor・seal・完全検証と1.3全体の公開工程は未完了。
 - Audit AnchorIntent state: [F3 Task](orchestration/tasks/P23-003F3-audit-anchor-intent-state.md)、[Report](orchestration/reports/P23-003F3-audit-anchor-intent-state.md)。仕様126／D176の全A5状態遷移と41ファイルをAccepted。独立Review、全3,986件、クリーンなコミットからのExportを完了し、`ab8f035c`へ分離コミット。pushとremote SHA一致も確認済み。保存したclaim/chain bindingの認証はF4で実装する。署名・制御ポリシー・外部通信・sealの実装と検証は後続Fに残る。
 - Audit Anchor永続化: [F4 Task](orchestration/tasks/P23-003F4-audit-anchor-durable-external.md)、[Report](orchestration/reports/P23-003F4-audit-anchor-durable-external.md)。チェックポイント単位の不変な予約、同じチェーンでの継続、保存フレームの8192バイト上限を仕様127／D177で採用。外部Providerの要求・結果、接続権限、COMMIT後の永続化確認手順は仕様128／D178で採用。全14操作のSQL・署名・復旧契約と実装範囲は未発行。F3の受け入れは完了。共有署名・認証基盤の契約を確定し、実際の由来を検証できる永続化へ進む。

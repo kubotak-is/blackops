@@ -54,3 +54,14 @@ and serialize helper package extensions from the immutable current125/77 endpoin
 Independent corrected authority precedes assignment; initial source findings,
 real B1 lineage/chronology, mathematical Node proof and privacy/mutations remain
 required before local Acceptance. This does not advance Release Authority.
+
+
+## Adopted later-caller authentication refinement — 2026-10-12
+
+[D179](179-audit-signing-authority-and-production-provenance.md) and [129](../spec/129-audit-online-authority-and-seed-custody.md) separate
+online F acquisition from G's complete manifest-bound VerificationContext.
+The online route uses an independently installed root,whole signed payload,
+current phase acquisition,durable floor and fixed seed custody. Export/hosted/
+offline verification still requires the complete external context pin and manifest.
+No F1 API,artifact wire,crypto role or mathematical validation changes. This
+refinement is operative under adopted D179; Product callers remain unissued.

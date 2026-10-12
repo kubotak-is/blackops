@@ -167,3 +167,15 @@ own-call maps. Recognized multiline PHPDoc restores already-specified shapes;
 redundant readonly syntax removal leaves effective state unchanged. Root grants
 no metric waiver or further extraction. Current source/handoffs and actual
 quality, Consumer/full and Acceptance remain separate stages.
+
+
+## Adopted later-F authority refinement — 2026-10-12
+
+[D179](179-audit-signing-authority-and-production-provenance.md) and specifications129–132 provide the most-specific
+adopted online/current-historical provenance and real ordinary-sign contracts.
+The preliminary R9 actor choice becomes the same-envelope principal/execution
+aggregate; its target and request-ref algorithm remain. Actual Console identity
+grants preparation before exact-target evaluation. F2 Acceptance and its APIs,
+Clock/UUID/replay/fingerprint/root ownership do not change. The real reservation,
+F2-slot projection,candidate/outcome,release and seal work still need exact issuance
+and native proof; they are not retroactively covered by F2's accepted results.

@@ -199,3 +199,24 @@ native parser/history/receipt joins, actual F5 provenance/release composition an
 all specified resource/concurrency/recovery proofs remain unissued. Next Action:
 finish the complete F4 issuance contract after F3 Acceptance, then independently
 review and implement it. Full1.3 release obligations are unchanged.
+
+
+## F3 dependency closed; shared authority preparation — 2026-10-12T18:56:00+09:00
+
+F3 source ab8f035c and management6239a15 are delivered with actual clean committed
+export and independent remote proof. Its pure state dependency is accepted.
+The F5 Task now prepares consolidated authority129–132/D179. The real shared
+prerequisite must provide authenticated checkpoint reservation and persisted
+outcome before F4 genesis; F2 bytes alone cannot prove origin. Current F4 local14,
+SQL/API/history/receipt/resource and native provider issuance remain open. No F4
+checkbox requiring real authenticated association is closed by F3 alone.
+
+
+## Shared F authority adopted — 2026-10-12T19:15:49+09:00
+
+Root adopted129–132/D179 after independent promotion review
+`694c79b50189e8bc5776c43228b40836faf333f3acc5446917d1c605e79533e5` was Green. F5 AC1 closes;
+exact Product/SQL/parser/custody/native-resource issuance and AC2–6 remain open.
+The real shared prerequisite includes attributed checkpoint reservation,candidate
+and persisted outcome before F4. No Product behavior or parent release gate is
+accepted by this management promotion. Continue through the [F5 Report](P23-003F5-audit-signing-authority-production-and-seal.md).

@@ -19,7 +19,9 @@ history. The accepted integration checkout is the future implementation base;
 the mixed primary Product/index and its older Website are not implementation inputs.
 No worker Product file, API, schema, migration, runtime or shared DB lease is issued
 by this draft. Full exact ownership must be frozen before Product implementation.
-F3 continues separately under its existing38/3 ownership and acceptance criteria.
+F3 is Accepted and delivered as ab8f035c. The real shared authority/provenance
+prerequisite is prepared under [F5](P23-003F5-audit-signing-authority-production-and-seal.md);its adopted
+contracts129–132 do not yet issue Product files or qualify authenticated recovery.
 
 ## Adopted choices
 

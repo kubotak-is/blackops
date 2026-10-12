@@ -4832,3 +4832,38 @@ General/Audit review, and Orchestrator acceptance; then P23-001R and ordered
 downstream. Historical Suggested Next Action was to freeze the exact-15 Round
 18 Local Gate and route child review, followed by parent review and acceptance.
 No 1.3 capability is public or released.
+
+
+## Adopted online F authority and production provenance amendment — 2026-10-12
+
+The adopted direction in [D179](../decisions/179-audit-signing-authority-and-production-provenance.md) and
+[129](129-audit-online-authority-and-seed-custody.md),[130](130-audit-control-authority-and-production-provenance.md),
+[131](131-audit-ordinary-sign-service.md),[132](132-audit-anchor-authenticated-provenance.md)
+specifies the most-specific remaining-F authority and production boundaries.
+Root adopted D179 after its Green independent promotion review; exact Product
+issuance remains a separate reviewed Task. No new Stable capability or runtime is established here.
+
+Online F uses independently rooted whole-document acquisition,current trust,
+bounded lease/floor and fixed raw32 seed custody. G's complete VerificationContext,
+external expectedContextHash and required expectedManifest remain unchanged.
+Root policy plus its one installed delegate authenticate current/historical
+control lineage and actual ordinary/control reservations,candidates and persisted
+outcomes. The exact nine permissions include only the two finite Anchor additions;
+receipt intentBinding has the twelve members in130. Historical authenticity alone
+grants no new action. Trusted-local-custody and coordinated-restore limits remain
+explicit; no instantaneous global revocation or external per-transition witness
+is claimed. Existing B2,F1 and exact38-member A5/public receipt wires are unchanged.
+
+The ordinary scheduler obtains actual Console principal/tenant identity. Its
+installed grant permits immutable preparation before the exact-target policy
+decision. Sign context uses the same envelope's aggregate actor
+{principal,execution}; the post-decision request-ref formula and fixed Durable /
+Required-null-key Draft mapping are131. Denial does not undo preparation,while
+every outward handoff still requires its actual Required committed return.
+
+The implementation dependency is real shared authority plus attributed checkpoint
+production,then complete F4 local14/receipt/provider behavior,then the remaining
+F5 ordinary/control release and current-context/freshness seal,then F6. Parent
+F -> D-control -> G and actual ingress before applicable final acknowledgement
+remain mandatory. A codec,a fake signer,a row flag or future port cannot satisfy
+the real provenance prerequisite. Parent006 retains Owner preview and release gates.

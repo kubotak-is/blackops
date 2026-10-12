@@ -670,3 +670,24 @@ No1.3 release or final same-SHA CI/publication/delivery is claimed. The next
 mandatory step is adoption and exact issuance of shared authority/provenance plus
 attributed checkpoint production before real F4. F4/F5/F6,ordinary D/E,D-control/G,
 004A,005 all-public/Owner preview and006 publication/delivery remain open.
+
+
+## F5 authority promotion started — 2026-10-12T18:56:00+09:00
+
+The F5 Task/Report and129–132/D179 consolidate the independently reviewed online,
+control,ordinary and Anchor directions. Existing-authority amendments make the
+online/G-context separation,aggregate sign actor,installed preparation grant,
+finite nine-permission/twelve-field receipt joins and dependency order explicit.
+Independent promotion review is next. This management work implements no public
+configuration or Product code and Accepts no F4/F5 behavior. Exact real-prerequisite
+APIs/SQL/native resources and all remaining parent release gates stay mandatory.
+
+
+## Shared F authority adopted — 2026-10-12T19:15:49+09:00
+
+Root adopted129–132/D179 after independent promotion review
+`694c79b50189e8bc5776c43228b40836faf333f3acc5446917d1c605e79533e5` was Green. F5 AC1 closes;
+exact Product/SQL/parser/custody/native-resource issuance and AC2–6 remain open.
+The real shared prerequisite includes attributed checkpoint reservation,candidate
+and persisted outcome before F4. No Product behavior or parent release gate is
+accepted by this management promotion. Continue through the [F5 Report](P23-003F5-audit-signing-authority-production-and-seal.md).

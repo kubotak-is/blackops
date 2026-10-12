@@ -4714,3 +4714,14 @@ action occurred.
 
 The historical next action was to freeze the exact-15 Round 18 Local Gate and
 route fresh child General review; Round 19 now supersedes that checkpoint.
+
+
+## Adopted most-specific F signing authority — 2026-10-12
+
+[D179](179-audit-signing-authority-and-production-provenance.md) records the reviewed authority adoption into
+specifications129–132: separately authenticated online context,root/delegate
+production provenance,the real ordinary scheduler sign path and finite atomic
+Anchor joins. Existing F1/A5/G wires remain. The implementation order includes
+real shared authority and attributed checkpoint production before durable F4,
+then full F5 release/seal and F6. F -> D-control -> G and all1.3 release gates
+remain mandatory. D179 adoption is separate from Product issuance or Acceptance.

@@ -160,6 +160,10 @@
 | [126-audit-anchor-intent-state.md](126-audit-anchor-intent-state.md) | Pure complete AnchorIntent state and explicit authenticated-restore handoff | Pure F3 implementation Accepted and source delivered; `1.3` unreleased |
 | [127-audit-anchor-durable-external.md](127-audit-anchor-durable-external.md) | Durable Anchor reservation, exact-chain recovery and canonical frame bound | Bounded choices adopted; complete F4 issuance pending; `1.3` unreleased |
 | [128-audit-anchor-provider-protocol.md](128-audit-anchor-provider-protocol.md) | Exact external Anchor request/result, privileges and commit/flush protocol | Provider contract adopted; native implementation pending; `1.3` unreleased |
+| [129-audit-online-authority-and-seed-custody.md](129-audit-online-authority-and-seed-custody.md) | Online F authority,currentness and raw-seed custody | Authority direction adopted; Product unissued; `1.3` unreleased |
+| [130-audit-control-authority-and-production-provenance.md](130-audit-control-authority-and-production-provenance.md) | Root/delegate policy history and attributed production | Authority direction adopted; Product unissued; `1.3` unreleased |
+| [131-audit-ordinary-sign-service.md](131-audit-ordinary-sign-service.md) | Real ordinary scheduler sign authorization and Required release | Authority direction adopted; Product unissued; `1.3` unreleased |
+| [132-audit-anchor-authenticated-provenance.md](132-audit-anchor-authenticated-provenance.md) | Atomic Anchor reservation/revision and receipt provenance | Authority direction adopted; Product unissued; `1.3` unreleased |
 
 ## 決定の参照
 
@@ -343,6 +347,7 @@
 | [D176](../decisions/176-audit-anchor-intent-state.md) | Exact AnchorIntent wire with prepared binding and original claim ownership | Decided; pure F3 implementation Accepted; `1.3` unreleased |
 | [D177](../decisions/177-audit-anchor-reservation-and-frame-bound.md) | One checkpoint reservation, same-chain continuation and 8192-byte canonical frame | Decided; complete F4 implementation contract pending; `1.3` unreleased |
 | [D178](../decisions/178-audit-anchor-provider-protocol.md) | External Anchor provider protocol and same-session durability boundary | Decided; Product/native qualification pending |
+| [D179](../decisions/179-audit-signing-authority-and-production-provenance.md) | Shared online/control/ordinary authority and finite Anchor provenance | Decided; authority direction adopted; Product unissued |
 | [D160](../decisions/160-operation-data-read-audit-adapters.md) | Journal/Outcome Audit adapters, fixed read execution and inherited trace protection | Decided; Product progress in D2J Report; `1.3` unreleased |
 | [D161](../decisions/161-operation-diagnostics-audit-adapter.md) | Global Diagnostics Audit and fresh same-code exception release | Decided; Product progress in D2X Report; `1.3` unreleased |
 | [D162](../decisions/162-http-authentication-audit-adapter.md) | HTTP credential-check result, Session mutation boundary and durable response gate | Decided; Product progress in D3 Report; `1.3` unreleased |

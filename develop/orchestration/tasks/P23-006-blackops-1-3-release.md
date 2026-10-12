@@ -141,11 +141,12 @@ F2 persistence is Accepted, committed as9768edf4 and qualified by clean committe
 export; managementcbec640 and receiptf590f3a are pushed with independent remote
 proof. [F3 state](P23-003F3-audit-anchor-intent-state.md) is Accepted: exact41 paths,
 independent reviews and3986-case final qualification. Source ab8f035c has clean
-committed export and independent remote proof. Next,freeze shared authority and
-attributed checkpoint production before the complete F4 implementation contract.
+committed export and independent remote proof. Current [F5](P23-003F5-audit-signing-authority-production-and-seal.md) has adopted129–132/D179
+shared authority after independent Green review. Exact implementation issuance and
+real attributed checkpoint production remain before complete F4 qualification.
 F4 durable/external state, F5 signing-release/control/current-trust/seal and F6
-complete verification remain mandatory. Online/control contract proposals are
-retained preparation, not implemented or accepted capabilities.
+complete verification remain mandatory. Online/control authority is adopted;
+its runtime capabilities are not implemented or accepted.
 Ordinary D composition/Inline ambiguity/rotation overflow, E projector/journey,
 D-control/G,004A hardening,005 all-public Documentation/Owner preview and006
 same-SHA qualification/publication/delivery remain. Worker-startup issuance still
