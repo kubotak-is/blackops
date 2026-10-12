@@ -151,3 +151,39 @@ files. Staging had completed but no commit ran. Root removed those two blank
 lines in both checkouts and repeated the staged scope/byte/diff check. This is
 terminal-whitespace-only; the reviewed semantic bodies remain unchanged. Stage
 plan r2 supersedes r1 for the final24-file commit. No Product test was repeated.
+
+
+## Committed authority and remote preservation — 2026-10-12T19:34:33+09:00
+
+Root committed the exact24 governance paths as
+`cb4f4d5dc5314515af2b16cf98ed8ef9f2a00bb9` on
+`agent/p23-006-accepted-integration`. Stage plan80ab8e77/staged6962ad87 and committed
+receiptd5ace0d3 prove exact byte/path equality and clean C; no Product file changed.
+The first sandbox push failed DNS before transfer. The approved network retry
+completed with exit0, then an independent ls-remote returned the exact commit.
+E5/authority-adoption-remote-proof.json SHA256
+`34e72746985b23b625250a8e2e5cf0b82bad2a95952013f05c51c426e9f6ba7f`
+retains actual command/session outcomes; the remote read took0.28467392seconds.
+This is remote source preservation,not release CI/export or deployment.
+
+The SQL investigator delivered proposal d3dc8e4b and inputsc54dbe9a: seven immutable
+collections,two rebuildable indexes,a narrow actual-F2 read projection,RR/fence
+ownership,ambiguous-commit recovery and capture/recheck facts. This is a received
+recommendation,not adopted DDL/API or a worker-ready packet. Root must decide its
+DDL/triggers/timeouts,caller grants,history/current-marker join,actual ordinary
+Required/F4 ownership,selectors and native resources before independent review.
+
+The separate capture inventory7c8e85e3/inputsae745d03 read16 selected sources and
+found no existing maintenance-owned private spool API or configured scratch path.
+Existing temporary publishers do not prove the required custody/lifetime/error
+contract. Root has not selected a transcript mechanism or added configuration.
+No shared DB/runtime lease or Product worker is active. Full F5 AC2–6 and all
+remaining1.3 implementation,Owner preview and release/delivery gates remain open.
+Next Action: consolidate and independently review the exact complete shared
+prerequisite packet,then issue its bounded Product files/native proof to Luna.
+
+The delivery helper initially resolved the archived STATE's unchanged relative
+links from the archive directory, rather than their original develop/ base; it
+stopped before staging. The following commit command found no staged changes
+and made no commit. Root corrected the checker to respect verbatim STATE archive
+semantics; no archive body or Product file was rewritten for that false positive.
