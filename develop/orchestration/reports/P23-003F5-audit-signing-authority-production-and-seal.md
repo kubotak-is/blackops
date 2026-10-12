@@ -322,3 +322,42 @@ calibrates native error observability under a new explicit isolated scope,freeze
 exact record/type/caller/resource maps and reviews the assembled real checkpoint
 packet before Luna. F5 AC2–6,F4,F6,D/E/G,004A,005/Owner preview and006 publication/
 delivery remain mandatory. No external blocker or defensible release-day estimate.
+
+## Current progress and final composition finding — 2026-10-12T23:26:07+09:00
+
+Checkpoint0055a8c8cc7c0e4cccac636566f452bae9c6c3a0 is committed and delivered on
+agent/p23-006-accepted-integration. Push completed with exit0; the independent
+ls-remote returned the exact branch SHA with exit0 in0.27180377s. C was clean.
+E5/prerequisite-delivery-remote-proof.json retains both actual results and start
+timestamps. This is governance delivery; the latest accepted Product remains F3.
+
+The source-only composition/SQL review504e0f9d/inputs69e930e4 returned Changes
+Required with one finding CS-01. Actual C3 Durable requested/unavailable delivery
+can return a finite storage failure after ambiguous COMMIT and close a connection,
+but its later reconnect does not invalidate the cached F composition permanently.
+The assembled contract must make every exception from those actual delivery calls
+invalidate the same shared graph before any follow-up delivery/provider/selection
+or reuse by either entry. Recovery must construct a fresh entire graph. An
+intentional final ResourceUnavailable after successful Durable calls remains
+distinct. Root accepts the finding; the contract correction, bounded re-review
+and discriminating native qualification remain open. No C3 Product defect or
+newly implemented guard is claimed.
+
+The review found no additional blocker in the proposed29-statement DDL, literal
+selector, actual evaluator/handler composition or lazy scheduler isolation.
+Thirty-seven substantive selected inputs stayed unchanged; contextual STATE
+advancement is recorded in the review manifest. Prior bounded SQL/custody Green
+results remain reusable. This source inspection is not runtime qualification.
+
+Commands and Results: remote proof above; scoped governance diff/link/byte and
+STATE check/CAS/check results are retained in E5/progress-closeout-validation.json.
+No Product/browser/DB/CI/export/deployment command is assigned to this report-only
+checkpoint. Prior preservation42d34b2b covers unchanged2323 primary non-governance
+files/modes,three primary index views and146 accepted public Sources.
+
+Acceptance remains AC1 complete,AC2–6 open. No public API,Capability,Release,
+Source,route,Search or LLM input changed. Remaining work includes real checkpoint
+implementation,F4/full F5/F6,D/E/G,004A,005/Owner preview and006 publication/delivery.
+Next Action: close CS-01 in the exact contract,calibrate native error propagation
+under a new isolated scope,and freeze/review the complete packet before Luna.
+No defensible release date or percentage follows from these preparation results.

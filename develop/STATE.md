@@ -1,7 +1,7 @@
 # Orchestration State
 
-Updated At: 2026-10-12T20:55:57+09:00
-Status: BlackOps 1.3 active; real checkpoint prerequisite preparation
+Updated At: 2026-10-12T23:26:07+09:00
+Status: BlackOps 1.3 active; checkpoint contract correction before implementation
 Current Task: [P23-003F5](orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md)
 Current Report: [P23-003F5 Report](orchestration/reports/P23-003F5-audit-signing-authority-production-and-seal.md)
 
@@ -11,20 +11,17 @@ Parent006 authorizes implementation,independent Review,separated commits/push,
 publication and delivery toward1.3. Final local Documentation Owner confirmation
 precedes publication. Experimental Stable1.2.1 remains current;1.3 is unreleased.
 Accepted checkout C=.phpunit.cache/f2-orchestration/accepted-integration on
-agent/p23-006-accepted-integration. Last verified delivery is governance checkpoint
-8d6357da9a137c4b23c1854fff93fcac49708deb,exact5 paths,pushed/remotely matched and
-clean. The current delivery/protocol-review bookkeeping will be a separate commit.
-F3 Product ab8f035c and management6239a15d,F5 authority cb4f4d5/deliveryba93d9c are
-also committed,pushed and independently remote-matched. No F5 Product is issued.
+agent/p23-006-accepted-integration. Last verified governance delivery0055a8c8cc7
+is pushed,independently remote-matched and clean before this status checkpoint.
+F3 Product ab8f035c and management6239a15d,F5 governance cb4f4d5/ba93d9c/8d6357d
+are also delivered. No F5 Product implementation packet is issued.
 
-Primary agent/p23-001-blackops-1-3-feasibility / HEAD8106c355 stays mixed. Preserve
-primary Product/modes/index,unrelated Documentation and C's newer Website. Root
-owns governance,STATE,Acceptance,Git and native leases. No shared DB or Product
-worker is active. Disposable filesystem success-probe container is absent;lease
-closed/actions[]. No compiler/fault-calibration or Product qualification lease.
-
-Authority129–132/D179 is adopted;F5 AC1 complete,AC2–6 open. Proposed SQL/custody/
-composition directions are not implemented behavior or native acceptance.
+Primary agent/p23-001-blackops-1-3-feasibility / HEAD8106c355 remains mixed.
+Preserve primary Product/modes/index,unrelated Documentation and newer C Website.
+Root owns governance,STATE,Acceptance,Git and native leases. No Product worker,
+shared DB or native resource is active. Success-probe lease closed/actions[];
+no compiler/fault-calibration or Product qualification lease is authorized.
+Authority129–132/D179 adopted;F5 AC1 complete,AC2–6 open.
 
 ## Evidence
 
@@ -32,63 +29,63 @@ E3=.phpunit.cache/f3-orchestration/20261009;E5=.phpunit.cache/f5-orchestration/2
 F3 Accepted:exact41 Product paths;full6dccb3b6 proves3986tests/8634246assertions,
 zero failure/error/skip,307MB under512M,3915 predecessor+71 new identities.
 Inherited diagnostics unchanged. Committed export673b8c4b passed6.280996s;
-source/management remote6860129d/3989c6da. Unchanged F3 gates are reused.
+source/management remote6860129d/3989c6da. Reuse unchanged successful F3 gates.
 
-Five-path checkpoint8d6357d has stage-plan9123dd84/staged4b78de5c/committed9f06e22c.
-Remote proof fc492a9e records terminal push0 and independent exact match0.351955329s.
-Management42d34b2b checked2323 primary non-governance files/modes,three index views,
-146 public Sources,10 links and both STATE checks. No Product/browser/build/CI/
-export/deploy gate ran for F5. This is source preservation,not release delivery.
+Governance8d6357d preservation42d34b2b checked2323 primary non-governance files/modes,
+three index views,146 public Sources,10 links and both STATE checks. Delivery0055a8c
+committed71be30a4;E5/prerequisite-delivery-remote-proof.json proves terminal push0
+and independent exact remote match0.27180377s. No F5 Product/browser/CI/export/
+deploy gate ran. Current bookkeeping is separately committed after scoped checks.
 
-SQL proposald3dc8e4b has bounded Green64f9b74f;Root selects its seven immutable/two
-retry collections,triggers and F5-only1s lock/5s statement timeouts as candidates.
-Exact DDL6eb42122 proposes28 statements. Composition11a695ff/inputs3f6ee835 supplies
-real identity/compiler/evaluator/handler,F2 and one protection graph. Selector/
-lazy addendumf2391720/inputs32472659 adds literal queries,proposed B2 index as
-statement29,six-method runtime and two factory changes. Version20261012000000 is
-not reserved. Nonlocking capture and fenced Checkpoint admission remain distinct;
-Root selects a native READ ONLY capture root after its RR declaration.
+SQL d3dc8e4b has bounded Green64f9b74f;seven immutable/two retry collections,
+triggers and F5-only1s lock/5s statement timeouts remain selected candidates.
+DDL6eb42122 plus selector/lazy f2391720 proposes29 statements and real F2/B2 keys.
+Composition11a695ff uses actual identity/compiler/evaluator/handler and one graph.
+Nonlocking native RR READ ONLY capture remains distinct from fenced recheck.
+Version20261012000000 and exact production file/type/caller maps remain unissued.
 
-Native feasibility8d5a39e1 passed in0.650617606s on ab739e1d/PHP8.5.7: private modes,
-UID,exclusive create,flock,same-inode writes,file/directory fsync,hard-link no-replace
-and anonymous plain descriptor. Expected one warning;fchmod absent. Sandbox socket
-failure preceded start;approved retry ran once. No DB/network/repository/vendor/env
-mount. This tmpfs success is not production durability or fault qualification.
+Composition/SQL review504e0f9d/inputs69e930e4 is Changes Required:CS-01 only.
+Actual C3 requested/unavailable delivery exceptions must permanently invalidate
+the entire shared F graph before further delivery/provider/selection or cached
+entry reuse. Close/reconnect cannot prove rollback. Fresh recovery requires a
+new entire graph; intentional terminal unavailable after successful delivery is
+distinct. Root accepts the finding;contract correction,re-review and native
+ambiguity/cross-entry-reuse proof remain open. No C3 Product defect is asserted.
+Other reviewed DDL/selector/composition/lazy directions have no additional blocker;
+37 substantive inputs unchanged. Source review is not implementation Acceptance.
 
-Custody r1 review462666d8 required FH-01:extra archive nlink1 prevented crash replay.
-Root r2cc0314f9/input2f767f17 allows positive links ONLY for authenticated signed
-policies,renews file/directory durability and cleans only known owned temporary.
-Source/seed/floor one-link and installer-owned root/restriction duties remain.
-Bounded Green75cd36c1/inputs71bd9ec8 closes FH-01 at proposed-protocol level.
-Capture outside floor -> full current historical-issuer replay under floor ->
-fenced native endpoint recheck remains;no SQL under floor or lifetime history cap.
-
-Native fault plan684a807c/inputs58f8ff0e is received. Compiler/loader and actual
-PHP fflush/fclose error propagation remain unmeasured; a hit hook is not an
-observed PHP failure. New isolated calibration scope is needed before issuance.
-Independent review of exact DDL/selector/real composition is active in
-E5/checkpoint-composition-sql-review-r1.md plus its input JSON. Other investigators
-finished;no Product/native resources were assigned to them.
+Native feasibility8d5a39e1 passed0.650617606s on ab739e1d/PHP8.5.7:private modes,
+UID,exclusive create,flock,same-inode write,file/directory fsync,hard-link no-replace
+and anonymous descriptor. One expected warning;fchmod absent. No DB/network/
+repository/vendor/env mount. Tmpfs success is not production durability proof.
+Custody r2cc0314f9 has bounded Green75cd36c1:FH-01 closed at protocol level.
+Only authenticated signed archived policies admit positive nlink;exact replay
+renews file/directory durability and cleans only known owned temporary.
+Capture outside floor -> full current issuer replay under floor -> fenced native
+recheck;no SQL under floor or lifetime history cap. Installation refinement and
+exact record/tag/native-group maps still need adoption/issuance.
+Native fault plan684a807c received;compiler/loader and PHP fflush/fclose error
+propagation unmeasured. Hook hit is not PHP failure. New calibration scope needed.
 
 ## Remaining Work
 
-Freeze exact parser/record/type/caller/SQL/custody/resource maps and meaningful
-native proof;review the assembled packet before Luna. Implement and qualify real
-reservation -> F2 preparation -> authorized sign -> candidate -> actual persisted
-outcome. No fixture or codec-only origin supplies this prerequisite.
+Close CS-01;freeze exact parser/record/type/caller/SQL/custody/resource maps and
+native fault observability;independently review complete packet before Luna.
+Implement/qualify real reservation -> F2 preparation -> authorized sign ->
+candidate -> actual persisted outcome. No fixture/codec-only origin substitutes.
 F4 local14/history/lease/receipt/provider;full F5 ordinary/control Required release,
 current trust/freshness/seal;F6 remain. Missing F4/D keeps real bytes held/pending
-and scheduler unavailable. F -> D-control -> G remains mandatory,plus ordinary
-D/Inline ambiguity/rotation overflow,E projector/journey,004A hardening,005 all-
-public Source/Search/LLM and local Owner preview,006 same-SHA CI/export,Framework/
-Skeleton publication,Documentation delivery/live proof. Optional003H/004B excluded.
-No external blocker or unanswered Owner choice;no defensible release date yet.
+and scheduler unavailable. F -> D-control -> G mandatory,plus ordinary D/Inline
+ambiguity/rotation overflow,E projector/journey,004A hardening,005 all-public
+Source/Search/LLM and local Owner preview,006 same-SHA CI/export,Framework/Skeleton
+publication,Documentation delivery/live proof. Optional003H/004B excluded.
+No external blocker or unanswered Owner choice;no defensible release date/percent.
 
 ## Next Action
 
-Root reviews composition/SQL findings,authorizes isolated native error calibration,
-then freezes and independently reviews the complete real-prerequisite packet
-before Luna. Preserve separated commits,final Owner preview and release gates.
+Root closes CS-01 in the proposed contract,authorizes isolated native calibration,
+then freezes and independently reviews the complete real checkpoint packet before
+Luna implementation. Preserve separated commits,Owner preview and release gates.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261012T115557Z-f576586046b5f616d80ebb992c5acb66f1a813de1e22e1b3f31f713880d00306.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261012T142820Z-d8668a751093e64b4be93a3d3371c042b73985c21ea8627983d38accc2740452.md)
 <!-- state-tool:history:end -->
