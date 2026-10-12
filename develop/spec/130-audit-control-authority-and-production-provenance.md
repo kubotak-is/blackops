@@ -445,6 +445,15 @@ and supplies that ordinary-only entry to the real ordinary owner; no general
 container lookup constructs a second delegate holder. Broader ordinary transport
 exposure needs its own explicit composition review.
 
+The two entries share one monotone graph-usability state. Ambiguous/invalid
+storage roots and actual ordinary Durable-delivery call failures invalidate it
+before any subsequent phase. Both entries refuse the same cached graph before
+lifecycle preparation,provider calls or selection; no connection reconnect or
+scheduler cache reset restores it. Fresh recovery constructs a new entire graph
+and authenticates its actual persisted winner. The exact delivery-edge rule and
+healthy terminal distinction are specified by131; this adds no C3 store getter
+or synthetic rollback proof.
+
 All legitimate producers must participate in this reservation protocol. A caller
 that writes F2 directly would bypass production provenance and must be rejected
 by exact construction/call guards. Required proof includes aliases, group imports,

@@ -4,6 +4,19 @@ Status: In Progress — authority direction adopted; no Product issuance or full
 
 ## Summary
 
+Current checkpoint: F3 Product ab8f035c remains accepted; no F5 Product is issued.
+The preceding status checkpoint35df513 was committed,pushed and remotely matched.
+Root closed CS-01 at the contract level and adopted the shared-state/composer
+clarification in130/131/D179. This turn also completed60 native diagnostic
+observations and exposed the PHP close-status limitation. Exact composition and
+history maps are now frozen recommendations. The measured native close correction
+has bounded Green79530b88; explicit authority adoption remains pending. Its joins
+with authority,installation and the completed pure-codec proposal still precede
+implementation.
+Full F5 AC2–6 and parent1.3 remain open. Details and immutable receipts follow.
+
+Initial management start and direction adoption:
+
 The preceding goal turn made progress: F3 source ab8f035c and management closeout
 6239a15 are committed,pushed and independently remote-matched. F3 clean committed
 export passed and all seven child criteria closed. The accepted checkout is clean
@@ -361,3 +374,102 @@ implementation,F4/full F5/F6,D/E/G,004A,005/Owner preview and006 publication/del
 Next Action: close CS-01 in the exact contract,calibrate native error propagation
 under a new isolated scope,and freeze/review the complete packet before Luna.
 No defensible release date or percentage follows from these preparation results.
+
+## Contract closure and measured native boundary — 2026-10-13
+
+Summary: this goal turn made concrete progress. Root correctionf8ec05b7 closes
+CS-01 under bounded Green24c15adb/inputs1ef0fed1. Root adopted the shared monotone
+ordinary/control graph failure rule in130/131 and clarified the actual same-graph
+checkpoint composer/lazy scheduler seam; D179 records why. The exact three-file
+semantic diff is E13/composition-authority-adoption.diff. Native implementation,
+ambiguity recovery and cross-entry refusal still require the assigned real tests.
+
+Changed Files:130,131,D179,F5 Task/Report,STATE and generated STATE archives in
+both checkouts; E13 ignored proposals/diagnostics/reviews only. No Product,
+production test,migration,dependency,public Website or primary index change.
+E13=.phpunit.cache/f5-orchestration/20261013. All diagnostic source revisions are
+retained with exact matching input hashes. No actual seed,credential,DB or network
+was accessible to the disposable probes.
+
+Commands and Results:
+
+| Root command / exact input | Result / duration / evidence |
+| --- | --- |
+| native-calibration-runner.py toolchain; pinned ab739e1d image | Passed0.431365035s; toolchain-result8ed64e35: GCC14.2.0,binutils2.44,glibc2.41,PHP8.5.7/Linux64/app1000. Initial sandbox socket failure preceded container creation; same approved command then ran. |
+| same runner calibrate,r1 then r2 | Failed0.589548959s/0.453784610s;51bfe18a/c47d1df1. r2 retained the concrete ld.so error: default noexec build tmpfs prevented loading the diagnostic library. No fault injection was verified. Containers removed; original inputs retained. |
+| calibrate,r3; private build tmpfs explicitly exec | Completed42 observations in1.122435365s;59b4f099. Actual target/tmp mounts stay noexec; no Product/vendor/root-repository mount. |
+| calibrate,r4; new post-fsync lifecycle inputs only | Completed18 additional observations in0.756087225s;8766d20f. Previous42 inputs were not rerun. |
+| Offline observation/provenance validation | Passed exact controls/effects/hash assertions in calibration-observation-validation.json,calibration-postsync-observation-validation.json and native-calibration-provenance-validation.json. Each executed container is absent; final lease closed/actions[]. |
+
+Literal argv,start/end/exit/image/source hashes,stdout/stderr and cleanup results
+are in those receipts. Aggregate container execution3.353221194s includes the two
+diagnostic failures; approval/agent/source-reading time is separate. No Product
+full gate or successful unchanged F3 gate was repeated. All PHP commands here
+are the explicitly scoped standalone diagnostic,not Production qualification.
+
+Across60 cases,25 controls passed,17 induced errors reached PHP failure returns,
+and4 numeric write observations were validated against exact bytes. Nine native
+close/fclose errors were hidden by PHP returntrue/no warning. These are six
+consumed-descriptor cases plus three deliberately non-consuming close-live
+counterexamples; the latter retain one native descriptor until child exit despite
+PHP resource invalidation. Five original routes were not reached. They are not
+failed-branch PASS. PHP itself combined two real short writes4+4 into return8.
+Actual post-fsync fflush failure was observable; failure within fsync prevented
+its native sync. Source and observed behavior distinguish direct descriptor and
+stdio routes.
+
+Official PHP8.5.7 source explains the result: public fclose drops the lower close
+return,whereas plain-stream flush/sync has the measured different routes.
+References are pinned in E13/native-calibration-contract-proposal-r1.md. This is
+not a claim of arbitrary physical-device/power-loss proof. Root's r2
+847ca0bd explicitly proposes Linux/glibc consuming-close semantics and exclusive
+descriptor ownership,with supported PHP result checks and mandatory earlier
+checked durability. It preserves the live-descriptor counterexamples. Independent
+r1 reviewfd2d9124/inputs64a47b6b required the explicit consuming-close premise.
+The bounded r2 review79530b88/inputs3851d55e closes NC-01 at proposed-contract
+level; all20 selected inputs stayed unchanged. Root has not yet adopted this
+API/platform limitation in129/130,issued Product code or accepted native behavior.
+
+Frozen composition map e39f6293/inputs4472243f supplies29 DDL statements,8 retained
+selector SQL blocks and69 proposed types within its declared budgets. Of116 inputs,
+113 were unchanged; concurrent Root Task/130/131 deltas were recorded and read.
+Frozen history map4527806b/inputs01ad90ad supplies49 nonterminal tags/trailer255,
+15 phases,exact native groups/callers and uncapped bounded-memory proof. These are
+candidate maps,not implemented types or parser/native test PASS. Concrete online,
+private signer/delegate custody imports,installation origin,migration reservation
+and combined verification still need final binding.
+
+The proposed pure F1 replay exception is limited to one named owner and three
+CheckpointCodec methods. Its actual graph includes existing Normalizer cold
+autoload/polyfill table reads. Root therefore selected explicit prerequisite
+resolution/warmup outside both floor locks. Completed candidate f816225a/inputs
+5e556580 covers37 inputs and a named prerequisite resolving15 existing types plus
+Normalizer and warming its nonempty FORM_C path. Independent review,adoption and
+cold-process proof remain open. The candidate explicitly retains three alignment
+issues: Preflight caller coverage,HistoryReplay ArtifactReplay dependency,and
+descriptor representation controls within method budgets. No F1 source,current-
+trust,seed,SQL/provider or nested-lock exception is implied.
+
+The independently selected root policy cannot come from a zero initial source,
+archive enumeration or a SQL mirror. Root selected a separate lazy deployment
+command audit:control:publish <policy-digest> in E13/installation-publication-entry-
+decision-r1.md plus inputs. This is an unreleased candidate administrative entry,
+not an implemented command or extra scheduler permission. Its real installation
+composition/fact origin,pending recovery/idempotence,help/projection/error/docs
+and bootstrap/root-revision qualification must be in the exact packet.
+
+Release Documentation Impact: actual public Source/routes/Search/LLM remain
+unchanged. Planned command/platform/configuration changes must be enumerated by
+the implementation packet; no Stable capability or1.3 release promotion occurred.
+Same-SHA CI/export,Documentation delivery and Production deploy are Not Run here.
+Parent005/006 still require all-public review,local Owner confirmation and live
+publication evidence. Existing F3 gates/preservation42d34b2b are reused only for
+their unchanged Product/public inputs.
+
+Acceptance: AC1 remains complete; AC2–6 open. Remaining Issues: adopt the reviewed
+native close refinement,resolve/review the pure-codec delta,bind authority/custody/installation
+imports and exact native resources,review the complete packet,then Luna implements.
+F4/full F5/F6,D/E/G,004A,005 and006 remain mandatory. No external blocker or
+unanswered Owner choice. Next Action: complete those finite contract joins and
+independent issuance review; do not replace actual checkpoint production with
+a codec/fixture-only acceptance. Scoped management checks/commit receipts follow.

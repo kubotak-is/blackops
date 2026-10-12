@@ -63,8 +63,13 @@ section 6. It owns one operations composition, one same-connection C3 compositio
 one provenance recorder/delegate holder and distinct ordinary/control entries.
 Build `ApplicationOperationRuntimeComposer::compose(snapshot)` once and retain
 its container, clock, identifiers, connection, lifecycle and **authorization**.
-Use `ApplicationAuditRuntimeComposer::compose(snapshot, operations, catalogs)`;
-its coordinator and both stores already share `operations.connection`.
+Use the finite `ApplicationAuditRuntimeComposer::composeForCheckpointProduction`
+seam with this snapshot,operations and catalogs to retain the same protection,
+coordinator,store and F2 graph on `operations.connection`. Its ordinary
+`compose(snapshot,operations,catalogs)` path retains existing behavior and does
+not construct F2 implicitly. No second provider/key holder or broad public
+protection getter is introduced. Construct this F graph lazily for scheduler
+execution; retention plan/purge and command help/list keep their existing needs.
 Only F delivery is composed; ordinary-D activation remains separate.
 
 Construct a final fixed `OrdinaryAuditSignPolicy` from the validated installation
@@ -233,6 +238,23 @@ denial: throw the finite sanitized audit failure; no unavailable retry on a brok
 connection, no catch/finally output, no durable downgrade, no exactly-once claim.
 Unavailable delivery failure surfaces as audit failure. Preserve original decision/context;
 only normal return from both Durable deliveries permits an audited-denial claim.
+
+The two actual Durable `deliverStandalone` call edges also participate in the
+single monotone F graph state. On every Throwable escaping either requested or
+unavailable delivery,invalidate that shared state before rethrowing the original
+finite audit failure. Invalidation is idempotent/nonthrowing and precedes
+best-effort connection cleanup. No unavailable follow-up after failed requested,
+no later append after failed unavailable,and no held result survive this path.
+Constructing a fixed Draft outside the call is distinct from a storage failure.
+
+Both cached ordinary/control entries check the same state before lifecycle
+preparation,provider calls or selection. Reservation/F2/step persistence
+uncertainty already invalidates it and therefore forbids a terminal C3 append.
+Close,reconnect,level0 or a health check cannot prove rollback or revive the
+cached scheduler. Recovery requires a new runtime/operations/database-manager/
+store graph and fresh invocation/authorization. A deliberate final unavailable
+after both Durable calls committed normally,and healthy audited policy denial,
+remain distinct from graph invalidity; they still release no held bytes.
 
 ## 5. Required implementation joins and verification
 

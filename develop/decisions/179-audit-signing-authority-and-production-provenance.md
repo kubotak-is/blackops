@@ -69,3 +69,20 @@ historical-issuer revalidation must be concretely joined without SQL under the
 control-floor lock, unbounded memory or a lifetime history limit before issuance.
 No concrete capture mechanism is adopted here. Product/native qualification,
 ordinary/control composition, F4/F6 and parent release gates remain mandatory.
+
+## Concrete composition refinement — 2026-10-13
+
+The actual C3 store closes a failed connection but does not make the whole cached
+F graph permanently unusable. Root adopts a shared monotone state at the F
+composition boundary. Both actual requested/unavailable delivery call edges
+invalidate it on escaping Throwable before propagating the original finite
+failure; no later delivery/provider/selection can run on that graph. Healthy
+committed denial/pending is separate. Recovery requires a fresh full graph.
+
+Bounded independent review24c15adb50c2d665549f50ddf9ae371b207a1d0162b3f7f0a429dfda68c8bd4c
+closes CS-01 against correctionf8ec05b7;19 selected inputs remained unchanged.
+The earlier composition review504e0f9d found no additional DDL/selector/lazy
+blocker. Root also clarifies131's exact composer call to the finite same-graph
+checkpoint seam and keeps ordinary compose and retention plan/purge isolation.
+These are explicit authority refinements,not implemented behavior or native
+Acceptance. The full exact packet and its tests remain required before Luna.

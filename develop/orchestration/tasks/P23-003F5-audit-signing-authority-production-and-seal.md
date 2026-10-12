@@ -195,3 +195,60 @@ investigator owns native-authority-fault-verification-proposal-r1.md and input J
 No overlapping Product/file ownership, shared DB, test/build or runtime lease.
 Root owns the final contract, Task/Report/STATE, complete-packet review and issuance.
 All remaining AC2–6 and parent release gates stay open.
+
+## Contract closure and native calibration scope — 2026-10-13T01:17:12+09:00
+
+The preceding goal turn made progress: bounded composition review found CS-01,
+and governance checkpoint35df513e65d687086d47517df9dca6f3b5081457 was committed,
+pushed and independently remote-matched. Current C is clean at that SHA. Existing
+Product/public inputs and primary index remain preserved; no Product worker runs.
+
+Root owns a new isolated compiler/ABI and PHP native-error calibration, solely
+to resolve issuance uncertainties. E13=.phpunit.cache/f5-orchestration/20261013.
+Allowed ignored diagnostic files are native-calibration-{runner.py,probe.c,
+driver.php,lease.json}, command/stdout/stderr/result manifests and binary hashes.
+A read-only mount supplies only those diagnostic source files; compilation/output
+stay in owned tmpfs. The existing pinned image is
+sha256:ab739e1d3bb8d9c7b6696401f7d4821eff72ae870db703feb537015a4fa14f5d.
+Use app UID1000,network none,read-only root,cap-drop ALL,no-new-privileges,
+pids32,memory/swap768MiB,PHP512M,tmp16MiB and private build/fault tmpfs64/32MiB.
+No Product/vendor/repository-root/env/credential/DB/network mount or shared service.
+No compiler install,pull,image rebuild,extension or production dependency is
+authorized. If required compiler/headers/loader support is absent,record the
+actual failure before choosing a separate scope. Root alone owns the containers;
+each run is bounded by60s and must end with cleanup/absence evidence.
+
+First verify compiler/loader identity and availability in that exact image.
+Then compile a diagnostic-only inode-scoped libc interposer and compare passive
+controls to actual selected PHP write/fflush/fsync/fclose/seek/truncate/flock
+routes on regular/unlinked/directory descriptors. Child-only instrumentation,
+synthetic nonsecret bytes and fixed numeric observations are required. Record
+symbols/hits,real effects,PHP return/warnings and resource state; unhit/masked
+errors remain Unobservable rather than native negative PASS. This is feasibility,
+not Product tests or F5 Acceptance. The former success-probe lease stays closed.
+
+Root also owns E13/checkpoint-composition-correction-r2.md and its selected-input
+manifest. Existing read-only reviewer owns only its matching review/inputs.
+The existing composition investigator owns E13/checkpoint-issuance-map-r1.md and
+inputs: consolidate already reviewed exact composition/SQL/selector callers into
+one final candidate allowlist and signatures without restarting the research.
+The existing filesystem investigator owns E13/history-capture-issuance-map-r1.md
+and inputs: exact frame tags/native scalar schemas/order and custody/parser type
+decomposition from the reviewed r2 protocol. They neither execute native tools
+nor modify Product,authority,Task,Report,STATE,Git or each other's evidence.
+Root integrates their nonoverlapping contract sections and adopts authority
+clarifications only after independent review. Complete exact prerequisite
+issuance and all AC2–6 remain open; no smaller Product substitute is accepted.
+
+After actual calibration,Root owns native-calibration-contract-proposal-r1.md
+and inputs. The same independent reviewer owns only its matching review/inputs
+for the measured PHP close/flush contract delta; it must assess the safety impact
+before any authority amendment. Observation is not permission to waive a gate.
+
+The history investigator additionally owns only
+E13/pure-checkpoint-codec-floor-delta-r1.md and matching inputs for the finite codec refinement;
+its reviewed history map remains frozen. Root retains adoption/review ownership.
+
+Root's native-calibration-contract-proposal-r2.md explicitly resolves the observed
+NC-01 native-descriptor disposal premise; the same reviewer owns its bounded r2
+review/inputs. Neither proposal changes authority before the correction is reviewed.
