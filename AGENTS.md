@@ -62,6 +62,23 @@ GPT-5.6 Luna Max workerはReview前にCommitしない。範囲外の修正が必
 - 不明な影響、失敗、新しい変更があれば必要な検証を広げる。管理上の文言修正ではProduct検証を失効させない。Releaseのsame-SHA CI／export条件は維持する。
 - 長いCommandは開始時にlogと実行状態を共有する。停滞時は失敗箇所・実行中process・入力差分を調べ、根拠なく全工程を再起動しない。
 
+## Commit Checkpoints
+
+Ownerの明示的な留保がない変更作業では、Orchestratorがまとまった作業単位ごとにコミットする。
+単位に割り当てた検証とOrchestrator Reviewを終えたら、その時点でコミットし、上位TaskやRelease全体の完了まで待たない。
+仕様・Decision・Task/Reportを揃えた管理変更も、一つの完結した成果として扱う。
+
+- 次の独立した作業単位へ進む前とSession終了前に、現在のworktree/branch、index、未コミット差分を確認する。
+- 完了した複数のTaskをまとめて後回しにしない。未完了の検証やFindingがある変更は、完了した別単位へ混ぜない。
+- stagingは対象pathまたはhunkを明示し、既存の無関係差分を保護する。混在worktree全体の一括stagingは禁止する。
+- 別worktreeでコミットした場合は、そのpath/branch/commit SHAを報告し、元worktreeの差分も整理済みであるかのように扱わない。
+- 未コミット差分を残す場合は、対象Task/ファイル群、残す具体的理由、コミットに必要な次のActionをReport/STATEとUserへの報告に記録する。
+- コミット済みかはGitで確認する。完了報告には作業単位とcommit SHAを含め、push済みはremoteで確認できた場合だけ記載する。
+
+WorkerのReview前コミット禁止は維持する。Commit、Acceptance、push、tag、release、deployは別の状態として扱う。
+このルール自体はpushや公開の追加許可を意味しない。既存のOwner指示で許可された範囲は継続して実行する。
+詳細は[仕様109](develop/spec/109-ai-development-workflow.md#commit-boundaries)を正本とする。
+
 ## Checkpoint
 
 次の時点で `develop/STATE.md` を更新する。

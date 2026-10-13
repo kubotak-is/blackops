@@ -111,6 +111,26 @@ SQL/tenant/securityにはTransaction/Security、公開Release/読者経路には
 Reportのログ名等の編集上のP3はRootが差分を確認して閉じ、契約の意味が変わった場合だけ該当Reviewerへ戻す。
 範囲外の新提案は別Taskへ記録し、現在のAcceptanceに必要かを判断してから実装する。
 
+## Commit Boundaries
+
+Owner判断（2026-10-13）: まとまった作業単位ごとにコミットし、その運用をSession間で維持する。
+Ownerが明示的にコミットを留保した場合を除き、変更作業の一つの成果に必要な検証とOrchestrator Reviewが完了した時点でOrchestratorがコミットする。
+上位Task、機能全体、Releaseの完了は待たない。WorkerがReview前にコミットする規則へは変更しない。
+
+一単位は、一つの問題と結果を説明・Reviewできる変更とする。
+実装とその意味のあるTest、対応する仕様・記録を揃える。管理文書だけで完結する判断・運用変更も独立した単位となる。
+文字数やファイル数だけで機械的に分割せず、未完了の独立機能や別Taskの差分を混ぜない。
+途中の進捗文だけを何度もコミットすることを目的にせず、完了した成果を次の独立作業へ持ち越さない。
+
+次の独立作業へ進む前、およびSession終了前に、実際のworktree/branch、index、未コミット差分を照合する。
+完了した単位をコミットし、残る差分は対象Task/ファイル群、具体的な未完了理由、必要な次の検証・Review・整理をReport/STATEへ記録する。
+Userへの報告にも作業単位とcommit SHA、未コミット差分の理由とNext Actionを含める。
+
+混在worktreeでは対象path/hunkだけをstageし、indexとcommitの実際のpath/blob/modeを確認する。
+既存の無関係差分を一括stage、破棄、暗黙に採用しない。複数worktreeを使った場合はcommit先のpath/branchを示し、元worktreeの未整理差分と区別する。
+単位のcommitだけでAcceptance、export、same-SHA CI、release、deploy完了を主張しない。
+push/公開の許可は既存のOwner指示に従い、この継続コミット規則から追加許可を推定しない。
+
 ## Document Ownership
 
 | 文書 | 正本にする情報 | 更新の契機 |
