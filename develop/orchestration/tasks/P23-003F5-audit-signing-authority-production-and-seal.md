@@ -252,3 +252,38 @@ its reviewed history map remains frozen. Root retains adoption/review ownership.
 Root's native-calibration-contract-proposal-r2.md explicitly resolves the observed
 NC-01 native-descriptor disposal premise; the same reviewer owns its bounded r2
 review/inputs. Neither proposal changes authority before the correction is reviewed.
+
+## Final finite contract joins — 2026-10-13T21:54:18+09:00
+
+The preceding goal turn is Progress: reviewed CS-01 adopted,60 native calibration
+observations retained,and governance046fa8a1d122d4d031622b6bc880f8fd40f5a990 committed,
+pushed and independently matched in E13/calibration-final-remote-proof.json. C is
+clean at that commit. No Product worker or native/DB lease is active.
+
+Root now adopts the reviewed NC-01 API/platform limitation into129/130/D179 and
+this verification contract. No additional native execution is assigned here.
+Root owns authority,Task/Report/STATE,assembly,Acceptance and Git. Existing maps
+remain immutable evidence; corrections are finite deltas,not new general research.
+
+Read-only ownership,all under E13:
+- Existing history investigator owns pure-checkpoint-codec-floor-delta-r2.md and
+  inputs: close the exact Preflight edge and fifth replay collaborator; retain
+  all four runtime representation controls on descriptors within10 methods by
+  cohesive purpose-level I/O surfaces,with every actual consumer reconciled.
+  No generic operation dispatcher,resource getter,callback or dropped cleanup.
+- Existing composition investigator owns installation-publication-issuance-r1.md
+  and inputs: freeze the already selected audit:control:publish argument,actual
+  lazy Console/factory/connection graph,real Bootstrap/RootRevision fact origin,
+  exact idempotent/pending-recovery protocol,caller guards,allowed paths and
+  meaningful command/native tests. Reuse the fixed29 DDL and existing publication
+  pipeline; no change to the published F1/F2/F3 wires or D acknowledgement.
+- Existing independent reviewer first owns native-custody-adoption-review-r1.md
+  and inputs,only the Root129/130/D179 semantic delta against Green79530b88.
+  When Root separately sends the completed pure-codec r2,that same reviewer owns
+  pure-checkpoint-codec-floor-review-r2.md and inputs as a separate bounded review.
+No agent writes governance,Product,tests,STATE,Git or another agent's output.
+No DB,Docker,PHP/Node runtime,test,dependency install or lease is authorized.
+
+Root separately binds actual online/seed/delegate imports and reserves the exact
+migration in the complete worker packet. Independent combined issuance review
+precedes Luna. AC2–6 and all parent1.3 gates remain open; no codec-only substitute.

@@ -86,3 +86,23 @@ blocker. Root also clarifies131's exact composer call to the finite same-graph
 checkpoint seam and keeps ordinary compose and retention plan/purge isolation.
 These are explicit authority refinements,not implemented behavior or native
 Acceptance. The full exact packet and its tests remain required before Luna.
+
+## Supported native custody refinement — 2026-10-13
+
+Actual PHP8.5.7 calibration showed that public fclose can hide native close/fclose
+errors and invalidate its PHP resource even when a deliberately replaced close
+retains the descriptor. An all-native-close-error detection promise cannot be
+implemented by the admitted core APIs. Root adopts the explicit supported
+Linux/glibc, exclusively owned descriptor contract in129 section2.1 and130 rather
+than claiming that PHP reports the hidden status. Checked prior file/directory
+durability, currentness and permissions remain mandatory; close is no durability
+barrier and is never retried. No helper/extension/process/FFI is added.
+
+Independent correction review79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37
+closed NC-01 against proposal847ca0bd after the r1 findingfd2d9124. Its20 selected
+inputs stayed unchanged. Three deliberately non-consuming descriptor-residual
+cases and six consumed-descriptor masked errors remain distinct evidence; none
+is relabelled detectable-negative Product PASS. Actual owner/CI-image native
+qualification and public installation/support documentation remain required.
+This adopts only the reviewed API/platform correction. Full custody/capture/type
+issuance and F5 Acceptance remain open; no successful Product runtime is inferred.

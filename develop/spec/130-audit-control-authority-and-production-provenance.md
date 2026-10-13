@@ -62,6 +62,14 @@ and caller, rather than pretend that such an API already exists. F2's seven
 preparation columns, public prepare/persist signatures, standalone roots, Clock,
 UUID and immutable replay behavior remain unchanged by this contract.
 
+The supported PHP/native file, durability and close boundary in
+[specification129 section2.1](129-audit-online-authority-and-seed-custody.md#21-supported-native-file-and-close-contract)
+also applies to every control floor/source/archive, delegate-seed and anonymous
+history owner below. All close-success/failure requirements mean the observable
+PHP contract plus its explicit Linux/glibc exclusive-descriptor premise; they do
+not assert visibility of a masked native close error. Required checked file and
+directory fsync, currentness, permissions, one-use results and cleanup are unchanged.
+
 ## 3. Common authenticated-document primitive
 
 Use the common envelope and domains in [specification129](129-audit-online-authority-and-seed-custody.md).
@@ -854,8 +862,9 @@ Every ordinary/control consumer uses this finite acquisition sequence:
    observedNow to that sample in the same floor inode under the same lock using
    the exact full-write/ftruncate/fflush/fsync procedure above. Preserve all other
    accepted fields and null pending pair. If the entire state is unchanged, its
-   already durable bytes need no rewrite. Unlock/close successfully, then return.
-   A short write, flush/fsync/close failure grants no result, seed access, signature,
+   already durable bytes need no rewrite. Check unlock/close under the supported
+   section2.1 contract linked above, then return. A failed full write or observable
+   flush/fsync/unlock/close failure grants no result, seed access, signature,
    release or seal permission. Seed files, F1, F2 and database work are outside
    acquisition and occur only after the lock is released.
 
@@ -1032,6 +1041,12 @@ expired current material or a stale freshness head leaves the work pending or
 fails safely; it never relabels it as ordinary/control or generates a new identity.
 
 ## 11. Required verification
+
+Apply specification129 section2.1 and its native-observability verification to
+actual control acquisition, publication, archive and delegate owners. Retain the
+three non-consuming counterexamples separately from six consumed masked errors;
+no hidden native-close detection or Product negative PASS follows from PHP true.
+Required currentness, checked durability, interruption and cleanup evidence remain.
 
 Discriminating future proof must cover a real scheduler/runtime positive;
 ordinary/control invocations over the same segment/bytes; forged class rows with

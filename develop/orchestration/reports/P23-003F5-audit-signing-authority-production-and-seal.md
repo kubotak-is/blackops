@@ -5,15 +5,13 @@ Status: In Progress — authority direction adopted; no Product issuance or full
 ## Summary
 
 Current checkpoint: F3 Product ab8f035c remains accepted; no F5 Product is issued.
-The preceding status checkpoint35df513 was committed,pushed and remotely matched.
-Root closed CS-01 at the contract level and adopted the shared-state/composer
-clarification in130/131/D179. This turn also completed60 native diagnostic
-observations and exposed the PHP close-status limitation. Exact composition and
-history maps are now frozen recommendations. The measured native close correction
-has bounded Green79530b88; explicit authority adoption remains pending. Its joins
-with authority,installation and the completed pure-codec proposal still precede
-implementation.
-Full F5 AC2–6 and parent1.3 remain open. Details and immutable receipts follow.
+Governance046fa8a was committed,pushed and independently remote-matched. Root now
+adopted the measured native custody boundary into129/130/D179 under independent
+Greenf97994ce,closing this coherent specification unit. No native Product proof is
+inferred. Separate Owner commit-policy Task P23-019 is accepted and committed as
+509ca1e3537d588f18956ab8902966234b06605e; F5 edits were excluded from that commit.
+Pure-codec r2 and exact installation-entry packets are still being completed by
+their named read-only authors. Full F5 AC2–6 and parent1.3 remain open.
 
 Initial management start and direction adoption:
 
@@ -473,3 +471,55 @@ F4/full F5/F6,D/E/G,004A,005 and006 remain mandatory. No external blocker or
 unanswered Owner choice. Next Action: complete those finite contract joins and
 independent issuance review; do not replace actual checkpoint production with
 a codec/fixture-only acceptance. Scoped management checks/commit receipts follow.
+
+## Supported native custody adoption and commit boundary — 2026-10-13T22:09:26+09:00
+
+Summary: Root adopted NC-01 correction847ca0bd into129 section2.1,130 and D179.
+The exact semantic difff4785d31 received bounded Greenf97994ce/inputsbbf811a1.
+All three source documents and reviewed evidence remained fixed; the independent
+review reversed each diff hunk in memory and matched all declared before hashes.
+AGENTS changed only for the direct Owner commit-rule instruction,recorded as a
+separate instruction checkpoint rather than hidden semantic input drift.
+
+The supported Linux/glibc exclusive-descriptor premise, observable PHP error
+checks, checked prior file/directory durability, single close/no retry and
+currentness/permissions remain explicit. The three non-consuming counterexamples
+and six consumed masked errors stay distinct. Completed partial writes do not
+become false failure evidence. Native actual-owner, interruption and actual-CI-
+image qualification and public installation disclosure remain mandatory.
+
+Changed Files in this coherent F5 unit:129,130,D179,F5 Task/Report,STATE and its
+new archives. The separately committed P23-019 includes AGENTS/spec109 and its
+Task/Report only. No Product,tests,migration,dependencies or public Sources changed.
+Root has not adopted the later pure-codec delta or issued the Product packet.
+
+Commands and Results: E13/native-custody-adoption-r1-inputs.json pins exact three-
+file before/after hashes. E13/native-custody-adoption-review-r1.md and inputs retain
+read-only independent Review. Scoped diff/link/byte/STATE and exact staged/committed
+paths are retained in E13/native-custody-unit-*.json. All prior60 diagnostic
+observations and current F3 Product gates are reused unchanged; additional native/
+PHP/browser/DB/full gates and release CI/export/deploy are Not Run for this unit.
+
+Owner asks that each coherent completed unit be committed immediately after its
+assigned verification and Orchestrator Review. P23-019 implements this in AGENTS/
+109; it does not waive tests or authorize Worker commits before Review. Its exact
+4-path509ca1e commit preserves all7 then-pending F5 paths and the primary index.
+Primary inventory against046fa8a found571 dirty paths at that checkpoint:281
+matched the accepted committed blob/mode,80 differed and210 were absent from that
+commit. This inventory is not Acceptance of the different/primary-only contents.
+Existing mixed Product,Documentation and primary index remain preserved until
+named task reconciliation; accepted commits do not silently clean that checkout.
+
+Acceptance: AC1 remains complete and AC2–6 open. Release Documentation Impact:
+none on current public Source/routes/Search/LLM,API/Capability/Release values.
+The future signing/control implementation must publish its supported native
+boundary and qualify source/artifact fixtures; the selected installation command
+remains unimplemented and unreleased.
+
+Remaining Issues: finish/review the finite pure-codec descriptor/caller joins,
+actual installation graph/facts,online/seed/delegate imports,migration/resource
+binding and complete independent issuance review. Then Luna implements the real
+checkpoint prerequisite; F4/full F5/F6,D/E/G,004A,005/Owner preview and006 remain.
+Next Action: commit this reviewed custody unit separately,then continue those
+exact issuance joins without reopening already closed reviews or rerunning the
+same successful diagnostic inputs. No external blocker is present.

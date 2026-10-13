@@ -1,7 +1,7 @@
 # Orchestration State
 
-Updated At: 2026-10-13T02:19:54+09:00
-Status: BlackOps 1.3 active; measured custody correction and exact packet assembly
+Updated At: 2026-10-13T22:09:26+09:00
+Status: BlackOps 1.3 active; native custody adopted; replay and installation joins open
 Current Task: [P23-003F5](orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md)
 Current Report: [P23-003F5 Report](orchestration/reports/P23-003F5-audit-signing-authority-production-and-seal.md)
 
@@ -11,9 +11,9 @@ Parent006 authorizes implementation,independent Review,separated commits/push,
 publication and delivery toward1.3. Final local Documentation Owner confirmation
 precedes publication. Experimental Stable1.2.1 remains current;1.3 is unreleased.
 C=.phpunit.cache/f2-orchestration/accepted-integration,branch
-agent/p23-006-accepted-integration. Last verified governance delivery35df513e65d6
-is pushed and independently remote-matched;current contract/evidence bookkeeping
-is prepared for a separate commit after scoped checks. F3 Product ab8f035c/management6239a15d
+agent/p23-006-accepted-integration. Governance046fa8a1d122 is committed,pushed and
+independently remote-matched in E13/calibration-final-remote-proof.json. Current
+turn starts from its clean accepted checkout. F3 Product ab8f035c/management6239a15d
 are delivered. No F5 Product packet or implementation is issued.
 
 Primary agent/p23-001-blackops-1-3-feasibility / HEAD8106c355 remains mixed.
@@ -24,6 +24,15 @@ closed/actions[]. Any later runtime action needs a fresh explicit resource scope
 Authority129–132/D179 adopted;F5 AC1 complete,AC2–6 open.
 
 ## Evidence
+
+Owner commit policy is now P23-019; AGENTS/spec109 require a separate commit when
+one coherent unit finishes its assigned verification and Orchestrator Review.
+Root committed its exact4 paths as509ca1e3537d,excluding all pending F5 changes.
+The independent Green custody adoption is the next separate commit unit. Primary dirty
+paths are inventoried against accepted046fa8a in E13/work-unit-policy-primary-
+inventory.json; matching copies are not treated as new uncommitted Product work.
+Different/primary-only copies stay preserved pending named task reconciliation.
+The accepted checkout currently holds only policy and F5 governance changes.
 
 E3=.phpunit.cache/f3-orchestration/20261009;E5=.phpunit.cache/f5-orchestration/20261012;
 E13=.phpunit.cache/f5-orchestration/20261013. This turn made concrete progress:
@@ -60,8 +69,10 @@ observable and prevent native sync. Root native contract r2 847ca0bd proposes
 genuine Linux/glibc consuming-close semantics with exclusive descriptor ownership,
 mandatory prior checked durability,and no portable/hidden-close-detection claim.
 Independent r1fd2d9124 identified NC-01;bounded r2 Green79530b88 closes it at
-proposed-contract level with20 unchanged inputs. Explicit129/130 custody adoption
-and native Product qualification remain pending. No reviewer is still running.
+proposed-contract level with20 unchanged inputs. Root adopted129/130/D179 custody deltaf4785d31; independent Greenf97994ce/inputs
+bbf811a1 confirms exact before/after preservation. Native Product qualification
+remains pending;no native rerun is assigned. Commit this completed contract unit
+separately from the Owner commit-policy unit.
 
 Composition mape39f6293/inputs4472243f freezes candidate29 DDL/8 SQL blocks/69 new
 types;116 inputs,113 unchanged and Root Task/130/131 deltas recorded. History
@@ -74,17 +85,20 @@ Root pure-codec exception candidate is one named replay owner and exactly three
 CheckpointCodec methods;no signer/current-online/SQL/provider/seed exception.
 Existing Normalizer cold autoload/polyfill data reads require explicit finite
 preload/warmup outside either floor. Completed deltaf816225a/inputs5e556580 covers
-37 inputs,15 Framework types and nonempty FORM_C warmup. Three caller/dependency/
-representation joins,independent review/adoption and cold-process proof remain.
+37 inputs,15 Framework types and nonempty FORM_C warmup. History investigator
+owns only the bounded r2 fixing three caller/dependency/descriptor-budget joins.
+Independent review/adoption and cold-process proof remain.
 
 Root selected lazy deployment CLI audit:control:publish <policy-digest> as the
 missing independent initial/new root-policy selection entry. E13/installation-
 publication-entry-decision-r1.md retains the candidate. It is unissued/unreleased;
 normal maintenance cannot invent bootstrap from zero source,latest archive or SQL.
+Composition investigator owns only its exact installation issuance delta;Root
+retains authority adoption and the real online/seed/delegate import assembly.
 
 ## Remaining Work
 
-Adopt reviewed measured custody and close/review the pure-codec delta;bind actual online/seed/delegate
+Close/review the pure-codec delta;bind actual online/seed/delegate
 imports and installation graph/fact origin;reserve migration and freeze exact
 native commands/cases/resources. Independently review the COMPLETE packet before
 Luna implements real reservation -> F2 preparation -> authorized sign -> candidate
@@ -97,10 +111,10 @@ No external blocker or unanswered Owner choice;no defensible release date/percen
 
 ## Next Action
 
-Root adopts the Green native correction,closes the three pure-codec joins and
-obtains its independent review,then binds authority/installation imports to the
+Root closes the three pure-codec joins and obtains its independent review,then
+binds authority/installation imports to the
 two frozen maps. Complete independent issuance review,then assign Luna implementation.
 Retain separated commits,exact diagnostics,Owner preview and release gates.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261012T171955Z-cbcafe4e0f07d0882d7e9c9fe59d83ef73e41a1bca08c27450e664005ec04382.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261013T130927Z-52b63d8f065a35c9a19510a7ad91a45285a07f88f874da49aa63252b3b727c9d.md)
 <!-- state-tool:history:end -->

@@ -115,6 +115,50 @@ This **is a public configuration addition**, despite introducing no `PublicApi`
 class. It therefore needs configuration/installation documentation and release
 impact review. No Stable capability is promoted by this contract.
 
+### 2.1. Supported native file and close contract
+
+The online/control custody implementation supports genuine Linux/glibc semantics
+with PHP core plain-file streams and stable installed runtime/library bindings.
+Each valid descriptor is exclusively owned by its fixed custody owner. No external
+closer, signal handler, thread/callback, FFI, replacement libc or arbitrary stream
+wrapper may share, close or repurpose its native fd/FILE handle. Under this
+supported native contract, a reported close error consumes a valid descriptor;
+EBADF denotes an already invalid descriptor. Non-consuming replacements and other
+runtime/platform disposal semantics are unsupported by this custody contract.
+This limitation does not narrow unrelated Framework capabilities.
+
+Every durable result requires the specified checked same-descriptor full write,
+exact truncate, PHP fflush and actual fsync after the final mutation. Archive
+publication also requires its explicit checked directory fsync. A successful
+bounded full-write loop may complete partial writes; zero progress or an
+incomplete write is failure. The existing identical-already-durable-state
+exception remains, and read-only sources/seeds gain no invented write or sync.
+Check each observable failure return, operation-local warning and Throwable;
+reconstruct the owned finite failure. Storage/filesystem fsync semantics and
+installation trust remain prerequisites, not physical power-loss guarantees.
+
+Explicitly unlock when held, then consume the owned PHP resource once. Check the
+PHP fclose return, operation-local warning/Throwable and resource invalidation.
+An observable failure denies the protected result. Never retry a close or use a
+destructor/close as a durability barrier. PHP resource invalidation is observable;
+native descriptor disposal separately relies on the supported exclusive-ownership
+premise above. PHP may return true while discarding an underlying close/fclose
+error. A normal PHP return does not attest the hidden native close status, and
+this contract does not promise detection of that hidden error.
+
+Anonymous history scratch is not durable authority storage. Its bounded writes,
+framing, seeks, physical EOF, explicit PHP flush and closure remain checked.
+A plain-descriptor fflush may be a no-op; it is no durability assertion and adds
+no scratch fsync requirement. No Product native extension, helper process, FFI,
+/proc inspection or fault callback is introduced to expose hidden close status.
+
+The reviewed disposal assumptions are documented by [Linux close(2)](https://man7.org/linux/man-pages/man2/close.2.html)
+and [glibc2.41 Closing Streams](https://sourceware.org/glibc/manual/2.41/html_node/Closing-Streams.html).
+The qualified PHP8.5.7 behavior and exact runtime image are retained in the F5
+Report. The actual CI image must calibrate its admitted routes; matching PHP
+version text alone is not runtime qualification. Installation and public Guide
+must disclose this support limit before the signing/control capability is released.
+
 ## 3. Shared authority envelope and exact online payload
 
 Online and control use the same envelope,domains,bounds and root-fingerprint
@@ -283,8 +327,8 @@ Finite acquisition order:
 6. Store the accepted epoch/hash/sourceObservedAt and new local observedNow before returning any
    phase input. Write to the same existing inode under the same lock: seek to 0,
    bounded full-write loop, truncate to exact new length, `fflush`, then `fsync`;
-   require every operation to succeed. Only then unlock/close and expose the
-   internal result. If bytes are unchanged, no rewrite is needed. No rename-based
+   require every observable operation result to succeed under section2.1. Only
+   then check unlock/close under that supported contract and expose the internal result. If bytes are unchanged, no rewrite is needed. No rename-based
    floor update, directory-durability assumption or acknowledgement before fsync.
 
 The in-place state choice favors simple fail-closed crash behavior over automatic
@@ -438,7 +482,7 @@ The Internal failure vocabulary has these values and no others:
 | Value | First-applicable causes |
 | --- | --- |
 | `configuration_invalid` | Closed configuration/type/path/key syntax violation or forbidden map alias detected before acquisition. |
-| `authority_unavailable` | Missing/unreadable/nonregular/unstable bounded source, floor lock contention, missing/corrupt floor, file I/O/flush/fsync/close failure. |
+| `authority_unavailable` | Missing/unreadable/nonregular/unstable bounded source, floor lock contention, missing/corrupt floor, observable file I/O/flush/fsync/unlock/close failure under section2.1. |
 | `authority_invalid` | Invalid/over-limit/noncanonical envelope or payload, wrong purpose/issuer/root signature, wrong installation/authority/scope, invalid semantic hash/relations, mismatched configured root fingerprint. |
 | `clock_unavailable` | Clock throw/invalid timestamp or local now below stored observedNow. |
 | `authority_stale` | Expired/not-yet-current document or snapshot; epoch below installed/stored floor; equal-epoch equivocation; publisher observation rollback. |
@@ -479,10 +523,18 @@ the source/seed/entry boundary.
 - Native floor evidence: equal epoch/same bytes succeeds; equal epoch/different
   valid signed bytes is equivocation; higher accepted epoch followed by lower
   rejects across new process/Connection; contention fails without callbacks;
-  injected short write/fflush/fsync failure returns no input; torn/missing state
+  failed full-write/fflush/fsync returns no input; torn/missing state
   never initializes itself; crash after fsync/before return recovers. Restoring
   only DB cannot lower floor. Full trusted-state rollback is an explicitly
   out-of-boundary recovery exercise, never a claimed cryptographic detection.
+- In the actual supported CI image, distinguish native call hits/effects from
+  PHP negative branches. Keep successful completed partial writes, observable
+  failures, unreached injection routes and masked close errors separate. Retain
+  the calibrated three non-consuming descriptor-residual counterexamples and
+  six consumed-descriptor masked errors as distinct regression categories; none
+  is detectable-negative Product PASS. Qualify actual protected-owner outcomes
+  with all preceding currentness/durability barriers and explicit unlock/cleanup.
+  Process death, lock release and archive recovery remain mandatory separate proof.
 - Exact F2 preparation survives crash/key selection rotation. Reacquire after
   prepare when signedAt is later than the first sample. Same-ref snapshot material
   replacement fails its durable fingerprint/configured map comparison before
