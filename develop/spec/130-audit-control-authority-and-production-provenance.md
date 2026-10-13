@@ -430,7 +430,13 @@ ApplicationConsoleKernel framework scheduler commands
 ```
 
 `ApplicationRetentionRuntime` is the sole production constructor of the new
-task/issuer relationship and its delegate custody. Its application configuration
+scheduler task/issuer relationship and its delegate custody. The separate
+`ApplicationAuditControlInstallationComposer::compose` owns only the installation
+publication graph described in section9.4. That entry cannot construct a scheduler
+task, work issuer, ordinary owner, checkpoint signer or F4/D continuation. Its
+private delegate custody is one instance within that independent invocation's
+actual same-Connection graph; it is not a container-resolved signing service.
+The scheduler's application configuration
 must pass the installed source/key/path validation; arbitrary MaintenanceTask
 membership or a Framework-looking name cannot obtain this relationship.
 The new task receives no actor, tenant, family, target, key, segment, callback,
@@ -1051,6 +1057,61 @@ the released floor, and closes before seed/sign/F2 or the original phase result.
 Its creating private directory is closed/removed before any nonempty payload write.
 Actual owned failures, process death, archive recovery and bounded-memory proof
 remain mandatory; no descriptor/helper-only acceptance replaces real production.
+
+### 9.4. Explicit installed-policy publication entry
+
+The installation-owned entry is the visible Framework command
+`blackops audit:control:publish <policy-digest>`. Its single required argument is
+exactly64 lowercase hexadecimal bytes naming an already archived root-signed
+control policy by the established envelope digest. Admit type, length and grammar
+before composition. Do not trim, normalize, enumerate an archive, infer a latest
+policy from SQL, or accept a path, key, seed, target, permission or payload instead.
+Inherited Console options retain their existing behavior; no command-specific
+option, alias, confirmation or alternate mode is added.
+
+Use the existing project Console entry and its fixed lazy command factory. Help,
+list and malformed arguments do not build the graph or touch authority files,
+providers or the database. The new command remains discoverable without signing
+configuration; execution then fails safely. The command selects independently
+installed material. It installs no root, delegate, archive object, initial source
+or floor, and does not bypass stopped/drained rotation or installation recovery.
+
+`ApplicationAuditControlInstallationComposer::compose` is the one additional
+installation composition owner. It validates the actual snapshot, performs the
+same finite replay initialization before either floor, and uses the actual
+operations composition, Connection, Clock, lifecycle and same-Connection audit
+composition. Only that runtime calls compose; the returned closed
+`ApplicationAuditControlInstallationComposition` owns the one invocation. It
+checks its common graph before the actual invocation lifecycle and invalidates
+that graph on escaping failure. A second call on the same runtime or composition
+fails; an exact retry uses a fresh command invocation and newly authenticated
+graph. There is no new public Application API or general service lookup.
+
+Its selector carries the original requested policy digest through bootstrap,
+root revision, already committed candidate selection and exact pinned recovery.
+Archive selection is a structural fact, not authority. The later complete root,
+delegate, restriction, native-history and current-floor checks must authenticate
+that same policy before any protected mutation. In phase14, the authenticated
+candidate must still match the originally selected digest. Replaying an already
+accepted candidate uses its exact accepted endpoint; it never assumes a new
+revision by computing max+1 or silently accepts another selected policy.
+
+The actual native publication writer persists the required signed transition,
+binding and immutable candidate in its owned root before the publisher executes
+the unchanged pending/source/accepted protocol. A success result exists only
+after the final durable accepted floor, or after the identical accepted document
+is freshly authenticated under the same lock. It distinguishes Published from
+AlreadyPublished and reports only the authenticated0..32 pending policy-event
+count. It prints no policy/artifact bytes, digest, path, secret or raw failure.
+Publication output does not claim D acknowledgement, scheduler activation,
+ordinary/control work completion or final Required release. Existing pending
+policy events remain pending until their real D consumer acknowledges them.
+
+This entry is an unreleased1.3 contract. Actual Console/lifecycle origin, malformed
+input laziness, selected-digest recovery, competing native publication, ambiguous
+commit and file/directory durability require the complete production packet's
+native tests, source guards and independent review. A correct command definition
+or a fixture-created publication result does not establish those guarantees.
 
 ## 10. Rotation, revocation and historical evidence
 

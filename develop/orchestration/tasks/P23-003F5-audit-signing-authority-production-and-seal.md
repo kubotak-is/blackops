@@ -360,3 +360,22 @@ the exact Candidate.native call/path,Registry9 and HistoryReplay.replay correcti
 requested by independent reviewb593fb5a. The complete issuance review retains
 those literal deltas. Root owns integration,STATE,resources,Acceptance and
 Git. No agent changes Product/governance/tests or opens DB/native/runtime leases.
+
+
+## Adopted installation publication authority — 2026-10-14T03:13:25+09:00
+
+Root adopted the exact two-file candidate5e20e792 after independent Green
+b5ead1c5d50b1bac4af5d69610222bce63b24ae780bbb0fb34de79661c237a46
+(inputsdf497d16c0dba6e80ad4801c1c0095a7b8f66dbb35e6a59c6319d09cbd60d171).
+All15 selected review inputs stayed unchanged. Spec130 section6/new9.4 and D179
+now name the exact audit:control:publish archived-digest command and separate
+installation-only composer,actual lifecycle/Connection and original selection
+through exact recovery. Stable1.2.1 and all later F4/D/Required boundaries remain.
+This is a completed specification unit to commit separately under AGENTS/spec109.
+
+No Product is issued. CIR-01/02,history/type/parser and CVR/native-case bindings,
+including the explicitly proposed Reader lifetime correction,remain separate
+pending implementation-packet work. No PHP/native/CI/export/browser/deploy gate
+is run for this authority-only adoption. Root owns scoped Git,STATE and preserved
+primary work. Next: close the finite correction reviews and issue the complete
+real prerequisite packet; no smaller Product substitute or acceptance waiver.

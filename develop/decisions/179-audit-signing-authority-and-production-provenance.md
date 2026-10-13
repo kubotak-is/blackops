@@ -130,3 +130,26 @@ explicitly reconciles Preflight, the fifth replay dependency, descriptor surface
 and the installation composer's exact Composition return. The separate installation
 protocol and final crypto/custody imports still require their own combined review.
 This is a complete bounded specification unit, not Product/native Acceptance.
+
+
+## Independent installed-policy selection entry — 2026-10-14
+
+The zero-byte bootstrap source and digest-only policy archive cannot identify a
+new independently selected root policy through a normal no-argument scheduler
+call. Root selects the existing Console boundary with the one explicit archived
+policy digest: blackops audit:control:publish <policy-digest>. The additional
+installation composer owns only that publication graph and cannot create a work
+origin or expose generic signing. Help/list/malformed-input laziness and actual
+lifecycle/Connection ownership are retained.
+
+The selected digest remains bound through initial/new-root publication, staged
+candidate reuse and exact pending/already-accepted recovery. Only actual durable
+publication returns the private success result; its pending policy-event count
+never substitutes for D acknowledgement or overall F5/Required completion. The
+command installs no trust/secret/floor and cannot infer a policy from SQL latest
+state or enumerate the archive. Existing stopped rotation and history rules stay.
+
+This resolves the installation-selection authority gap in the complete checkpoint
+prerequisite. Exact caller/type/verification closure and real implementation
+remain separate required work. No current Stable capability, executed runtime,
+Product Acceptance or release readiness follows from this specification decision.

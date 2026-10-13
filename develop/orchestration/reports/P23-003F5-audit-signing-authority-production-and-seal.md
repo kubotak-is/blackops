@@ -4,18 +4,20 @@ Status: In Progress — authority direction adopted; no Product issuance or full
 
 ## Summary
 
-Current checkpoint: F3 Product ab8f035c remains accepted; no F5 Product is issued.
-Owner commit-policy509ca1e and native-custody070c752 are separate committed,
-pushed and independently remote-matched units. Root has now adopted the finite
-historical replay/preload and descriptor contract in130/D179. Independent source
-review16e69b9b is Green; actual adoption review3a9c519f found only PC-A01, whose
-exact short-write wording correction is Greeneddff5b3. This coherent specification
-unit is ready for its own commit; its exact delivery is recorded in the receipts
-below. No Product/native success follows from those reviews.
-Installation reviewb593fb5a has two finite caller/spelling corrections,now recorded
-by Root in6263747d. Actual online/delegate imports and concrete test/CI binding
-are the remaining author inputs before combined issuance review. Full F5 AC2–6
-and parent1.3 remain open.
+Current checkpoint: F3 Productab8f035c remains accepted; F5 Product is unissued.
+Owner commit policy509ca1e,native custody070c752 and replay adoptionba026679 are
+separate committed,pushed,remote-matched units. Root now adopts the exact
+installation entry/ownership selection in130/D179 after independent Green
+b5ead1c5/df497d16. The candidate5e20e792 matched its reconstructed authority hashes;
+all15 review inputs stayed fixed. This complete specification unit is committed
+separately through E13/installation-authority-unit-* receipts; no Product result
+or release readiness is inferred. Its staged Task/Report exclude unrelated
+unfinished implementation-packet hunks.
+
+Combined authority/verification reviews found finite CIR-01/02 and CVR-01/02;
+PI type/parser inventory and the explicit Reader lifetime correction also remain
+pending. The complete production packet is not issued. Full F5 AC2–6,F4/F6,
+D/E/D-control/G,hardening,Documentation/Owner preview and parent1.3 delivery remain.
 
 Initial management start and direction adoption:
 
@@ -600,3 +602,38 @@ maps and remaining finite imports. No external blocker or unanswered Owner choic
 Feedback: one candidate source review and one adoption review plus its one exact
 correction check; zero new full/native test runs and zero duplicated successful
 Product gates. Agent/read-only review time is not counted as runtime test time.
+
+
+## Completed installation authority adoption — 2026-10-14T03:13:25+09:00
+
+Summary: Root applied exact diff5e20e792776e9448986f9636478b7c1fc6b5bfc0c58ddddb1c9f1c78b9aed451
+(inputs3f19c588) after bounded independent Greenb5ead1c5/inputsdf497d16.
+All15 review inputs were stable. Adopted spec130 SHA044639432fd345d0bd023825d5183c7b0735b26a27a437ecae325d183048997e
+and D179 SHAd051046774398dad0e18bcfa971bfd756e2b55a856bf7ad71c97929f56406fef
+match the independently reconstructed candidate exactly. The changes name the
+installation-only Console selection/composer and selected-digest recovery; no
+pending Reader/import/native contract is silently adopted by this Green.
+
+Changed files: those two authority files plus only this completed Task/Report
+unit and STATE/archive metadata in the selected commit. Concurrent unfinished
+packet-management hunks remain in the working tree and are excluded from its
+Task/Report staged blobs. No Product,test,public Source,runtime or primary index
+change is part of the unit. Root checks actual staged path/blob/mode hashes.
+
+Commands and results: exact diff reconstruction and before/after hashes PASS;
+independent review Green; local links,diff and STATE check/CAS/check and primary
+index preservation are recorded by E13/installation-authority-unit-*.json.
+Product/native/full PHP,Website/browser,CI/export/deploy remain Not Run for this
+management change. No unchanged successful Product gate is repeated.
+
+Acceptance: this exact specification unit is complete; full F5 AC2–6 remain open.
+Release impact: unreleased1.3 command contract only,no current Capability ID,
+public Source/route,Search/LLM input,release tuple or production deployment changes.
+Eventual executable/docs gates and parent005/006 all-public review,Owner preview,
+same-SHA release/export/Documentation delivery remain required.
+
+Remaining Issues: CIR-01/02,PI type/parser and CVR verification bindings,including
+Reader lifetime,remain in the separately pending complete packet. Root is not
+waiting for the parent release to commit this finished authority unit.
+Next Action: preserve this scoped commit remotely,complete affected packet reviews,
+then issue actual attributed checkpoint production to Luna with owned resources.
