@@ -1,7 +1,7 @@
 # Orchestration State
 
-Updated At: 2026-10-13T22:09:26+09:00
-Status: BlackOps 1.3 active; native custody adopted; replay and installation joins open
+Updated At: 2026-10-13T23:52:26+09:00
+Status: BlackOps 1.3 active; finite replay adoption accepted, complete production packet pending
 Current Task: [P23-003F5](orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md)
 Current Report: [P23-003F5 Report](orchestration/reports/P23-003F5-audit-signing-authority-production-and-seal.md)
 
@@ -11,110 +11,100 @@ Parent006 authorizes implementation,independent Review,separated commits/push,
 publication and delivery toward1.3. Final local Documentation Owner confirmation
 precedes publication. Experimental Stable1.2.1 remains current;1.3 is unreleased.
 C=.phpunit.cache/f2-orchestration/accepted-integration,branch
-agent/p23-006-accepted-integration. Governance046fa8a1d122 is committed,pushed and
-independently remote-matched in E13/calibration-final-remote-proof.json. Current
-turn starts from its clean accepted checkout. F3 Product ab8f035c/management6239a15d
-are delivered. No F5 Product packet or implementation is issued.
+agent/p23-006-accepted-integration. Base070c752692bad46acc1334d37c59a769d511ec0e.
+Owner commit-policy509ca1e and native-custody070c752 are separately committed,
+pushed and independently remote-matched in E13/work-unit-policy-and-custody-
+remote-proof.json. The reviewed replay adoption is ready for its separate commit;
+E13/pure-codec-unit-*.json records exact staging,commit and delivery when executed.
+No F5 Product is issued. Authority129–132/D179 adopted;AC1 complete,AC2–6 open.
 
 Primary agent/p23-001-blackops-1-3-feasibility / HEAD8106c355 remains mixed.
 Preserve primary Product/modes/index,unrelated Documentation and newer C Website.
 Root owns STATE,Acceptance,Git and resource leases. No Product worker/shared DB/
 native process is active. All owned diagnostic containers are removed and leases
-closed/actions[]. Any later runtime action needs a fresh explicit resource scope.
-Authority129–132/D179 adopted;F5 AC1 complete,AC2–6 open.
+closed/actions[]. Future runtime needs a fresh exact resource scope.
 
 ## Evidence
 
-Owner commit policy is now P23-019; AGENTS/spec109 require a separate commit when
-one coherent unit finishes its assigned verification and Orchestrator Review.
-Root committed its exact4 paths as509ca1e3537d,excluding all pending F5 changes.
-The independent Green custody adoption is the next separate commit unit. Primary dirty
-paths are inventoried against accepted046fa8a in E13/work-unit-policy-primary-
-inventory.json; matching copies are not treated as new uncommitted Product work.
-Different/primary-only copies stay preserved pending named task reconciliation.
-The accepted checkout currently holds only policy and F5 governance changes.
-
 E3=.phpunit.cache/f3-orchestration/20261009;E5=.phpunit.cache/f5-orchestration/20261012;
-E13=.phpunit.cache/f5-orchestration/20261013. This turn made concrete progress:
-CS-01 contract closed/adopted,60 native observations,and two exact candidate maps.
+E13=.phpunit.cache/f5-orchestration/20261013. AGENTS/spec109 and P23-019 require
+committing each coherent verified/reviewed unit before the next independent unit.
+Different worktrees and uncommitted task groups must be reported separately.
+Primary inventory against046fa8a records571 dirty paths:281 matching accepted
+bytes/modes,80 differing,210 absent there. This is historical inventory,not
+Acceptance of other Product copies or authorization to bulk stage/discard them.
 
-F3 Accepted:41 Product paths;full6dccb3b6 proves3986tests/8634246assertions,
-zero failure/error/skip,307MB under512M. Inherited diagnostics unchanged.
-Committed export673b8c4b passed;source/management remote6860129d/3989c6da.
-Reuse unchanged gates. Preservation42d34b2b covers2323 primary non-governance
-files/modes,three index views and146 C public Sources. F5 Product gates Not Run.
+F3 Productab8f035c/management6239a15d delivered. Full6dccb3b6 proves3986tests/
+8634246assertions,zero failure/error/skip,307MB under512M; inherited diagnostics
+unchanged. Committed export673b8c4b and remote6860129d/3989c6da passed. Reuse only
+unchanged inputs. Preservation42d34b2b covers2323 primary non-governance files/modes,
+three index views and146 C public Sources. F5 Product gates remain Not Run.
 
-CS-01 correctionf8ec05b7/Green24c15adb closes shared graph invalidation at the
-two actual C3 Durable delivery edges. Root adopted130/131/D179,including the
-same-graph checkpoint composer and lazy scheduler clarification. Both cached
-entries refuse uncertain graph before lifecycle/providers/selection;healthy
-committed pending/denial is distinct. No C3 Product change or runtime proof.
-Exact delta:E13/composition-authority-adoption.diff.
+CS-01 correctionf8ec05b7/Green24c15adb is adopted in130/131/D179: both actual
+C3 Durable delivery edges poison the same cached F graph on escaping failure;
+healthy committed pending/denial remains distinct. No Product/runtime proof.
+Native contract847ca0bd/Green79530b88 and adoptionf4785d31/Greenf97994ce are in
+070c752. Supported Linux/glibc exclusive ownership,checked prior file/directory
+sync,single close/no retry remain. PHP resource invalidation is not visibility
+of hidden native close status. Actual owner/CI-image proof and public disclosure
+remain required.
 
-Native compiler probe8ed64e35 passed:GCC14.2/binutils2.44/glibc2.41/PHP8.5.7,
-pinned ab739e1d. r1/r2 loader failures51bfe18a/c47d1df1 were traced to private
-build tmpfs noexec;no injection proof there. Only build tmpfs was made exec.
-r3 calibration59b4f099:42 cases/1.122435365s. r4 8766d20f:18 new lifecycle cases/
-0.756087225s. Across60:25 controls,17 observable failures,4 numeric-write results,
-9 masked native-close errors,5 unreached routes. These are diagnostics,not
-Product negative PASS or physical power-loss proof. Exact source/cleanup
-validation is E13/native-calibration-provenance-validation.json;3.353221194s
-total container runtime includes the failed diagnostics. No DB/network/env/
-Product/vendor mount or new installed dependency. All source revisions retained.
+Calibration59b4f099/8766d20f retains60 observations:25 controls,17 observable
+failures,4 numeric writes,9 masked close errors,5 unreached routes. Masked cases
+split3 non-consuming residual descriptors from6 consumed hidden errors. Failed
+r1/r2 noexec loader diagnostics are retained,not fault proof. Pinned ab739e1d,
+PHP8.5.7/GCC14.2/glibc2.41; terminal source/cleanup receipt E13/native-calibration-
+provenance-validation.json records3.353221194s including failed runs. All leases
+closed; no repeat native run or Product negative PASS is inferred.
 
-PHP close returns do not expose native close/fclose failure. Three close-live
-counterexamples retain native descriptors despite invalid PHP resources;six
-consumed-close errors are separately masked. Post-fsync flush errors are
-observable and prevent native sync. Root native contract r2 847ca0bd proposes
-genuine Linux/glibc consuming-close semantics with exclusive descriptor ownership,
-mandatory prior checked durability,and no portable/hidden-close-detection claim.
-Independent r1fd2d9124 identified NC-01;bounded r2 Green79530b88 closes it at
-proposed-contract level with20 unchanged inputs. Root adopted129/130/D179 custody deltaf4785d31; independent Greenf97994ce/inputs
-bbf811a1 confirms exact before/after preservation. Native Product qualification
-remains pending;no native rerun is assigned. Commit this completed contract unit
-separately from the Owner commit-policy unit.
+Frozen composition e39f6293/4472243f has29 DDL/8 SQL blocks/69 proposed types;
+history4527806b/01ad90ad has49 nonterminal tags+255 and15 phases. RR READ ONLY
+capture before lock and fenced exact reread after unlock remain separate; history
+is uncapped with bounded memory. No SQL/seed/provider under the control floor.
+Migration migrations/postgresql/Version20261012000000.php is reserved and absent
+in both checkouts; latest is20261001000000. No migration execution is authorized.
 
-Composition mape39f6293/inputs4472243f freezes candidate29 DDL/8 SQL blocks/69 new
-types;116 inputs,113 unchanged and Root Task/130/131 deltas recorded. History
-map4527806b/inputs01ad90ad freezes49 tags+trailer255,15 phases,exact native groups
-and uncapped bounded-memory proof. Both are recommendations,not issued code.
-SQL64f9b74f/custody75cd36c1 boundaries remain reusable. RR READ ONLY capture and
-later fenced exact reread remain distinct;no SQL under floor or history cap.
+Pure-codec r2a2dbcfec/163a4f2e received independent Green16e69b9b/e6e361b8 with53
+stable inputs. Root adopted130 sections9.1–9.3/D179: three exact data-only F1 calls,
+bounded original-byte admission,finite15-type preload and nonempty Normalizer
+FORM_C before either floor at exactly two assembly sites. Installation compose
+returns closed InstallationComposition. All four representation controls,explicit
+close/destructor,cohesive native owners and actual physical EOF remain mandatory.
+Initial adoption5d860184 review3a9c519f found only PC-A01 wording. Exact correction
+c1946aa9 permits completed short writes and poisons after an actual I/O failure.
+Bounded Greeneddff5b3/1f143826 closes it with11 stable inputs. No cold/runtime proof.
 
-Root pure-codec exception candidate is one named replay owner and exactly three
-CheckpointCodec methods;no signer/current-online/SQL/provider/seed exception.
-Existing Normalizer cold autoload/polyfill data reads require explicit finite
-preload/warmup outside either floor. Completed deltaf816225a/inputs5e556580 covers
-37 inputs,15 Framework types and nonempty FORM_C warmup. History investigator
-owns only the bounded r2 fixing three caller/dependency/descriptor-budget joins.
-Independent review/adoption and cold-process proof remain.
+Installation65c2e485/20300372 reviewb593fb5a/f05c87e5 found only IPR-01/02.
+Root correction6263747d adds exactly Candidate.native's one selection-factory
+caller/path and corrects Registry9/HistoryReplay.replay. No protocol redesign,
+new accessor or authority grant. Carry it into combined review; the command
+candidate audit:control:publish <policy-digest> remains unreleased/unimplemented.
 
-Root selected lazy deployment CLI audit:control:publish <policy-digest> as the
-missing independent initial/new root-policy selection entry. E13/installation-
-publication-entry-decision-r1.md retains the candidate. It is unissued/unreleased;
-normal maintenance cannot invent bootstrap from zero source,latest archive or SQL.
-Composition investigator owns only its exact installation issuance delta;Root
-retains authority adoption and the real online/seed/delegate import assembly.
+Root resource candidate338d2727 fixes meaningful actual-owner cases and exclusive
+filesystem/DB lanes; it grants no lease. f4_shared_source_inventory owns exact
+PHP/Node/native/CI binding. Existing30min quality limit must preserve all gates
+and full discovery; retained F3 full alone took1572.523063s. f5_native_contract_plan
+owns the concrete online/delegate/checkpoint import map,including fresh trust/
+seed ordering and phase7 fenced reread/close before artifact seed access. These
+are read-only evidence authors; no Product/runtime action is assigned.
 
 ## Remaining Work
 
-Close/review the pure-codec delta;bind actual online/seed/delegate
-imports and installation graph/fact origin;reserve migration and freeze exact
-native commands/cases/resources. Independently review the COMPLETE packet before
-Luna implements real reservation -> F2 preparation -> authorized sign -> candidate
--> persisted outcome. A fixture/codec-only primitive cannot replace this step.
-F4 local14/history/lease/receipt/provider,full F5 Required release/current trust/
-seal,F6,D/Inline ambiguity/rotation,E projector/journey,D-control/G,004A,005 all-
-public Source/Search/LLM +Owner preview,006 same-SHA CI/export,Framework/Skeleton
-publication and Documentation delivery/live proof remain. Optional003H/004B excluded.
+Finish exact online/delegate and verification imports,integrate corrected
+installation/authority joins,freeze the COMPLETE packet and independently review
+it. Then Luna implements real reservation -> F2 preparation -> authorized sign ->
+candidate -> persisted outcome. No fixture/codec-only acceptance substitutes.
+F4 local14/history/lease/receipt/provider,full F5 Required/current-trust/seal,F6,
+D/Inline ambiguity/rotation,E projector/journey,D-control/G,004A,005 all-public
+Source/Search/LLM +Owner preview,006 same-SHA CI/export,Framework/Skeleton release
+and Documentation delivery/live proof remain. Optional003H/004B excluded.
 No external blocker or unanswered Owner choice;no defensible release date/percent.
 
 ## Next Action
 
-Root closes the three pure-codec joins and obtains its independent review,then
-binds authority/installation imports to the
-two frozen maps. Complete independent issuance review,then assign Luna implementation.
-Retain separated commits,exact diagnostics,Owner preview and release gates.
+Commit the accepted replay specification unit now,then combine the frozen maps,
+installation corrections and remaining two author inputs for independent complete
+issuance review. Keep task commits separate and primary mixed changes preserved.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261013T130927Z-52b63d8f065a35c9a19510a7ad91a45285a07f88f874da49aa63252b3b727c9d.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261013T145246Z-1ef2d5d9313e72292e4581a41bc843249c1bff0baf5fa6a105b851cc8af72fdf.md)
 <!-- state-tool:history:end -->

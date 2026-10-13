@@ -15,7 +15,8 @@ required. Parent006 owns final release/publication/Documentation delivery.
 Root owns the management promotion below and exact prerequisite/API/SQL/resource
 contract preparation. Implementation base is the clean accepted integration
 checkout `.phpunit.cache/f2-orchestration/accepted-integration`,branch
-`agent/p23-006-accepted-integration`,HEAD6239a15d6f9108b49c38d60b7e20a61dc87bf2aa.
+`agent/p23-006-accepted-integration`,HEAD070c752692bad46acc1334d37c59a769d511ec0e
+at the current finite replay adoption. Earlier starts retain their own recorded SHA.
 The primary mixed Product/index and unrelated/newer Website stay preserved.
 Production work will be issued only to the configured Luna Max worker after an
 exact file/API/verification packet and independent authority review. No Product,
@@ -287,3 +288,75 @@ No DB,Docker,PHP/Node runtime,test,dependency install or lease is authorized.
 Root separately binds actual online/seed/delegate imports and reserves the exact
 migration in the complete worker packet. Independent combined issuance review
 precedes Luna. AC2–6 and all parent1.3 gates remain open; no codec-only substitute.
+
+## Review completed joins and bind signing imports — 2026-10-13T23:25:30+09:00
+
+Previous goal turn: Progress. Owner commit policy509ca1e and reviewed native
+custody adoption070c752 are separate committed,pushed,remote-matched units;
+E13/work-unit-policy-and-custody-remote-proof.json records terminal delivery.
+C starts clean at070c752. F5 Product remains unissued and native leases closed.
+
+Frozen author candidates are pure-codec r2a2dbcfec/inputs163a4f2e and installation
+r165c2e485/inputs20300372. Source-only authors reported no residual issue within
+their scope; neither is independently accepted or implemented. Root integrates
+the installation composer's exact return type (InstallationComposition) when
+joining the independently frozen warmup edge.
+
+Existing read-only owners,all outputs only under E13:
+- f3_authority_review: pure-checkpoint-codec-floor-review-r2.md and inputs,
+  reviewing the entire finite codec/preload/descriptor correction. No repeated
+  native experiment or re-review of unchanged NC-01.
+- f4_shared_source_inventory: installation-publication-review-r1.md and inputs,
+  independent review of the other author's installation candidate65c2e485.
+  Its own pure-codec protocol is an input under the separate f3 review,not a
+  self-approved result. Focus the actual CLI/lifecycle/selection and requested-
+  digest/pending/exact-accepted replay,constructor and SQL/phase joins.
+- f5_native_contract_plan: online-delegate-checkpoint-issuance-r1.md and inputs.
+  Bind the three exact crypto/custody imports in checkpoint mape39f6293: real
+  online acquisition and phase keys/snapshots; sole real F1 checkpoint signer;
+  private delegate purpose-specific frame signing and custody. Supply concrete
+  file/API/constructor/caller counts,composition and guards under129/130 and
+  the adopted native boundary. Reuse existing F1 and history/custody helpers;
+  preserve current-time/seed ordering,one-use phases,10methods/5args and no
+  callback/generic signer/resource or seed getter. No new scope or protocol.
+Root owns final authority choices,Task/Report/STATE,migration reservation,
+verification/resources,combined independent issuance review and coherent commits.
+All agents are read-only except their named ignored evidence. No Product/tests/
+public docs/Git/STATE/authority/runtime/DB/native action is delegated.
+
+Full F4/F5 and1.3 remain open. These assignments complete the real prerequisite
+packet; they cannot replace reservation/F2/candidate/persisted-outcome production
+with a primitive-only acceptance.
+
+## Reviewed codec adoption and final verification binding — 2026-10-13T23:38:59+09:00
+
+Pure-codec r2 has independent Green16e69b9b/inputse6e361b8 with53 stable inputs.
+Root adopts its bounded three-call/preload and purpose-descriptor boundary in130
+sections9.1–9.3 and D179,including the exact InstallationComposition return and
+both initialization sites. This completed semantic unit receives its own commit
+after Root's scoped checks and independent adoption-diff review. Product remains
+unissued; no additional native experiment or cold-process success is inferred.
+
+Root reserves migrations/postgresql/Version20261012000000.php for the fixed29
+statement production migration. Both primary and C lack that path and their last
+migration is20261001000000. No process is permitted to apply it by this reservation.
+The Root-owned checkpoint-production-verification-packet-r1.md freezes candidate
+resource lanes and required meaningful cases,not a live execution lease.
+
+Additional bounded read-only outputs under E13:
+- f3_authority_review owns pure-codec-adoption-review-r1/r2.md and matching inputs,
+  checking only the actual130/D179 delta against the completed candidate Green.
+  r1 found only PC-A01; exact correctionc1946aa9 is Greeneddff5b3 with11 stable
+  inputs. Root accepts the finite specification adoption; Product remains unissued.
+- f4_shared_source_inventory owns checkpoint-test-ci-bindings-r1.md and matching
+  inputs: supply exact PHP/Node/native test paths,CI job/commands and sole runtime
+  owners joining the frozen candidate maps to Root's resource contract. Preserve
+  every named real-production case and existing gate. Resolve the actual CI30min
+  budget with an explicit job boundary; no timeout waiver or placeholder native
+  gate. Do not revisit reviewed protocols or author/execute Product/test code.
+The composition author retains only its online/delegate import map assignment.
+Root owns installation-publication-correction-r2.md and its input record: only
+the exact Candidate.native call/path,Registry9 and HistoryReplay.replay corrections
+requested by independent reviewb593fb5a. The complete issuance review retains
+those literal deltas. Root owns integration,STATE,resources,Acceptance and
+Git. No agent changes Product/governance/tests or opens DB/native/runtime leases.

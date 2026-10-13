@@ -5,13 +5,17 @@ Status: In Progress — authority direction adopted; no Product issuance or full
 ## Summary
 
 Current checkpoint: F3 Product ab8f035c remains accepted; no F5 Product is issued.
-Governance046fa8a was committed,pushed and independently remote-matched. Root now
-adopted the measured native custody boundary into129/130/D179 under independent
-Greenf97994ce,closing this coherent specification unit. No native Product proof is
-inferred. Separate Owner commit-policy Task P23-019 is accepted and committed as
-509ca1e3537d588f18956ab8902966234b06605e; F5 edits were excluded from that commit.
-Pure-codec r2 and exact installation-entry packets are still being completed by
-their named read-only authors. Full F5 AC2–6 and parent1.3 remain open.
+Owner commit-policy509ca1e and native-custody070c752 are separate committed,
+pushed and independently remote-matched units. Root has now adopted the finite
+historical replay/preload and descriptor contract in130/D179. Independent source
+review16e69b9b is Green; actual adoption review3a9c519f found only PC-A01, whose
+exact short-write wording correction is Greeneddff5b3. This coherent specification
+unit is ready for its own commit; its exact delivery is recorded in the receipts
+below. No Product/native success follows from those reviews.
+Installation reviewb593fb5a has two finite caller/spelling corrections,now recorded
+by Root in6263747d. Actual online/delegate imports and concrete test/CI binding
+are the remaining author inputs before combined issuance review. Full F5 AC2–6
+and parent1.3 remain open.
 
 Initial management start and direction adoption:
 
@@ -523,3 +527,76 @@ checkpoint prerequisite; F4/full F5/F6,D/E/G,004A,005/Owner preview and006 remai
 Next Action: commit this reviewed custody unit separately,then continue those
 exact issuance joins without reopening already closed reviews or rerunning the
 same successful diagnostic inputs. No external blocker is present.
+
+## Historical replay and native-owner adoption — 2026-10-13T23:47:45+09:00
+
+Summary: the completed pure-codec/descriptors candidatea2dbcfec received independent
+Green16e69b9b/inputse6e361b8,with53 stable inputs. Root adopted its three exact
+CheckpointCodec data calls,finite pre-floor class/Normalizer initialization,two
+actual composition sites and purpose-specific descriptor surfaces into130
+sections9.1–9.3 and D179. The installation composer returns the closed
+InstallationComposition; neither initialization edge grants installation policy
+or current signing authority.
+
+Changed Files for this coherent unit:130,D179,F5 Task/Report,STATE and its generated
+archives. Root mirrors only the named governance files to the primary checkout.
+No Product,test,public Source,configuration,dependency,migration or primary index
+write is included. Migration20261012000000 is reserved but not created/applied;
+its absence and predecessor20261001000000 were checked in both checkouts.
+
+Decisions and Review: original bytes remain bounded/canonical; full history and
+current issuer checks precede the sole control Clock read. The three data-only
+calls do not verify artifact signatures or provide current trust. Every descriptor
+retains runtime representation controls,explicit disposal and required file/
+directory durability. Initial adoption diff5d860184 received review3a9c519f with
+only PC-A01: “Partial I/O” was too broad and could reject successful positive
+short-write completion. Exact correctionc1946aa9 now says an I/O failure after
+partial progress poisons further data use; no close retry is introduced.
+Bounded correction revieweddff5b355b8276c4263e5b5b236f93899a85c9fb91e2c209b0786eb368ef081
+and inputs1f14382605405fa5d1e2fa87b60f0ea618c8af6473d3765e2e2f0cf25020e026
+are Green,with11 stable inputs and unchanged D179/r1 evidence. No full native
+contract re-review or repeated calibration was run.
+
+Commands and Results: read/hash/reverse-diff reviews retain their exact selected
+inputs under E13. Scoped diff/link/byte/mode checks,three primary index views,
+STATE check/dry/CAS/check,and exact staged/committed paths are recorded in
+E13/pure-codec-unit-*.json. The source review and adoption have separate boundaries;
+one STATE dry-run rejected the missing required Evidence heading before any write.
+Root corrected that heading; both check/dry/CAS/check sequences then passed,with
+the failed preflight retained separately instead of overwritten.
+Product/cold-process/native/PHP/Node/full/export/browser/CI gates are Not Run for
+these governance-only bytes. The existing F3 and native diagnostic evidence is
+reused only for unchanged inputs; no repeated full suite was needed.
+
+The independent installation reviewb593fb5a/inputsf05c87e5 requires only
+IPR-01 Candidate.native's one exact factory caller/path and IPR-02 Registry9/
+HistoryReplay.replay spelling. Root's correction6263747d retains frozen r1 and
+its other caller restrictions. The final combined inventory/review must carry
+that delta; installation authority is not adopted by this codec commit.
+
+Root resource candidate338d2727 fixes exclusive filesystem/DB lanes,mandatory
+actual-owner/process-death cases,512M and committed-export boundaries. It is not
+an active lease. The exact PHP/Node/native/CI binder is separately assigned;
+existing CI quality has30min while retained F3 full took1572.523063s. Concrete
+CI jobs must retain complete discovery and all required gates. The online/delegate
+author is closing actual current trust/seed and phase7 preseed reread ownership.
+No Product worker,DB or native process is active.
+
+Acceptance: this bounded specification adoption is complete; F5 AC1 remains
+complete and AC2–6 open. Release Documentation Impact: no current public Source,
+route,Search/LLM,API,Capability or release tuple changed. Planned native support,
+configuration and administrative CLI documentation still belong to implementation
+and parent005/006 review/Owner preview. Same-SHA CI/export and deployment/delivery
+are Not Run here. Management source checks do not promote1.3 or imply runtime proof.
+
+Remaining Issues: actual imports,test/CI/native bindings and combined issuance
+review,then the complete real checkpoint production implementation. F4/full F5/F6,
+D/E/G,004A,005/Owner preview and006 release/delivery remain. Mixed primary Product/
+Documentation and index stay preserved pending named task reconciliation; this
+C commit does not clean or accept those other copies. Next Action: commit this
+finished unit separately,then assemble the complete prerequisite from the frozen
+maps and remaining finite imports. No external blocker or unanswered Owner choice.
+
+Feedback: one candidate source review and one adoption review plus its one exact
+correction check; zero new full/native test runs and zero duplicated successful
+Product gates. Agent/read-only review time is not counted as runtime test time.

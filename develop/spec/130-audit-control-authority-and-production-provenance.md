@@ -865,8 +865,9 @@ Every ordinary/control consumer uses this finite acquisition sequence:
    already durable bytes need no rewrite. Check unlock/close under the supported
    section2.1 contract linked above, then return. A failed full write or observable
    flush/fsync/unlock/close failure grants no result, seed access, signature,
-   release or seal permission. Seed files, F1, F2 and database work are outside
-   acquisition and occur only after the lock is released.
+   release or seal permission. Seed files, F2, database work and every F1 operation
+   except the three data-only replay calls in section9.1 are outside acquisition
+   and occur only after the lock is released.
 
 First-use and normal crash handling are the same once pending is durable. A
 crash before pending leaves the initial/old accepted source authoritative only
@@ -911,6 +912,145 @@ success or mark the task completed. No test-created control token, dummy D adapt
 or fabricated event acknowledgement is needed. It cannot claim policy-event
 delivery, final orchestration acknowledgement or live scheduler activation. Operational activation follows
 Accepted F, real D-control integration and its non-recursion proof; G follows both.
+
+### 9.1. Bounded checkpoint replay under the control floor
+
+Historical work must bind the original captured checkpoint bytes, not a caller's
+normalized object, digest label or transcript seal. Reuse the existing F1 data
+rules through exactly one owner:
+`BlackOps\Internal\Audit\Authority\History\AuditCheckpointArtifactReplay`.
+It has one direct source call site each for `AuditCheckpointCodec::signingInput`,
+`::decode` and `::bytesHash`. Its shared private signing-input helper serves both
+replay entries. It cannot call `complete`, an anchor codec, an artifact signer or
+verifier, a trust snapshot/lookup, or any Artifact shape/canonical/preflight helper
+directly. F1 implementations and wire fields remain unchanged.
+
+The unsigned entry accepts original bytes, decodes its own detached value and
+requires canonical signing-input bytes to equal that original string. The complete
+entry decodes the original complete bytes and computes their domain-separated
+hash. These checks establish shape, canonical identity, internal hash relations
+and signature encoding; they do not establish Ed25519 authenticity, current trust,
+invocation origin or a phase permission. Fresh online/F1 checks still run at their
+owned later phase after the control floor has been released.
+
+Both entries admit their tag-specific byte limit and the fixed raw preflight before
+recursive decoding. Checkpoint strings have the existing1,048,575-byte limit. The
+authority raw scan has depth8, at most32 members/object,256 entries/list and8192
+value tokens; the complete decoder retains its stricter flat18-member preflight.
+Streaming readers check tag/length before allocation and detect cap+1 overflow.
+No total history, revision count or successful-prefix limit is introduced.
+
+Only `AuditWorkHistoryReplay` and the F2-association portion of
+`AuditCheckpointHistoryReplay` call the two entries. The latter has exactly five
+constructor collaborators: Reader, WorkReplay, SegmentReplay, HistoricalAuthority
+and ArtifactReplay. ArtifactReplay has only constructor, unsigned, complete,
+private admit and private input methods; its constructor receives the actual
+`AuditAuthorityJsonPreflight`. The one admit -> assertDocument call dominates both
+entries. No service lookup, caller value factory or namespace-wide exception is
+allowed. Complete historical/current restriction replay still precedes the sole
+composition-owned Clock sample.
+
+No SQL, F2, provider call, seed read, artifact signing, current online acquisition,
+current F1 trust lookup/verification, nested floor or external delivery occurs
+under the control floor. The three listed codec calls are the only F1 exception.
+
+### 9.2. Exact runtime prerequisite before either floor
+
+`History/AuditCheckpointReplayRuntimePrerequisite` has only a private constructor
+and static `initialize():void`, with no state, readiness flag, reset or callback.
+Outside both floors, it eagerly resolves these15 existing Framework types:
+
+```text
+BlackOps\Internal\Audit\Artifact\AuditCheckpointCodec
+BlackOps\Internal\Audit\Artifact\AuditArtifactShape
+BlackOps\Internal\Audit\Artifact\AuditArtifactScalar
+BlackOps\Internal\Audit\Artifact\AuditArtifactRelation
+BlackOps\Internal\Audit\Artifact\AuditArtifactCanonical
+BlackOps\Internal\Audit\Artifact\AuditArtifactWirePreflight
+BlackOps\Internal\Audit\Artifact\AuditArtifactIntegrity
+BlackOps\Internal\Audit\Artifact\AuditArtifactException
+BlackOps\Internal\Audit\Artifact\AuditArtifactFailure
+BlackOps\Internal\Audit\AuditJcsCodec
+BlackOps\Internal\Audit\AuditJcsObject
+BlackOps\Internal\Audit\AuditStringValidator
+BlackOps\Core\Audit\AuditRecordTime
+BlackOps\Core\Audit\AuditValidationException
+BlackOps\Core\Audit\AuditValidationFailure
+```
+
+It also resolves the new History ArtifactReplay, CheckpointUnsignedFacts and
+CheckpointCompleteFacts types; the actual Preflight is constructed before replay.
+Literal type names alone do not prove eager loading. Resolve Normalizer and require
+`Normalizer::normalize("e\u{0301}", Normalizer::FORM_C) === "\u{00E9}"`.
+This nonempty check warms the already required polyfill's canonicalDecomposition,
+combiningClass and canonicalComposition tables. Empty/ASCII warmup or optional
+success is insufficient. No new extension, dependency or generic loader is added.
+Initialization calls no artifact method and reads no configured authority/seed.
+An escaping failure becomes a sanitized ResourceUnavailable with no previous/raw
+cause, and the actual assembly's sticky failure rule prevents graph availability.
+
+There are exactly two direct initialize sites: the lazy
+`ApplicationRetentionRuntime::signingTasks()` and
+`ApplicationAuditControlInstallationComposer::compose()`. The latter returns the
+closed `ApplicationAuditControlInstallationComposition`. Each call precedes all
+floor-capable construction/use in its real graph. Signing-absent, unrelated
+retention, read-only CLI help/list and malformed installation arguments preserve
+their lazy exclusions. This authorizes the finite prerequisite edge, not an
+unreviewed installation protocol or a general caller-supplied composition seam.
+
+Architecture guards retain every existing F1 owner/count and add only the three
+replay sites plus this exact non-invocation literal type-resolution exception.
+The resolved-AST class_exists rule must distinguish that finite prerequisite;
+an allowed-types row alone is insufficient. Guard extra callers, dynamic names,
+extra F1 calls, missing/late/empty initialization and every prohibited floor action.
+Actual fresh-process scheduler and installation tests must exercise non-ASCII
+replay and show no late listed class/table load, including finite failure paths.
+Source review is not that cold-process qualification.
+
+### 9.3. Owned native surfaces and physical EOF
+
+The custody implementation retains every native obligation in section2 and
+specification129 section2.1 within purpose-specific descriptor owners. Each final
+raw-resource holder has actual empty safe debug output, rejecting serialization
+and deserialization, a non-public guarded clone method, explicit close and a
+destructor. No raw-resource/path getter, mode flag, dispatcher, callback, hidden
+base-class methods or relaxed method/argument budget substitutes for these controls.
+
+| Owner under Authority | Exact cohesive surface besides constructor/destructor and four representation methods | Total methods |
+| --- | --- | ---: |
+| Custody/AuditNativeFile | readBounded, writeDurably, stat, close |10|
+| Custody/AuditNativeFloorFile | readBounded, writeDurably, stat, close; constructor owns lock and close owns unlock |10|
+| Custody/AuditPolicyArchiveFile | readBounded, confirmDurability, stat, close; no write/truncate |10|
+| Custody/AuditCustodyDirectory | syncPublication, stat, close |9|
+| History/AuditPrivateHistoryFile | appendChunk, readExact, seek, close |10|
+
+Construction transfers exclusive verified descriptor ownership once. A failed
+constructor consumes its adopted resource; the opener does not close it again.
+Same-inode mutable replacement checks full positive-progress writes, exact
+truncate, explicit fflush, fsync, final identity and position. Floor close checks
+unlock before its one close attempt; even a failed identity/unlock check reaches
+that cleanup attempt and denies success. Immutable exact-policy publication uses
+file durability confirmation plus directory sync before a head references it,
+including already-linked replay. Read-only sources/seeds do not gain a sync duty.
+The unchanged already-durable floor exemption and archive positive-link predicate
+remain. No unknown archive alias is enumerated or removed.
+
+Private history has only1..16KiB append/read chunks; each append completes exactly
+and checks fflush, with no scratch fsync. Its first seek(0), after the complete
+trailer, permanently seals writing and records checked length. Later seeks stay
+within that length. readExact returns the whole requested chunk, or null only at
+physical EOF before any byte; partial nonempty EOF or empty non-EOF progress fails.
+The trailer is followed by a one-byte read that must return null. The reader tracks
+checked offsets without a growing offset list. An I/O failure after partial
+progress poisons further data use; only the one owned disposal attempt remains.
+Destructors cannot establish success or retry a begun close.
+
+Complete replay/trailer/count/hash/EOF validation precedes acceptance. The anonymous
+descriptor remains only for its later fenced original-byte comparison, outside
+the released floor, and closes before seed/sign/F2 or the original phase result.
+Its creating private directory is closed/removed before any nonempty payload write.
+Actual owned failures, process death, archive recovery and bounded-memory proof
+remain mandatory; no descriptor/helper-only acceptance replaces real production.
 
 ## 10. Rotation, revocation and historical evidence
 

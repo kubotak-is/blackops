@@ -106,3 +106,27 @@ is relabelled detectable-negative Product PASS. Actual owner/CI-image native
 qualification and public installation/support documentation remain required.
 This adopts only the reviewed API/platform correction. Full custody/capture/type
 issuance and F5 Acceptance remain open; no successful Product runtime is inferred.
+
+## Finite historical checkpoint replay refinement — 2026-10-13
+
+Root adopts the bounded three-codec exception and pre-floor runtime prerequisite
+in130 sections9.1–9.3. Original captured bytes must satisfy existing F1 data rules;
+duplicating them would create a second parser, while trusting native projections
+would not bind the original evidence. The three data-only calls grant no current
+trust, artifact signature validity or phase permission. Every live check, one-use
+phase and control-floor time ordering remains required.
+
+The existing Normalizer fallback loads Unicode tables lazily. The two actual
+assembly entries must therefore resolve the finite codec graph and verify a
+nonempty FORM_C normalization before either floor. This grants no general loader,
+new dependency or artifact invocation during initialization. Purpose-specific
+native holders retain all four runtime representation controls, explicit disposal,
+file/directory durability and physical EOF within the existing method budgets.
+
+Independent r2 review16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2
+and inputse6e361b8c30e559243d5f43f01a9a3af54a028bfc45d09660edd3e77dfdee632
+are Green against candidatea2dbcfec; all53 review inputs stayed unchanged. It
+explicitly reconciles Preflight, the fifth replay dependency, descriptor surfaces,
+and the installation composer's exact Composition return. The separate installation
+protocol and final crypto/custody imports still require their own combined review.
+This is a complete bounded specification unit, not Product/native Acceptance.
