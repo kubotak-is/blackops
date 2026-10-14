@@ -1,10 +1,11 @@
 # P23-003F5: Audit Signing Authority, Production and Seal Report
 
-Status: In Progress — authority direction adopted; no Product issuance or full F5 Acceptance
+Status: In Progress — F5P implementation issued from ff8ab9c; full F5 Acceptance remains open
 
 ## Summary
 
-Current checkpoint: F3 Productab8f035c remains accepted; F5 Product is unissued.
+Current checkpoint: F3 Productab8f035c remains accepted; actual F5P implementation
+is assigned to the configured Luna Max worker from committed/deliveredff8ab9c.
 Owner commit policy509ca1e,native custody070c752,replay adoptionba026679 and
 installation publication authority87f5595 are separate committed,pushed and
 independently remote-matched units in the accepted integration checkout.
@@ -16,8 +17,9 @@ Complete prerequisite reviews are now Green: authority9312efe1/4ec76e5b and
 verificationd1232dce/1be03368 close the finite HT/CIR/PI/CVR findings. Root adopted
 Reader/preload130/D179 c028a816/a50834a5 and preserved the complete295-edit/62-reference
 packet in [P23-003F5P](P23-003F5P-attributed-checkpoint-production.md),with35 new/26
-existing tests and58 native runs. This completed management unit is committed
-before Product issuance. No Product/runtime proof or full F5 Acceptance follows.
+existing tests and58 native runs. This management unit is committed
+and delivered before actual worker issuance. No Product/runtime proof or full F5
+Acceptance follows.
 F4/full F5/F6,D/E/D-control/G,hardening,Documentation/Owner preview and1.3 delivery remain.
 
 Initial management start and direction adoption:
@@ -64,7 +66,8 @@ management checks/review are recorded below when they actually complete.
 
 ## Acceptance Criteria
 
-AC1 is complete; the other five full-F5 criteria remain open. No future syscall,signature,SQL transaction,
+AC1–2 are complete for adopted authority and actual complete-packet issuance;
+AC3–6 remain open. No future syscall,signature,SQL transaction,
 ordinary allow decision,Required commit,F4 transition or seal is proved by these
 documents. The source-support explorer owns only narrow parser/filesystem/schema
 reuse inventory; it does not choose Product scope or claim runtime verification.
@@ -779,3 +782,14 @@ and pending actual gates are recorded in the child Report. Root performs the
 final management diff/link/hash/STATE/index checks and scoped commit next. Product
 implementation is still unissued at this adoption; AC2 actual issuance and the
 new commit SHA are recorded separately. No runtime lease or release readiness.
+
+
+## F5P implementation issued — 2026-10-14T13:55:26+09:00
+
+Root launched configured /root/f5p_worker fromff8ab9ccc50cac714af6a385f1d0b6a9ca1e1633
+only after the complete management unit was committed,pushed and independently
+remote-matched. Child Report records exact59 paths,all staged/commit checks and
+both corrected orchestration diagnostics. AC2 is now complete; AC3–6 stay open.
+The active worker owns only the child295 literal C paths and returns coherent
+layer checkpoints. Root owns meaningful runtime leases,Review/Acceptance and
+separate commits. No runtime process or Product test outcome is claimed yet.

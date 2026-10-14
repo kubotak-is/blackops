@@ -1,6 +1,6 @@
 # P23-003F5: Audit Signing Authority, Production and Seal
 
-Status: In Progress — authority direction adopted; exact Product implementation not issued
+Status: In Progress — real checkpoint child F5P issued; full F5 implementation and Acceptance remain open
 
 ## Goal
 
@@ -12,16 +12,16 @@ required. Parent006 owns final release/publication/Documentation delivery.
 
 ## Current scope and ownership
 
-Root owns the management promotion below and exact prerequisite/API/SQL/resource
-contract preparation. Implementation base is the clean accepted integration
-checkout `.phpunit.cache/f2-orchestration/accepted-integration`,branch
-`agent/p23-006-accepted-integration`,HEAD87f5595b1394446aa788fb4a5dcff95bd15473ab
-at the delivered installation-authority checkpoint. Earlier starts retain their own recorded SHA.
-The primary mixed Product/index and unrelated/newer Website stay preserved.
-Production work will be issued only to the configured Luna Max worker after an
-exact file/API/verification packet and independent authority review. No Product,
-test,migration,dependency,runtime configuration,DB or filesystem qualification
-lease is issued by this management start. Root alone owns STATE,Git and Acceptance.
+Root owns governance,Acceptance,STATE,Git and all execution leases. The complete
+P23-003F5P child is issued to configured Luna Max f5p_worker from exact committed,
+pushed and independently remote-matched ff8ab9ccc50cac714af6a385f1d0b6a9ca1e1633 in
+`.phpunit.cache/f2-orchestration/accepted-integration`, branch
+`agent/p23-006-accepted-integration`. This is an independent clone with separate
+Git refs; primary mixed Product/index/Documentation stays preserved. The child
+Task and295 literal path allowlist own Product/test/tooling/source scope. Earlier
+management-only scopes and receipts below are historical. No DB/native/runtime
+execution lease is active; each must be assigned by Root. No full F5 result is
+claimed by implementation issuance.
 
 Allowed current management files:
 
@@ -76,7 +76,7 @@ claims overall success,ingress acknowledgement or operational activation.
 
 - [x] Permanent authority129–132/D179 and existing-authority amendments pass
   independent promotion review; exact closed schema/phase maps agree.
-- [ ] Exact bounded worker scopes,constructors/APIs/native-crypto/caller maps,
+- [x] Exact bounded worker scopes,constructors/APIs/native-crypto/caller maps,
   SQL/schema/lock/CAS/ambiguity rules,filesystem custody/history/parser resources
   and executable verification are independently reviewed and issued.
 - [ ] Real shared acquisition/history/delegate/provenance and actual attributed
@@ -568,3 +568,9 @@ actual Product/native/DB/CI/export proof remains wholly separate. The completed
 management unit is committed before Luna starts. AC2's actual issuance checkpoint
 is recorded after that commit; no F5 Product/Acceptance or execution lease follows
 merely from this adoption. Next Task: [P23-003F5P](P23-003F5P-attributed-checkpoint-production.md).
+
+
+Actual configured worker launch /root/f5p_worker succeeded at2026-10-14T13:55:26+09:00.
+AC2 is complete for this exact real-prerequisite issuance. AC3–6 and full F5 stay
+open; no runtime or Product Acceptance is inferred. Root receives coherent layer
+checkpoints and grants meaningful verification before each Review/commit.

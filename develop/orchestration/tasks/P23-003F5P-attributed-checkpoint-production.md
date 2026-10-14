@@ -1,6 +1,6 @@
 # P23-003F5P: Attributed Checkpoint Production
 
-Status: Ready — exact contract independently reviewed; Root issues from the committed packet
+Status: In Progress — Owner resumed; accepted phase unit awaiting verified commit, bounded History corrections remain
 
 ## Goal and acceptance boundary
 
@@ -210,3 +210,157 @@ Exact public reader routes:
 - `docs/guide/operation-lifecycle.md` → `/concepts/lifecycle/`
 - `docs/guide/execution-context.md` → `/execution/context/`
 - `docs/guide/project-cli.md` → `/reference/project-cli/`
+
+
+## Worker issuance — 2026-10-14T13:53:09+09:00
+
+Root issues the configured GPT-5.6 Luna Max worker as f5p_worker from exact
+committed,pushed,independently remote-matched base
+ff8ab9ccc50cac714af6a385f1d0b6a9ca1e1633. C was clean before this issuance record.
+C is an independent clone,not a linked worktree sharing primary refs. All Git
+reads/commits/pushes for this source use explicit `git -C` C from P. Primary's
+same-named branch is stale and is never an implementation or delivery reference.
+
+The worker owns the exact295 Product/test/fixture/workflow/documentation paths
+in allowlist.json only,all under C. It starts actual implementation and returns
+coherent completed layer checkpoints with exact paths,inputs and meaningful
+verification needed before the next independent unit. The full child goal and
+all gates remain mandatory; no partial layer is full Acceptance. No parallel
+source writer is assigned. Root owns Report/STATE/Git and opens each runtime
+lease separately; no Docker/DB/native/PHP test process is delegated at this start.
+Worker may read source,edit assigned files and perform non-runtime text/diff/path
+checks,then request Root's explicit relevant execution lease or hand off the
+verification. No new helper,path,budget waiver or protocol may be invented to
+fill a concrete contract conflict; return that exact issue to Root.
+
+
+## First coherent History layer review — 2026-10-14T14:03:54+09:00
+
+Root received seven exact paths from f5p_worker: AuditHistoryTag,
+AuditCheckpointCapturePhase,AuditControlCapturePhase,AuditHistoryNativeGroup,
+AuditHistoryGroupCodec,AuditHistoryRecord under src/Internal/Audit/Authority/History,
+and tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php.
+E13/checkpoint-history-layer-r1-inputs.json pins every byte against ff8ab9c.
+No new layer or source edit proceeds while this checkpoint is under review.
+
+Root assigns f3_authority_review a read-only review of exactly these seven files
+against the current immutable History issuance/type/HT contracts and finite README
+overrides. Review covers constructor and original-byte admission, bounded flat
+preflight, exact schemas/relations, permitted methods/callers, representation
+failure behavior and meaningful discriminating tests. Write only
+E13/checkpoint-history-layer-review-r1.md and its -inputs.json. No tests, source,
+STATE,Git,DB or container action is delegated to the reviewer. Root owns the
+Report and fresh runtime lease; the existing shared PostgreSQL service is not
+owned or stopped by this unit. Product unit Acceptance and every full child gate
+remain open until actual evidence is reviewed.
+
+
+## Capture-phase vocabulary commit unit — 2026-10-14T16:21:48+09:00
+
+Owner reiterates immediate coherent commits. Root separates exactly
+AuditCheckpointCapturePhase.php and AuditControlCapturePhase.php from the seven-file
+checkpoint. The pair defines the closed15 phases without callers or dependencies
+on unfinished code. Independent r1 review found these exact surfaces aligned;
+f3_authority_review supplies a bounded reuse addendum. Root owns runtime checks
+on git-archive ff8ab9c plus only these two files at
+E13/capture-phases-unit/source,using its fresh Compose override and pinned image.
+The candidate excludes unfinished files without editing or staging them in C.
+Mandatory format src/tests,lint,analysis,PHP enum load and management-ID absence
+are assigned. Original vendor/configuration bytes and the512M policy remain.
+No DB/native/full/CI/export or child Acceptance follows this isolated source unit.
+
+HistoryTag,NativeGroup,GroupCodec,Record and GroupCodecTest remain uncommitted for
+HL-01..04 and actual Mago failures. HistoryTag's frozen50 cases conflict with the
+existing20-case lint limit; this is a concrete contract issue,not an accepted
+threshold/baseline exception. Resolve explicitly before accepting that later unit.
+
+
+## Bounded History correction assignment — 2026-10-14T16:25:20+09:00
+
+After the original runtime lease closed with exact inputs preserved and no
+application container left,Root assigns f5p_worker only the existing NativeGroup,
+GroupCodec,Record and GroupCodecTest paths for HL-01..04 correction. The two
+capture-phase enums are frozen for their separate commit; HistoryTag is frozen
+while Root resolves its50-case versus20-case lint conflict. No new type/helper,
+method/argument/complexity increase,baseline or rule suppression is authorized.
+Return a concrete contract conflict before introducing an out-of-scope solution.
+The worker writes source/test only and returns chat evidence; no runtime,DB,Git,
+STATE,Report or source formatting command is assigned during Root's isolated
+phase-candidate runtime. Root alone edits governance and owns all containers.
+
+Review8727a8dc (original findings plus the independent phase-unit Green addendum)
+and inputs2ab4d1d1 cover the unchanged source. Runtime baseline unit20 tests/71
+assertions passed in1.761408s; format failed with3 files in2.060691s; lint failed
+with5 errors,11 warnings,2 help messages in1.541876s. Logs and literal argv/input
+hashes are in E13/history-layer-r1-runtime. New lint errors are GroupCodec class
+complexity19>15,three literal-password schema-value diagnostics,and HistoryTag
+50>20. No warning-free claim or Product Acceptance follows. Sandboxed Docker
+inspection attempts failed before execution; actual above commands then ran with
+approved Docker access. No whole suite was executed.
+
+
+Phase-unit outcome 2026-10-14T16:29:39+09:00: Root accepts only the two capture-phase enums
+after independent Review and all six assigned gates. See Report for exact
+input hashes,commands,diagnostics and rejected incomplete archive attempt.
+Commit immediately before proceeding; the full child remains In Progress.
+
+
+## Owner-requested resumable pause — 2026-10-14T16:32:14+09:00
+
+Owner explicitly asked to preserve a resumable checkpoint and pause. Root stopped
+the worker; its final handoff confirms no process,container,DB or runtime lease.
+The accepted phase pair was intended for a checkpoint commit. Resume verification
+below established that no commit or E13/capture-phases-commit.json was created.
+This is a bounded source commit,not complete child or1.3 release Acceptance.
+
+Five unfinished files remain uncommitted. E13/paused-history-unfinished-20261014.json
+SHA256d8ca99887501c10cbaa1eb01bb177d7b3e60456fcc7b4e2082fe9d9665d6f220
+pins their exact bytes and an owned tar snapshot. NativeGroup changed toba18d024
+during the bounded correction and is PARTIAL/UNVERIFIED: the worker introduced a
+private timestamp() helper outside the allowed9-method surface. Do not accept or
+reuse the initial runtime evidence for this changed file. Codec14eb1147,Record
+5bd3d509,testd5ee51a1 and Tagd97011d0 remain at the initial reviewed bytes.
+The other four files are unchanged; all HL-01..04 and tag50>20 remain open.
+
+On explicit resume: inspect actual C branch/HEAD/index and the commit receipt;
+match these saved hashes; read the current Task and review8727a8dc; return the
+partial NativeGroup helper/surface violation plus the remaining original
+findings to configured Luna. No new helper/budget/threshold waiver is authorized.
+Root grants a fresh lease only after the corrected input is frozen. Re-review
+and qualify the corrected unit before another commit or subsequent layer.
+
+Primary branch agent/p23-001-blackops-1-3-feasibility remains mixed and untouched
+in Product/index/modes. C is a separate clone at agent/p23-006-accepted-integration;
+its source commit does not clean primary. No tag,release or deploy occurred.
+Remaining upper goal: full F5P,F4/F5/F6,D/E/G/004A,all-public Documentation review
+and Owner preview,then same-SHA CI/export,Framework/Skeleton publication and
+Documentation delivery/live verification. Optional003H/004B remain excluded.
+Next Action: wait for Owner resume. No implementation or runtime proceeds while
+paused; the stop is Owner-directed,not an external blocker.
+
+
+## Resume reconciliation — 2026-10-14T16:50:05+09:00
+
+Owner explicitly resumed. Actual C HEAD is still ff8ab9c and its index is empty;
+E13/capture-phases-commit.json is absent. The previous pause text anticipated a
+commit that did not occur. Root corrects that claim and completes the already
+accepted phase-pair unit before issuing further implementation. This changes no
+Product contract, release authority or Acceptance gate.
+
+E14=.phpunit.cache/f5-orchestration/20261014; resume-reconciliation.json records
+3.647393 seconds of read-only checks: all3549 isolated source and6498 vendor
+files/modes, runtime input hashes, before/after equality, six receipt/log hashes,
+the exact phase-pair bytes, five saved unfinished bytes/modes and their tar match.
+The three primary index views also match. Review8727a8dc and the six successful
+phase-unit gates are reused under unchanged inputs; no runtime is repeated.
+The identifiers gate correctly requires exit1/empty output. Existing Mago
+diagnostics and all full-child/release obligations remain as recorded above.
+
+Root stages only the accepted two source files and their coherent Task/Report/
+STATE/archive records in C; all five unfinished Product/test files remain outside.
+After the actual commit, Root records its SHA and remote proof in the promised
+receipt. Then return HL-01..04 and the unauthorized NativeGroup timestamp helper
+to configured Luna, with the exact four-path correction scope. HistoryTag remains
+frozen pending explicit resolution of the50-case versus20-case contract conflict.
+No helper, baseline, threshold waiver or execution lease is granted by this note.
+Primary Product/index/modes and unrelated Documentation remain preserved.
