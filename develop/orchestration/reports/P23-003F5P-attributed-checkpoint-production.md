@@ -1,19 +1,25 @@
 # P23-003F5P: Attributed Checkpoint Production Report
 
-Status: In Progress — Owner resumed; phase unit committed f50fff1; bounded History corrections assigned
+Status: In Progress — phase/tag units committed; finite native-admission design under review
 
 ## Summary
 
-Owner resumed. Root completed, pushed and independently remote-matched the
-previously accepted phase-enum unit at f50fff14dccce5644fbf4920b4923f6cf35f9ca9.
-The intended pause commit had never happened; the reconciliation is recorded below.
+Owner resumed. Root recovered and committed the previously accepted phase-enum
+unit at f50fff14dccce5644fbf4920b4923f6cf35f9ca9. The finite tag-family contract
+is committed at d8af3405f5fe53345bf8d00eb7eec67d61692196 and its three-enum
+implementation at829676129cbc04de6e674bc9292ae222d8029bc9. All three commits
+are retained on the independently matched remote integration branch.
 
-The finite three-enum tag contract is now independently Green and adopted. Its
-management checkpoint is separate from the unfinished History source. Successor
-source review closes HL-02/03 but retains HL-01/04: valid native lifecycle/recovery
-data is rejected and important relations/tests remain wrong. Pure diagnostics
-are recorded under E14/history-layer-r2-runtime; no source Acceptance follows.
-All eight full Product criteria remain open. Primary mixed work is preserved.
+The three-enum source unit has independent Green review and six successful pure
+gates, with inherited diagnostics retained. Four rejected History carrier/codec/
+test files remain uncommitted. HL-02/03 close at source level only; HL-01/04 and
+measured complexity/test failures remain. A finite responsibility proposal is
+under independent review; it grants no new Product scope until explicit adoption.
+
+The primary checkout remains at8106c35 with cumulative mixed changes. Its644-path
+observation, subsequent645-path inventory and exact comparison with committed C
+are recorded below. No primary Product/index/mode cleanup has occurred. All eight
+full Product criteria and the parent release/delivery obligations remain open.
 
 ## Changed Files
 
@@ -63,9 +69,10 @@ No new helper,path,phase,authority,baseline,limit or coverage waiver is introduc
   E13/final-ht-verification-state-receipt.json,3e957b0a. Final packet checks/commit
   receipts are E13/checkpoint-packet-unit-*.json and will carry actual results.
 
-These are management checks. Product PHP/Node/native/DB/cold/vector/full/CI/export/
-browser/deploy gates are Not Run for this child. Historical F3 proof is retained
-only for unchanged inputs and cannot qualify new code. Review wait is not test time.
+These initial packet checks are management evidence. The later phase/tag source
+gates and rejected History diagnostics are recorded in their dated sections. Full
+child native/DB/cold/vector/full/CI/export/browser/deploy gates remain Not Run.
+Historical F3 evidence cannot qualify changed inputs; review wait is not test time.
 
 ## Acceptance Criteria
 
@@ -88,14 +95,15 @@ final local Documentation preview before publication.
 
 HL-01/04 remain open after successor review751000d8. HL-02/03 are closed at
 source level only. The tag contract conflict is resolved by the adopted15/20/15
-amendment; its implementation is pending. The unfinished Product/test files are
-not accepted or included in either management or phase source commits.
+amendment and the separately qualified three-enum implementation. Four unfinished
+carrier/codec/test files are excluded from all completed commits. Their semantic,
+test and class-complexity findings require the explicit design correction below.
 
 ## Suggested Next Action
 
-Complete the verified phase-pair commit in C, then issue the bounded four-file
-Luna correction and resolve the tag representation conflict explicitly. Freeze
-changed inputs before fresh independent review and Root runtime qualification.
+Resolve and review the finite native-admission proposal, including the two named
+local-semantic questions. Commit an explicitly adopted contract before issuing
+Luna correction; then freeze the changed source for meaningful review and gates.
 
 
 ## Final management verification
@@ -507,3 +515,54 @@ dirty paths at that observation. Primary2323 non-governance files/modes and
 three index views still matched this session's baseline. C commits do not
 clean primary. Primary integration/reconciliation remains explicit upper-goal
 work; no bulk stage, reset or discard is authorized by that status question.
+
+
+## Source checkpoints and primary-difference reconciliation — 2026-10-14T23:46:13+09:00
+
+Root independently read remote refs/heads/agent/p23-006-accepted-integration at
+829676129cbc04de6e674bc9292ae222d8029bc9 after the successful push. Both d8af340
+and f50fff1 are verified ancestors. E14/tag-contract-commit.json and
+history-tags-commit.json record the actual branch, scope and remote proof.
+C has an empty index and exactly four rejected untracked source/test files;
+its coherent completed units are committed separately. This is not a clean full
+candidate, child Acceptance, same-SHA release CI, tag, publication or deployment.
+
+The read-only inventory E14/primary-difference-inventory.json observed primary
+645 paths at2026-10-14T23:42:44+09:00:389 governance/history,132 Product,67 tests,
+53 reader/Website and4 others. Relative to the earlier644 observation, one new
+STATE archive accounts for the increase. There are101 modified,4 addition-intent
+and540 untracked paths. Exact bytes/modes match committed C for344 paths,
+including all132 Product paths;74 differ and227 are absent from committed C.
+Of the latter,223 are governance/history and4 reader/Website. This comparison
+classifies bytes only; it does not accept, overwrite or delete the other versions.
+The independent clone's commits do not advance primary HEAD or clean its tree.
+Primary integration/reconciliation remains required; the status question grants
+no bulk staging, discard, branch replacement or destructive cleanup.
+
+Astra/max history_contract_review now reviews only the frozen seven-helper design
+E14/history-admission-budget-options.md861134dd. It must resolve actual closed/
+sealed stateVersion bounds and CheckpointEnd local ordinal/presence placement,
+and review exact methods/callers,31 routes, single-schema Codec preflight/privacy,
+preload18-to25 and literal scope297-to304. The only assigned reviewer outputs are
+E14/history-admission-design-review-r1.md and its -inputs.json. The original
+proposal/authority/Product remain frozen. Root owns adoption and all Git/leases;
+no runtime or implementation is authorized by the proposal or this checkpoint.
+
+Release Documentation Impact: reporting and an unadopted internal design only;
+current1.2.1/unreleased1.3.0 authority, public sources/routes/commands/configuration
+and generated artifacts are unchanged. No Product/source artifact gate is repeated
+for this bookkeeping. Full child and parent005/006 publication gates remain.
+
+Remaining: explicit reviewed admission correction, four-file repair and full
+actual History/production/native/SQL/cold/strict/full/export qualification; then
+all parent F4/F5/F6,D/E/G/004A/005/006 work and primary integration.
+Next Action: Root reviews the bounded design findings before any Product scope
+amendment or worker issuance. Preserve the four unfinished files until then.
+
+Management validation: E14/admission-review-state.json records8 successful
+STATE check/dry-run/CAS/check commands. E14/reporting-checkpoint-validation.json
+records0.189360s for the four-path scope, both STATE checks, diff--check,
+2323 preserved primary files/modes,3 unchanged index views and4 unchanged
+unfinished files. Root reviewed the reporting diff; no Product gate was repeated.
+The receipt's Report identity is refreshed only for this results paragraph before
+exact scoped staging; the stored archive matches its old STATE SHA256.

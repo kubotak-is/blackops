@@ -1,7 +1,7 @@
 # Orchestration State
 
-Updated At: 2026-10-14T23:34:47+09:00
-Status: In Progress — tag vocabulary accepted; native admission budget correction pending
+Updated At: 2026-10-14T23:46:13+09:00
+Status: In Progress — phase/tag units committed; admission design under review
 Current Task: [P23-003F5P](orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md)
 Current Report: [P23-003F5P Report](orchestration/reports/P23-003F5P-attributed-checkpoint-production.md)
 
@@ -16,19 +16,23 @@ branch agent/p23-006-accepted-integration. Use explicit git -C C. Root recovered
 the missing phase commit as f50fff14dccce5644fbf4920b4923f6cf35f9ca9, pushed and
 independently remote-matched. The previous pause had anticipated that commit.
 The reviewed tag-family management unit is committed d8af3405f5fe53345bf8d00eb7eec67d61692196;
-its push is pending. The exact three-enum source unit is now accepted for commit;
-actual subsequent SHA/remote state belongs in E14/history-tags-commit.json.
+the three-enum unit is committed829676129cbc04de6e674bc9292ae222d8029bc9.
+Remote integration HEAD independently matches8296761; both earlier units are
+ancestors. Exact source/remote receipts are in E14/*-commit.json.
 
 Primary branch agent/p23-001-blackops-1-3-feasibility remains at8106c35 and mixed.
-Owner's644-path question was verified:388 management/history,132 Product,67 tests,
-53 reader/Website,4 others at that observation. Primary2323 non-governance paths
-and3 index views remain unchanged. New governance checkpoints can add archives;
+Owner's644-path question was verified; one subsequent STATE archive made645.
+E14/primary-difference-inventory.json has389 governance,132 Product,67 tests,
+53 reader/Website,4 others.344 paths exactly match committed C (all132 Product),
+74 differ and227 are absent there. Primary2323 non-governance paths and3 index
+views remain unchanged. New governance checkpoints can add archives;
 C commits never imply primary is clean. Its integration/reconciliation remains.
 
 Root owns governance,STATE,Git,leases and Acceptance. All runtime leases are
 closed; no application containers, shared DB mutation or native run. Worker is
-idle after the three-enum handoff. history_tag_scope is investigating only the
-finite native-admission budget conflict. No carrier redesign is issued yet.
+idle after the three-enum handoff. Investigation861134dd proposes seven pure
+helpers; history_contract_review owns affected design/semantic review only.
+No carrier redesign, new helper or runtime is issued yet.
 
 ## Evidence
 
@@ -66,7 +70,10 @@ Descriptor lint investigationd5e8303a recommends semantic private descriptor
 constants in existing tables and literal keys; no key obfuscation/suppression.
 That does not solve class complexity: private-method splitting within one class
 does not reduce the actual summed decision count. E14/history-admission-budget-
-options.md is the assigned candidate investigation, not adopted authority.
+options.md861134dd is frozen, not adopted authority. Exact seven paths,27 new
+methods, Codec2, preload18-to25 and scope297-to304 are proposed. Review must
+resolve closed/sealed version bounds and CheckpointEnd local presence relations
+before any explicit contract adoption. No quality/method/caller waiver exists.
 
 ## Remaining Work
 
@@ -81,11 +88,10 @@ Optional003H/004B remain excluded. No release date/percentage is claimed.
 
 ## Next Action
 
-Root commits the accepted three-enum source unit immediately, verifies exact
-commit scope and authorized remote delivery, then reviews the finite admission
-budget proposal before issuing further Product edits. Preserve four unfinished
+Root reviews the finite admission proposal and two concrete semantic questions,
+then adopts/commits the exact supplement before any further Product issuance. Preserve four unfinished
 files for their explicit findings; no further runtime until a fresh exact lease.
 Primary mixed Product/Website remains preserved and uncommitted.
 <!-- state-tool:history:start -->
-Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261014T143448Z-cb37089cd16b5ccb3cf029b81706c7dc8084efeb35a6e16ffd0e3c6360be4dbd.md)
+Previous STATE archive: [snapshot](orchestration/state-archive/2026-10/20261014T144613Z-a35ea5287baf6e0ffce2e5452af392d991505d840a1e1e6826aa2c0fb7e90520.md)
 <!-- state-tool:history:end -->

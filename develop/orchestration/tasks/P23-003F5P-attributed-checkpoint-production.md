@@ -1,6 +1,6 @@
 # P23-003F5P: Attributed Checkpoint Production
 
-Status: In Progress — Owner resumed; phase unit committed f50fff1; bounded History corrections assigned
+Status: In Progress — phase/tag units committed; finite native-admission design under review
 
 ## Goal and acceptance boundary
 
@@ -604,3 +604,29 @@ dirty paths at that observation. Primary2323 non-governance files/modes and
 three index views still matched this session's baseline. C commits do not
 clean primary. Primary integration/reconciliation remains explicit upper-goal
 work; no bulk stage, reset or discard is authorized by that status question.
+
+
+## Committed tag unit and independent admission-design review — 2026-10-14T23:46:13+09:00
+
+The reviewed tag-family contract is committed d8af3405f5fe53345bf8d00eb7eec67d61692196;
+three-enum source is committed829676129cbc04de6e674bc9292ae222d8029bc9 after
+independent Green43f7ae33 and the six pure gates in the Report. Root independently
+matched the remote integration branch to8296761. Phase f50fff1 is its ancestor.
+Four rejected History carrier/codec/test files remain outside these commits.
+Primary remains mixed at8106c35; commits in C do not clean or advance primary.
+
+Astra/max history_contract_review owns only a read-only affected design/semantic
+review of E14/history-admission-budget-options.md, SHA256
+861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a.
+Review exact seven-helper methods/callers and31 routes, single-schema Codec
+preflight/privacy, unchanged limits, literal preload18-to25 and scope297-to304.
+Resolve the two explicitly open actual stateVersion and CheckpointEnd local
+presence questions using existing authority; do not invent stronger authority.
+Write only E14/history-admission-design-review-r1.md and -inputs.json. No Product,
+authority,Git,runtime,DB or container write belongs to the reviewer. Root may
+update reporting context concurrently; relied-on semantic inputs remain pinned.
+
+This is an unadopted proposal. Current method/type/path restrictions remain until
+Root integrates independent findings, adopts and commits an exact supplement.
+No Product edit or new execution lease is assigned. All original child/parent
+criteria and primary preservation/integration obligations remain.
