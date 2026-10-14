@@ -998,7 +998,7 @@ BlackOps\Core\Audit\AuditValidationFailure
 
 It also resolves the new History ArtifactReplay, CheckpointUnsignedFacts and
 CheckpointCompleteFacts types; the actual Preflight is constructed before replay.
-The same initializer additionally resolves these16 exact history/authority types
+The same initializer additionally resolves these18 exact history/authority types
 before either floor, since their first construction can occur during replay:
 
 ```text
@@ -1006,6 +1006,8 @@ BlackOps\Internal\Audit\Authority\History\AuditHistoryReader
 BlackOps\Internal\Audit\Authority\History\AuditHistoryGrammar
 BlackOps\Internal\Audit\Authority\History\AuditHistoryGroupCodec
 BlackOps\Internal\Audit\Authority\History\AuditHistoryTag
+BlackOps\Internal\Audit\Authority\History\AuditHistoryCheckpointTag
+BlackOps\Internal\Audit\Authority\History\AuditHistoryControlTag
 BlackOps\Internal\Audit\Authority\History\AuditHistoryRecord
 BlackOps\Internal\Audit\Authority\History\AuditHistoryNativeGroup
 BlackOps\Internal\Audit\Authority\History\AuditVerifiedWorkEndpoints

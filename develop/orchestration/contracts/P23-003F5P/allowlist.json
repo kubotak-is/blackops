@@ -104,6 +104,8 @@
     "src/Internal/Audit/Authority/History/AuditControlHistoryReplay.php",
     "src/Internal/Audit/Authority/History/AuditControlNativeCaptureRows.php",
     "src/Internal/Audit/Authority/History/AuditControlNativeGroups.php",
+    "src/Internal/Audit/Authority/History/AuditHistoryCheckpointTag.php",
+    "src/Internal/Audit/Authority/History/AuditHistoryControlTag.php",
     "src/Internal/Audit/Authority/History/AuditHistoryGrammar.php",
     "src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
     "src/Internal/Audit/Authority/History/AuditHistoryInstallation.php",
@@ -429,7 +431,7 @@
     "tests/Internal/Scheduler/MaintenanceSchedulerTest.php"
   ],
   "counts": {
-    "editPaths": 295,
+    "editPaths": 297,
     "referenceOnlyPaths": 62,
     "newTests": 35,
     "existingTests": 26

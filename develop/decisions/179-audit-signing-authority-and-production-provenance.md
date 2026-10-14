@@ -178,3 +178,28 @@ phases, byte formats, uncapped-history behavior, F1/F2/F3 fields or current trus
 Exact failure ownership and complete literal type/caller surfaces are frozen in
 the child contract and remain subject to independent review before issuance.
 No actual cold, native, database, Product or release outcome is inferred.
+
+## Closed history tag family refinement — 2026-10-14
+
+The unchanged 49 nonterminal wire tags and terminal255 use exactly three
+backed-int enums: AuditHistoryTag15, AuditHistoryCheckpointTag20 and
+AuditHistoryControlTag15. Each has zero declared methods. This explicitly
+replaces the single50-case enum surface: the existing Mago rule limits each
+enum to20, and its threshold, enabled state, baseline and suppressions remain
+unchanged. The finite case partition and literal paths are fixed in the child
+history-tag-family amendment; no alias facade or open tag interface is added.
+
+NativeGroup, Record and GroupCodec use the explicit three-enum union. Only
+HistoryReader.next invokes native from after complete prefix, known-code and
+tag-specific length admission. Exact enum-case identity, same-local original
+payload/group binding, complete grammar/count/hash/physical EOF and all source
+caller/representation/method budgets remain. A tag family grants no production
+classification, current authority or phase permission.
+
+This explicitly supersedes the earlier16-type additional resolution count.
+The existing initializer eagerly resolves the two added enums before either
+floor, making its additional history/authority list18. Its two composition
+callers, original F1 closure and nonempty Normalizer warmup are unchanged.
+This changes no wire bytes, history bound, F1/F2/F3 field, trust or release
+boundary. Product, cold/native/SQL and strict-quality evidence remain required;
+this contract correction is not Product Acceptance or release proof.

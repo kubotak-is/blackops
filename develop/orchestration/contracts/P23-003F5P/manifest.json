@@ -297,26 +297,56 @@
       "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
       "bytes": 35267,
       "source": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md"
+    },
+    {
+      "name": "history-tag-family-amendment-r1.md",
+      "sha256": "aa72ce285ca7d9439b9a63f6d2b4b6908e517f67abca5a6f1c5182043191ba06",
+      "bytes": 17990,
+      "source": ".phpunit.cache/f5-orchestration/20261014/tag-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-tag-family-amendment-r1.md"
+    },
+    {
+      "name": "history-tag-family-review-r1.md",
+      "sha256": "2f463ef5fc11623348735ba46a30b5e73e80014e42d06abc4f484cacec00d78a",
+      "bytes": 11656,
+      "source": ".phpunit.cache/f5-orchestration/20261014/history-tag-contract-review-r1.md"
+    },
+    {
+      "name": "history-tag-family-review-r1-inputs.json",
+      "sha256": "3a971e0360ff1307a52ceb5934a2d114fa21e7e29584ab165347207979d3d444",
+      "bytes": 59275,
+      "source": ".phpunit.cache/f5-orchestration/20261014/history-tag-contract-review-r1-inputs.json"
     }
   ],
   "integrationFiles": [
     {
       "name": "README.md",
-      "sha256": "59229f145f47a063198dee1c8e70928f4e0ebfb649c496c5144db0ede7da71d0",
-      "bytes": 10689
+      "sha256": "da6ee2c77bd0f34d42ae447bbfe2f025d318f61a455bcaba0eb6f7cff24ca53c",
+      "bytes": 11349
     },
     {
       "name": "allowlist.json",
-      "sha256": "0c0ec9523005a99eb6dc10e9cf72939593d8328881609f65103de6bf19a9038e",
-      "bytes": 29134
+      "sha256": "816bd0bd25514e1a94e0b9e06f7fb124d0d206a351bc85e6bcc7d480d6e54c05",
+      "bytes": 29279
     }
   ],
   "authorityReview": "9312efe1e6e571dcfcf84f9c76929a446395fa7b16790b9aa1c7fc9f7d4e5768",
   "verificationReview": "d1232dce4fe1168c864c9fdb456eda57b2cc43117666dc964ef0994d321e14da",
-  "literalEditPaths": 295,
+  "literalEditPaths": 297,
   "referenceOnlyPaths": 62,
   "newPhpTests": 35,
   "existingPhpTestEdits": 26,
   "ProductExecuted": false,
-  "retentionPolicy": "44 exact plain copies and3 lossless JSON-UTF8 envelopes retain all47 original byte sequences; decoded identity is verified."
+  "retentionPolicy": "44 exact plain copies and3 lossless JSON-UTF8 envelopes retain all47 original byte sequences; decoded identity is verified.",
+  "tagFamilyAmendment": {
+    "status": "Adopted after independent Green; actual bounded implementation requires committed Root issuance",
+    "editPathsAdded": [
+      "src/Internal/Audit/Authority/History/AuditHistoryCheckpointTag.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryControlTag.php"
+    ],
+    "additionalPreloadTypes": 18,
+    "effectiveClosedTypeInventory": 27,
+    "ProductExecuted": false,
+    "reviewSha256": "2f463ef5fc11623348735ba46a30b5e73e80014e42d06abc4f484cacec00d78a",
+    "adoptedAt": "2026-10-14T19:05:26+09:00"
+  }
 }

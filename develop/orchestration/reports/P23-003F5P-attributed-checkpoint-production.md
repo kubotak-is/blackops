@@ -1,19 +1,19 @@
 # P23-003F5P: Attributed Checkpoint Production Report
 
-Status: In Progress — Owner resumed; accepted phase unit awaiting verified commit, bounded History corrections remain
+Status: In Progress — Owner resumed; phase unit committed f50fff1; bounded History corrections assigned
 
 ## Summary
 
-Owner resumed after the pause. The first History layer has four open independent
-findings and actual format/lint failures. Only the two capture-phase enums are
-accepted as a source unit: independent review and six isolated gates passed.
-Git verification found the planned source commit was never made; Root completes
-that commit before further implementation. The exact pause files and successful
-phase evidence match on resume. All eight full Product criteria remain open.
+Owner resumed. Root completed, pushed and independently remote-matched the
+previously accepted phase-enum unit at f50fff14dccce5644fbf4920b4923f6cf35f9ca9.
+The intended pause commit had never happened; the reconciliation is recorded below.
 
-The complete child packet is already committed/pushed/remote-matched at ff8ab9c.
-Primary mixed work remains preserved. No fixture, migration, public source or
-dependency changed in this first source unit.
+The finite three-enum tag contract is now independently Green and adopted. Its
+management checkpoint is separate from the unfinished History source. Successor
+source review closes HL-02/03 but retains HL-01/04: valid native lifecycle/recovery
+data is rejected and important relations/tests remain wrong. Pure diagnostics
+are recorded under E14/history-layer-r2-runtime; no source Acceptance follows.
+All eight full Product criteria remain open. Primary mixed work is preserved.
 
 ## Changed Files
 
@@ -24,10 +24,10 @@ worker receives only the literal future Product/test/tooling/documentation paths
 
 ## Decisions and Assumptions
 
-The scope is295 literal edits plus62 reference-only paths,with35 new and26 existing
+The effective scope is297 literal edits plus62 reference-only paths,with35 new and26 existing
 PHP test paths. Original maps remain byte-identical; README applies only named
 finite corrections. Both Replays have four shared collaborators and four exact
-local Reader sites;16 additional types resolve before either floor. Record.native
+local Reader sites;18 additional types resolve before either floor. Record.native
 and successful-replay loans preserve original bytes/object identity. Exact failed
 seal,pre-root,comparison and close paths have one sticky owned disposal attempt.
 
@@ -86,9 +86,10 @@ final local Documentation preview before publication.
 
 ## Remaining Issues
 
-HL-01..04, the partial NativeGroup helper/surface violation and the HistoryTag
-50-case versus20-case conflict remain open. No runtime lease is active. The five
-unfinished Product/test files are not accepted or included in the phase commit.
+HL-01/04 remain open after successor review751000d8. HL-02/03 are closed at
+source level only. The tag contract conflict is resolved by the adopted15/20/15
+amendment; its implementation is pending. The unfinished Product/test files are
+not accepted or included in either management or phase source commits.
 
 ## Suggested Next Action
 
@@ -332,3 +333,73 @@ to configured Luna, with the exact four-path correction scope. HistoryTag remain
 frozen pending explicit resolution of the50-case versus20-case contract conflict.
 No helper, baseline, threshold waiver or execution lease is granted by this note.
 Primary Product/index/modes and unrelated Documentation remain preserved.
+
+
+## Resumed bounded correction assignment — 2026-10-14T18:17:21+09:00
+
+Root verified commit f50fff14dccce5644fbf4920b4923f6cf35f9ca9 against its twelve
+exact staged paths. Only two Product files are committed; all five unfinished
+bytes match the pause record and C's index is empty. Delivery receipt is
+E13/capture-phases-commit.json; a source commit does not imply remote delivery.
+
+Root now assigns configured Luna Max `f5p_history_worker` exactly these C paths:
+
+- src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php
+- src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php
+- src/Internal/Audit/Authority/History/AuditHistoryRecord.php
+- tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php
+
+Implement HL-01..04 from review8727a8dc and remove the partial timestamp() helper
+surface violation. Keep NativeGroup9/Record10 methods and all exact callers,
+GroupCodec's budget, meaningful coverage and existing complexity limits.
+No extra path/helper/method, contract change, threshold/baseline waiver or runtime
+is assigned. Return a concrete conflict instead of expanding scope. Root owns
+Report,STATE,Git and all runtime leases. Phase pair and HistoryTag remain frozen.
+
+Independent `history_tag_scope` investigates only the exact50-tag enum versus
+20-case lint conflict. It reads the local rule implementation, contract callers
+and existing alternatives, then writes only E14/history-tag-contract-options.md.
+It proposes the smallest explicit contract amendment preserving all wire codes,
+closed typing, guards and quality limits. No Product/governance/runtime/Git write
+is delegated. This is a distinct question from the worker's four-path correction.
+
+
+## Adopted closed History tag families — 2026-10-14T19:05:26+09:00
+
+Root adopts the exact six-file candidate after independent Green2f463ef5 and
+inputs3a971e03 (71 stable selected inputs). Durable supplement and review are
+under contracts/P23-003F5P/history-tag-family-*. Original47 immutable inputs remain
+unchanged. The only semantic changes are three zero-method backed-int enums with
+15/20/15 original cases, explicit closed unions, Reader.next's three native-from
+sites after prefix/code/cap admission and two additional eager preload literals.
+Existing codes, schemas,15 phases, same-case identity, original-byte binding,
+current trust and all method/complexity/quality limits remain. No threshold,
+baseline, suppression or helper waiver is adopted.
+
+Effective scope is297 edit paths/62 references,35 new/26 existing PHP tests; the
+two added paths are AuditHistoryCheckpointTag.php and AuditHistoryControlTag.php
+under src/Internal/Audit/Authority/History. Additional preload16 becomes18 and
+effective type closure25 becomes27. Spec130 is changed only by that exact list
+delta. D179 preserves the entire earlier text and adds an explicit superseding
+entry. Root's mechanical check independently proves all50 code/name pairs and
+exact scope/manifest preservation in0.002545s. Reviewer made no runtime claim.
+
+This management unit is complete and is committed separately before issuing
+its Product implementation. It does not include the four unaccepted History
+source/test corrections. Existing f50fff1 phase-unit commit is now pushed and
+independently remote-matched; E13/capture-phases-commit.json records the result.
+Primary Product/modes/index and unrelated documentation remain preserved.
+
+Release Documentation Impact: internal tag representation and preload contract
+only; current1.2.1/unreleased1.3.0 tuple, public sources/routes/commands/configuration
+and wire formats are unchanged. No Source/Search/LLM artifact was rebuilt for
+this management-only unit; the full child's required all-public checks, Owner
+preview, same-SHA CI/export and release/delivery gates remain open. Existing
+internal documents have no affected literal type/preload counts per bounded
+review; no reader-facing update is required for this unit.
+
+Remaining: HL successor review/runtime failures and schema-key lint correction;
+actual three-enum implementation; complete F5P/F4/F5/F6/D/E/G/004A/005/006.
+Next Action: Root commits this reviewed management unit, then issues only the
+three enum plus four existing leaf paths after the current diagnostic lease
+and source review finish. No later Reader/native/cold layer is assigned yet.
