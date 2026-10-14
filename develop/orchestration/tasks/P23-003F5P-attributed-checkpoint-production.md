@@ -481,3 +481,126 @@ actual three-enum implementation; complete F5P/F4/F5/F6/D/E/G/004A/005/006.
 Next Action: Root commits this reviewed management unit, then issues only the
 three enum plus four existing leaf paths after the current diagnostic lease
 and source review finish. No later Reader/native/cold layer is assigned yet.
+
+
+## History correction r2: rejected source checkpoint — 2026-10-14T23:21:03+09:00
+
+Source/security review751000d8/inputs c610bb78 closes HL-02/03 at source level
+but retains HL-01/04. Valid open/populated successors and exact accepted
+publication recovery are rejected; local lifecycle/ordinal/revision relations
+and discriminating test fixtures remain incomplete. Exact counterexamples and
+owning specification references are in E14/history-layer-review-r2.md.
+
+Root executed the three assigned diagnostic commands on input c24024ac, image
+ab739e1d, unchanged before/after, with --no-deps and exception arguments enabled.
+Receipts, literal argv, full logs and failed pre-execution sandbox attempts are
+under E14/history-layer-r2-runtime. Actual unit exit255 in1.982141s: fatal
+void arrow function returns a value at test line294; PHPUnit did not start tests.
+Format exit1 in2.267538s: four files need formatting. Lint exit1 in2.021876s:
+10 errors,19 warnings,4 notes,6 help. Errors are Codec complexity30>15,
+NativeGroup complexity107>15 and Kan4.51>1.6, six literal-key descriptor password
+false positives and the still-unmigrated tag50>20. No outcome is called PASS.
+Analyze/Deptrac/full/native/DB remained Not Run because this candidate failed.
+The prior three sandbox socket denials are retained separately and are not
+Product executions. Total actual diagnostic runtime6.271555s; no repeated
+successful Product check. Lease is closed; direct Docker inspection returned
+no app containers. No shared DB was started, mutated or stopped.
+
+The exact Mago-rule investigation E14/history-schema-lint-options.md d5e8303a
+permits a clear representation using semantic private type descriptor constants
+in the existing schema tables. Restore literal keys; no string-concatenation
+obfuscation, helper method, suppression, threshold or baseline change. This fixes
+only descriptor false positives; it does not solve the measured complexity.
+
+Root now separates two dependent correction responsibilities: configured Luna
+implements only the adopted three-enum vocabulary (existing AuditHistoryTag,
+new AuditHistoryCheckpointTag and AuditHistoryControlTag). The four unaccepted
+carrier/codec/test paths remain frozen pending a concrete complexity-compatible
+admission design. This is the already-adopted tag correction, not a new runtime
+layer. Root will qualify its complete committed-tree isolated candidate and
+commit only that coherent vocabulary unit; full C remains unqualified.
+
+Independent history_tag_scope investigates existing admission helpers and the
+actual complexity rule, proposing the smallest finite responsibility split that
+retains exact local constraints, method/caller/privacy/preload/quality limits.
+It writes only E14/history-admission-budget-options.md. No Product, contract,
+Git or runtime change is delegated by that investigation. Root will explicitly
+review/adopt any necessary scope amendment before carrier implementation resumes.
+
+Remaining upper goal: all F5P actual production/cold/native/SQL/strict/full gates
+and F4/F5/F6,D/E/G/004A/005/006. Next Action: finish the exact tag source unit and
+resolve the measured admission budget conflict without weakening validation.
+
+
+## Isolated tag-vocabulary source unit — 2026-10-14T23:23:33+09:00
+
+Worker returned only three enum files, pinned in E14/history-tags-source-inputs.json:
+common e222118b, checkpoint8ddbf0ef and control5840ff5a. Root verified the exact
+15/20/15 names/values against the adopted supplement. Astra/max
+`history_contract_review` reuses the adopted contract review and independently
+checks only these declarations; write E14/history-tags-source-review.md.
+No runtime or source/Git/governance mutation is assigned to that reviewer.
+
+Root's complete isolated candidate at E14/history-tags-unit/source uses every
+committed d8af340 blob/mode plus only these three enum files. No export-ignore
+filtering or unfinished carrier/test enters this candidate. Runtime source and
+vendor/config/image identities are frozen before a fresh Root lease. Assign
+format src/tests,lint,analyze,Deptrac,actual PHP enum-load/literal-map verification
+and management-ID absence. APP uses the unit's exact Compose override and
+--no-deps; shared DB remains untouched. Logs/argv/duration/exit/cleanup are owned
+by Root. No full/native/SQL/cold/full-child gate or union migration is claimed.
+
+
+## Tag-vocabulary unit accepted for source commit — 2026-10-14T23:34:47+09:00
+
+Root accepts exactly the three15/20/15 enum files after independent Green
+43f7ae33 and six successful pure gates. E14/history-tags-source-inputs.json
+pins all exact50 original code/name pairs; source hashes are e222118b,8ddbf0ef,
+5840ff5a. Zero methods/extra constants/traits/interfaces/attributes/state, no
+unfinished-carrier dependency and all native int backing are verified.
+
+Candidate is complete committed d8af340 tree (3559 blobs/modes) plus only three
+enums at E14/history-tags-unit/source. Input83995eea is unchanged before/after;
+read-only vendor and image ab739e1d are retained. The exact APP override and
+--no-deps argv, logs/hashes, durations and checked cleanup are in each receipt.
+PHP enum-load uses an independent literal adopted-contract map and512M.
+
+| Gate | Exit | Seconds |
+| --- | --- | --- |
+| format | 0 | 1.992382 |
+| lint | 0 | 1.643111 |
+| analyze | 0 | 2.019033 |
+| deptrac | 0 | 3.959351 |
+| enums | 0 | 1.545066 |
+| identifiers | 1 | 0.757949 |
+
+ID absence is exit1 plus empty output. Deptrac1180 source files,7698 allowed,
+zero violations/skips/uncovered/warnings/errors. Existing Mago lint6warnings/
+2help and analyze648warnings/467help remain; no warning-free claim. No PHPUnit
+full, DB, native, cold, union migration, Reader or child Acceptance is inferred.
+
+Root's initial isolated setup had an unnecessary absolute vendor symlink, which
+caused Docker's nested bind to change Composer's baseDir. Its first four static
+gates passed but enum autoload failed255; ID absence was not reached. Preserved
+at attempt1-vendor-alias; this is a qualification-setup error, not a Product
+defect. Only that owned link was replaced by an ordinary mount point. The six
+final gates above run under the corrected topology. Setup-correction.json
+records why that changed environment required rerunning; no failure is PASS.
+
+Final runtime total11.916892s. Both leases are closed; no app container remains and no shared DB was started or mutated.
+
+This source unit changes only internal vocabulary, no public Source/route, API,
+command/configuration, wire bytes or release authority. Full child reader and
+Source/Search/LLM gates remain. Root commits these three source files with
+coherent governance; the four rejected carrier/codec/test files stay outside.
+Their concrete next action is a reviewed finite admission-responsibility design
+under actual complexity/Kan limits, then semantic/test/lint correction and union
+migration. No temporary helper or threshold exception is authorized.
+
+The Owner's644-path question was checked directly: primary at8106c35 had388
+governance/history,132 Product,67 test,53 reader/Website and4 other paths;101
+modified,4 addition-intent and539 untracked. C was separately atd8af340 with9
+dirty paths at that observation. Primary2323 non-governance files/modes and
+three index views still matched this session's baseline. C commits do not
+clean primary. Primary integration/reconciliation remains explicit upper-goal
+work; no bulk stage, reset or discard is authorized by that status question.
