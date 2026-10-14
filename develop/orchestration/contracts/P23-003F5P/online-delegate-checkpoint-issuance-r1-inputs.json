@@ -1,0 +1,1608 @@
+{
+  "schemaVersion": 1,
+  "kind": "read-only finite online-delegate-checkpoint issuance candidate",
+  "owner": "/root/f5_native_contract_plan",
+  "status": "frozen candidate; independent combined review required; no Product issued",
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013"
+  },
+  "rootReportedBase": "070c752692bad46acc1334d37c59a769d511ec0e; subsequent Root-only replay governance described by current STATE",
+  "gitIndependentlyVerified": false,
+  "selectedInputHashesRecordedAt": "2026-10-13T14:59:03.508189+00:00",
+  "pinTiming": "First before-pin for this output after bounded source reads; not claimed to predate this lane's earlier exploration. Frozen prior proposals remain separately pinned.",
+  "selectedInputs": [
+    {
+      "root": "P",
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".codex/config.toml",
+      "before": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "after": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 7080,
+        "sha256": "3419b5f8d0fe403756108abf39b2ef14a5c86fff3459708f0fede0ac38414a55"
+      },
+      "after": {
+        "bytes": 7080,
+        "sha256": "3419b5f8d0fe403756108abf39b2ef14a5c86fff3459708f0fede0ac38414a55"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 23416,
+        "sha256": "09a1577a132d9441cc41f401e640248c24a3dfa0683c52cfd4d7081e0ebb7079"
+      },
+      "after": {
+        "bytes": 23416,
+        "sha256": "09a1577a132d9441cc41f401e640248c24a3dfa0683c52cfd4d7081e0ebb7079"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/README.md",
+      "before": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "after": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/105-blackops-1-3-capability-contract.md",
+      "before": {
+        "bytes": 421724,
+        "sha256": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193"
+      },
+      "after": {
+        "bytes": 421724,
+        "sha256": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "before": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "after": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "before": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "after": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/131-audit-ordinary-sign-service.md",
+      "before": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "after": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/132-audit-anchor-authenticated-provenance.md",
+      "before": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "after": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/release-authority.json",
+      "before": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "after": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "before": {
+        "bytes": 8229,
+        "sha256": "1a8b80e91a835f66ab7757e56a76b52d5f399a6dd9ed27ed2a4b6a510d10a09b"
+      },
+      "after": {
+        "bytes": 8229,
+        "sha256": "1a8b80e91a835f66ab7757e56a76b52d5f399a6dd9ed27ed2a4b6a510d10a09b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md",
+      "before": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "after": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1-inputs.json",
+      "before": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "after": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+      "before": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "after": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1-inputs.json",
+      "before": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "after": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md",
+      "before": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "after": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "before": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "after": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-review-r2.md",
+      "before": {
+        "bytes": 10595,
+        "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2"
+      },
+      "after": {
+        "bytes": 10595,
+        "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-codec-adoption-review-r2.md",
+      "before": {
+        "bytes": 2815,
+        "sha256": "eddff5b355b8276c4263e5b5b236f93899a85c9fb91e2c209b0786eb368ef081"
+      },
+      "after": {
+        "bytes": 2815,
+        "sha256": "eddff5b355b8276c4263e5b5b236f93899a85c9fb91e2c209b0786eb368ef081"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md",
+      "before": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "after": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1-inputs.json",
+      "before": {
+        "bytes": 41583,
+        "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94"
+      },
+      "after": {
+        "bytes": 41583,
+        "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2.md",
+      "before": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "after": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2-inputs.json",
+      "before": {
+        "bytes": 1554,
+        "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199"
+      },
+      "after": {
+        "bytes": 1554,
+        "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-composition-correction-r2.md",
+      "before": {
+        "bytes": 5587,
+        "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77"
+      },
+      "after": {
+        "bytes": 5587,
+        "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-proposal-r2.md",
+      "before": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "after": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-custody-adoption-review-r1.md",
+      "before": {
+        "bytes": 6452,
+        "sha256": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a"
+      },
+      "after": {
+        "bytes": 6452,
+        "sha256": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-production-verification-packet-r1.md",
+      "before": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "after": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactSigner.php",
+      "before": {
+        "bytes": 4101,
+        "sha256": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152"
+      },
+      "after": {
+        "bytes": 4101,
+        "sha256": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactVerifier.php",
+      "before": {
+        "bytes": 3654,
+        "sha256": "a21dd9bffa1299061a96dec59931e1025bddc1169c5093112bb7d1ade2228864"
+      },
+      "after": {
+        "bytes": 3654,
+        "sha256": "a21dd9bffa1299061a96dec59931e1025bddc1169c5093112bb7d1ade2228864"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditTrustSnapshotCodec.php",
+      "before": {
+        "bytes": 2483,
+        "sha256": "ba745b4309a99bf1ef2b354c5cb64ab85e9d119ee2efe9d1e4041d920583d291"
+      },
+      "after": {
+        "bytes": 2483,
+        "sha256": "ba745b4309a99bf1ef2b354c5cb64ab85e9d119ee2efe9d1e4041d920583d291"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditTrustSnapshotShape.php",
+      "before": {
+        "bytes": 3011,
+        "sha256": "1379d2c6dc1561df252b99a85af3d8959aea94e0e51114fdd1d8aadede953ec1"
+      },
+      "after": {
+        "bytes": 3011,
+        "sha256": "1379d2c6dc1561df252b99a85af3d8959aea94e0e51114fdd1d8aadede953ec1"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditTrustEntryShape.php",
+      "before": {
+        "bytes": 2441,
+        "sha256": "f745e10a52cdb90a8586b4a3cd4a35a29453ba293e4da6a64370e46c28f672db"
+      },
+      "after": {
+        "bytes": 2441,
+        "sha256": "f745e10a52cdb90a8586b4a3cd4a35a29453ba293e4da6a64370e46c28f672db"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditTrustEntryRelation.php",
+      "before": {
+        "bytes": 1586,
+        "sha256": "2705cad8247ba89b71b1c99abcb96cec7bebe0a82cae84600667f5fe22846737"
+      },
+      "after": {
+        "bytes": 1586,
+        "sha256": "2705cad8247ba89b71b1c99abcb96cec7bebe0a82cae84600667f5fe22846737"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditTrustScalar.php",
+      "before": {
+        "bytes": 2116,
+        "sha256": "a6fe5337700d927d8a1757556459a65212c2d368e5ac446f5634df5e5babcdaa"
+      },
+      "after": {
+        "bytes": 2116,
+        "sha256": "a6fe5337700d927d8a1757556459a65212c2d368e5ac446f5634df5e5babcdaa"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditTrustLookup.php",
+      "before": {
+        "bytes": 3495,
+        "sha256": "8008fa1196e0bece03806a7c982959ca69630df41f9771d9f73b52348459b4cd"
+      },
+      "after": {
+        "bytes": 3495,
+        "sha256": "8008fa1196e0bece03806a7c982959ca69630df41f9771d9f73b52348459b4cd"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactCanonical.php",
+      "before": {
+        "bytes": 1849,
+        "sha256": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e"
+      },
+      "after": {
+        "bytes": 1849,
+        "sha256": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactException.php",
+      "before": {
+        "bytes": 498,
+        "sha256": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8"
+      },
+      "after": {
+        "bytes": 498,
+        "sha256": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactFailure.php",
+      "before": {
+        "bytes": 306,
+        "sha256": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b"
+      },
+      "after": {
+        "bytes": 306,
+        "sha256": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditCheckpointCodec.php",
+      "before": {
+        "bytes": 3352,
+        "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362"
+      },
+      "after": {
+        "bytes": 3352,
+        "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactShape.php",
+      "before": {
+        "bytes": 11829,
+        "sha256": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4"
+      },
+      "after": {
+        "bytes": 11829,
+        "sha256": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactRelation.php",
+      "before": {
+        "bytes": 2382,
+        "sha256": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6"
+      },
+      "after": {
+        "bytes": 2382,
+        "sha256": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactScalar.php",
+      "before": {
+        "bytes": 1913,
+        "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946"
+      },
+      "after": {
+        "bytes": 1913,
+        "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactIntegrity.php",
+      "before": {
+        "bytes": 3093,
+        "sha256": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67"
+      },
+      "after": {
+        "bytes": 3093,
+        "sha256": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php",
+      "before": {
+        "bytes": 1718,
+        "sha256": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207"
+      },
+      "after": {
+        "bytes": 1718,
+        "sha256": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/AuditCheckpointPreparation.php",
+      "before": {
+        "bytes": 5563,
+        "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214"
+      },
+      "after": {
+        "bytes": 5563,
+        "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php",
+      "before": {
+        "bytes": 7939,
+        "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208"
+      },
+      "after": {
+        "bytes": 7939,
+        "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php",
+      "before": {
+        "bytes": 7288,
+        "sha256": "6e4727e40027179670dd6a926222ac9e4bc4bda60228085694d19d602dada951"
+      },
+      "after": {
+        "bytes": 7288,
+        "sha256": "6e4727e40027179670dd6a926222ac9e4bc4bda60228085694d19d602dada951"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "before": {
+        "bytes": 3479,
+        "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734"
+      },
+      "after": {
+        "bytes": 3479,
+        "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php",
+      "before": {
+        "bytes": 8613,
+        "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794"
+      },
+      "after": {
+        "bytes": 8613,
+        "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php",
+      "before": {
+        "bytes": 1898,
+        "sha256": "72b6bf4bf0af96d14b797381267b35bde66dbf6edf3a2c1af73dabbeab658452"
+      },
+      "after": {
+        "bytes": 1898,
+        "sha256": "72b6bf4bf0af96d14b797381267b35bde66dbf6edf3a2c1af73dabbeab658452"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/AuditJcsCodec.php",
+      "before": {
+        "bytes": 32528,
+        "sha256": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999"
+      },
+      "after": {
+        "bytes": 32528,
+        "sha256": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/AuditJcsObject.php",
+      "before": {
+        "bytes": 460,
+        "sha256": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883"
+      },
+      "after": {
+        "bytes": 460,
+        "sha256": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Audit/AuditRecordTime.php",
+      "before": {
+        "bytes": 1295,
+        "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd"
+      },
+      "after": {
+        "bytes": 1295,
+        "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Orchestration/AuditDeliveryException.php",
+      "before": {
+        "bytes": 939,
+        "sha256": "c42eb6c89d849950edd67631f166ab8cc0a247f3ac2e08147b13e2b82dfa115f"
+      },
+      "after": {
+        "bytes": 939,
+        "sha256": "c42eb6c89d849950edd67631f166ab8cc0a247f3ac2e08147b13e2b82dfa115f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Orchestration/AuditDeliveryFailure.php",
+      "before": {
+        "bytes": 427,
+        "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7"
+      },
+      "after": {
+        "bytes": 427,
+        "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+      "before": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "after": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+      "before": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "after": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationOperationRuntimeComposer.php",
+      "before": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "after": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditArtifactArchitectureTest.php",
+      "before": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "after": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "before": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "after": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "before": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "after": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/PublicApiArchitectureTest.php",
+      "before": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "after": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "unchanged": true
+    }
+  ],
+  "selectedInputCount": 63,
+  "ownedOutputs": [
+    "online-delegate-checkpoint-issuance-r1.md",
+    "online-delegate-checkpoint-issuance-r1-inputs.json"
+  ],
+  "notRun": [
+    "Git",
+    "PHP",
+    "Node",
+    "native process",
+    "Docker",
+    "database",
+    "tests",
+    "network",
+    "runtime qualification"
+  ],
+  "noProductImplementation": true,
+  "candidateTypes": [
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineConfiguration.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(AuditOnlineAuthoritySettings,array exactSeedBindings,?ApplicationAuditOrdinarySignConfiguration ordinary); static fromConfiguration(array audit,AuditCustodyIdentity):self; settings():AuditOnlineAuthoritySettings; checkpointSeed(string ref,string fingerprint):AuditCheckpointSeedBinding; ordinary():?ApplicationAuditOrdinarySignConfiguration; seedIdentities():array exact configured role/ref/fingerprint/path/native-identity records; R4",
+      "callers": "RetentionRuntime.signingTasks constructs once from its actual snapshot; OnlineAcquisition reads settings; OnlineChecks reads configuration; CandidateSigner chooses one binding; RetentionRuntime alone consumes ordinary and passes the actual installed configuration to existing Definition/Identity/Policy; SigningFiles alone reads seedIdentities. fromConfiguration has two arguments; private ctor has three, counted separately below."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineAuthoritySettings.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array identity,array paths,int minimumEpoch); static fromConfiguration(same3):self; identity():array exact installationRef/authorityRef/rootRef/raw32Root/rootFingerprint; paths():array exact authorityFile/highWaterFile and detached native identities; minimumEpoch():int; R4",
+      "callers": "Only OnlineConfiguration constructs; OnlineDocument, OnlinePayload and OnlineFloorCodec read identity; SigningFiles reads paths; OnlineFloorCodec reads minimum."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditCheckpointSeedBinding.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(string ref,string fingerprint,array exactPathIdentity); static fromConfiguration(same3):self; metadata():array exact checkpoint ref/fingerprint/path/expected identity; R4",
+      "callers": "OnlineConfiguration.checkpointSeed only constructs after exact current ref/fingerprint match; CandidateSigner and SigningFiles.checkpointSeed alone read metadata. No seed material."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineConfigurationShape.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 2,
+      "surface": "private ctor(); static signing(array):array; private identity(array):array; private paths(array):array; private seeds(array):array; private ref(mixed):string; private path(mixed):string; private invalid():never",
+      "callers": "Only OnlineConfiguration.fromConfiguration. Eight exact methods; syntax/closed keys, canonical values and sorted entries only. Physical identity checks remain Configuration/CustodyIdentity."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineDocument.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "ctor(AuditOnlineConfiguration,AuditAuthorityDocumentCodec,AuditAuthorityDocumentVerifier); authenticate(string):array exact authenticated envelope/payload/digest; private envelope(array):void; R4",
+      "callers": "Only OnlineAcquisition constructs/calls; shared DocumentCodec.decode/hash and Verifier.verify perform bounded canonical/signature work. No Clock/current grant."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlinePayload.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3,
+      "surface": "ctor(AuditOnlineConfiguration); current(array authenticatedDocument,string partition,string now):array exact admitted online facts; private scope(array):array; private snapshots(array,string):void; private selected(array,string):array; private interval(array,string):void; private exact(array):void; private invalid():never",
+      "callers": "OnlineAcquisition alone calls current under online floor with its actual Clock sample. It calls F1 validate exactly once; helper methods are pure and bounded."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineFreshness.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(); static assertSnapshot(?array freshness,array onlinePayload,array scope):void; private heads(array,array):void; private frame(string,string):string; private scalar(array):void; private invalid():never",
+      "callers": "Only OnlinePayload. Uses actual shared JCS/scalar helpers, exact existing freshness hash domain, never a G freshness service or final seal assertion."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineFloorCodec.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 4,
+      "surface": "ctor(AuditOnlineConfiguration,AuditAuthorityJsonPreflight); decode(string):array exact9; advance(array floor,array authenticatedDocument,array admittedFacts,string now):string; private binding(array):void; private epoch(array,array):void; private canonical(array):string; private invalid():never",
+      "callers": "Only OnlineAcquisition; no stream/Clock. The actual acquired now is never caller configuration."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineAcquisition.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 5,
+      "surface": "ctor(AuditOnlineConfiguration,ClockInterface,AuditSigningFiles,AuditOnlineDocument,AuditOnlinePayload); acquire(string partition):AuditOnlineAuthority; private source():array; private floor(array authenticated,string partition):AuditOnlineAuthority; private failure(Throwable):AuditOnlineException; R4",
+      "callers": "RetentionRuntime.signingTasks is sole constructor. Constructor creates its fixed FloorCodec from the same configuration and common Preflight; four OnlineChecks entry methods are sole acquire callers. Actual operations Clock only."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineAuthority.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array wholeAuthenticated,string partition,string now); static fromAcquisition(same3):self; checkpoint():array exact partition/snapshot/now/newCheckpointKeyRef, one-use; R4",
+      "callers": "Only successful OnlineAcquisition after floor close constructs. Only OnlineChecks consumes checkpoint; no snapshot/time construction API or next-phase cache."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditCheckpointOnlineChecks.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 5,
+      "surface": "ctor(AuditOnlineAcquisition,AuditOnlineConfiguration); reservation(OrdinaryCheckpointSelection|AuditControlCheckpointSelection,AuditCheckpointPhaseAuthority):AuditCheckpointCurrentInput; reserved(ReservedCheckpointWork,AuditCheckpointPhaseAuthority):AuditCheckpointCurrentInput; prepared(PreparedCheckpointWork,AuditCheckpointPhaseAuthority):AuditCheckpointCurrentInput; complete(HeldCheckpointCandidate|AuditCheckpointCandidateObservation,AuditCheckpointPhaseAuthority):AuditCheckpointCurrentInput; private key(AuditCheckpointPhaseAuthority,array acquired,string ref,?string expectedFingerprint,?string signedAt):array; R4",
+      "callers": "Only ReservationAcquisition, PhaseAcquisition and CandidateSigner call their fixed typed operations. The private key method is five args; no mode argument. Each public operation owns one fresh OnlineAcquisition.acquire call."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditCheckpointCurrentInput.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(AuditCheckpointPhaseAuthority,OrdinaryCheckpointSelection|AuditControlCheckpointSelection|ReservedCheckpointWork|PreparedCheckpointWork|HeldCheckpointCandidate|AuditCheckpointCandidateObservation exactTarget,array exactSnapshotKeyNow); static fromChecks(same3):self; consume(AuditCheckpointPhaseAuthority,OrdinaryCheckpointSelection|AuditControlCheckpointSelection|ReservedCheckpointWork|PreparedCheckpointWork|HeldCheckpointCandidate|AuditCheckpointCandidateObservation exactTarget):array exact snapshot/key/now, one-use; R4",
+      "callers": "Only OnlineChecks constructs; exact allowed target union is the five reservation/work types and CandidateObservation, never arbitrary object. ReservationAcquisition/PhaseAcquisition/CandidateSigner alone consume; same live authority and target object equality required."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineRuntimePrerequisite.php",
+      "methods": 2,
+      "maxOrdinaryArguments": 0,
+      "surface": "private ctor(); static initialize():void",
+      "callers": "Only one literal RetentionRuntime.signingTasks call, before online or control floor. No cache flag/reset/class-list argument/provider."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineFailure.php",
+      "methods": 0,
+      "maxOrdinaryArguments": 0,
+      "surface": "enum ConfigurationInvalid=configuration_invalid; AuthorityUnavailable=authority_unavailable; AuthorityInvalid=authority_invalid; ClockUnavailable=clock_unavailable; AuthorityStale=authority_stale; TrustUnavailable=trust_unavailable; BindingInvalid=binding_invalid; FreshnessUnavailable=freshness_unavailable; SeedUnavailable=seed_unavailable; no methods",
+      "callers": "Online leaf failures only; no path/document/seed diagnostics."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineException.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 1,
+      "surface": "ctor(AuditOnlineFailure); failure():AuditOnlineFailure; code():string; __debugInfo():array empty; __serialize():array rejecting; __unserialize(array):void rejecting",
+      "callers": "Matches the accepted sanitized failure pattern; inherited final Exception cloning prohibition counts as zero new declared methods, no illegal override. Fixed message/code0/null previous."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointPhaseAcquisition.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 5,
+      "surface": "ctor(AuditControlAcquisition,AuditCheckpointOnlineChecks,PostgreSqlAuditProvenanceTransaction,AuditCheckpointMutationAdmission,AuditSigningGraphState); beforePrepare(ReservedCheckpointWork,AuditCapturedCheckpointHistory):array; afterPrepare(PreparedCheckpointWork,AuditCapturedCheckpointHistory):AuditCheckpointPhaseAuthority; candidate(PreparedCheckpointWork,AuditCapturedCheckpointHistory):AuditCheckpointPhaseAuthority; beforePersist(HeldCheckpointCandidate,AuditCapturedCheckpointHistory):array; afterPersist(HeldCheckpointCandidate,AuditCapturedCheckpointHistory):AuditCheckpointPhaseAuthority; R4",
+      "callers": "Only fixed Preparation/Candidate/Persistence workflows; replaces the frozen map placeholder with actual Checks. Two pre-F2 methods consume their own authority and close history in the short fenced root before fresh online/F2."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointCandidateSigner.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 5,
+      "surface": "ctor(AuditOnlineConfiguration,AuditCheckpointOnlineChecks,AuditCheckpointCandidateAdmission,AuditSigningFiles,AuditSigningGraphState); complete(PreparedCheckpointWork,AuditCheckpointPhaseAuthority):SignedCheckpointCandidate; private signPrepared(PreparedCheckpointWork,array exactCurrentInput,AuditCheckpointSeedBinding):string; private recovered(AuditCheckpointCandidateObservation,array exactCurrentInput):string; R4",
+      "callers": "CandidateWorkflow alone calls complete. One F1 checkpoint signer site in signPrepared. recovered returns only the exact currently verified actual candidate, never signs a replacement."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointCandidatePermit.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(AuditCheckpointPhaseAuthority,AuditCheckpointCaptureScope,AuditVerifiedCheckpointEndpoints); static fromAuthority(same3):self; take(PreparedCheckpointWork):array exact authority/scope/endpoints, one-use; R4",
+      "callers": "Only PhaseAuthority.candidatePermit constructs; CandidateAdmission.admit alone consumes. No recorder/delegate permission; no bytes/seed getter."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointCandidateAdmission.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 3,
+      "surface": "ctor(PostgreSqlAuditProvenanceTransaction,AuditCheckpointMutationAdmission,AuditSigningGraphState); admit(PreparedCheckpointWork,AuditCheckpointCandidatePermit):AuditCheckpointCandidateObservation; R4",
+      "callers": "CandidateSigner only; consumes permit, starts actual named root, fenced exact reread and checked history close, stages observation, commits, only then returns. Zero Clock/F1/seed."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointNativeObservation.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(Connection,PostgreSqlAuditProvenanceTransaction,AuditVerifiedCheckpointEndpoints); static fromAdmission(same3):self; factsFor(AuditControlPhaseGrant):array exact native endpoint facts; candidateFor(PreparedCheckpointWork,AuditCheckpointPhaseAuthority):?array exact actual ordinal2 candidate; R4",
+      "callers": "Only MutationAdmission.assertUnchanged constructs after real reread and checked close. factsFor is only Grant.claim; candidateFor is only CandidateObservation.fromAdmission. Both assert the same currently owned native root and exact endpoints, no supplied successful flag."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointCandidateObservation.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(PreparedCheckpointWork,AuditCheckpointPhaseAuthority,?array exactActualCandidate); static fromAdmission(PreparedCheckpointWork,AuditCheckpointPhaseAuthority,AuditCheckpointNativeObservation):self; prepared():PreparedCheckpointWork; candidate():?array exact candidate row/envelope/bytes; assertAuthority(AuditCheckpointPhaseAuthority):void; R4",
+      "callers": "Only CandidateAdmission stages in root and returns after successful commit. OnlineChecks.complete and CandidateSigner read candidate; constructor copies only bounded native candidate facts."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlConfiguration.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 4,
+      "surface": "private ctor(array identity,array paths,array delegate,array minima); static fromConfiguration(array audit,AuditCustodyIdentity):self; identity():array exact installed installation/root/authority metadata; paths():array exact archive/source/control-floor paths and native identities; delegate():array exact configured ref/fingerprint/seed path/native identity; minima():array exact minimum policyVersion/lineageRevision; R4",
+      "callers": "Both actual composers construct from actual snapshot. Existing history/session/archive/current acquisition and new SigningFiles/DelegateCustody consume the fixed groups. No online/checkpoint seed requirement is added to installer publication."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlPhaseGrant.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 5,
+      "surface": "private ctor(AuditCheckpointCaptureScope|AuditControlCaptureScope exactScope,AuditVerifiedCheckpointEndpoints|AuditVerifiedControlEndpoints exactEndpoints,array exactAuthenticatedPolicy,array exactCurrentDelegate,string acquiredNow); static fromAcquisition(same5):self; facts():array exact scope/policy/delegate/now/authenticated checkpoint choice; assertCheckpoint(string partition,string ref,string fingerprint):void; markConsumed(AuditCheckpointCaptureScope|AuditControlCaptureScope exactScope,AuditVerifiedCheckpointEndpoints|AuditVerifiedControlEndpoints exactEndpoints):void; claim(AuditCheckpointNativeObservation|AuditControlNativeObservation):array exact signing facts, one-use; R4",
+      "callers": "Only actual ControlAcquisition/CandidateAcquisition create after current locked authentication. Scope/endpoints are closed checkpoint/control unions. PhaseAuthority or PublicationAuthority markConsumed only in their sole consume path. OnlineChecks reads restrictions; fixed frame constructors alone claim, requiring actual observation/owned root."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditControlNativeObservation.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(Connection,PostgreSqlAuditProvenanceTransaction,AuditVerifiedControlEndpoints); static fromWriter(same3):self; factsFor(AuditControlPhaseGrant):array exact control endpoints/proof, one-use; R4",
+      "callers": "Only PublicationWriter.recheck, after actual expected-head/row/proof reread and checked capture close. Only Grant.claim reads. Writer recover/replay may use facts but does not create a signing frame."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Custody/AuditSigningFiles.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 2,
+      "surface": "ctor(AuditCustodyIdentity); onlineSource(AuditOnlineConfiguration):AuditNativeFile; onlineFloor(AuditOnlineConfiguration):AuditNativeFloorFile; checkpointSeed(AuditCheckpointSeedBinding):AuditNativeFile; delegateSeed(AuditControlConfiguration,AuditDelegateUnsignedEnvelope):AuditNativeFile; R4",
+      "callers": "Fixed sole openers for these four materials. Source/floor only Acquisition; checkpointSeed only CandidateSigner.signPrepared; delegateSeed only five fixed DelegateCustody methods. No arbitrary path/mode or resource return."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Custody/AuditControlDelegateCustody.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 3,
+      "surface": "ctor(AuditControlConfiguration,AuditSigningFiles,AuditAuthorityDocumentCodec); ordinaryReservation(AuditOrdinaryCheckpointReservationFrame):AuditSignedControlEnvelope; controlReservation(AuditControlCheckpointReservationFrame):AuditSignedControlEnvelope; checkpointExtension(AuditCheckpointPreparationFrame|AuditCheckpointCandidateFrame):AuditSignedControlEnvelope; checkpointOutcome(AuditCheckpointOutcomeFrame):AuditSignedControlEnvelope; publication(AuditRootRevisionPublicationFrame|AuditSegmentAdvancePublicationFrame|AuditHeadRefreshPublicationFrame):AuditSignedControlPublication; R4",
+      "callers": "Recorder alone calls first4 at five fixed record paths; PublicationWriter alone calls publication. Five native seed/sign blocks, no general sign method/private callback. One private holder per shared graph."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditOrdinaryCheckpointReservationFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 5,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromRecorder(OrdinaryCheckpointSelection,AuditCheckpointPhaseAuthority,AuditCheckpointNativeObservation,AuditCheckpointSigningKey,string actualNewWorkId):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "Recorder.reserveOrdinary only; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditControlCheckpointReservationFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 5,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromRecorder(AuditControlCheckpointSelection,AuditCheckpointPhaseAuthority,AuditCheckpointNativeObservation,AuditCheckpointSigningKey,string actualNewWorkId):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "Recorder.reserveControl only; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditCheckpointPreparationFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromRecorder(PreparedCheckpointWork,AuditCheckpointPhaseAuthority,AuditCheckpointNativeObservation):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "Recorder.preparationBound only; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditCheckpointCandidateFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromRecorder(SignedCheckpointCandidate,AuditCheckpointPhaseAuthority,AuditCheckpointNativeObservation):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "Recorder.completeCandidate only; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditCheckpointOutcomeFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromRecorder(HeldCheckpointCandidate,AuditCheckpointPhaseAuthority,AuditCheckpointNativeObservation):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "Recorder.artifactPersisted only; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditRootRevisionPublicationFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 2,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromWriter(AuditControlPublicationAuthority,AuditControlNativeObservation):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "PublicationWriter.rootRevision only, actual bootstrap/root replacement; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditSegmentAdvancePublicationFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromWriter(AuditControlPublicationAuthority,AuditControlNativeObservation,AuditControlClosedSegmentProof):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "PublicationWriter.segmentAdvance only after real proof rerun; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditHeadRefreshPublicationFrame.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 2,
+      "surface": "private ctor(array exactOwnedPayloadOrPlan,AuditControlPhaseGrant); static fromWriter(AuditControlPublicationAuthority,AuditControlNativeObservation):self; take():closed payload-and-grant for work frames, or AuditDelegatePublicationDraft for publication frames, one-use; R4",
+      "callers": "PublicationWriter.refresh only; each factory itself claims the actual current grant using the actual native observation and fixes purpose/kind/phase/permissions. Only the matching Custody method consumes."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditDelegateUnsignedEnvelope.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array exactPayload,array exactAdmittedDelegate,AuditControlPhaseGrant); static fromWork(AuditOrdinaryCheckpointReservationFrame|AuditControlCheckpointReservationFrame|AuditCheckpointPreparationFrame|AuditCheckpointCandidateFrame|AuditCheckpointOutcomeFrame):self; static fromPublication(array exactDerivedPayload,AuditControlPhaseGrant):self; signingInput():string; complete(string raw64Signature,AuditAuthorityDocumentCodec):AuditSignedControlEnvelope; delegate():array exact ref/fingerprint/raw32 public/seed permission scope; R4",
+      "callers": "fromWork only four fixed Custody methods; fromPublication only PublicationDraft.next with its exact derived closed payload and claimed grant. No application array factory caller, no sign method or seed. Encodes only purpose control-lineage."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditDelegatePublicationDraft.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 2,
+      "surface": "private ctor(array exactOwnedPublicationPlan,AuditControlPhaseGrant); static fromFrame(same2):self; next():?AuditDelegateUnsignedEnvelope; accept(AuditSignedControlEnvelope):void; result():AuditSignedControlPublication; R4",
+      "callers": "Only the three publication Frame.take methods construct from their privately held authenticated plan and already claimed Grant; Custody.publication alone drives the fixed chain. Actual grant scope fixes root/segment/refresh phase; no caller kind/stage/list, callback or arbitrary factory caller."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditControlPublicationPayloads.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 4,
+      "surface": "private ctor(); static segment(array exactOwnedPlan,array currentGrant):array; static policyState(array exactOwnedPlan,?AuditSignedControlEnvelope segment):string; static transition(array exactOwnedPlan,string stateDigest,array currentGrant):array; static head(array exactOwnedPlan,string stateDigest,?AuditSignedControlEnvelope transition,?AuditSignedControlEnvelope segment):array; private canonical(array):string",
+      "callers": "PublicationDraft.next only. Three domain-specific body builders plus exact policyState/transitionId calculations; inputs derive only from real authenticated frame plan, not caller policy selection."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditSignedControlEnvelope.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(string canonicalBytes,string digest,array exactPayload); static fromCustody(same3):self; bytes():string; digest():string; payload():array; R4",
+      "callers": "Only DelegateUnsignedEnvelope.complete after the actual Custody signature constructs. Work Rows shaper/PublicationDraft/PublicationWriter read only their fixed native projection. Name denotes concrete custody call graph, not caller-supplied valid signature."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Frames/AuditSignedControlPublication.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 4,
+      "surface": "private ctor(?AuditSignedControlEnvelope segment,?AuditSignedControlEnvelope transition,AuditSignedControlEnvelope head,string exactPolicyEnvelope); static fromDraft(same4):self; rows():array exact immutable row groups; documentBytes():string; R4",
+      "callers": "Only complete PublicationDraft.result constructs after actual required signatures. PublicationWriter only reads/inserts and commits under its existing root; Publisher still owns durable floor publication."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditInstalledAuthorityKey.php",
+      "methods": 2,
+      "maxOrdinaryArguments": 1,
+      "surface": "private ctor(); static decode(string canonicalBase64url):array exact raw32/fingerprint;",
+      "callers": "Only OnlineConfigurationShape.identity and ControlConfiguration.fromConfiguration. Actual installed scalar parsing only, outside both floors; sodium_base642bin1 and canonical roundtrip sodium_bin2base64 identity check1. No signature/grant/seed/array input."
+    }
+  ],
+  "candidateTypeCount": 40,
+  "limits": {
+    "declaredMethodsMax": 10,
+    "ordinaryArgumentsMax": 5,
+    "complexityMax": 15,
+    "phpMemoryLimit": "512M"
+  },
+  "explicitReviewDeltas": [
+    "phase7 same-authority candidate permit and preseed owned-root reread/close",
+    "MutationAdmission.assertUnchanged returns actual NativeObservation and takes actual Transaction",
+    "Transaction.assertCurrent exact owned-root assertion",
+    "PhaseAuthority candidatePermit/currentGrant reaches10",
+    "SignedCheckpointCandidate same-authority binding reaches10",
+    "bounded retained comparison after capture closure",
+    "actual Grant claim requires consumed exact endpoints and native owned-root observation",
+    "online floor actual whole F1 trust sample and finite cold prerequisite",
+    "five exact outside F1 sites",
+    "five purpose-specific delegate native blocks"
+  ],
+  "candidateNewTestPaths": [
+    "tests/Internal/Audit/Signing/AuditOnlineConfigurationTest.php",
+    "tests/Internal/Audit/Signing/AuditOnlineAcquisitionTest.php",
+    "tests/Internal/Audit/Signing/AuditCheckpointOnlineChecksTest.php",
+    "tests/Internal/Audit/Authority/AuditCheckpointCandidateSignerTest.php",
+    "tests/Internal/Audit/Authority/AuditCheckpointPhaseAcquisitionTest.php",
+    "tests/Internal/Audit/Authority/Custody/AuditControlDelegateCustodyTest.php",
+    "tests/Internal/Audit/Authority/AuditSigningImportNativeIntegrationTest.php"
+  ],
+  "newF1DirectCalls": [
+    {
+      "owner": "Signing/AuditOnlinePayload::snapshots",
+      "target": "AuditTrustSnapshotCodec::validate",
+      "sites": 1
+    },
+    {
+      "owner": "Signing/AuditCheckpointOnlineChecks::key",
+      "target": "AuditTrustSnapshotCodec::key",
+      "sites": 1
+    },
+    {
+      "owner": "Signing/AuditCheckpointOnlineChecks::key",
+      "target": "AuditTrustSnapshotCodec::assertSignedAt",
+      "sites": 1
+    },
+    {
+      "owner": "Signing/AuditCheckpointOnlineChecks::complete",
+      "target": "AuditArtifactVerifier::checkpoint",
+      "sites": 1
+    },
+    {
+      "owner": "Authority/AuditCheckpointCandidateSigner::signPrepared",
+      "target": "AuditArtifactSigner::checkpoint",
+      "sites": 1
+    }
+  ],
+  "rootRemaining": [
+    "independent combined review and finite adoption",
+    "complete allowlist/verification/resource integration",
+    "real Luna implementation and native qualification",
+    "full F4/F5/D-control and parent1.3 gates"
+  ],
+  "releaseImpact": {
+    "existingCapability": "framework-core",
+    "newCapabilityIdAllocated": false,
+    "roadmapVersion": "1.3.0",
+    "roadmapState": "unreleased",
+    "publicSourcesChanged": 0,
+    "generatedArtifactsVerified": false,
+    "deployOrPublication": false
+  },
+  "releaseAuthority": {
+    "schemaVersion": 1,
+    "currentStable": {
+      "version": "1.2.1",
+      "releaseState": "experimental-stable",
+      "framework": {
+        "tag": "1.2.1",
+        "directRef": "1c72fced890c7f4cfc2cf88a4d2b08dbcfc85dd3",
+        "peeledSource": "4efee09f13bebedc1639333f79550a36a4e8ca91"
+      },
+      "skeleton": {
+        "tag": "1.2.1",
+        "directRef": "7a47e344ecba6193628119f0e95cb23dc5e0be83",
+        "peeledSource": "87a025380df8abcd0c514abf50e139dbbc1953c7"
+      }
+    },
+    "capabilities": [
+      {
+        "id": "framework-core",
+        "label": "Framework Core",
+        "since": "1.0.0",
+        "surfaces": [
+          "framework-package",
+          "skeleton"
+        ]
+      },
+      {
+        "id": "skeleton-install",
+        "label": "Composer Skeleton Install",
+        "since": "1.0.0",
+        "surfaces": [
+          "skeleton"
+        ]
+      },
+      {
+        "id": "authentication-authorization",
+        "label": "Authentication and Authorization",
+        "since": "1.2.0",
+        "surfaces": [
+          "framework-package",
+          "skeleton"
+        ]
+      },
+      {
+        "id": "frontend-bridge",
+        "label": "Frontend Operation Bridge",
+        "since": "1.2.0",
+        "surfaces": [
+          "framework-package",
+          "skeleton"
+        ]
+      },
+      {
+        "id": "database-seeder",
+        "label": "Database Seeder",
+        "since": "1.2.0",
+        "surfaces": [
+          "framework-package",
+          "skeleton"
+        ]
+      },
+      {
+        "id": "scheduled-operation",
+        "label": "Scheduled Application Operation",
+        "since": "1.2.0",
+        "surfaces": [
+          "framework-package",
+          "skeleton"
+        ]
+      },
+      {
+        "id": "protected-storage",
+        "label": "Tenant and Protected Storage",
+        "since": "1.2.0",
+        "surfaces": [
+          "framework-package",
+          "skeleton"
+        ]
+      },
+      {
+        "id": "community-board",
+        "label": "BlackOps Board Reference Application",
+        "since": "1.2.0",
+        "surfaces": [
+          "repository-example"
+        ]
+      },
+      {
+        "id": "documentation-site",
+        "label": "Documentation Website",
+        "since": "1.1.0",
+        "surfaces": [
+          "documentation-only"
+        ]
+      }
+    ],
+    "pageCapabilities": {
+      "docs/guide/README.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "framework-core",
+          "skeleton-install"
+        ]
+      },
+      "docs/guide/installation.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "skeleton-install"
+        ]
+      },
+      "docs/guide/mvp-sample.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "skeleton-install",
+          "authentication-authorization",
+          "frontend-bridge"
+        ]
+      },
+      "docs/guide/authentication.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "authentication-authorization"
+        ]
+      },
+      "docs/guide/authorization.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "authentication-authorization"
+        ]
+      },
+      "docs/guide/frontend.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "frontend-bridge"
+        ]
+      },
+      "docs/guide/database-seeding.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "database-seeder"
+        ]
+      },
+      "docs/guide/scheduled-operation.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "scheduled-operation"
+        ]
+      },
+      "docs/guide/tenancy.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "protected-storage",
+          "authentication-authorization"
+        ]
+      },
+      "docs/guide/tenant-protection.md": {
+        "lane": "skeleton",
+        "capabilities": [
+          "protected-storage"
+        ]
+      },
+      "docs/guide/community-board.md": {
+        "lane": "repository-example",
+        "capabilities": [
+          "community-board"
+        ]
+      },
+      "docs/guide/mvp-status.md": {
+        "lane": "documentation-only",
+        "capabilities": [
+          "documentation-site"
+        ]
+      },
+      "docs/guide/observability.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/deployment.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/testing.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/project-cli.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/project-generators.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/runtime-bootstrap.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/journal.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/outbox.md": {
+        "lane": "framework-package",
+        "capabilities": [
+          "framework-core"
+        ]
+      },
+      "docs/guide/glossary.md": {
+        "lane": "documentation-only",
+        "capabilities": [
+          "documentation-site"
+        ]
+      }
+    },
+    "historicalReferences": [
+      {
+        "path": "docs/guide/mvp-status.md",
+        "heading": "## Release NotesとMigration",
+        "normalizedSentence": "Stable `1.1.0`から公開済み`1.2.0`へ移行する場合は、[CHANGELOG.md](https://github.com/kubotak-is/blackops/blob/main/CHANGELOG%2Emd)の差分と[UPGRADE.md](https://github.com/kubotak-is/blackops/blob/main/UPGRADE%2Emd)のBackup、9つのMigration、Rollback境界を順に確認してください。",
+        "category": "release-migration",
+        "reason": "公開済みStable間のUpgrade手順を保持する歴史的比較"
+      },
+      {
+        "path": "docs/guide/mvp-status.md",
+        "heading": "## Release NotesとMigration",
+        "normalizedSentence": "公開PackageのComposer／Generator更新は、実際のannotated Tag `1.1.0`を起点にした[Framework Update Consumer](https://github.com/kubotak-is/blackops/blob/main/tests/Consumer/framework-update-generators%2Esh)で検証済みです。",
+        "category": "release-migration",
+        "reason": "Stable Tagを起点にした公開Package更新の検証記録"
+      },
+      {
+        "path": "docs/guide/mvp-status.md",
+        "heading": "## Stableとmain",
+        "normalizedSentence": "| Capability | Stable 1.1.0 historical | Stable 1.2.0 historical | Stable 1.2.1 |",
+        "category": "release-matrix",
+        "reason": "Capability matrixの比較列を保持する歴史的基準"
+      },
+      {
+        "path": "docs/guide/observability.md",
+        "heading": "## Structured Record Version 1",
+        "normalizedSentence": "Stable `1.1.0`の既存Journal JSONLは`journal` Recordの範囲です。",
+        "category": "wire-history",
+        "reason": "既存StableのWire互換境界を説明する歴史的記録"
+      },
+      {
+        "path": "docs/guide/observability.md",
+        "heading": "## SpanとMetricの参照",
+        "normalizedSentence": "公開済みStable `1.1.0`のScope契約は変更しません。",
+        "category": "wire-history",
+        "reason": "Stable間のScope不変条件を説明する歴史的記録"
+      },
+      {
+        "path": "docs/guide/glossary.md",
+        "heading": "## Execution Strategy",
+        "normalizedSentence": "Stable `1.1.0`のDeferred指定は`#[ExecuteWith(Deferred::class)]`、Stable `1.2.0`のCanonical Authoringは`#[Deferred]`です。",
+        "category": "authoring-history",
+        "reason": "旧Authoring Syntaxと現行Syntaxを比較する用語集の歴史記録"
+      }
+    ],
+    "roadmap": {
+      "version": "1.3.0",
+      "state": "unreleased",
+      "label": "Phase 23 proposal"
+    }
+  },
+  "existingProposedTypeDeltas": [
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointReservationAcquisition.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointMutationAdmission.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 4
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditProvenanceTransaction.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 2
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointPhaseAuthority.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 4
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedCheckpointEndpoints.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/SignedCheckpointCandidate.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 4
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlPublicationAuthority.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 4
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedControlEndpoints.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationWriter.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 5
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditWorkProvenanceRecorder.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 5
+    }
+  ],
+  "candidateAssemblyAndCallerPaths": [
+    "src/Internal/Application/ApplicationRetentionRuntime.php",
+    "src/Internal/Application/ApplicationAuditControlInstallationComposer.php",
+    "src/Internal/Audit/Authority/AuditControlAcquisition.php",
+    "src/Internal/Audit/Authority/AuditControlCandidateAcquisition.php",
+    "src/Internal/Audit/Authority/AuditAuthorityDocumentVerifier.php",
+    "src/Internal/Audit/Authority/History/AuditCheckpointCaptureScope.php",
+    "src/Internal/Audit/Authority/History/AuditControlCaptureScope.php",
+    "src/Internal/Application/ApplicationAuditOrdinarySignConfiguration.php"
+  ],
+  "additionalNativeSourceCounts": {
+    "DelegateCustody": {
+      "seed_keypair": 5,
+      "secretkey": 5,
+      "publickey": 5,
+      "detached": 5,
+      "memzero": 15,
+      "publicationDetachedExecutionMax": 3
+    },
+    "CandidateSigner": {
+      "memzero": 1,
+      "keypair": 0,
+      "detached": 0
+    },
+    "InstalledAuthorityKey": {
+      "sodium_base642bin": 1,
+      "sodium_bin2base64": 1
+    },
+    "DelegateUnsignedEnvelope": {
+      "sodium_bin2base64": 1
+    },
+    "SigningFiles": {
+      "fopen": 4,
+      "rawResourceGetter": 0
+    }
+  },
+  "memoryUse": {
+    "file": "MEMORY.md",
+    "lines": "23-25",
+    "purpose": "contract/calibration versus Product qualification boundary; current repo sources override historical state",
+    "rolloutId": "01a0d0c8-2f24-7751-9900-0ffaf5a6867d"
+  },
+  "frozenAt": "2026-10-13T15:24:16.755629+00:00",
+  "unchangedSelectedInputCount": 63,
+  "allSelectedInputsUnchanged": true,
+  "changedSelectedInputs": [],
+  "bookkeepingOnlyChecks": {
+    "selectedBeforeAfterHashes": true,
+    "jsonParsed": true,
+    "unique40CandidatePaths": true,
+    "surfaceDeclaredMethodCounts40": true,
+    "ordinaryArgumentCeilings": true,
+    "selectedTestPathsPresent": true,
+    "markdownFencePairs": true,
+    "phpOrNativeQualification": false
+  },
+  "observedReadOrOrchestrationFailures": [
+    {
+      "kind": "read path typo",
+      "exit": 2,
+      "effect": "none; actual indexed130 path subsequently read"
+    },
+    {
+      "kind": "JavaScript tool orchestration parse error",
+      "shellStarted": false,
+      "effect": "none; corrected read-only bookkeeping completed"
+    }
+  ],
+  "output": {
+    "path": "online-delegate-checkpoint-issuance-r1.md",
+    "bytes": 88993,
+    "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b"
+  }
+}

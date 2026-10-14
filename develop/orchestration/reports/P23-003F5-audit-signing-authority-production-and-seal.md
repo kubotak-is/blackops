@@ -5,19 +5,20 @@ Status: In Progress — authority direction adopted; no Product issuance or full
 ## Summary
 
 Current checkpoint: F3 Productab8f035c remains accepted; F5 Product is unissued.
-Owner commit policy509ca1e,native custody070c752 and replay adoptionba026679 are
-separate committed,pushed,remote-matched units. Root now adopts the exact
-installation entry/ownership selection in130/D179 after independent Green
-b5ead1c5/df497d16. The candidate5e20e792 matched its reconstructed authority hashes;
-all15 review inputs stayed fixed. This complete specification unit is committed
-separately through E13/installation-authority-unit-* receipts; no Product result
-or release readiness is inferred. Its staged Task/Report exclude unrelated
-unfinished implementation-packet hunks.
+Owner commit policy509ca1e,native custody070c752,replay adoptionba026679 and
+installation publication authority87f5595 are separate committed,pushed and
+independently remote-matched units in the accepted integration checkout.
+E13/installation-authority-unit-remote-proof.json records the last terminal push
+and independent exact remote SHA. Its selected Task/Report blobs excluded the
+unfinished packet corrections; primary mixed Product/index remains preserved.
 
-Combined authority/verification reviews found finite CIR-01/02 and CVR-01/02;
-PI type/parser inventory and the explicit Reader lifetime correction also remain
-pending. The complete production packet is not issued. Full F5 AC2–6,F4/F6,
-D/E/D-control/G,hardening,Documentation/Owner preview and parent1.3 delivery remain.
+Complete prerequisite reviews are now Green: authority9312efe1/4ec76e5b and
+verificationd1232dce/1be03368 close the finite HT/CIR/PI/CVR findings. Root adopted
+Reader/preload130/D179 c028a816/a50834a5 and preserved the complete295-edit/62-reference
+packet in [P23-003F5P](P23-003F5P-attributed-checkpoint-production.md),with35 new/26
+existing tests and58 native runs. This completed management unit is committed
+before Product issuance. No Product/runtime proof or full F5 Acceptance follows.
+F4/full F5/F6,D/E/D-control/G,hardening,Documentation/Owner preview and1.3 delivery remain.
 
 Initial management start and direction adoption:
 
@@ -603,6 +604,105 @@ Feedback: one candidate source review and one adoption review plus its one exact
 correction check; zero new full/native test runs and zero duplicated successful
 Product gates. Agent/read-only review time is not counted as runtime test time.
 
+## Complete checkpoint packet review start — 2026-10-14T02:31:18+09:00
+
+Summary: the accepted replay unit was committed immediately after its scoped
+verification and Root/independent Review,as the Owner's work-unit rule requires.
+Commitba026679c258a48414e5dd39d3551d9c1913cb51 has exactly seven reviewed governance
+paths. Terminal push and independent ls-remote both match it; the first sandbox
+push failed DNS and the permitted network retry succeeded. Primary index's three
+views remain unchanged; C was clean immediately after this commit.
+
+The final two author inputs are complete: online/delegate4b3d1730/inputsaabefa2a
+has63/63 stable inputs,40 finite type surfaces and10 explicit type deltas.
+Verification/CI bd77b117/inputs2ec28fd1 has81/81 stable inputs,28 new PHP test paths,
+25 existing paths,14 fixtures/tools,10 Node targets and58 native variants.
+Its four complete PHPUnit partitions preserve all3986 predecessor identities;
+the actual longest indivisible prior method was831.224429s. The original quality
+check requires all11 same-SHA producer artifacts and fails closed on missing,
+failed,cancelled or skipped work. These are proposed gates,not test PASS.
+
+Root combined candidatecbf6641e joins nine immutable maps with finite overrides.
+It corrects the resource draft's reverse-teardown wording to the original
+irreversible production down migration; isolated fixture teardown is separate.
+The online map's seven test paths must be reconciled into the final exact union,
+not silently left outside the CI checkpoint-production partition.
+
+Current assignments: f3 reviews the complete authority graph,new phase7 actual
+preseed native observation/close,one-time recorder consumption,current Grant and
+F1/seed/preload joins. f5 independently reviews the other author's verification/
+CI/resource packet; it does not self-accept its own crypto protocol. f4 collates
+every exact Product/fact/enum/helper/test/fixture/workflow/guide path and flags
+conflicts. Reviewers must include that final manifest before issuance sign-off.
+All three have only named ignored evidence outputs. No Product,PHP/Node/test,
+DB,Docker/native/dependency/CI action is assigned or performed by this start.
+
+Changed Files afterba02667: only F5 Task/Report,STATE and its generated archive
+for this pending combined review. They remain uncommitted because the new complete
+implementation contract has not passed its assigned reviews. Root will package
+the reviewed exact contracts with child P23-003F5P,verify and commit that coherent
+unit before issuing Luna. Existing mixed primary Product/Documentation remain
+preserved pending their separate task reconciliation; accepted C commits do not
+imply primary cleanup. Release Documentation Impact remains none on current
+public Source/routes/artifacts/tuple; full implementation and delivery checks
+remain mandatory. Next Action: close the two independent reviews and literal
+inventory,resolve concrete Findings and issue the complete real prerequisite.
+
+In-progress review findings,2026-10-14: the verification reviewer reproduced all
+3986 predecessor IDs/478 classes and the measured partition hashes/durations,
+but requires the exact35-path new-test union (28 plus7) and a literal mapping of
+all27 native case bases/58 variants to actual owner/method,fixture entry,native
+route/hit and protected result. Holder fault proof and whole-production DB/origin
+proof remain distinct required evidence. No successful runtime is claimed.
+
+The authority reviewer identified two finite import declaration joins: reconcile
+OnlineDocument's construction owner and provide FloorCodec's actual Preflight/
+configuration inputs within the five-argument graph; grant NativeObservation its
+exact bounded comparison-read/result identities so candidateFor/factsFor can
+obtain actual bytes/rows and Grant.claim compares the exact retained endpoints.
+Current-root,one-use,mismatched-object and closed-root negatives remain required.
+Mechanical collation also identifies referenced history fact/helper types whose
+exact path or complete surface was not declared. These are actionable packet
+corrections,not external blockers or permission to invent a generic authority API.
+The independent frozen reviews and literal inventory are still being completed.
+Product issuance waits for these bounded corrections and affected re-review.
+
+
+## Combined review findings and finite correction ownership — 2026-10-14T02:52:20+09:00
+
+Summary: authority reviewf6ab5e96 (inputs2064d94d) identified only CIR-01 constructor/
+Settings/Preflight closure and CIR-02 actual observation/original-endpoint identity
+closure in the new import. Verification review766dda21 (inputsd344dc8f) identified
+CVR-01 complete35-path admission and CVR-02 exact58 native-case bindings. No runtime
+or Product Acceptance is implied. Review input changes were only named Root STATE
+checkpoints;89/91 authority and93/95 verification inputs otherwise stayed fixed.
+Mechanical unionff20b23a/83d0b5d8 carries23 missing type entries,two incomplete fact
+surfaces and the ApplicationAuditConfiguration integration gap. Root assigns the
+bounded corrections in the Task; existing evidence remains immutable.
+
+Changed files are only the F5 Task/Report plus Root STATE/archive checkpoint.
+Product,tests,public Source,primary index and closed native/DB leases remain
+unchanged. Commands were scoped reads,hash/diff/status checks and evidence writes;
+PHP/native/CI/export remain Not Run for this management unit. The predecessor
+3986-case success is evidence for unchanged inputs,not a hypothetical F5 pass.
+
+Acceptance: AC1 remains complete;AC2–6 remain open. Exact contracts and verification
+must close before Luna. Pending management diffs are intentionally uncommitted
+because assigned review Findings remain. Commit the complete independently reviewed
+packet as one unit when those Findings close; do not combine unrelated primary work.
+Next Action: receive the two authors' finite deltas,independently review affected
+joins,freeze literal child scope/resources and commit before issuing Product work.
+
+
+Root recorded the Reader lifetime join above at2026-10-14T02:59:55+09:00. The selected finite candidate
+is local per-capture Reader construction with four shared collaborators,explicit
+capture comparison lending and concrete pre-floor resolution. Its implementation
+and130 amendment remain pending the assigned independent review. No authority
+or Product file was changed. Root prepared E13/checkpoint-child-packaging-plan-r1.json
+(d508d544) for exact durable copies/literal scope after review;25 immutable input
+artifacts total1,554,436 bytes. This is a preservation plan,not issued files or a
+runtime lease. Current agents own only the named ignored correction evidence.
+
 
 ## Completed installation authority adoption — 2026-10-14T03:13:25+09:00
 
@@ -637,3 +737,45 @@ Reader lifetime,remain in the separately pending complete packet. Root is not
 waiting for the parent release to commit this finished authority unit.
 Next Action: preserve this scoped commit remotely,complete affected packet reviews,
 then issue actual attributed checkpoint production to Luna with owned resources.
+
+
+## Delivered authority unit and remaining exact findings — 2026-10-14T09:52:01+09:00
+
+The installed-policy authority unit is separately committed as
+87f5595b1394446aa788fb4a5dcff95bd15473ab on agent/p23-006-accepted-integration.
+Its10 selected path/blob/mode checks passed; Task/Report pending correction hunks
+were excluded and remained unstaged.31 local links passed using the preserved
+STATE archive's original develop/ origin. The first link attempt used archive-
+relative origin and failed; corrected bookkeeping passed without any Product run.
+Default push failed DNS; the authorized network retry completed exit0 and an
+independent ls-remote returned that exact87f5595 SHA. E13/installation-authority-
+unit-committed.json and remote proof retain the terminal evidence. No tag/deploy,
+CI/export or Product result follows from this delivery.
+
+Both author amendments are frozen. Independent r2 review939e594a/1f432612 closes
+CIR-01/02 and PI-04 declarations,with49 stable inputs. Only type transport HT-01
+and checked failure disposal HT-02 remain in that review. Root assigns their one
+finite amendment and separate verification review of86b4fe03/ffe9d841. The latter
+preserves35 new plus26 existing test paths and all58 required native runs. These
+are candidate contracts,not executed tests. The Root draft complete child
+8618ad5e and durable preservation pland508d544 remain unissued until affected
+reviews close. Uncommitted F5 Task/Report/STATE work is that named pending group;
+primary mixed Product/docs/index remain preserved. No external blocker or new
+Owner decision is needed. Next Action: close HT and verification deltas,adopt the
+corrected Reader/transport/cleanup scope and commit the complete child packet.
+
+
+## Complete prerequisite packet adoption — 2026-10-14T10:17:12+09:00
+
+Authority r3 9312efe1/4ec76e5b closes HT transport/disposal and the exact promotion;
+verification r3 d1232dce/1be03368 closes the interruption intro. The stale ordinary
+workflow caller is corrected by527e1d13/c1077630; frozen originals are preserved.
+Root applied only reviewed0be04105 to130/D179. Complete child Task/Report and durable
+contracts preserve all literal methods/callers/DDL/resources/tests with finite
+precedence; no wildcard or smaller fixture-only goal replaces actual production.
+
+Preparation,failed bookkeeping correction,exact adoption,preservation,commands
+and pending actual gates are recorded in the child Report. Root performs the
+final management diff/link/hash/STATE/index checks and scoped commit next. Product
+implementation is still unissued at this adoption; AC2 actual issuance and the
+new commit SHA are recorded separately. No runtime lease or release readiness.

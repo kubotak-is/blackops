@@ -153,3 +153,28 @@ This resolves the installation-selection authority gap in the complete checkpoin
 prerequisite. Exact caller/type/verification closure and real implementation
 remain separate required work. No current Stable capability, executed runtime,
 Product Acceptance or release readiness follows from this specification decision.
+
+
+## Per-capture replay ownership refinement — 2026-10-14
+
+The replay services are shared before any actual capture exists. Root selects
+local Reader construction from the original capsule instead of injecting a
+capture-bound Reader into the shared service. This explicitly replaces the
+fifth checkpoint Replay dependency adopted above: both outer Replay services
+have four fixed shared collaborators. The same ArtifactReplay instance and its
+three data-only F1 calls remain; no parser or authority service is added.
+
+Exactly two replay sites and two first fenced-comparison sites construct Readers.
+Successful replay creates the guarded endpoint object retaining the same scope
+and capsule. Comparison loans require those original identities, with no success
+flag inferred from mere loan acquisition. Phase7 retains bounded native facts
+only after checked disposal and cannot reopen its transcript. The capsule/seal
+owns the native file throughout; logical Reader state is not descriptor ownership.
+The existing initializer resolves the16 additional concrete history/authority
+types before either floor; its two callers and nonempty Normalizer warmup remain.
+
+This corrects the finite construction/lifetime gap without changing history tags,
+phases, byte formats, uncapped-history behavior, F1/F2/F3 fields or current trust.
+Exact failure ownership and complete literal type/caller surfaces are frozen in
+the child contract and remain subject to independent review before issuance.
+No actual cold, native, database, Product or release outcome is inferred.

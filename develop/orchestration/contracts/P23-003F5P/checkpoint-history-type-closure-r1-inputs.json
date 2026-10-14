@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen author candidate; independent affected review required; no Product/runtime issuance",
+  "createdAt": "2026-10-14T03:14:54+09:00",
+  "rootReportedProductBase": "ba026679c258a48414e5dd39d3551d9c1913cb51",
+  "artifact": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1.md",
+    "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+    "bytes": 48741
+  },
+  "selectedInputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.md",
+      "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+      "bytes": 41271
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.json",
+      "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+      "bytes": 527107
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "bytes": 77964
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1-inputs.json",
+      "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+      "bytes": 12374
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md",
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "bytes": 142484
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1-inputs.json",
+      "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+      "bytes": 82572
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1.md",
+      "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc",
+      "bytes": 28662
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md",
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "bytes": 35267
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+      "bytes": 20085
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md",
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "bytes": 75458
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2.md",
+      "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+      "bytes": 3178
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1.md",
+      "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "bytes": 88993
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1-inputs.json",
+      "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5",
+      "bytes": 70270
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-proposal-r2.md",
+      "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+      "bytes": 8844
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-review-r2.md",
+      "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37",
+      "bytes": 5723
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r1.md",
+      "sha256": "f6ab5e96d5ac3ef42f8c1381f3bedb946d83abb3563f3add988109780aa80445",
+      "bytes": 14569
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/STATE.md",
+      "sha256": "20722cc1d9785796b0f968a9d854fcf587d044af129fb4e6b7903f36d409bf3a",
+      "bytes": 9988
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "sha256": "4b07b096591d565c10b9bb3e2722840af3c0672e9d8a26325b2a4d829e145679",
+      "bytes": 31746
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/README.md",
+      "sha256": "1257ca6efda0eef6606cde30bcf4143ec464d6310a9fda886e00f3e6ffe36044",
+      "bytes": 46481
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d",
+      "bytes": 43059
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "044639432fd345d0bd023825d5183c7b0735b26a27a437ecae325d183048997e",
+      "bytes": 87391
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/131-audit-ordinary-sign-service.md",
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "bytes": 18894
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditCheckpointCodec.php",
+      "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362",
+      "bytes": 3352
+    }
+  ],
+  "selectedInputStableAtFreeze": true,
+  "literalTypes": [
+    {
+      "path": "src/Internal/Audit/Authority/AuditAuthenticatedControlHead.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority",
+      "type": "AuditAuthenticatedControlHead",
+      "existsInC": false,
+      "declaredMethods": 8
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlPublicationHint.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority",
+      "type": "AuditControlPublicationHint",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlSourceHint.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority",
+      "type": "AuditControlSourceHint",
+      "existsInC": false,
+      "declaredMethods": 8
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditHistoricalEnvelope.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority",
+      "type": "AuditHistoricalEnvelope",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditHistoricalPolicy.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority",
+      "type": "AuditHistoricalPolicy",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCapturedCheckpointHistory.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditCapturedCheckpointHistory",
+      "existsInC": false,
+      "declaredMethods": 10
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCapturedControlHistory.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditCapturedControlHistory",
+      "existsInC": false,
+      "declaredMethods": 10
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointCapturePhase.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditCheckpointCapturePhase",
+      "existsInC": false,
+      "declaredMethods": 0
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointCaptureRows.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditCheckpointCaptureRows",
+      "existsInC": false,
+      "declaredMethods": 8
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointCompleteFacts.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditCheckpointCompleteFacts",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointUnsignedFacts.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditCheckpointUnsignedFacts",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditControlCapturePhase.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditControlCapturePhase",
+      "existsInC": false,
+      "declaredMethods": 0
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditControlHistoryCaptureRows.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditControlHistoryCaptureRows",
+      "existsInC": false,
+      "declaredMethods": 10
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditControlNativeCaptureRows.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditControlNativeCaptureRows",
+      "existsInC": false,
+      "declaredMethods": 8
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryInstallation.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditHistoryInstallation",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditHistoryNativeGroup",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryRecord.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditHistoryRecord",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryTag.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditHistoryTag",
+      "existsInC": false,
+      "declaredMethods": 0
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditInspectedCheckpointSlot.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditInspectedCheckpointSlot",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditSealedHistory.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditSealedHistory",
+      "existsInC": false,
+      "declaredMethods": 10
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedPublicationEndpoints.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditVerifiedPublicationEndpoints",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedSegmentEndpoints.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditVerifiedSegmentEndpoints",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedStagedEndpoints.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditVerifiedStagedEndpoints",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedTransitionEndpoints.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditVerifiedTransitionEndpoints",
+      "existsInC": false,
+      "declaredMethods": 9
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedWorkEndpoints.php",
+      "namespace": "BlackOps\\Internal\\Audit\\Authority\\History",
+      "type": "AuditVerifiedWorkEndpoints",
+      "existsInC": false,
+      "declaredMethods": 9
+    }
+  ],
+  "mechanicalChecks": {
+    "exactNamedMissingTypes": 23,
+    "completedPreviouslyLocatedFacts": 2,
+    "literalTotal": 25,
+    "maxDeclaredMethods": 10,
+    "newHelpersBeyondNamed25": 0,
+    "readerConstructorSites": 4,
+    "sharedReplayCollaboratorsEach": 4,
+    "additionalLiteralPreloadTypes": 16,
+    "unchangedF1MethodSites": 3,
+    "unchangedInitializationCallers": 2
+  },
+  "rootSelectedDeltas": [
+    "Per-capture Reader; shared checkpoint/control replay constructors each4 collaborators; same ArtifactReplay instance",
+    "Tenth CapturedHistory.borrowForComparison(expected endpoints) with exact same scope/capture/claimed/open proof, no successful flag/setter",
+    "Single descriptor-free ControlHistoryCaptureRows ctor+six lookups+three representation controls; clone rejected by exact source guards; no holder/fact/grant exception"
+  ],
+  "coordinatedExternalImport": {
+    "owner": "/root/f5_native_contract_plan",
+    "name": "online-delegate-checkpoint-correction-r2.md",
+    "notPinnedReason": "Avoid reciprocal mutable-draft pin; Root binds separately frozen correction in combined packet",
+    "agreedEdges": [
+      "Both capsule.borrowForComparison -> respective endpoints.comparison",
+      "comparison exactly scope/finiteFacts/capture/actual, null capture only after checked close",
+      "HistoryInstallation constructor -> ControlConfiguration.identity once",
+      "NativeObservation retains original endpoints/scope and actual owned root identity, imports doc-only exact native comparison groups"
+    ]
+  },
+  "knownGovernanceDrift": {
+    "rootNotice": "Root will adopt separately Green installer entry130/D179 delta5e20e792 reviewed b5ead1c5/df497d16; only section6/9.4 installer publication, not pending Reader/type/native surfaces",
+    "handling": "Hashes are exact source snapshots at this freeze, not a claim Root will leave STATE/Task/spec byte-identical afterwards; no research restarted or Product drift inferred"
+  },
+  "commands": "read-only rg/sed/cat; Python standard-library literal/path/hash bookkeeping only; wrote exactly the assigned type md and inputs",
+  "notRun": [
+    "Git",
+    "PHP",
+    "Node",
+    "tests",
+    "Docker",
+    "native probe/compiler",
+    "database",
+    "network"
+  ],
+  "acceptance": "No self-approval. Root and independent f3 review must close exact joins before adoption/worker issuance."
+}

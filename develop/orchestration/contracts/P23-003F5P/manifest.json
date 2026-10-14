@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "status": "Complete independently reviewed contract; Root committed Task controls issuance",
+  "sourceBaseline": "87f5595b1394446aa788fb4a5dcff95bd15473ab",
+  "createdAt": "2026-10-14T10:17:45+09:00",
+  "immutableInputs": [
+    {
+      "name": "checkpoint-combined-authority-review-r1-inputs.json",
+      "sha256": "2064d94d7adde33ff2db88603b996c773f1e2c420c834296a90bff3b09c4dd73",
+      "bytes": 69727,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r1-inputs.json"
+    },
+    {
+      "name": "checkpoint-combined-authority-review-r1.md",
+      "sha256": "f6ab5e96d5ac3ef42f8c1381f3bedb946d83abb3563f3add988109780aa80445",
+      "bytes": 14569,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r1.md"
+    },
+    {
+      "name": "checkpoint-combined-authority-review-r2-inputs.json",
+      "sha256": "1f4326128278657bca6d98115d561e0440a04269087a382814c89caf1df177a8",
+      "bytes": 33988,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r2-inputs.json"
+    },
+    {
+      "name": "checkpoint-combined-authority-review-r2.md",
+      "sha256": "939e594aa673a11416109e03c541514a9c6618b4adb661f8deffd6f164c9e225",
+      "bytes": 13687,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r2.md"
+    },
+    {
+      "name": "checkpoint-combined-authority-review-r3-inputs.json.encoded.json",
+      "sha256": "71d94447c38418f2a8b35e953beba8df14ba28874261633c9a269b58b96a889a",
+      "bytes": 34138,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r3-inputs.json",
+      "encoding": "json-utf8",
+      "originalName": "checkpoint-combined-authority-review-r3-inputs.json",
+      "originalSha256": "4ec76e5b225386cae8cd4fea2cfd114d093c1f6cae777c457ee88bd874666b08",
+      "originalBytes": 31289
+    },
+    {
+      "name": "checkpoint-combined-authority-review-r3.md.encoded.json",
+      "sha256": "0f35358fde07b88742ad262206c107a3ea8887acb2865614be2af44fa083ee4d",
+      "bytes": 11350,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r3.md",
+      "encoding": "json-utf8",
+      "originalName": "checkpoint-combined-authority-review-r3.md",
+      "originalSha256": "9312efe1e6e571dcfcf84f9c76929a446395fa7b16790b9aa1c7fc9f7d4e5768",
+      "originalBytes": 11059
+    },
+    {
+      "name": "checkpoint-combined-issuance-candidate-r1-inputs.json",
+      "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca",
+      "bytes": 5134,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-issuance-candidate-r1-inputs.json"
+    },
+    {
+      "name": "checkpoint-combined-issuance-candidate-r1.md",
+      "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+      "bytes": 11494,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-issuance-candidate-r1.md"
+    },
+    {
+      "name": "checkpoint-combined-path-inventory-r1.json",
+      "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+      "bytes": 527107,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.json"
+    },
+    {
+      "name": "checkpoint-combined-path-inventory-r1.md",
+      "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+      "bytes": 41271,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.md"
+    },
+    {
+      "name": "checkpoint-control-cleanup-caller-correction-r3-inputs.json",
+      "sha256": "c10776309a856dd95acbc713f2c532b50dad7f1efb30be87306f6d25b1613cb3",
+      "bytes": 3270,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-control-cleanup-caller-correction-r3-inputs.json"
+    },
+    {
+      "name": "checkpoint-control-cleanup-caller-correction-r3.md",
+      "sha256": "527e1d138fb6ffbe432cd14095164e17c8a9375fa1045238c228c9595d998d57",
+      "bytes": 1944,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-control-cleanup-caller-correction-r3.md"
+    },
+    {
+      "name": "checkpoint-history-type-closure-r1-inputs.json",
+      "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854",
+      "bytes": 14750,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1-inputs.json"
+    },
+    {
+      "name": "checkpoint-history-type-closure-r1.md",
+      "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+      "bytes": 48741,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1.md"
+    },
+    {
+      "name": "checkpoint-history-type-correction-r2-inputs.json",
+      "sha256": "c0c25bfa496a48e3547acec4850ffacfac5ffbbccaaeaaba9c3c59bd63561ea2",
+      "bytes": 45616,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-correction-r2-inputs.json"
+    },
+    {
+      "name": "checkpoint-history-type-correction-r2.md",
+      "sha256": "7794b5359adc605a4c6a83333b152b93cb9fcb3f442d8857e1707394f0b80908",
+      "bytes": 45284,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-correction-r2.md"
+    },
+    {
+      "name": "checkpoint-interruption-intro-correction-r3-inputs.json",
+      "sha256": "2fbf02990d75d855dd91bd0a7757d82f74995bee6471f60a03942ce077dd1023",
+      "bytes": 1141,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-interruption-intro-correction-r3-inputs.json"
+    },
+    {
+      "name": "checkpoint-interruption-intro-correction-r3.md",
+      "sha256": "51bf76fd4190654a002fac3454c12a97a943335c89095b20fcf17b4f3c2e5535",
+      "bytes": 2525,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-interruption-intro-correction-r3.md"
+    },
+    {
+      "name": "checkpoint-issuance-map-r1-inputs.json",
+      "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+      "bytes": 82572,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1-inputs.json"
+    },
+    {
+      "name": "checkpoint-issuance-map-r1.md",
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "bytes": 142484,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md"
+    },
+    {
+      "name": "checkpoint-production-verification-packet-r1.md",
+      "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "bytes": 11675,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-production-verification-packet-r1.md"
+    },
+    {
+      "name": "checkpoint-reader-authority-adoption-r1-inputs.json",
+      "sha256": "3efcb2560d755e262ae199e3f6960b7dbdd96bf93d2f00cb4f9e534b7cef39a2",
+      "bytes": 979,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-reader-authority-adoption-r1-inputs.json"
+    },
+    {
+      "name": "checkpoint-reader-authority-adoption-r1.diff.encoded.json",
+      "sha256": "3d93ac773bbada1b2a42d219d59c5d8173112eb286d58c3e44e964cc80b74903",
+      "bytes": 6280,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-reader-authority-adoption-r1.diff",
+      "encoding": "json-utf8",
+      "originalName": "checkpoint-reader-authority-adoption-r1.diff",
+      "originalSha256": "0be04105dd4a7aa250e5be040445fb5d9007f91a10c052817feac36f8d48f143",
+      "originalBytes": 5881
+    },
+    {
+      "name": "checkpoint-test-ci-bindings-r1-inputs.json",
+      "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+      "bytes": 40776,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1-inputs.json"
+    },
+    {
+      "name": "checkpoint-test-ci-bindings-r1.md",
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "bytes": 54451,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1.md"
+    },
+    {
+      "name": "checkpoint-verification-correction-r2-inputs.json",
+      "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807",
+      "bytes": 177287,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2-inputs.json"
+    },
+    {
+      "name": "checkpoint-verification-correction-r2.md",
+      "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+      "bytes": 45277,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2.md"
+    },
+    {
+      "name": "checkpoint-verification-review-r1-inputs.json",
+      "sha256": "d344dc8f7fca65d4daeb46c3819b4b7d656917067125a40aadea1cd3aa25057b",
+      "bytes": 61052,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r1-inputs.json"
+    },
+    {
+      "name": "checkpoint-verification-review-r1.md",
+      "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec",
+      "bytes": 23157,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r1.md"
+    },
+    {
+      "name": "checkpoint-verification-review-r2-inputs.json",
+      "sha256": "82e7c9b2df77ed2818b8172e2ff8d0a89bd769dc55dcd5ce2076d9d986453ed8",
+      "bytes": 162847,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r2-inputs.json"
+    },
+    {
+      "name": "checkpoint-verification-review-r2.md",
+      "sha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a",
+      "bytes": 16265,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r2.md"
+    },
+    {
+      "name": "checkpoint-verification-review-r3-inputs.json",
+      "sha256": "1be0336858fd377c36b258ed6e0c954ebbd93d443123ebc481e4072c897cb83c",
+      "bytes": 8108,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r3-inputs.json"
+    },
+    {
+      "name": "checkpoint-verification-review-r3.md",
+      "sha256": "d1232dce4fe1168c864c9fdb456eda57b2cc43117666dc964ef0994d321e14da",
+      "bytes": 4868,
+      "source": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r3.md"
+    },
+    {
+      "name": "history-capture-issuance-map-r1-inputs.json",
+      "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+      "bytes": 12374,
+      "source": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1-inputs.json"
+    },
+    {
+      "name": "history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "bytes": 77964,
+      "source": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md"
+    },
+    {
+      "name": "installation-publication-correction-r2-inputs.json",
+      "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199",
+      "bytes": 1554,
+      "source": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2-inputs.json"
+    },
+    {
+      "name": "installation-publication-correction-r2.md",
+      "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+      "bytes": 3178,
+      "source": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2.md"
+    },
+    {
+      "name": "installation-publication-issuance-r1-inputs.json",
+      "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94",
+      "bytes": 41583,
+      "source": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1-inputs.json"
+    },
+    {
+      "name": "installation-publication-issuance-r1.md",
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "bytes": 75458,
+      "source": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md"
+    },
+    {
+      "name": "online-delegate-checkpoint-correction-r2-inputs.json",
+      "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478",
+      "bytes": 52625,
+      "source": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2-inputs.json"
+    },
+    {
+      "name": "online-delegate-checkpoint-correction-r2.md",
+      "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+      "bytes": 41493,
+      "source": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2.md"
+    },
+    {
+      "name": "online-delegate-checkpoint-issuance-r1-inputs.json",
+      "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5",
+      "bytes": 70270,
+      "source": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1-inputs.json"
+    },
+    {
+      "name": "online-delegate-checkpoint-issuance-r1.md",
+      "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "bytes": 88993,
+      "source": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1.md"
+    },
+    {
+      "name": "pure-checkpoint-codec-floor-delta-r1-inputs.json",
+      "sha256": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6",
+      "bytes": 13579,
+      "source": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1-inputs.json"
+    },
+    {
+      "name": "pure-checkpoint-codec-floor-delta-r1.md",
+      "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc",
+      "bytes": 28662,
+      "source": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1.md"
+    },
+    {
+      "name": "pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+      "bytes": 20085,
+      "source": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2-inputs.json"
+    },
+    {
+      "name": "pure-checkpoint-codec-floor-delta-r2.md",
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "bytes": 35267,
+      "source": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md"
+    }
+  ],
+  "integrationFiles": [
+    {
+      "name": "README.md",
+      "sha256": "59229f145f47a063198dee1c8e70928f4e0ebfb649c496c5144db0ede7da71d0",
+      "bytes": 10689
+    },
+    {
+      "name": "allowlist.json",
+      "sha256": "0c0ec9523005a99eb6dc10e9cf72939593d8328881609f65103de6bf19a9038e",
+      "bytes": 29134
+    }
+  ],
+  "authorityReview": "9312efe1e6e571dcfcf84f9c76929a446395fa7b16790b9aa1c7fc9f7d4e5768",
+  "verificationReview": "d1232dce4fe1168c864c9fdb456eda57b2cc43117666dc964ef0994d321e14da",
+  "literalEditPaths": 295,
+  "referenceOnlyPaths": 62,
+  "newPhpTests": 35,
+  "existingPhpTestEdits": 26,
+  "ProductExecuted": false,
+  "retentionPolicy": "44 exact plain copies and3 lossless JSON-UTF8 envelopes retain all47 original byte sequences; decoded identity is verified."
+}

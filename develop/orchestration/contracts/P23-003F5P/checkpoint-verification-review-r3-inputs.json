@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent finite verification review r3",
+  "owner": "/root/f5_native_contract_plan",
+  "status": "Green_finite_CVR-02R-01_supplement_only",
+  "reviewedAuthor": "/root",
+  "rootReportedBase": "87f5595b1394446aa788fb4a5dcff95bd15473ab",
+  "gitIndependentlyVerified": false,
+  "firstPinAt": "2026-10-14T01:05:11.004042+00:00",
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013"
+  },
+  "selectedInputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-interruption-intro-correction-r3.md",
+      "expectedSha256": "51bf76fd4190654a002fac3454c12a97a943335c89095b20fcf17b4f3c2e5535",
+      "before": {
+        "bytes": 2525,
+        "sha256": "51bf76fd4190654a002fac3454c12a97a943335c89095b20fcf17b4f3c2e5535"
+      },
+      "after": {
+        "bytes": 2525,
+        "sha256": "51bf76fd4190654a002fac3454c12a97a943335c89095b20fcf17b4f3c2e5535"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-interruption-intro-correction-r3-inputs.json",
+      "expectedSha256": "2fbf02990d75d855dd91bd0a7757d82f74995bee6471f60a03942ce077dd1023",
+      "before": {
+        "bytes": 1141,
+        "sha256": "2fbf02990d75d855dd91bd0a7757d82f74995bee6471f60a03942ce077dd1023"
+      },
+      "after": {
+        "bytes": 1141,
+        "sha256": "2fbf02990d75d855dd91bd0a7757d82f74995bee6471f60a03942ce077dd1023"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2.md",
+      "expectedSha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+      "before": {
+        "bytes": 45277,
+        "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39"
+      },
+      "after": {
+        "bytes": 45277,
+        "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2-inputs.json",
+      "expectedSha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807",
+      "before": {
+        "bytes": 177287,
+        "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807"
+      },
+      "after": {
+        "bytes": 177287,
+        "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r2.md",
+      "expectedSha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a",
+      "before": {
+        "bytes": 16265,
+        "sha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a"
+      },
+      "after": {
+        "bytes": 16265,
+        "sha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r2-inputs.json",
+      "expectedSha256": "82e7c9b2df77ed2818b8172e2ff8d0a89bd769dc55dcd5ce2076d9d986453ed8",
+      "before": {
+        "bytes": 162847,
+        "sha256": "82e7c9b2df77ed2818b8172e2ff8d0a89bd769dc55dcd5ce2076d9d986453ed8"
+      },
+      "after": {
+        "bytes": 162847,
+        "sha256": "82e7c9b2df77ed2818b8172e2ff8d0a89bd769dc55dcd5ce2076d9d986453ed8"
+      },
+      "unchanged": true
+    },
+    {
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 8302,
+        "sha256": "215c9046b0b8e4d5297e9a145e1aa5952d664b30d4208e5c2c724fdaf357eb67"
+      },
+      "after": {
+        "bytes": 8302,
+        "sha256": "215c9046b0b8e4d5297e9a145e1aa5952d664b30d4208e5c2c724fdaf357eb67"
+      },
+      "unchanged": true
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 35906,
+        "sha256": "980b975fbd4504e0cb1dbf8f4926f7d51052c2084f51bd8a171fe14a8fcca916"
+      },
+      "after": {
+        "bytes": 35906,
+        "sha256": "980b975fbd4504e0cb1dbf8f4926f7d51052c2084f51bd8a171fe14a8fcca916"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/STATE.md",
+      "before": {
+        "bytes": 8302,
+        "sha256": "31660f23ecddf65bdf0bfe423230944c40f75fb2f18340aef359163edfef375d"
+      },
+      "after": {
+        "bytes": 8302,
+        "sha256": "31660f23ecddf65bdf0bfe423230944c40f75fb2f18340aef359163edfef375d"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 35906,
+        "sha256": "980b975fbd4504e0cb1dbf8f4926f7d51052c2084f51bd8a171fe14a8fcca916"
+      },
+      "after": {
+        "bytes": 35906,
+        "sha256": "980b975fbd4504e0cb1dbf8f4926f7d51052c2084f51bd8a171fe14a8fcca916"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/.codex/config.toml",
+      "before": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "after": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "unchanged": true
+    }
+  ],
+  "selectedInputCount": 12,
+  "scope": "Only Root interruption intro supplement against CVR-02R-01; all unrelated r2 conclusions reused.",
+  "ownedOutputs": [
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r3.md",
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r3-inputs.json"
+  ],
+  "processInterruptionBases": [
+    "process-control",
+    "two-process-lock-death",
+    "anonymous-capture-death",
+    "floor-partial-write-death",
+    "floor-post-sync-death",
+    "archive-link-death",
+    "archive-directory-sync-death"
+  ],
+  "managedErrorInterruptionBases": [
+    "scratch-unlink-error",
+    "scratch-rmdir-error"
+  ],
+  "checks": {
+    "suppliedSixArtifactHashesMatch": true,
+    "rootFiveReferencedHashesMatch": true,
+    "sevenProcessNamesExactlyRetained": true,
+    "twoManagedNamesExactlyRetained": true,
+    "bothManagedVariantsExplicitZeroSelectedBarrierAndSIGKILL": true,
+    "counts": "14+4=18; total27/58 retained",
+    "aggregationDiscrimination": "Wrong scratch kill/barrier receipts and managed success for a killed child explicitly rejected; surviving observable-error exercises do not need SIGKILL.",
+    "frozenR2AndAll58RowsUnchangedByHash": true,
+    "prior35New26Existing58AndCIConclusionsReused": true,
+    "unrelatedInventoryRerun": false
+  },
+  "notRun": [
+    "Git",
+    "PHP",
+    "Node",
+    "tests",
+    "native children",
+    "compiler",
+    "Docker/container",
+    "database",
+    "network"
+  ],
+  "noProductOrGovernanceEdits": true,
+  "originalArtifactsModified": false,
+  "leaseOpened": false,
+  "findingDisposition": {
+    "CVR-02R-01": "closed_at_contract_declaration_level",
+    "remainingWithinScope": []
+  },
+  "allSelectedInputsUnchanged": true,
+  "unchangedSelectedInputCount": 12,
+  "noProductAcceptance": true,
+  "wholeRuntimeQualification": "Not Run",
+  "frozenAt": "2026-10-14T01:05:55.899609+00:00",
+  "output": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r3.md",
+    "bytes": 4868,
+    "sha256": "d1232dce4fe1168c864c9fdb456eda57b2cc43117666dc964ef0994d321e14da"
+  }
+}

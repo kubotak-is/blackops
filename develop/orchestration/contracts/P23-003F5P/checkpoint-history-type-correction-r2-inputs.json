@@ -1,0 +1,965 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen author candidate; HT-01/02 affected independent review required; no adoption or Product/runtime result",
+  "createdAt": "2026-10-14T10:01:29+09:00",
+  "rootReportedBase": "87f5595",
+  "gitIndependentlyVerified": false,
+  "selectedInputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r2.md",
+      "before": {
+        "sha256": "939e594aa673a11416109e03c541514a9c6618b4adb661f8deffd6f164c9e225",
+        "bytes": 13687
+      },
+      "after": {
+        "sha256": "939e594aa673a11416109e03c541514a9c6618b4adb661f8deffd6f164c9e225",
+        "bytes": 13687
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r2-inputs.json",
+      "before": {
+        "sha256": "1f4326128278657bca6d98115d561e0440a04269087a382814c89caf1df177a8",
+        "bytes": 33988
+      },
+      "after": {
+        "sha256": "1f4326128278657bca6d98115d561e0440a04269087a382814c89caf1df177a8",
+        "bytes": 33988
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1.md",
+      "before": {
+        "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+        "bytes": 48741
+      },
+      "after": {
+        "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+        "bytes": 48741
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1-inputs.json",
+      "before": {
+        "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854",
+        "bytes": 14750
+      },
+      "after": {
+        "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854",
+        "bytes": 14750
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+      "before": {
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+        "bytes": 77964
+      },
+      "after": {
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+        "bytes": 77964
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1-inputs.json",
+      "before": {
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+        "bytes": 12374
+      },
+      "after": {
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+        "bytes": 12374
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md",
+      "before": {
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+        "bytes": 142484
+      },
+      "after": {
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+        "bytes": 142484
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1-inputs.json",
+      "before": {
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+        "bytes": 82572
+      },
+      "after": {
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+        "bytes": 82572
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md",
+      "before": {
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+        "bytes": 35267
+      },
+      "after": {
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+        "bytes": 35267
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "before": {
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+        "bytes": 20085
+      },
+      "after": {
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+        "bytes": 20085
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md",
+      "before": {
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+        "bytes": 75458
+      },
+      "after": {
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+        "bytes": 75458
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2.md",
+      "before": {
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+        "bytes": 3178
+      },
+      "after": {
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+        "bytes": 3178
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1.md",
+      "before": {
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+        "bytes": 88993
+      },
+      "after": {
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+        "bytes": 88993
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2.md",
+      "before": {
+        "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+        "bytes": 41493
+      },
+      "after": {
+        "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+        "bytes": 41493
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2-inputs.json",
+      "before": {
+        "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478",
+        "bytes": 52625
+      },
+      "after": {
+        "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478",
+        "bytes": 52625
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-proposal-r2.md",
+      "before": {
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+        "bytes": 8844
+      },
+      "after": {
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+        "bytes": 8844
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-review-r2.md",
+      "before": {
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37",
+        "bytes": 5723
+      },
+      "after": {
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37",
+        "bytes": 5723
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.md",
+      "before": {
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+        "bytes": 41271
+      },
+      "after": {
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+        "bytes": 41271
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.json",
+      "before": {
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+        "bytes": 527107
+      },
+      "after": {
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+        "bytes": 527107
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2.md",
+      "before": {
+        "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+        "bytes": 45277
+      },
+      "after": {
+        "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+        "bytes": 45277
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2-inputs.json",
+      "before": {
+        "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807",
+        "bytes": 177287
+      },
+      "after": {
+        "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807",
+        "bytes": 177287
+      },
+      "unchanged": true
+    },
+    {
+      "path": "AGENTS.md",
+      "before": {
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+        "bytes": 10392
+      },
+      "after": {
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+        "bytes": 10392
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/AGENTS.md",
+      "before": {
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+        "bytes": 10392
+      },
+      "after": {
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+        "bytes": 10392
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/STATE.md",
+      "before": {
+        "sha256": "31660f23ecddf65bdf0bfe423230944c40f75fb2f18340aef359163edfef375d",
+        "bytes": 8302
+      },
+      "after": {
+        "sha256": "31660f23ecddf65bdf0bfe423230944c40f75fb2f18340aef359163edfef375d",
+        "bytes": 8302
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "sha256": "0e66923251d52c8aa807ec588e32a4243fb40330fd73b8b2de09e7b9b4e1fc1f",
+        "bytes": 34442
+      },
+      "after": {
+        "sha256": "980b975fbd4504e0cb1dbf8f4926f7d51052c2084f51bd8a171fe14a8fcca916",
+        "bytes": 35906
+      },
+      "unchanged": false,
+      "knownDrift": {
+        "kind": "Root-governance-append",
+        "originalPrefixUnchanged": true,
+        "appendedBytes": 1464,
+        "scope": "complete child packaging, separately reviewed Reader promotion, separate CVR intro correction; HT assignment unchanged"
+      }
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/README.md",
+      "before": {
+        "sha256": "1257ca6efda0eef6606cde30bcf4143ec464d6310a9fda886e00f3e6ffe36044",
+        "bytes": 46481
+      },
+      "after": {
+        "sha256": "1257ca6efda0eef6606cde30bcf4143ec464d6310a9fda886e00f3e6ffe36044",
+        "bytes": 46481
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "before": {
+        "sha256": "044639432fd345d0bd023825d5183c7b0735b26a27a437ecae325d183048997e",
+        "bytes": 87391
+      },
+      "after": {
+        "sha256": "044639432fd345d0bd023825d5183c7b0735b26a27a437ecae325d183048997e",
+        "bytes": 87391
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "before": {
+        "sha256": "d051046774398dad0e18bcfa971bfd756e2b55a856bf7ad71c97929f56406fef",
+        "bytes": 9619
+      },
+      "after": {
+        "sha256": "d051046774398dad0e18bcfa971bfd756e2b55a856bf7ad71c97929f56406fef",
+        "bytes": 9619
+      },
+      "unchanged": true
+    }
+  ],
+  "scope": [
+    "HT-01",
+    "HT-02"
+  ],
+  "commandsRun": [
+    "bounded sed/rg source and candidate reads",
+    "Python standard-library hash/path/text bookkeeping only"
+  ],
+  "notRun": [
+    "Product implementation",
+    "PHP/Node/tests",
+    "native/Docker/DB/compiler/network",
+    "Git",
+    "STATE or governance writes"
+  ],
+  "ownedOutputs": [
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-correction-r2.md",
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-correction-r2-inputs.json"
+  ],
+  "frozenAt": "2026-10-14T10:10:12+09:00",
+  "artifact": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-correction-r2.md",
+    "sha256": "7794b5359adc605a4c6a83333b152b93cb9fcb3f442d8857e1707394f0b80908",
+    "bytes": 45284
+  },
+  "selectedInputsStableAtFreeze": false,
+  "unchangedSelectedInputCount": 27,
+  "knownConcurrentGovernanceDrift": [
+    ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md"
+  ],
+  "protocolInputsUnchanged": true,
+  "closedFindingsReused": [
+    "CIR-01",
+    "CIR-02",
+    "PI-04"
+  ],
+  "newProductPaths": [],
+  "newTestPaths": [],
+  "sameLocalTransport": {
+    "captureNative": [
+      "same NativeGroup local",
+      "GroupCodec.encode(group)",
+      "Record.fromCapture(group.tag(), unchanged encoded payload, same group)"
+    ],
+    "readNative": [
+      "admit original prefix/tag/cap",
+      "bounded original payload read",
+      "GroupCodec.decode(tag, unchanged original payload)",
+      "Record.fromRead(same tag, unchanged original payload, actual decoded group)"
+    ],
+    "otherTags": "exact original payload and null; Writer.finish only tag255 with exact48-byte trailer",
+    "noRecordCodecCaller": true,
+    "scalarTags": [
+      1,
+      3,
+      5,
+      16,
+      17,
+      18,
+      19,
+      21,
+      23,
+      24,
+      25,
+      26,
+      28,
+      31,
+      33,
+      35,
+      48,
+      49,
+      51,
+      52,
+      53,
+      55,
+      64,
+      65,
+      67,
+      68,
+      72,
+      73,
+      75,
+      76,
+      79
+    ],
+    "artifactReplayHasNoRecordOrNativeGroupGetter": true
+  },
+  "transportCallers": {
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::__construct": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::fromCapture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::fromRead"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::fromCapture": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryWriter::finish"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::fromRead": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryReader::next"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGroupCodec::encode": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlCaptureWriter::capture"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGroupCodec::decode": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryReader::next"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::__construct": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::fromNative",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::fromDecoded"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::fromNative": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointNativeGroups::partition",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointNativeGroups::segment",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointNativeGroups::endpoint",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointNativeGroups::preparation",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointNativeGroups::complete",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointNativeGroups::proof",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkNativeGroups::reservation",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkNativeGroups::step",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkNativeGroups::presence",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkNativeGroups::end",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlNativeGroups::segment",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlNativeGroups::transition",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlNativeGroups::acknowledgement",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlNativeGroups::publication",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlNativeGroups::endpoint",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlCaptureWriter::capture"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::fromDecoded": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGroupCodec::decode"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::tag": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryWriter::append",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGrammar::accept",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryReader::checkComplete",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::published",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::staged",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditTransitionHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPublicationHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointMutationAdmission::assertUnchanged",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::recheck"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::bytes": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryWriter::append",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGrammar::accept",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryReader::checkComplete",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::published",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::staged",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditTransitionHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPublicationHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointMutationAdmission::assertUnchanged",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::recheck"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::native": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGrammar::accept",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::published",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::staged",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditTransitionHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPublicationHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointMutationAdmission::assertUnchanged",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::recheck"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::tag": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::__construct",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGroupCodec::encode",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlCaptureWriter::capture"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::scalars": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGroupCodec::encode",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGrammar::accept",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditWorkHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::published",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSegmentHistoryReplay::staged",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditTransitionHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPublicationHistoryReplay::verify",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlHistoryReplay::replay",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointMutationAdmission::assertUnchanged",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::recheck"
+    ]
+  },
+  "cleanupCallers": {
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPrivateHistoryFile::close": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSealedHistory::close",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPrivateHistoryFile::__construct",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPrivateHistoryFile::__destruct"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSealedHistory::close": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditControlCaptureWriter::capture",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedCheckpointHistory::close",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedControlHistory::close"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedCheckpointHistory::close": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedCheckpointEndpoints::finishComparison",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedCheckpointEndpoints::discardAfterFailure",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditControlAcquisition::inspectCheckpoint",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditControlAcquisition::checkpoint",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointHistoryInspection::ordinary",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCheckpointHistoryInspection::control",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditOrdinaryCheckpointRegistration::prepareSelected",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditControlCheckpointIssuer::prepareSelected",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPreparationWorkflow::prepareActual",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPreparationWorkflow::prepare",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointCandidateWorkflow::complete",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPersistenceWorkflow::persistActual",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPersistenceWorkflow::persist"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedControlHistory::close": [
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedControlEndpoints::finishComparison",
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedControlEndpoints::discardAfterFailure",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditControlCandidateAcquisition::acquire",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditControlPublisher::publish",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditControlPublisher::recover",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::rootRevision",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::segmentAdvance",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::refresh",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::recoverExact",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::bootstrap",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::rootRevision",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::staged",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::pinned"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedCheckpointEndpoints::discardAfterFailure": [
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::reserveOrdinary",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::reserveControl",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::preparationBound",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::completeCandidate",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::artifactPersisted",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditCheckpointPhaseAcquisition::beforePrepare",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditCheckpointPhaseAcquisition::beforePersist",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditCheckpointCandidateAdmission::admit"
+    ],
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedControlEndpoints::discardAfterFailure": [
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::rootRevision",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::segmentAdvance",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::refresh",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::recoverExact"
+    ]
+  },
+  "callerCounts": {
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::__construct": 2,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::fromCapture": 3,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::fromRead": 1,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGroupCodec::encode": 2,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryGroupCodec::decode": 1,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::__construct": 2,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::fromNative": 17,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::fromDecoded": 1,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::tag": 12,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::bytes": 12,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryRecord::native": 10,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::tag": 4,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditHistoryNativeGroup::scalars": 13,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditPrivateHistoryFile::close": 5,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditSealedHistory::close": 4,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedCheckpointHistory::close": 13,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedControlHistory::close": 13,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedCheckpointEndpoints::discardAfterFailure": 8,
+    "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedControlEndpoints::discardAfterFailure": 4
+  },
+  "rootOwnership": {
+    "checkpointDiscardCallers": [
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::reserveOrdinary",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::reserveControl",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::preparationBound",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::completeCandidate",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditWorkProvenanceRecorder::artifactPersisted",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditCheckpointPhaseAcquisition::beforePrepare",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditCheckpointPhaseAcquisition::beforePersist",
+      "BlackOps\\Internal\\Audit\\Authority\\AuditCheckpointCandidateAdmission::admit"
+    ],
+    "controlDiscardCallers": [
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::rootRevision",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::segmentAdvance",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::refresh",
+      "BlackOps\\Internal\\Audit\\Provenance\\PostgreSqlAuditControlPublicationWriter::recoverExact"
+    ],
+    "checkpointSameCapsuleFailureFallbacks": [
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditOrdinaryCheckpointRegistration::prepareSelected",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditControlCheckpointIssuer::prepareSelected",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPreparationWorkflow::prepareActual",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPreparationWorkflow::prepare",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointCandidateWorkflow::complete",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPersistenceWorkflow::persistActual",
+      "BlackOps\\Internal\\Audit\\Provenance\\AuditCheckpointPersistenceWorkflow::persist"
+    ],
+    "controlSameCapsuleFailureFallbacks": [
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::rootRevision",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::segmentAdvance",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::refresh",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::recoverExact",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::bootstrap",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::rootRevision",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::staged",
+      "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::pinned"
+    ],
+    "endpointAssignmentPrecedesProtectedBeginRoot": true,
+    "failedConsumeOrPermitTakeBeforeReturn": "same actual outer capsule fallback; no endpoint getter",
+    "phase7FinalAfterSuccessfulFirstComparison": "null capture, retained bounded facts; no reader, reopen or extra close",
+    "capturesBeforeAfterF2": "pre-F2 captures in existing prepareActual/persistActual; post-F2 in existing prepare/persist",
+    "externalPublication": "Publisher completes floor then checked capture close before result; no SQL/seed under floor",
+    "originalPrimaryFailurePreserved": true,
+    "sameGraphPoisonRetained": true
+  },
+  "descriptorTransfer": [
+    {
+      "stage": "private-create-incomplete",
+      "disposer": "existing custody creator/raw constructor",
+      "nextTransfer": "successful PrivateHistoryFiles.create return"
+    },
+    {
+      "stage": "before successful Writer.finish return",
+      "disposer": "actual CaptureWriter.capture -> same PrivateHistoryFile.close",
+      "writerRole": "borrowed write/seal; no raw close or destructor added"
+    },
+    {
+      "stage": "seal returned before capsule factory succeeds",
+      "disposer": "actual CaptureWriter.capture -> same SealedHistory.close",
+      "cases": [
+        "failed RO commit",
+        "failed capsule validation/factory"
+      ]
+    },
+    {
+      "stage": "capsule factory succeeds",
+      "disposer": "same capsule chain; actual phase workflow retains lexical fallback",
+      "clearOldLocals": [
+        "former file",
+        "former seal"
+      ]
+    },
+    {
+      "stage": "successful endpoint consume/permit take returns",
+      "disposer": "named actual root owner -> endpoint.discardAfterFailure on unsuccessful exit",
+      "success": "actual matching finishComparison after native equality"
+    },
+    {
+      "stage": "native close attempted",
+      "disposer": "terminal latches forbid another lower attempt",
+      "repeatedCleanEntry": "no lower I/O",
+      "repeatedFailedEntry": "safe failure, no lower I/O or usable result"
+    }
+  ],
+  "counts": {
+    "AuditHistoryRecord": 10,
+    "AuditHistoryNativeGroup": 9,
+    "AuditHistoryReader": 10,
+    "AuditSealedHistory": 10,
+    "AuditCapturedCheckpointHistory": 10,
+    "AuditCapturedControlHistory": 10,
+    "AuditVerifiedCheckpointEndpoints": 9,
+    "AuditVerifiedControlEndpoints": 9,
+    "AuditPrivateHistoryFile": 10,
+    "AuditWorkProvenanceRecorder": 10,
+    "AuditCheckpointPhaseAcquisition": 10,
+    "AuditCheckpointCandidateAdmission": 6,
+    "PostgreSqlAuditControlPublicationWriter": 7,
+    "AuditCheckpointPhaseAuthority": 10,
+    "AuditCheckpointCandidatePermit": 8,
+    "AuditControlPublicationAuthority": 9
+  },
+  "affectedLiteralPaths": [
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointCandidateAdmission.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointPhaseAcquisition.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlAcquisition.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlCandidateAcquisition.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlPublisher.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCapturedCheckpointHistory.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCapturedControlHistory.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointCaptureWriter.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointHistoryInspection.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointHistoryReplay.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditCheckpointNativeGroups.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditControlCaptureWriter.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditControlHistoryReplay.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditControlNativeGroups.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryGrammar.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryReader.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryRecord.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryWriter.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditPublicationHistoryReplay.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditSealedHistory.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditSegmentHistoryReplay.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditTransitionHistoryReplay.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedCheckpointEndpoints.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedControlEndpoints.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditWorkHistoryReplay.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditWorkNativeGroups.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlInstallationPublicationWorkflow.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlPublicationWorkflow.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointCandidateWorkflow.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointMutationAdmission.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointPersistenceWorkflow.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointPreparationWorkflow.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditControlCheckpointIssuer.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditOrdinaryCheckpointRegistration.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditWorkProvenanceRecorder.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationWriter.php",
+      "classification": "already proposed in pinned inventory/type closure",
+      "admittedBeforeThisCorrection": true
+    }
+  ],
+  "existingAdmittedTestsReceivingCases": [
+    "tests/Architecture/AuditAuthorityHistoryArchitectureTest.php",
+    "tests/Architecture/AuditCheckpointProductionArchitectureTest.php",
+    "tests/Architecture/AuditProvenanceArchitectureTest.php",
+    "tests/Internal/Application/ApplicationAuditControlInstallationIntegrationTest.php",
+    "tests/Internal/Audit/Authority/AuditCheckpointCandidateSignerTest.php",
+    "tests/Internal/Audit/Authority/AuditCheckpointPhaseAcquisitionTest.php",
+    "tests/Internal/Audit/Authority/AuditSigningImportNativeIntegrationTest.php",
+    "tests/Internal/Audit/Authority/History/AuditHistoryCapturePostgreSqlTest.php",
+    "tests/Internal/Audit/Authority/History/AuditHistoryGrammarTest.php",
+    "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+    "tests/Internal/Audit/Control/AuditControlInstallationPublicationTest.php",
+    "tests/Internal/Audit/Provenance/AuditCheckpointAmbiguityPostgreSqlTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointProductionTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationPostgreSqlTest.php"
+  ],
+  "testResults": "Not Run; no Product/test implementation by this author",
+  "preservedVerification": {
+    "newPhp35": true,
+    "existingEdits26": true,
+    "predecessorIds3986": true,
+    "nativeBases27": true,
+    "nativeRuns58": true,
+    "phpMemory512M": true,
+    "ciRequiredIdentityAndPartitionUnchanged": true,
+    "separateWholeProductionDbProofRequired": true
+  },
+  "bookkeepingOnly": {
+    "semanticEntryMethods": 9,
+    "affectedSourcePaths": 39,
+    "caseOwnershipTestPaths": 14,
+    "factoryGetterCloseCallersUnique": true,
+    "allAffectedPathsPreviouslyAdmitted": true,
+    "allDeclaredCountsWithinTen": true,
+    "allProtocolInputsStable": true,
+    "oneKnownGovernanceAppend": true
+  },
+  "noRemainingAuthorChoice": "Concrete HT candidate complete; only independent affected review and Root adoption can close findings",
+  "nextAction": "Root sends immutable candidate and inputs to f3 for assigned bounded r3 review; no Product issuance inferred"
+}

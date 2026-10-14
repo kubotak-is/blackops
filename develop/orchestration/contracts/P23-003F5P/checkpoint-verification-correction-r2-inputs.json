@@ -1,0 +1,3475 @@
+{
+  "schemaVersion": 1,
+  "kind": "finite verification correction candidate; no observed native outcomes",
+  "owner": "/root/f4_shared_source_inventory",
+  "frozenAt": "2026-10-14T03:33:25+09:00",
+  "artifact": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2.md",
+    "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+    "bytes": 45277
+  },
+  "selectedInputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1.md",
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "bytes": 54451
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1-inputs.json",
+      "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+      "bytes": 40776
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r1.md",
+      "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec",
+      "bytes": 23157
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r1-inputs.json",
+      "sha256": "d344dc8f7fca65d4daeb46c3819b4b7d656917067125a40aadea1cd3aa25057b",
+      "bytes": 61052
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-production-verification-packet-r1.md",
+      "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "bytes": 11675
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.md",
+      "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+      "bytes": 41271
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.json",
+      "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+      "bytes": 527107
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-issuance-candidate-r1.md",
+      "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+      "bytes": 11494
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1.md",
+      "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+      "bytes": 48741
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1-inputs.json",
+      "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854",
+      "bytes": 14750
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1.md",
+      "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "bytes": 88993
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2.md",
+      "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+      "bytes": 41493
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2-inputs.json",
+      "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478",
+      "bytes": 52625
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md",
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "bytes": 35267
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-proposal-r2.md",
+      "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+      "bytes": 8844
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-review-r2.md",
+      "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37",
+      "bytes": 5723
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-driver.php",
+      "sha256": "5d591d0f8939ea8847902f4c5f5143a5625e0c0cc6c8f3e0f53b9043e51808f5",
+      "bytes": 8795
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-probe.c",
+      "sha256": "1c57d1d905e5b5893f4de4fe2fd02ce6af6d64b2a17ef974587d5f45e30ded0e",
+      "bytes": 5356
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-runner.py",
+      "sha256": "a2592fb5a06fd314b875ed9aef04976cb3647778522b3ff299d031a5af04e351",
+      "bytes": 5284
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/calibrate-r3-result.json",
+      "sha256": "59b4f099123b6f14a2c6bbebdbe157c72a23f37d2b2b75847d3dc786089a14bf",
+      "bytes": 30963
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/calibrate-r4-result.json",
+      "sha256": "8766d20f7e2e30789da5a1003ec3f9eb49b032c016af4c47062b6f98ed1c7565",
+      "bytes": 16371
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/.github/workflows/ci.yml",
+      "sha256": "d8f36f3fdabf7b51a20d8b469393c762d762139e922f94584ee688e4133f0d28",
+      "bytes": 13200
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/phpunit.xml",
+      "sha256": "e52021086875cccf296f2b97c03e8e7268c7c5e9f75cc0f1436c7daa5c60ae1d",
+      "bytes": 492
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mise.toml",
+      "sha256": "a5bc98ebca9ccbe3939eed8747f41be9f58cdb60fedba7945cb46ec7892491c6",
+      "bytes": 67
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/Dockerfile",
+      "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62",
+      "bytes": 764
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/compose.yaml",
+      "sha256": "bcca4ac25247f5c21f430d0b00021aa2ade4deff6186e5e103bdcdf0173c4d92",
+      "bytes": 1636
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.json",
+      "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d",
+      "bytes": 2385
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Application/ApplicationAuditConfigurationTest.php",
+      "sha256": "69a9e965943b03dbc4673d10b5e097c81cd8dd6ea26a34274ae60d877dfaf487",
+      "bytes": 6637
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactScalar.php",
+      "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946",
+      "bytes": 1913
+    }
+  ],
+  "selectedInputsStableAtFreeze": true,
+  "completeLiteral35": [
+    "tests/Architecture/AuditAuthorityArchitectureTest.php",
+    "tests/Architecture/AuditAuthorityHistoryArchitectureTest.php",
+    "tests/Architecture/AuditCheckpointProductionArchitectureTest.php",
+    "tests/Architecture/AuditControlInstallationArchitectureTest.php",
+    "tests/Architecture/AuditProvenanceArchitectureTest.php",
+    "tests/Internal/Application/ApplicationAuditCheckpointCompositionTest.php",
+    "tests/Internal/Application/ApplicationAuditControlInstallationIntegrationTest.php",
+    "tests/Internal/Application/ApplicationRetentionRuntimeTest.php",
+    "tests/Internal/Audit/Authority/AuditAuthorityDocumentCodecTest.php",
+    "tests/Internal/Audit/Authority/AuditAuthorityJsonPreflightTest.php",
+    "tests/Internal/Audit/Authority/AuditAuthorityProvenanceVectorTest.php",
+    "tests/Internal/Audit/Authority/AuditCheckpointCandidateSignerTest.php",
+    "tests/Internal/Audit/Authority/AuditCheckpointPhaseAcquisitionTest.php",
+    "tests/Internal/Audit/Authority/AuditSigningImportNativeIntegrationTest.php",
+    "tests/Internal/Audit/Authority/Custody/AuditControlDelegateCustodyTest.php",
+    "tests/Internal/Audit/Authority/History/AuditCheckpointArtifactReplayTest.php",
+    "tests/Internal/Audit/Authority/History/AuditHistoryCapturePostgreSqlTest.php",
+    "tests/Internal/Audit/Authority/History/AuditHistoryGrammarTest.php",
+    "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+    "tests/Internal/Audit/Control/AuditControlInstallationPublicationTest.php",
+    "tests/Internal/Audit/Provenance/AuditCheckpointAmbiguityPostgreSqlTest.php",
+    "tests/Internal/Audit/Provenance/AuditCheckpointConcurrencyPostgreSqlTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointProductionTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorPostgreSqlTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditControlInstallationPostgreSqlTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationPostgreSqlTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaPostgreSqlTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaTest.php",
+    "tests/Internal/Audit/Signing/AuditCheckpointOnlineChecksTest.php",
+    "tests/Internal/Audit/Signing/AuditOnlineAcquisitionTest.php",
+    "tests/Internal/Audit/Signing/AuditOnlineConfigurationTest.php",
+    "tests/Internal/Audit/Signing/OrdinaryAuditSignCompositionPostgreSqlTest.php",
+    "tests/Internal/Console/AuditControlPublishCommandTest.php",
+    "tests/Internal/Tooling/PhpUnitPartitionTest.php"
+  ],
+  "existingTestsWithBoundedEdits26": [
+    "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+    "tests/Architecture/AuditAnchorStateArchitectureTest.php",
+    "tests/Architecture/AuditArtifactArchitectureTest.php",
+    "tests/Architecture/AuditCheckpointArchitectureTest.php",
+    "tests/Architecture/AuditDeliveryArchitectureTest.php",
+    "tests/Architecture/AuditOutboxStorageArchitectureTest.php",
+    "tests/Architecture/AuditPublicApiTest.php",
+    "tests/Architecture/AuditRecordArchitectureTest.php",
+    "tests/Architecture/AuditRelayArchitectureTest.php",
+    "tests/Architecture/AuditStoreArchitectureTest.php",
+    "tests/Architecture/PublicApiArchitectureTest.php",
+    "tests/Integration/ApplicationConsoleKernelTest.php",
+    "tests/Internal/Application/ApplicationAuditConfigurationTest.php",
+    "tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+    "tests/Internal/Application/ApplicationCommandDiscoveryIntegrationTest.php",
+    "tests/Internal/Application/ApplicationConsoleKernelTest.php",
+    "tests/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStorePostgreSqlTest.php",
+    "tests/Internal/Console/ApplicationCommandCollisionValidatorTest.php",
+    "tests/Internal/Console/DatabaseMigrationCommandTest.php",
+    "tests/Internal/Migration/ConfigurablePostgreSqlMigrationFactoryTest.php",
+    "tests/Internal/Migration/DatabaseMigrationRunnerTest.php",
+    "tests/Internal/Migration/PostgreSqlMigrationSchemaTest.php",
+    "tests/Internal/Projection/Command/CommandProjectionListCommandTest.php",
+    "tests/Internal/Projection/Command/CommandProjectionProducerTest.php",
+    "tests/Internal/Projection/Command/CommandProjectionTargetRegistryTest.php",
+    "tests/Internal/Scheduler/MaintenanceSchedulerTest.php"
+  ],
+  "exactExistingTestAddition": {
+    "path": "tests/Internal/Application/ApplicationAuditConfigurationTest.php",
+    "partition": "legacy-runtime",
+    "retainedTestMethods": 6,
+    "retainedPrivateHelpers": 1,
+    "newTestMethods": [
+      "testInstalledSigningAndControlObjectsPreserveOutboxConfiguration",
+      "testAuthorityContainerKeysRemainClosedBeforeOutboxDefaults",
+      "testAuthorityAdmissionRemainsPureAndDoesNotResolveSigningRuntime"
+    ],
+    "newSourceMethodTotal": 10
+  },
+  "measuredPredecessorReused": {
+    "testCount": 3986,
+    "discoveryClassCount": 478,
+    "assertions": 8634246,
+    "junitSuiteSeconds": "1568.458437",
+    "wallSeconds": 1572.523063,
+    "retainedReceiptStatus": "Passed",
+    "retainedReceiptExit": 0,
+    "retainedInputsPreserved": true,
+    "primaryDiscoveryExactlyMatchesJunit": true,
+    "partitionMeasurement": [
+      {
+        "partition": "legacy-heavy",
+        "predecessorCaseCount": 6,
+        "observedCaseSeconds": "842.254433",
+        "sortedIdsSha256": "70a7eef1c7ae34802c96c97b578b0bf5f82b40abc1905d0b3976d29db334a3ed"
+      },
+      {
+        "partition": "legacy-architecture",
+        "predecessorCaseCount": 169,
+        "observedCaseSeconds": "513.619481",
+        "sortedIdsSha256": "1503e980e8bd3189a65663e275166274a3f2ef2f1c7775fe0faaaf124e84b257"
+      },
+      {
+        "partition": "legacy-runtime",
+        "predecessorCaseCount": 3811,
+        "observedCaseSeconds": "212.584549",
+        "sortedIdsSha256": "29b2308b95a75d6b585081d7a9ea05df9f66c936b2cdc7a3f8e0768f70341b10"
+      }
+    ],
+    "longestCase": {
+      "id": "BlackOps\\Tests\\Architecture\\AuditOperationReadArchitectureTest::testTokenAwareOracleRejectsArchitectureMutationsAndKeepsFalsePositives",
+      "seconds": "831.224429"
+    },
+    "newCheckpointPartitionDuration": null,
+    "onlyAllowedRename": {
+      "from": "BlackOps\\Tests\\Internal\\Projection\\Command\\CommandProjectionTargetRegistryTest::testFrameworkNamesAreTheCurrentTwentyNineOnly",
+      "to": "BlackOps\\Tests\\Internal\\Projection\\Command\\CommandProjectionTargetRegistryTest::testFrameworkNamesAreTheCurrentThirtyOnly"
+    }
+  },
+  "predecessorRetention": "all3986 IDs except sole exact registry rename; current complete discovery always denominator; no rebaseline",
+  "nativeRuns": [
+    {
+      "suite": "io",
+      "case": "permission-mode",
+      "variant": "control",
+      "runId": "permission-mode/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-mode",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyIdentity.php",
+          "method": "checkConfiguredPath",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> I.checkConfiguredPath -> F.__construct"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**permission-mode** — L.open -> I.checkConfiguredPath -> F.__construct; actual semantic floor entry",
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_EX|LOCK_NB); corresponding LOCK_UN",
+        "expectedSelectedHitsAndResults": "EX1 success; UN1 success",
+        "expectedInterventions": 0,
+        "independentWitness": "target mode0600 control /0644 exercise after valid config; exact inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "After admitting a valid synthetic configuration, actual floor0600 remains intact. Exactly1 successful `flock(EX|NB)` and later1 UN; returns actual S, then S.finish.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/permission-mode/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "permission-mode",
+      "variant": "exercise",
+      "runId": "permission-mode/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-mode",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyIdentity.php",
+          "method": "checkConfiguredPath",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> I.checkConfiguredPath -> F.__construct"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**permission-mode** — L.open -> I.checkConfiguredPath -> F.__construct; actual semantic floor entry",
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_EX|LOCK_NB); corresponding LOCK_UN",
+        "expectedSelectedHitsAndResults": "EX0; UN0; fresh actual permission rejection before lock",
+        "expectedInterventions": 0,
+        "independentWitness": "target mode0600 control /0644 exercise after valid config; exact inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Fixture changes only that known floor to0644 after configuration admission. Actual L.open's fresh permission check rejects **before lock**:0 selected flock/write/sync,0 injected return; no S result. Independent stat confirms0644 and unchanged bytes/inode. Fixture restores0600 only after observation for owned cleanup. The real chmod/stat evidence and actual admission failure, not a synthetic false constructor, prove the negative.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/permission-mode/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "permission-erofs",
+      "variant": "control",
+      "runId": "permission-erofs/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-erofs",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> existing floor fopen -> F.__construct"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**permission-erofs** — L.open's actual existing-floor open; F constructor is reached only on success",
+      "nativePlan": {
+        "selectedOperation": "open|open64|openat|openat64 target existing floor",
+        "expectedSelectedHitsAndResults": "1 success; then EX1/UN1",
+        "expectedInterventions": 0,
+        "independentWitness": "read-only bind mount; actual kernel errno; existing0600 inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Exact synthetic0600 existing file is mounted writable; one actual `open*` with requested r+b succeeds, then1 EX/1 UN and checked close.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/permission-erofs/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "permission-erofs",
+      "variant": "exercise",
+      "runId": "permission-erofs/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-erofs",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> existing floor fopen -> F.__construct"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**permission-erofs** — L.open's actual existing-floor open; F constructor is reached only on success",
+      "nativePlan": {
+        "selectedOperation": "open|open64|openat|openat64 target existing floor",
+        "expectedSelectedHitsAndResults": "1 -1 EROFS; EX0/write0",
+        "expectedInterventions": 0,
+        "independentWitness": "read-only bind mount; actual kernel errno; existing0600 inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Same synthetic file mount is read-only in this variant. Exactly1 actual target `open*` fails EROFS, zero target lock/write and zero injected return; no session or floor recreation. Original bytes/inode/mode unchanged; mount status independently retained. Root-owned host file is removed only after container removal.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/permission-erofs/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "scratch-enospc",
+      "variant": "control",
+      "runId": "scratch-enospc/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "scratch-enospc",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk",
+        "W.finish -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**scratch-enospc** — P.create -> H.appendChunk; native consumer HistoryWriter.append/finish -> H.appendChunk",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "same full32MiB tmpfs; separately owned filler; target anonymous nlink0,size0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "P actually creates/removes namespace and returns nlink0 H. append exact8 fixture bytes uses1 selected write result8; checks flush/position; explicit H.close.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/scratch-enospc/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "scratch-enospc",
+      "variant": "exercise",
+      "runId": "scratch-enospc/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "scratch-enospc",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk",
+        "W.finish -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**scratch-enospc** — P.create -> H.appendChunk; native consumer HistoryWriter.append/finish -> H.appendChunk",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 -1 ENOSPC; no later data write",
+        "expectedInterventions": 0,
+        "independentWitness": "same full32MiB tmpfs; separately owned filler; target anonymous nlink0,size0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "After H exists, a separately owned filler exhausts the same private tmpfs using bounded chunks until real ENOSPC. Exactly1 selected H write returns-1/ENOSPC, zero shim fault. H append denies, no seal/capture result; same inode remains nlink0,size0 before close, no scratch pathname. Filler removed after actual failure/state observation; no scratch fsync claimed.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/scratch-enospc/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "durable-enospc",
+      "variant": "control",
+      "runId": "durable-enospc/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "durable-enospc",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**durable-enospc** — N.writeDurably; consumer S.publishExact's mutable-source write edge",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8; truncate/flush/fsync complete",
+        "expectedInterventions": 0,
+        "independentWitness": "actual no-space filler; same empty0600 nlink1 target inode",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "New private0600 empty N; exact8 bytes,1 write8,truncate8,checked flush/fsync1,close; same inode exact length8.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/durable-enospc/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "durable-enospc",
+      "variant": "exercise",
+      "runId": "durable-enospc/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "durable-enospc",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**durable-enospc** — N.writeDurably; consumer S.publishExact's mutable-source write edge",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 -1 ENOSPC; truncate0/sync0",
+        "expectedInterventions": 0,
+        "independentWitness": "actual no-space filler; same empty0600 nlink1 target inode",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Fill same tmpfs after opening empty N; selected write1 returns-1/ENOSPC,0 injected. No truncate/flush/fsync stage or protected durable result. Target still empty/mode0600/nlink1, no replacement inode; error owner closes once. This is actual N qualification, not Publisher success.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/durable-enospc/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "short-write-progress",
+      "variant": "control",
+      "runId": "short-write-progress/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "short-write-progress",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**short-write-progress** — H.appendChunk; HistoryWriter consumer",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "original exact8-byte SHA/length; actual offset8; nlink0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Exact8 bytes:1 selected write8; return only after full count, checked flush/position, nlink0 exact8.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/short-write-progress/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "short-write-progress",
+      "variant": "exercise",
+      "runId": "short-write-progress/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "short-write-progress",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**short-write-progress** — H.appendChunk; HistoryWriter consumer",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "2 positive real effects4+4; owner returns complete8",
+        "expectedInterventions": 1,
+        "independentWitness": "original exact8-byte SHA/length; actual offset8; nlink0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "One induced short native result writes4 real bytes, then the second actual write writes remaining4: **2 selected writes**,1 short-return intervention, total8 original bytes and final offset8. Owner succeeds normally, not an error case; no duplicate prefix/lost suffix or empty-progress acceptance.",
+      "expectedDisposition": "positive-short-write-completion",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/short-write-progress/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "zero-write",
+      "variant": "control",
+      "runId": "zero-write/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "zero-write",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**zero-write** — H.appendChunk; HistoryWriter consumer",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "actual target size/offset0; no sealed result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Same exact8-byte H append,1 write8,successful checked completion.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/zero-write/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "zero-write",
+      "variant": "exercise",
+      "runId": "zero-write/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "zero-write",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**zero-write** — H.appendChunk; HistoryWriter consumer",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result0; no write retry",
+        "expectedInterventions": 1,
+        "independentWitness": "actual target size/offset0; no sealed result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Exactly1 selected write returns0 without changing data,1 intervention. Owner rejects no progress; no further write, no sealed result, offset/size0, nlink0; close once.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/zero-write/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "partial-then-write-error",
+      "variant": "control",
+      "runId": "partial-then-write-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "partial-then-write-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**partial-then-write-error** — H.appendChunk; HistoryWriter consumer",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "size4/prefix SHA/nlink0 before checked close; owner failure",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Same8-byte append,1 write8,successful completion.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/partial-then-write-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "io",
+      "case": "partial-then-write-error",
+      "variant": "exercise",
+      "runId": "partial-then-write-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "partial-then-write-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**partial-then-write-error** — H.appendChunk; HistoryWriter consumer",
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "2: real prefix4 then-1 EIO; no third write",
+        "expectedInterventions": 2,
+        "independentWitness": "size4/prefix SHA/nlink0 before checked close; owner failure",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Exact two-event plan: real prefix4 then-1/EIO on the next selected write. One shortened-write event and one induced error; **2 selected writes**. Actual owner observes native/PHP failure and denies completion; prefix digest/size4 is retained, no third data write/recovery/relabelled success, nlink0 then checked close. Different runtime routing is unqualified and requires measured review, not a relaxed count.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "io/partial-then-write-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "post-cast-flush-error",
+      "variant": "control",
+      "runId": "post-cast-flush-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "post-cast-flush-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**post-cast-flush-error** — N.writeDurably; mutable source S.publishExact -> N",
+      "nativePlan": {
+        "selectedOperation": "fflush explicit post-cast second-writeDurably stage",
+        "expectedSelectedHitsAndResults": "1 success plus later internal-fsync flush separately labelled",
+        "expectedInterventions": 0,
+        "independentWitness": "real first successful writeDurably/fsync cast; same descriptor/inode; no durable result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "First real N.writeDurably performs checked fsync and establishes the actual stdio cast. On the same N, a second replacement performs its explicit fflush and later fsync; selected explicit `fflush`1 succeeds (internal fsync flush recorded separately).",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/post-cast-flush-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "post-cast-flush-error",
+      "variant": "exercise",
+      "runId": "post-cast-flush-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "post-cast-flush-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**post-cast-flush-error** — N.writeDurably; mutable source S.publishExact -> N",
+      "nativePlan": {
+        "selectedOperation": "fflush explicit post-cast second-writeDurably stage",
+        "expectedSelectedHitsAndResults": "1 EOF/EIO; later fsync0",
+        "expectedInterventions": 1,
+        "independentWitness": "real first successful writeDurably/fsync cast; same descriptor/inode; no durable result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "After the same real warmup, inject EOF/EIO at exactly the second replacement's **explicit post-cast fflush1**. No later fsync for that operation; owner denies. Same-inode partial/replaced bytes may already be visible but no durable-success result. Prior error survives final close; handler restored. A direct-descriptor no-op/unhit flush is not accepted.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/post-cast-flush-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "file-sync-error",
+      "variant": "control",
+      "runId": "file-sync-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "file-sync-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.replaceObservedNow -> F.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**file-sync-error** — F.writeDurably; S.replaceObservedNow -> F",
+      "nativePlan": {
+        "selectedOperation": "fsync regular locked floor",
+        "expectedSelectedHitsAndResults": "1 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "full prior actual write/truncate/fflush; no durable result; UN/close once",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Actual floor replacement has1 selected fsync success after positive full writes/truncate/explicit flush; normal F close UN1 then close1.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/file-sync-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "file-sync-error",
+      "variant": "exercise",
+      "runId": "file-sync-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "file-sync-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.replaceObservedNow -> F.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**file-sync-error** — F.writeDurably; S.replaceObservedNow -> F",
+      "nativePlan": {
+        "selectedOperation": "fsync regular locked floor",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "full prior actual write/truncate/fflush; no durable result; UN/close once",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Exactly1 selected native fsync returns-1/EIO,1 intervention after prior checked stages. Actual F denies durable completion; bytes may be present but no authority/session-success claim. Explicit unlock/close still occurs once; original sync failure wins.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/file-sync-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "immutable-file-sync-error",
+      "variant": "control",
+      "runId": "immutable-file-sync-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "immutable-file-sync-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> A.confirmDurability"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**immutable-file-sync-error** — A.confirmDurability; S.publishExact existing-policy confirmation -> A",
+      "nativePlan": {
+        "selectedOperation": "fsync readonly immutable policy descriptor",
+        "expectedSelectedHitsAndResults": "1 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "same original policy inode/hash/nlink; no write/truncate/link",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Read-only exact signed-policy inode, original bytes/digest unchanged;1 selected fsync0 following checked flush, then close. Zero write/truncate/link.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/immutable-file-sync-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "immutable-file-sync-error",
+      "variant": "exercise",
+      "runId": "immutable-file-sync-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "immutable-file-sync-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> A.confirmDurability"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**immutable-file-sync-error** — A.confirmDurability; S.publishExact existing-policy confirmation -> A",
+      "nativePlan": {
+        "selectedOperation": "fsync readonly immutable policy descriptor",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "same original policy inode/hash/nlink; no write/truncate/link",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Selected fsync1=-1/EIO,1 intervention; confirmDurability throws, no successful archive-durability/reference result. Same readonly inode/bytes/nlink remain; explicit close. Substituting N.writeDurably or rewriting identical bytes fails the case.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/immutable-file-sync-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "directory-sync-error",
+      "variant": "control",
+      "runId": "directory-sync-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "directory-sync-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> D.syncPublication"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**directory-sync-error** — D.syncPublication; S.publishExact archive namespace confirmation -> D",
+      "nativePlan": {
+        "selectedOperation": "fsync directory descriptor",
+        "expectedSelectedHitsAndResults": "1 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "actual directory inode and file namespace; regular fsync cannot count",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Actual directory descriptor,1 selected fsync0 after checked flush, stable directory inode; checked close.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/directory-sync-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "directory-sync-error",
+      "variant": "exercise",
+      "runId": "directory-sync-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "directory-sync-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> D.syncPublication"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**directory-sync-error** — D.syncPublication; S.publishExact archive namespace confirmation -> D",
+      "nativePlan": {
+        "selectedOperation": "fsync directory descriptor",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "actual directory inode and file namespace; regular fsync cannot count",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Exactly1 selected fsync=-1/EIO; no namespace-durability result, directory/file identities retained and close checked. A regular-file fsync cannot satisfy this row.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/directory-sync-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "seek-error",
+      "variant": "control",
+      "runId": "seek-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "seek-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "seek",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.finish -> H.seek",
+        "HR.seekRecord -> H.seek"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**seek-error** — H.seek(0); HistoryWriter.finish and HistoryReader.seekRecord consumer",
+      "nativePlan": {
+        "selectedOperation": "lseek|lseek64",
+        "expectedSelectedHitsAndResults": "1 result0 from actual offset8",
+        "expectedInterventions": 0,
+        "independentWitness": "anonymous nlink0/8 original bytes; failed transition prevents read/append/seal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "First append8 succeeds outside fault stage; selected `lseek*`1 moves actual offset8->0, seals writes, readExact8 equals original.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/seek-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "seek-error",
+      "variant": "exercise",
+      "runId": "seek-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "seek-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "seek",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.finish -> H.seek",
+        "HR.seekRecord -> H.seek"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**seek-error** — H.seek(0); HistoryWriter.finish and HistoryReader.seekRecord consumer",
+      "nativePlan": {
+        "selectedOperation": "lseek|lseek64",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "anonymous nlink0/8 original bytes; failed transition prevents read/append/seal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Selected lseek1=-1/EIO,1 intervention. H denies readable/sealed transition and later append/read/seek; nlink0 actual original8 bytes persist until its one close. No Reader/SealedHistory success.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/seek-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "truncate-error",
+      "variant": "control",
+      "runId": "truncate-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "truncate-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**truncate-error** — N.writeDurably; S.publishExact mutable source consumer",
+      "nativePlan": {
+        "selectedOperation": "ftruncate|ftruncate64",
+        "expectedSelectedHitsAndResults": "1 length8 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "same initial10-byte inode; actual8-byte replacement prefix plus old2 suffix remains",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Existing10 fixture bytes replaced by8; selected `ftruncate*`1 succeeds, final length8/exact bytes, flush/fsync checked.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/truncate-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "truncate-error",
+      "variant": "exercise",
+      "runId": "truncate-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "truncate-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**truncate-error** — N.writeDurably; S.publishExact mutable source consumer",
+      "nativePlan": {
+        "selectedOperation": "ftruncate|ftruncate64",
+        "expectedSelectedHitsAndResults": "1 -1 EIO; later flush/fsync0",
+        "expectedInterventions": 1,
+        "independentWitness": "same initial10-byte inode; actual8-byte replacement prefix plus old2 suffix remains",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Selected ftruncate1=-1/EIO after actual8-byte prefix write,1 intervention. Pre-cleanup target length10/actual replaced prefix+old2 suffix, same inode;0 later flush/fsync and no durable result. Owner denies and closes once.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/truncate-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "unlock-error",
+      "variant": "control",
+      "runId": "unlock-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "unlock-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**unlock-error** — F.close; S.finish -> F.close",
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_UN)",
+        "expectedSelectedHitsAndResults": "1 result0 then close1",
+        "expectedInterventions": 0,
+        "independentWitness": "actual original EX; close releases native lock; fresh independent contender acquires; original error wins",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Prior actual EX lock; selected `flock(UN)`1 succeeds then close1; independent contender acquires after disposal.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/unlock-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "unlock-error",
+      "variant": "exercise",
+      "runId": "unlock-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "unlock-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**unlock-error** — F.close; S.finish -> F.close",
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_UN)",
+        "expectedSelectedHitsAndResults": "1 -1 EIO then close1; no retry",
+        "expectedInterventions": 1,
+        "independentWitness": "actual original EX; close releases native lock; fresh independent contender acquires; original error wins",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Selected UN1 returns-1/EIO without unlocking,1 intervention. Actual owner preserves observable unlock failure but still closes its owned descriptor exactly once. Native close releases lock; independent contender then succeeds. No successful finish/authority result, no second UN or close.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/unlock-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "consumed-close-error",
+      "variant": "control",
+      "runId": "consumed-close-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "consumed-close-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**consumed-close-error** — N.close after successful N.writeDurably; all earlier required durability gates actual",
+      "nativePlan": {
+        "selectedOperation": "fclose after successful fsync cast",
+        "expectedSelectedHitsAndResults": "1 real consume/result0",
+        "expectedInterventions": 0,
+        "independentWitness": "PHP resource invalid and native target fd0; earlier durability actual; not negative PASS",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "stdio route established by real successful fsync. Selected `fclose`1 calls real fclose1, returns0; PHP resource invalid and matching native fd count0.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/consumed-close-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "consumed-close-error",
+      "variant": "exercise",
+      "runId": "consumed-close-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "consumed-close-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> N.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**consumed-close-error** — N.close after successful N.writeDurably; all earlier required durability gates actual",
+      "nativePlan": {
+        "selectedOperation": "fclose after successful fsync cast",
+        "expectedSelectedHitsAndResults": "1 real consume then EOF/EIO hidden by calibrated PHP",
+        "expectedInterventions": 1,
+        "independentWitness": "PHP resource invalid and native target fd0; earlier durability actual; not negative PASS",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Selected fclose1 really consumes once, then reports EOF/EIO,1 intervention. Under calibrated PHP8.5.7, PHP close/owner may return normally with no warning while actual fd count0. Receipt classification is **supported-consumed-hidden-error**, not observable-negative PASS or independent authority acceptance. Prior write/flush/fsync must actually succeed. A changed runtime observation requires explicit measured disposition, never fake PHP false.",
+      "expectedDisposition": "supported-consumed-hidden-error",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/consumed-close-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "nonconsuming-close-counterexample",
+      "variant": "control",
+      "runId": "nonconsuming-close-counterexample/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "nonconsuming-close-counterexample",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.readSource -> N.readBounded -> N.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**nonconsuming-close-counterexample** — N.close on a read-only/direct-descriptor path, no fsync cast",
+      "nativePlan": {
+        "selectedOperation": "close direct-descriptor readonly path",
+        "expectedSelectedHitsAndResults": "1 real consume/result0",
+        "expectedInterventions": 0,
+        "independentWitness": "PHP invalid but native fd1 before child exit; unsupported; process reap supplies final disposal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Selected native close1 consumes; PHP invalid, matching native fd0, normal explicit close.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/nonconsuming-close-counterexample/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "durability",
+      "case": "nonconsuming-close-counterexample",
+      "variant": "exercise",
+      "runId": "nonconsuming-close-counterexample/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "nonconsuming-close-counterexample",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.readSource -> N.readBounded -> N.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**nonconsuming-close-counterexample** — N.close on a read-only/direct-descriptor path, no fsync cast",
+      "nativePlan": {
+        "selectedOperation": "close direct-descriptor readonly path",
+        "expectedSelectedHitsAndResults": "1 -1 EIO without consume",
+        "expectedInterventions": 1,
+        "independentWitness": "PHP invalid but native fd1 before child exit; unsupported; process reap supplies final disposal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Selected close1 reports-1/EIO **without consuming**,1 intervention. PHP can invalidate its resource while native matching fd remains1. Receipt is **unsupported-nonconsuming-counterexample**, never Product cleanup success. No blind second close; retain residual-fd proof, then end/reap the owned diagnostic child and independently verify its disappearance. This is outside supported NC-01 semantics.",
+      "expectedDisposition": "unsupported-nonconsuming-counterexample",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "durability/nonconsuming-close-counterexample/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "process-control",
+      "variant": "control",
+      "runId": "process-control/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "process-control",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "readFloor",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> F.__construct",
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**process-control** — L.open -> F.__construct; actual S lifecycle",
+      "nativePlan": {
+        "selectedOperation": "flock(EX|NB) success then barrier",
+        "expectedSelectedHitsAndResults": "EX1; release1; read success; UN1/close1; child0",
+        "expectedInterventions": 0,
+        "independentWitness": "actual held lock before kill; reaped PID; no fd and fresh contender lock succeeds",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Barrier after real floor EX lock1. Control releases; S.readFloor reads bounded original bytes, S.finish UN1/close1, child0. Exercise kills exactly that child while its lock is actually held; no S result/return/UN is claimed. Supervisor observes terminal kill, no child/fd and a new independent contender can lock the same unchanged inode. Qualification is expected interruption, not a successful invocation.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/process-control/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "process-control",
+      "variant": "exercise",
+      "runId": "process-control/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "process-control",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "readFloor",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> F.__construct",
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**process-control** — L.open -> F.__construct; actual S lifecycle",
+      "nativePlan": {
+        "selectedOperation": "flock(EX|NB) success then barrier",
+        "expectedSelectedHitsAndResults": "EX1; release0; SIGKILL1; UN0; no method return",
+        "expectedInterventions": 0,
+        "independentWitness": "actual held lock before kill; reaped PID; no fd and fresh contender lock succeeds",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Barrier after real floor EX lock1. Control releases; S.readFloor reads bounded original bytes, S.finish UN1/close1, child0. Exercise kills exactly that child while its lock is actually held; no S result/return/UN is claimed. Supervisor observes terminal kill, no child/fd and a new independent contender can lock the same unchanged inode. Qualification is expected interruption, not a successful invocation.",
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/process-control/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "scratch-unlink-error",
+      "variant": "control",
+      "runId": "scratch-unlink-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-unlink-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "P.create -> actual unlink before H transfer"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**scratch-unlink-error** — P.create's actual namespace unlink before H transfer",
+      "nativePlan": {
+        "selectedOperation": "unlink|unlinkat owned capture name",
+        "expectedSelectedHitsAndResults": "primary1 success; no cleanup unlink",
+        "expectedInterventions": 0,
+        "independentWitness": "before-error-return native barrier shows still-owned named0600 file; no payload; no H returned",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Control actual exclusive file create/chmod0600 -> selected unlink1 success -> directory close/rmdir -> H nlink0 then checked close. Exercise injects-1/EIO at selected unlink1; no H/capture result. Independently observe the still-owned named child at failure; managed cleanup performs one distinct successful unlink of that known name, one close and removes the owned empty directory. Original unlink failure survives cleanup; no evidence payload was written.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/scratch-unlink-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "scratch-unlink-error",
+      "variant": "exercise",
+      "runId": "scratch-unlink-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-unlink-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "P.create -> actual unlink before H transfer"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**scratch-unlink-error** — P.create's actual namespace unlink before H transfer",
+      "nativePlan": {
+        "selectedOperation": "unlink|unlinkat owned capture name",
+        "expectedSelectedHitsAndResults": "primary1 -1 EIO; one distinct managed cleanup unlink success",
+        "expectedInterventions": 1,
+        "independentWitness": "before-error-return native barrier shows still-owned named0600 file; no payload; no H returned",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Control actual exclusive file create/chmod0600 -> selected unlink1 success -> directory close/rmdir -> H nlink0 then checked close. Exercise injects-1/EIO at selected unlink1; no H/capture result. Independently observe the still-owned named child at failure; managed cleanup performs one distinct successful unlink of that known name, one close and removes the owned empty directory. Original unlink failure survives cleanup; no evidence payload was written.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/scratch-unlink-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "scratch-rmdir-error",
+      "variant": "control",
+      "runId": "scratch-rmdir-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-rmdir-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "P.create -> actual rmdir before H transfer"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**scratch-rmdir-error** — P.create's actual private-directory removal before H transfer",
+      "nativePlan": {
+        "selectedOperation": "rmdir|unlinkat(AT_REMOVEDIR) owned empty capture dir",
+        "expectedSelectedHitsAndResults": "primary1 success; no cleanup rmdir",
+        "expectedInterventions": 0,
+        "independentWitness": "file already nlink0; dir descriptor closed; empty dir present before error return; no payload",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Control unlink1 succeeds, directory descriptor closes, selected rmdir1 succeeds, H transfer/close. Exercise injects-1/EIO at selected rmdir1; file already nlink0, empty private directory still exists, no H result/payload. Managed cleanup closes the anonymous raw stream once and removes that still-owned empty directory in one distinct cleanup rmdir. No scratch fsync or late payload before removal.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/scratch-rmdir-error/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "scratch-rmdir-error",
+      "variant": "exercise",
+      "runId": "scratch-rmdir-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-rmdir-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "P.create -> actual rmdir before H transfer"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**scratch-rmdir-error** — P.create's actual private-directory removal before H transfer",
+      "nativePlan": {
+        "selectedOperation": "rmdir|unlinkat(AT_REMOVEDIR) owned empty capture dir",
+        "expectedSelectedHitsAndResults": "primary1 -1 EIO; one distinct managed cleanup rmdir success",
+        "expectedInterventions": 1,
+        "independentWitness": "file already nlink0; dir descriptor closed; empty dir present before error return; no payload",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Control unlink1 succeeds, directory descriptor closes, selected rmdir1 succeeds, H transfer/close. Exercise injects-1/EIO at selected rmdir1; file already nlink0, empty private directory still exists, no H result/payload. Managed cleanup closes the anonymous raw stream once and removes that still-owned empty directory in one distinct cleanup rmdir. No scratch fsync or late payload before removal.",
+      "expectedDisposition": "observable-owner-failure",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/scratch-rmdir-error/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "two-process-lock-death",
+      "variant": "control",
+      "runId": "two-process-lock-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "two-process-lock-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> F.__construct",
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**two-process-lock-death** — two actual L.open/F constructors on the same floor",
+      "nativePlan": {
+        "selectedOperation": "flock across exactly two registered processes/new owners",
+        "expectedSelectedHitsAndResults": "EX attempts3:2 success/1 EWOULDBLOCK; UN2",
+        "expectedInterventions": 0,
+        "independentWitness": "P2 observes contention before release/death, then new owner succeeds after; no inherited descriptors",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "P1 real EX success1 then barrier; independently owned P2 fresh L.open gets EWOULDBLOCK exactly1 and disposes its failed open. Control releases P1 to UN1/close; exercise kills P1 before UN. In both, a **new** P2 owner then gets EX success1 and UN1/close. Exact total EX attempts3, successes2, contended failures1; UN2 control/1 exercise. No inherited fd/Connection, sleeping race or forged lock state.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/two-process-lock-death/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "two-process-lock-death",
+      "variant": "exercise",
+      "runId": "two-process-lock-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "two-process-lock-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "L.open -> F.__construct",
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**two-process-lock-death** — two actual L.open/F constructors on the same floor",
+      "nativePlan": {
+        "selectedOperation": "flock across exactly two registered processes/new owners",
+        "expectedSelectedHitsAndResults": "same EX3 success2/contention1; UN1; P1 SIGKILL1",
+        "expectedInterventions": 0,
+        "independentWitness": "P2 observes contention before release/death, then new owner succeeds after; no inherited descriptors",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "P1 real EX success1 then barrier; independently owned P2 fresh L.open gets EWOULDBLOCK exactly1 and disposes its failed open. Control releases P1 to UN1/close; exercise kills P1 before UN. In both, a **new** P2 owner then gets EX success1 and UN1/close. Exact total EX attempts3, successes2, contended failures1; UN2 control/1 exercise. No inherited fd/Connection, sleeping race or forged lock state.",
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/two-process-lock-death/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "anonymous-capture-death",
+      "variant": "control",
+      "runId": "anonymous-capture-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "anonymous-capture-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**anonymous-capture-death** — P.create -> H.appendChunk; HistoryWriter's actual scratch owner",
+      "nativePlan": {
+        "selectedOperation": "write first8 to actual anonymous H then barrier",
+        "expectedSelectedHitsAndResults": "write1 result8; release1; flush/position/close checked",
+        "expectedInterventions": 0,
+        "independentWitness": "nlink0 and directory/name absent before payload; zero surviving owned PID/fd after reap",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Before barrier H is actual nlink0, private file/dir names absent. Barrier after first actual8-byte append write1. Control releases, append returns with checked flush/position, H.close; exercise kills before completion. Parent observes no live namespace before/after and no surviving matching child/fd after reap. No seal/result is claimed after kill; kernel cleanup is labelled separately from checked H.close.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/anonymous-capture-death/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "anonymous-capture-death",
+      "variant": "exercise",
+      "runId": "anonymous-capture-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "anonymous-capture-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "W.append -> H.appendChunk"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**anonymous-capture-death** — P.create -> H.appendChunk; HistoryWriter's actual scratch owner",
+      "nativePlan": {
+        "selectedOperation": "write first8 to actual anonymous H then barrier",
+        "expectedSelectedHitsAndResults": "write1 actual8; SIGKILL1 before method result",
+        "expectedInterventions": 0,
+        "independentWitness": "nlink0 and directory/name absent before payload; zero surviving owned PID/fd after reap",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Before barrier H is actual nlink0, private file/dir names absent. Barrier after first actual8-byte append write1. Control releases, append returns with checked flush/position, H.close; exercise kills before completion. Parent observes no live namespace before/after and no surviving matching child/fd after reap. No seal/result is claimed after kill; kernel cleanup is labelled separately from checked H.close.",
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/anonymous-capture-death/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "floor-partial-write-death",
+      "variant": "control",
+      "runId": "floor-partial-write-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-partial-write-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.replaceObservedNow -> F.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**floor-partial-write-death** — F.writeDurably; S.replaceObservedNow mutable same-inode edge",
+      "nativePlan": {
+        "selectedOperation": "write controlled positive prefix then barrier",
+        "expectedSelectedHitsAndResults": "prefix write1; release1; remaining write1; truncate/flush/fsync1 complete",
+        "expectedInterventions": 1,
+        "independentWitness": "same actual floor inode; fixed reviewed prefix index yields neither complete old nor complete new bytes; no result on kill",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Plan lets one positive prefix write complete on the actual existing floor, then barrier before the remaining write/truncate/flush/fsync. Prefix length is a fixed index in the reviewed old/new synthetic floor literals that produces bytes unequal to either complete value. Control releases, completes exact remaining bytes/truncate/flush/fsync1 and UN/close; exercise kills at barrier. Capture actual same inode/prefix digest/length and absence of a completed method result; no durability/accepted-state claim. Actual malformed/pending floor recovery decisions remain the separately named D tests.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/floor-partial-write-death/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "floor-partial-write-death",
+      "variant": "exercise",
+      "runId": "floor-partial-write-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-partial-write-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.replaceObservedNow -> F.writeDurably"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**floor-partial-write-death** — F.writeDurably; S.replaceObservedNow mutable same-inode edge",
+      "nativePlan": {
+        "selectedOperation": "write controlled positive prefix then barrier",
+        "expectedSelectedHitsAndResults": "prefix write1; SIGKILL1; remaining0/truncate0/fsync0",
+        "expectedInterventions": 1,
+        "independentWitness": "same actual floor inode; fixed reviewed prefix index yields neither complete old nor complete new bytes; no result on kill",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Plan lets one positive prefix write complete on the actual existing floor, then barrier before the remaining write/truncate/flush/fsync. Prefix length is a fixed index in the reviewed old/new synthetic floor literals that produces bytes unequal to either complete value. Control releases, completes exact remaining bytes/truncate/flush/fsync1 and UN/close; exercise kills at barrier. Capture actual same inode/prefix digest/length and absence of a completed method result; no durability/accepted-state claim. Actual malformed/pending floor recovery decisions remain the separately named D tests.",
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/floor-partial-write-death/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "floor-post-sync-death",
+      "variant": "control",
+      "runId": "floor-post-sync-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-post-sync-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.replaceObservedNow -> F.writeDurably",
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**floor-post-sync-death** — F.writeDurably then F.close; S.replaceObservedNow/finish edges",
+      "nativePlan": {
+        "selectedOperation": "fsync result0 then barrier before return/unlock",
+        "expectedSelectedHitsAndResults": "fsync1; release1; UN1/close1; normal result",
+        "expectedInterventions": 0,
+        "independentWitness": "exact new bytes/length same inode and actual sync; fresh contender after reap; no authority inferred",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Barrier after actual final fsync1 success, before Product can return and before unlock. Control releases to normal return/UN1/close. Exercise kills at barrier; exact new bytes/length/same inode and successful fsync are independently retained, but no returned authority or SQL publication is inferred. New contender lock succeeds after reap; no replay/reset by old owner.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/floor-post-sync-death/control/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "floor-post-sync-death",
+      "variant": "exercise",
+      "runId": "floor-post-sync-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-post-sync-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.replaceObservedNow -> F.writeDurably",
+        "S.finish -> F.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**floor-post-sync-death** — F.writeDurably then F.close; S.replaceObservedNow/finish edges",
+      "nativePlan": {
+        "selectedOperation": "fsync result0 then barrier before return/unlock",
+        "expectedSelectedHitsAndResults": "fsync1; SIGKILL1; UN0/no returned result",
+        "expectedInterventions": 0,
+        "independentWitness": "exact new bytes/length same inode and actual sync; fresh contender after reap; no authority inferred",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Barrier after actual final fsync1 success, before Product can return and before unlock. Control releases to normal return/UN1/close. Exercise kills at barrier; exact new bytes/length/same inode and successful fsync are independently retained, but no returned authority or SQL publication is inferred. New contender lock succeeds after reap; no replay/reset by old owner.",
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/floor-post-sync-death/exercise/receipt.json",
+      "executionStatus": "Not Run"
+    },
+    {
+      "suite": "interruption",
+      "case": "archive-link-death",
+      "variant": "control",
+      "runId": "archive-link-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-link-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> A.confirmDurability",
+        "S.publishExact -> D.syncPublication",
+        "R.policy -> A.readBounded -> A.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**archive-link-death** — independent installer fixture plus actual R.policy/A.confirmDurability/D.syncPublication recovery owners",
+      "nativePlan": {
+        "selectedOperation": "link|linkat no-replace then barrier; actual Product recovery fsync",
+        "expectedSelectedHitsAndResults": "installer link1; release1; directory sync2 around own-temp removal; runtime file sync1+dir sync1",
+        "expectedInterventions": 0,
+        "independentWitness": "final+known temp share inode nlink2 on killed installer; exact bytes; runtime no rewrite/alias removal; separate fixture ownership",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Test-only installer uses actual N.writeDurably on its owned temporary policy, checked file fsync, then **real no-replace link1**, barrier before directory sync. Control releases: D.syncPublication1, remove owned temp name, D.syncPublication1; final nlink1. Exercise kills installer after link: exact final+owned-temp names reference the same inode,nlink2; never claim a Framework archive producer. Fresh actual R.policy reads exact immutable bytes; a separately opened actual A.confirmDurability1 and actual D.syncPublication1 prove the existing-file recovery owner routes without rewriting. Runtime leaves the extra known temporary alias intact; supervisor later cleans only its registered temp. Real Publisher/SQL success is §6 D proof.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/archive-link-death/control/receipt.json",
+      "executionStatus": "Not Run",
+      "externalFixtureOwner": "AuthorityFilesystemCase.interruption: synthetic independent installer only, not a Framework producer; actual R/A/D routes separately run without fake phase grant"
+    },
+    {
+      "suite": "interruption",
+      "case": "archive-link-death",
+      "variant": "exercise",
+      "runId": "archive-link-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-link-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> A.confirmDurability",
+        "S.publishExact -> D.syncPublication",
+        "R.policy -> A.readBounded -> A.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**archive-link-death** — independent installer fixture plus actual R.policy/A.confirmDurability/D.syncPublication recovery owners",
+      "nativePlan": {
+        "selectedOperation": "link|linkat no-replace then barrier; actual Product recovery fsync",
+        "expectedSelectedHitsAndResults": "installer link1; SIGKILL1 before installer directory sync; recovery file sync1+dir sync1",
+        "expectedInterventions": 0,
+        "independentWitness": "final+known temp share inode nlink2 on killed installer; exact bytes; runtime no rewrite/alias removal; separate fixture ownership",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Test-only installer uses actual N.writeDurably on its owned temporary policy, checked file fsync, then **real no-replace link1**, barrier before directory sync. Control releases: D.syncPublication1, remove owned temp name, D.syncPublication1; final nlink1. Exercise kills installer after link: exact final+owned-temp names reference the same inode,nlink2; never claim a Framework archive producer. Fresh actual R.policy reads exact immutable bytes; a separately opened actual A.confirmDurability1 and actual D.syncPublication1 prove the existing-file recovery owner routes without rewriting. Runtime leaves the extra known temporary alias intact; supervisor later cleans only its registered temp. Real Publisher/SQL success is §6 D proof.",
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/archive-link-death/exercise/receipt.json",
+      "executionStatus": "Not Run",
+      "externalFixtureOwner": "AuthorityFilesystemCase.interruption: synthetic independent installer only, not a Framework producer; actual R/A/D routes separately run without fake phase grant"
+    },
+    {
+      "suite": "interruption",
+      "case": "archive-directory-sync-death",
+      "variant": "control",
+      "runId": "archive-directory-sync-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-directory-sync-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> A.confirmDurability",
+        "S.publishExact -> D.syncPublication",
+        "R.policy -> A.readBounded -> A.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**archive-directory-sync-death** — same external installer and actual R/A/D recovery owners",
+      "nativePlan": {
+        "selectedOperation": "directory fsync result0 following link then barrier; Product recovery",
+        "expectedSelectedHitsAndResults": "installer link1,first dirsync1,release1,temp remove,second dirsync1; recovery file1/dir1",
+        "expectedInterventions": 0,
+        "independentWitness": "same nlink2 final/temp before cleanup; prior successful sync cannot skip fresh actual immutable confirmation",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Barrier after the first real directory fsync1 following link and before removing owned temp. Control releases then removes temp and directory-syncs a second time. Exercise kills there: final+temp same inode,nlink2 and first directory sync success retained. Fresh actual R reads and actual A/D re-confirm file+directory durability **again**; prior installer progress does not skip existing-object confirmation. No file write/truncate during recovery, no alias enumeration/removal by Product, no new archive producer or fabricated publication permission. Supervisor owns final known-name cleanup.",
+      "expectedDisposition": "positive-owner-control",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/archive-directory-sync-death/control/receipt.json",
+      "executionStatus": "Not Run",
+      "externalFixtureOwner": "AuthorityFilesystemCase.interruption: synthetic independent installer only, not a Framework producer; actual R/A/D routes separately run without fake phase grant"
+    },
+    {
+      "suite": "interruption",
+      "case": "archive-directory-sync-death",
+      "variant": "exercise",
+      "runId": "archive-directory-sync-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-directory-sync-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "S.publishExact -> A.confirmDurability",
+        "S.publishExact -> D.syncPublication",
+        "R.policy -> A.readBounded -> A.close"
+      ],
+      "runtimeClaim": "actual named custody/native owner qualification; whole Production/DB origin remains separate",
+      "caseBinding": "**archive-directory-sync-death** — same external installer and actual R/A/D recovery owners",
+      "nativePlan": {
+        "selectedOperation": "directory fsync result0 following link then barrier; Product recovery",
+        "expectedSelectedHitsAndResults": "link1,first dirsync1,SIGKILL1; recovery file1/dir1 repeats checks",
+        "expectedInterventions": 0,
+        "independentWitness": "same nlink2 final/temp before cleanup; prior successful sync cannot skip fresh actual immutable confirmation",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedOwnerResultAndState": "Barrier after the first real directory fsync1 following link and before removing owned temp. Control releases then removes temp and directory-syncs a second time. Exercise kills there: final+temp same inode,nlink2 and first directory sync success retained. Fresh actual R reads and actual A/D re-confirm file+directory durability **again**; prior installer progress does not skip existing-object confirmation. No file write/truncate during recovery, no alias enumeration/removal by Product, no new archive producer or fabricated publication permission. Supervisor owns final known-name cleanup.",
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "cleanup": "C0 plus this exact row state; original failure preserved; single owned explicit close where process survives; killed child native release is separately labelled; supervisor reaps and removes only owned names/container",
+      "receiptPath": "interruption/archive-directory-sync-death/exercise/receipt.json",
+      "executionStatus": "Not Run",
+      "externalFixtureOwner": "AuthorityFilesystemCase.interruption: synthetic independent installer only, not a Framework producer; actual R/A/D routes separately run without fake phase grant"
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-maintenance",
+      "variant": "initialized",
+      "runId": "cold-unicode-maintenance/initialized",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "initialized"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "scheduler",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "signingTasks",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationRetentionRuntime.php::scheduler -> signingTasks -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "0 codec/history/Normalizer data opens after actual floor lock; exact type/table closure already loaded before",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "actual assembly/initializer before floor"
+      },
+      "expectedOwnerResultAndState": "Maintenance calls actual ApplicationRetentionRuntime.scheduler -> private signingTasks; installation calls actual ApplicationAuditControlInstallationComposer.compose(snapshot) returning its closed InstallationComposition. `CheckpointProductionApplication` creates the real compiled synthetic application/configuration/providers; operations Connection remains lazy and lifecycle SQL is not run. Actual initialization at that real assembly site resolves all literal types and nonempty FORM_C before the test's actual F.__construct EX lock1. Under that real held floor call actual ArtifactReplay.unsigned and complete on fixed original NFC non-ASCII checkpoint vectors. Three F1 calls and byte results follow actual Product code. After the lock, **0** codec/history/Normalizer-data loader opens; normal F close UN1/close1.",
+      "expectedDisposition": "actual-assembly-cold-qualified",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-maintenance/initialized/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": []
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-maintenance",
+      "variant": "missing",
+      "runId": "cold-unicode-maintenance/missing",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "missing"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationRetentionRuntime.php::scheduler -> signingTasks -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedOwnerResultAndState": "Fresh bare Composer process deliberately omits actual assembly/prerequisite. It holds a real F lock1 before first actual ArtifactReplay construction/call; original Unicode vector forces real FORM_C use. The actual three named normalization data files each open **once under lock**; additional cold codec/class opens are retained against the fixed list.",
+      "expectedDisposition": "cold-order-rejected",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-maintenance/missing/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": [
+        "actual maintenance/installation assembly",
+        "AuditCheckpointReplayRuntimePrerequisite.initialize"
+      ]
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-maintenance",
+      "variant": "late",
+      "runId": "cold-unicode-maintenance/late",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "late"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "scheduler",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "signingTasks",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationRetentionRuntime.php::scheduler -> signingTasks -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "floor before actual assembly/initializer"
+      },
+      "expectedOwnerResultAndState": "Fresh fixture acquires the real F lock1 **before** invoking the same actual maintenance or installation assembly entry as initialized. Actual initializer/class/table loads now occur under that lock, including all three required Normalizer data files once. No lifecycle SQL, seed or second floor acquisition is allowed.",
+      "expectedDisposition": "cold-order-rejected",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-maintenance/late/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": []
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-maintenance",
+      "variant": "empty-warmup",
+      "runId": "cold-unicode-maintenance/empty-warmup",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "empty-warmup"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationRetentionRuntime.php::scheduler -> signingTasks -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedOwnerResultAndState": "Fresh fixture resolves only the exact finite listed classes and invokes Normalizer FORM_C on the empty string outside the floor; it does **not** call the Product prerequisite. Then actual F lock1 and actual Unicode ArtifactReplay entries cause each of three normalization data files to open once under lock.",
+      "expectedDisposition": "cold-order-rejected",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-maintenance/empty-warmup/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": [
+        "actual maintenance/installation assembly",
+        "AuditCheckpointReplayRuntimePrerequisite.initialize"
+      ]
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-installation",
+      "variant": "initialized",
+      "runId": "cold-unicode-installation/initialized",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "initialized"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationAuditControlInstallationComposer.php",
+          "method": "compose",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationAuditControlInstallationComposer.php::compose -> ApplicationAuditControlInstallationComposition -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "0 codec/history/Normalizer data opens after actual floor lock; exact type/table closure already loaded before",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "actual assembly/initializer before floor"
+      },
+      "expectedOwnerResultAndState": "Maintenance calls actual ApplicationRetentionRuntime.scheduler -> private signingTasks; installation calls actual ApplicationAuditControlInstallationComposer.compose(snapshot) returning its closed InstallationComposition. `CheckpointProductionApplication` creates the real compiled synthetic application/configuration/providers; operations Connection remains lazy and lifecycle SQL is not run. Actual initialization at that real assembly site resolves all literal types and nonempty FORM_C before the test's actual F.__construct EX lock1. Under that real held floor call actual ArtifactReplay.unsigned and complete on fixed original NFC non-ASCII checkpoint vectors. Three F1 calls and byte results follow actual Product code. After the lock, **0** codec/history/Normalizer-data loader opens; normal F close UN1/close1.",
+      "expectedDisposition": "actual-assembly-cold-qualified",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-installation/initialized/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": []
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-installation",
+      "variant": "missing",
+      "runId": "cold-unicode-installation/missing",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "missing"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationAuditControlInstallationComposer.php::compose -> ApplicationAuditControlInstallationComposition -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedOwnerResultAndState": "Fresh bare Composer process deliberately omits actual assembly/prerequisite. It holds a real F lock1 before first actual ArtifactReplay construction/call; original Unicode vector forces real FORM_C use. The actual three named normalization data files each open **once under lock**; additional cold codec/class opens are retained against the fixed list.",
+      "expectedDisposition": "cold-order-rejected",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-installation/missing/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": [
+        "actual maintenance/installation assembly",
+        "AuditCheckpointReplayRuntimePrerequisite.initialize"
+      ]
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-installation",
+      "variant": "late",
+      "runId": "cold-unicode-installation/late",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "late"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationAuditControlInstallationComposer.php",
+          "method": "compose",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationAuditControlInstallationComposer.php::compose -> ApplicationAuditControlInstallationComposition -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "floor before actual assembly/initializer"
+      },
+      "expectedOwnerResultAndState": "Fresh fixture acquires the real F lock1 **before** invoking the same actual maintenance or installation assembly entry as initialized. Actual initializer/class/table loads now occur under that lock, including all three required Normalizer data files once. No lifecycle SQL, seed or second floor acquisition is allowed.",
+      "expectedDisposition": "cold-order-rejected",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-installation/late/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": []
+    },
+    {
+      "suite": "cold",
+      "case": "cold-unicode-installation",
+      "variant": "empty-warmup",
+      "runId": "cold-unicode-installation/empty-warmup",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "empty-warmup"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "sourceGuardedProductionConsumerEdges": [
+        "src/Internal/Application/ApplicationAuditControlInstallationComposer.php::compose -> ApplicationAuditControlInstallationComposition -> AuditCheckpointReplayRuntimePrerequisite.initialize before either floor"
+      ],
+      "runtimeClaim": "actual assembly only on initialized/late; fixture deliberately omits assembly on missing/empty-warmup; no lifecycle SQL or authority grant",
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedOwnerResultAndState": "Fresh fixture resolves only the exact finite listed classes and invokes Normalizer FORM_C on the empty string outside the floor; it does **not** call the Product prerequisite. Then actual F lock1 and actual Unicode ArtifactReplay entries cause each of three normalization data files to open once under lock.",
+      "expectedDisposition": "cold-order-rejected",
+      "cleanup": "C0: actual unlock/one close, restored handler, no lifecycle SQL/seed/provider/floor nesting; all children/fds/names/container removed",
+      "receiptPath": "cold/cold-unicode-installation/empty-warmup/receipt.json",
+      "executionStatus": "Not Run",
+      "deliberatelyNotCalled": [
+        "actual maintenance/installation assembly",
+        "AuditCheckpointReplayRuntimePrerequisite.initialize"
+      ]
+    }
+  ],
+  "nativeCaseCount": 27,
+  "nativeRunCount": 58,
+  "nativeSuiteCounts": {
+    "io": 14,
+    "durability": 18,
+    "interruption": 18,
+    "cold": 8
+  },
+  "nativeProductPathAliases": {
+    "N": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+    "F": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+    "A": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+    "D": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+    "H": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+    "P": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+    "L": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+    "S": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+    "I": "src/Internal/Audit/Authority/Custody/AuditCustodyIdentity.php",
+    "R": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+    "W": "src/Internal/Audit/Authority/History/AuditHistoryWriter.php",
+    "HR": "src/Internal/Audit/Authority/History/AuditHistoryReader.php"
+  },
+  "nativeExecutionStatus": "Not Run for all58; author contract only",
+  "wholeProductionDbEvidence": "Separately mandatory named actual D tests; holder/custody/cold fixture cannot substitute",
+  "ciCandidateUnchanged": {
+    "changedWorkflow": ".github/workflows/ci.yml",
+    "requiredAggregateId": "quality",
+    "requiredAggregateName": "Mago, PHPUnit, and Deptrac",
+    "aggregateTimeoutMinutes": 30,
+    "needs": [
+      "quality-static",
+      "quality-package",
+      "quality-phpunit",
+      "quality-vectors",
+      "audit-authority-native"
+    ],
+    "expectedProducerArtifactCount": 11,
+    "phpPartitions": [
+      "legacy-heavy",
+      "legacy-architecture",
+      "legacy-runtime",
+      "checkpoint-production"
+    ],
+    "phpMatrixTimeoutMinutes": 30,
+    "phpMemoryLimit": "512M",
+    "nativeSuites": [
+      "io",
+      "durability",
+      "interruption",
+      "cold"
+    ],
+    "nativeMatrixTimeoutMinutes": 30,
+    "vectorsTimeoutMinutes": 20,
+    "rejectResults": [
+      "failure",
+      "cancelled",
+      "skipped",
+      "missing"
+    ],
+    "unrelatedJobsUnchanged": [
+      "community-board-clean-install",
+      "community-board-foundation",
+      "frontend",
+      "framework-update-runtime",
+      "website"
+    ],
+    "actualFutureExecutionStatus": "not_run"
+  },
+  "nodeArgvUnchanged": [
+    "node",
+    "--test",
+    "--test-isolation=none",
+    "--test-reporter=tap",
+    "tests/Fixtures/Audit/audit-authority-provenance-golden.mjs",
+    "tests/Fixtures/Audit/audit-signed-artifacts-golden.mjs",
+    "tests/Fixtures/Audit/audit-anchor-state-golden.mjs",
+    "tests/Fixtures/Audit/audit-canonical-record-golden.mjs",
+    "tests/Fixtures/Audit/audit-operation-read-foundation-golden.mjs",
+    "tests/Fixtures/Audit/audit-operational-event-catalog-golden.mjs",
+    "tests/Fixtures/Audit/observed-audit-record-golden.mjs",
+    "tests/Fixtures/Audit/audit-event-catalog-golden.mjs",
+    "tests/Fixtures/Audit/audit-postgresql-store-golden.mjs",
+    "tests/Fixtures/Quality/quality-results.test.mjs"
+  ],
+  "unchangedLimits": {
+    "phpMemoryMiB": 512,
+    "containerMemoryAndSwapMiB": 768,
+    "pids": 32,
+    "tmpMiB": 16,
+    "faultMiB": 32,
+    "executableBuildMiB": 64,
+    "handshakeSeconds": 8,
+    "primitiveSeconds": 15,
+    "outerCaseSeconds": 60,
+    "qualityTimeoutMinutes": 30,
+    "nativeTimeoutMinutes": 30,
+    "vectorsTimeoutMinutes": 20
+  },
+  "qualificationRejections": [
+    "missing/duplicate/unknown run, shard, artifact or case",
+    "wrong source/SHA/image/fixture/Product owner/method/native route/identity/stage/hit",
+    "raw PHP or neighboring primitive replacing actual owner",
+    "unhit fault, unknown alias, malformed/overflowed trace, wrong class",
+    "absent original failure or incomplete pre-cleanup state/close/reap/names/handler/container accounting",
+    "masked close reported as observable negative PASS",
+    "unsupported nonconsuming-close reported as Product disposal success",
+    "positive cold fixture calls initialize instead of actual assembly",
+    "native holder result replacing actual production/DB origin",
+    "empty/omitted/duplicated/disjointness/35-new-path/predecessor retention failure",
+    "failure/cancel/skipped/missing/nonterminal required needs or artifact"
+  ],
+  "pendingIndependentInputs": [
+    "Type closure67af749f and CIR correction7cfb9ec8 remain separately reviewed candidates; literal Record/GroupCodec transport join already reported independently; no self-approval here",
+    "Root final packet adoption/worker/resource issuance and actual runtime qualification remain required"
+  ],
+  "bookkeepingOnly": [
+    "read-only source/retained proposals",
+    "Python standard-library35/26/27/58 path/case/hash bookkeeping",
+    "wrote only assigned verification md and inputs"
+  ],
+  "notRun": [
+    "PHP",
+    "Node",
+    "test runner",
+    "Docker",
+    "native/compiler",
+    "database",
+    "network",
+    "Git"
+  ]
+}

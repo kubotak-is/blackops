@@ -1,0 +1,942 @@
+{
+  "schemaVersion": 1,
+  "kind": "checkpoint-test-ci-bindings-candidate",
+  "owner": "/root/f4_shared_source_inventory",
+  "status": "frozen_candidate_for_combined_independent_issuance_review_not_execution_or_acceptance",
+  "frozenAt": "2026-10-14T00:13:20+09:00",
+  "rootReportedProductBase": "070c752",
+  "gitIndependentlyVerified": false,
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013",
+    "E5": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261012",
+    "F3": "/home/kubotak/projects/blackops/.phpunit.cache/f3-orchestration/20261009"
+  },
+  "selectedInputs": [
+    {
+      "root": "C",
+      "path": "AGENTS.md",
+      "bytes": 10392,
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "use": "Current instructions/assignment snapshot; Root may concurrently change governance; no Product/Git verification"
+    },
+    {
+      "root": "C",
+      "path": "develop/STATE.md",
+      "bytes": 7080,
+      "sha256": "c0df035cc4b6b6083764498d66ea8a2b09f733f3fd9ccb28645dbb163acef5e6",
+      "use": "Current instructions/assignment snapshot; Root may concurrently change governance; no Product/Git verification"
+    },
+    {
+      "root": "C",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "bytes": 23416,
+      "sha256": "09a1577a132d9441cc41f401e640248c24a3dfa0683c52cfd4d7081e0ebb7079",
+      "use": "Current instructions/assignment snapshot; Root may concurrently change governance; no Product/Git verification"
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-production-verification-packet-r1.md",
+      "bytes": 11675,
+      "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-issuance-map-r1.md",
+      "bytes": 142484,
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1.md",
+      "bytes": 77964,
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-issuance-r1.md",
+      "bytes": 75458,
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-review-r1.md",
+      "bytes": 14754,
+      "sha256": "b593fb5adacb6550bc49445d64b82b241a49f18eb182eac7e4c2707191149fcf",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-delta-r2.md",
+      "bytes": 35267,
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-review-r2.md",
+      "bytes": 10595,
+      "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-proposal-r2.md",
+      "bytes": 8844,
+      "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-review-r2.md",
+      "bytes": 5723,
+      "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37",
+      "use": "Frozen semantic/caller/resource input; no re-review of unchanged protocol"
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-runner.py",
+      "bytes": 5284,
+      "sha256": "a2592fb5a06fd314b875ed9aef04976cb3647778522b3ff299d031a5af04e351",
+      "use": "Selected native runner containment/mount/compiler/cleanup convention, source only"
+    },
+    {
+      "root": "E5",
+      "path": "native-authority-fault-verification-proposal-r1.md",
+      "bytes": 26654,
+      "sha256": "684a807ce3d87c7ddeb0de10b0da46f41970384e13595f405b3734e8ba7eaf02",
+      "use": "Earlier selected native/process test conventions; stale calibration uncertainty superseded by adopted E13 contract"
+    },
+    {
+      "root": "F3",
+      "path": "run-20261012T030920550572-full/full.xml",
+      "bytes": 1559132,
+      "sha256": "efbe6ae85b2aab8734fba8877e12531611aac37448894cfccf238035639784f8",
+      "use": "Retained actual final full/discovery evidence; XML/JSON parsed only, no test execution"
+    },
+    {
+      "root": "F3",
+      "path": "run-20261012T030054341168-discovery/test-inventory.xml",
+      "bytes": 1443072,
+      "sha256": "f1bcd4f51df140845b6b0c1aeb8925cbe809aaf84864100eeabb2d9b8b8e7650",
+      "use": "Retained actual final full/discovery evidence; XML/JSON parsed only, no test execution"
+    },
+    {
+      "root": "F3",
+      "path": "run-20261012T030920550572-full/receipt.json",
+      "bytes": 1257,
+      "sha256": "f8a38ed54825f87b704ee6ef7afce59c51e98b7d8915b3adb42cd6cdd3f312aa",
+      "use": "Retained actual final full/discovery evidence; XML/JSON parsed only, no test execution"
+    },
+    {
+      "root": "C",
+      "path": ".github/workflows/ci.yml",
+      "bytes": 13200,
+      "sha256": "d8f36f3fdabf7b51a20d8b469393c762d762139e922f94584ee688e4133f0d28",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": ".github/workflows/docs.yml",
+      "bytes": 6710,
+      "sha256": "2fb95884036fcedb2b25c231833309d8f76c2b388b4bef61542b045b7dd1d882",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "composer.json",
+      "bytes": 2385,
+      "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "composer.lock",
+      "bytes": 271332,
+      "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "phpunit.xml",
+      "bytes": 492,
+      "sha256": "e52021086875cccf296f2b97c03e8e7268c7c5e9f75cc0f1436c7daa5c60ae1d",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "compose.yaml",
+      "bytes": 1636,
+      "sha256": "bcca4ac25247f5c21f430d0b00021aa2ade4deff6186e5e103bdcdf0173c4d92",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "Dockerfile",
+      "bytes": 764,
+      "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "mise.toml",
+      "bytes": 67,
+      "sha256": "a5bc98ebca9ccbe3939eed8747f41be9f58cdb60fedba7945cb46ec7892491c6",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "mago.toml",
+      "bytes": 1136,
+      "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "deptrac.yaml",
+      "bytes": 8393,
+      "sha256": "9a3da378a338cfe1a007e1171e51df2cf664c454096c93aba593a81e0fb2fc0f",
+      "use": "Existing declared commands/gates, tool/runtime/dependency/discovery configuration; selected source clauses only; no runtime assertion"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-signed-artifacts-golden.mjs",
+      "bytes": 23083,
+      "sha256": "87760135e7eacbacdfbae9aa0ce9b43fa9a62afd667f0a2367e4311a990bfb34",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Audit/Artifact/AuditCheckpointCodecTest.php",
+      "bytes": 25401,
+      "sha256": "feae938ac999e84440de13655e15a8f076f2e5e6fd482fc7581ff0dbcd11506a",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStorePostgreSqlTest.php",
+      "bytes": 188058,
+      "sha256": "2e490f24c9e1fef4502eed41c106c3ea5165c70cbbbbfbfae50dc1196e7c9075",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Audit/Orchestration/AuditDeliveryTransactionTest.php",
+      "bytes": 60054,
+      "sha256": "090fcb0932586b1b877f6ccf27c224194b6e69d27ed5ac41cbf3839e0fdc7cde",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Console/ApplicationBuildCompileCommandTest.php",
+      "bytes": 33176,
+      "sha256": "03cc08bc288e0233dd370c06c9b6f51ca18d87b3eb7412eb72d3603096ef7936",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Consumer/framework-package-export.sh",
+      "bytes": 20437,
+      "sha256": "dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Consumer/framework-package-required-inventory.sh",
+      "bytes": 121431,
+      "sha256": "d814fe52b38f962f8bd627417344bb192d22114fcd63d094705a8cfe78f3dc20",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/DatabaseMigrationRunnerTest.php",
+      "bytes": 65329,
+      "sha256": "07881ec730486123f012f521a015365dbea0e50cd209a715725b393f8345293c",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/ConfigurablePostgreSqlMigrationFactoryTest.php",
+      "bytes": 2604,
+      "sha256": "c6c0fcf1b407a58d9ac02c87352ee8575a1c2fee65f7b859dad48537e2e4bca9",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/PostgreSqlMigrationSchemaTest.php",
+      "bytes": 1440,
+      "sha256": "e79572d8b735b1f91334d368b7ebf43915b5096882466aae6a57f6361d775af8",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Console/DatabaseMigrationCommandTest.php",
+      "bytes": 9990,
+      "sha256": "7c1fb597a8ee0ee102069efd3a98b0ed14c54cbc3ba75cbff54498a71fa82e63",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationDatabaseConfiguration.php",
+      "bytes": 1240,
+      "sha256": "f8e8e271fa43006a796247b705902280eb63dd5b9173f214e5efec0e4fc8de0d",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Database/DatabaseConfigurationNormalizer.php",
+      "bytes": 1262,
+      "sha256": "4cc28c94254caff8a8ed68077a0f4b8e119dfce12f31ec5a33e876bfbf72516b",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Database/NamedDatabaseConfigurationNormalizer.php",
+      "bytes": 3074,
+      "sha256": "d139c6ee64be5cf2388595ed8cc5cc11bd62a0610c9e6eb8b6420855d694eddc",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Database/DatabaseConfigurationValueValidator.php",
+      "bytes": 1701,
+      "sha256": "33ed27c9a8bd802c1ee5f9360bbb641df0d38bef364c68a95959ed027de69440",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "src/Application/Application.php",
+      "bytes": 2913,
+      "sha256": "1a3e841a59f78587fa2cfe1bc2166fd53e7a8ac2827d493c0db82ab8b0c25861",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "src/Application/ApplicationBuilder.php",
+      "bytes": 6992,
+      "sha256": "86121119b9e270078a554d95c2bb6effdf6115bc46fa2e23fbdbb1ced36e5a57",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+      "bytes": 28756,
+      "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "bytes": 83242,
+      "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Help.php",
+      "bytes": 26167,
+      "sha256": "1bf0915a319f8b3ad41064a2db81a76a4ed195fcd6c9b2421266ffacec56e81a",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Configuration/Cli/Builder.php",
+      "bytes": 44202,
+      "sha256": "92c413ba74ee0394b0322c0e519883c6820c2a334f9e70d5b725774ba2a274cd",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/TestSuiteFilterProcessor.php",
+      "bytes": 4029,
+      "sha256": "ddf56ee3d1e796f955b0dae37df368df7d37316ae5cff187b6f2331d6ad5943d",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestIdsCommand.php",
+      "bytes": 1133,
+      "sha256": "3b90f7b7d56518b44c194a0fac51dad539ded93855148a516a381e7559653e88",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestsAsXmlCommand.php",
+      "bytes": 3898,
+      "sha256": "bb1c06cc2db3c08afb6db65f5a867784357cc79780b035aa25418045c1e75db7",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/Runner/Filter/TestIdFilterIterator.php",
+      "bytes": 1726,
+      "sha256": "c8bff0d1d8f3282525dc58fb4ee746271e01471f980e699d65d799da0db1f845",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/Event/Value/Test/TestMethod.php",
+      "bytes": 3486,
+      "sha256": "6fb632a73b98985bfe972167addd8a906eb81a9c483246ca72b93f4acbe49d5e",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/Logging/JUnit/JunitXmlLogger.php",
+      "bytes": 14821,
+      "sha256": "11558f5115dda3b8f32ada7ef3bc80d722b3df9894e6ea02f6072972510c91b4",
+      "use": "Selected actual fixture/API/caller/CLI/serialization source clauses; hash covers file, no runtime invocation"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationConsoleKernelTest.php",
+      "bytes": 41377,
+      "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Integration/ApplicationConsoleKernelTest.php",
+      "bytes": 21535,
+      "sha256": "f6a714826b87dc86d672cb1c6e247a98a58bd26f74c8dd982444c3a3da2e753b",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationCommandDiscoveryIntegrationTest.php",
+      "bytes": 18436,
+      "sha256": "e7ea360cd4a57ffd8d8e48c5e026c15e95d81f9f02809c1c75dd0addcf11d72f",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Console/ApplicationCommandCollisionValidatorTest.php",
+      "bytes": 9170,
+      "sha256": "4411871868c253fe0e30ebb18ed272425d035ee00e3d0d23d7612b862952c799",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionTargetRegistryTest.php",
+      "bytes": 13279,
+      "sha256": "367057fac16647adced613952054c79ca6ec53023c1b573beb9d9a4f5aad032c",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionProducerTest.php",
+      "bytes": 6163,
+      "sha256": "251d099df3e6ff37332145e7a1ed161c137969335246d61af3927a8914f907ba",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionListCommandTest.php",
+      "bytes": 28967,
+      "sha256": "2f7adc7c99ca576242fdfd907d35a26bca58fc247e9e5ed6581e8b2cd48fcef7",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Scheduler/MaintenanceSchedulerTest.php",
+      "bytes": 7726,
+      "sha256": "cb9eeff78df3b65e0c883c9a317ded1b215391a4559ca86e42bd70769c85c32d",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "bytes": 50110,
+      "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "bytes": 246960,
+      "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "bytes": 153184,
+      "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditArtifactArchitectureTest.php",
+      "bytes": 128581,
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditStoreArchitectureTest.php",
+      "bytes": 182326,
+      "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditRecordArchitectureTest.php",
+      "bytes": 254508,
+      "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditOutboxStorageArchitectureTest.php",
+      "bytes": 84770,
+      "sha256": "385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditRelayArchitectureTest.php",
+      "bytes": 119159,
+      "sha256": "3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditAnchorStateArchitectureTest.php",
+      "bytes": 215817,
+      "sha256": "8ea140b2ea6f9b70efc9fd7a7ddad3d202d122865d4368226cc2706caca3cb2b",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditPublicApiTest.php",
+      "bytes": 53681,
+      "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/PublicApiArchitectureTest.php",
+      "bytes": 2550,
+      "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-anchor-state-golden.mjs",
+      "bytes": 52894,
+      "sha256": "30295cfc0aacca3377f25039e292685a6e5cf7a9e9a27e22c8e2d98154836a0c",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-canonical-record-golden.mjs",
+      "bytes": 9389,
+      "sha256": "87038989b793e3905af75c0a3630944ed9bccad720a1a54725b1f3bb431bca64",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-operation-read-foundation-golden.mjs",
+      "bytes": 11616,
+      "sha256": "e01b14c84b652b7551fc33fddd66e9bd32b2deca16c1bd27b3db3d28ac6e5064",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-operational-event-catalog-golden.mjs",
+      "bytes": 9569,
+      "sha256": "e9da34da0632e40090b6bf3c03be04ee3d99d3bfe44a2ebf291751c48c6a57bd",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/observed-audit-record-golden.mjs",
+      "bytes": 4220,
+      "sha256": "cfa912261c6debcfc14c4800f1e6e6b8c7b0076fa34e21774215552178fa2b46",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-event-catalog-golden.mjs",
+      "bytes": 7729,
+      "sha256": "a390df5c65954d9d918ac232ce34de29fa398e75fff9fb089f6be097fe2147c3",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-postgresql-store-golden.mjs",
+      "bytes": 30987,
+      "sha256": "5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-signed-artifacts-v1.json",
+      "bytes": 314797,
+      "sha256": "1a7f7d7e570189fbb48a1e7623c4fd4277d63c07a44ee8e282564fb014f12277",
+      "use": "Literal existing-path/target inventory and immutable source identity only; no whole-file audit"
+    }
+  ],
+  "proposedFiles": {
+    "newPhpTests": [
+      "tests/Internal/Application/ApplicationAuditCheckpointCompositionTest.php",
+      "tests/Internal/Application/ApplicationRetentionRuntimeTest.php",
+      "tests/Internal/Console/AuditControlPublishCommandTest.php",
+      "tests/Internal/Application/ApplicationAuditControlInstallationIntegrationTest.php",
+      "tests/Internal/Audit/Control/AuditControlInstallationPublicationTest.php",
+      "tests/Internal/Audit/Signing/OrdinaryAuditSignCompositionPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointProductionTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditControlInstallationPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/AuditCheckpointConcurrencyPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/AuditCheckpointAmbiguityPostgreSqlTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityDocumentCodecTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityJsonPreflightTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityProvenanceVectorTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryGrammarTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "tests/Internal/Audit/Authority/History/AuditCheckpointArtifactReplayTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryCapturePostgreSqlTest.php",
+      "tests/Architecture/AuditCheckpointProductionArchitectureTest.php",
+      "tests/Architecture/AuditProvenanceArchitectureTest.php",
+      "tests/Architecture/AuditControlInstallationArchitectureTest.php",
+      "tests/Architecture/AuditAuthorityArchitectureTest.php",
+      "tests/Architecture/AuditAuthorityHistoryArchitectureTest.php",
+      "tests/Internal/Tooling/PhpUnitPartitionTest.php"
+    ],
+    "existingPhpTestsWithBoundedChanges": [
+      "tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+      "tests/Internal/Application/ApplicationConsoleKernelTest.php",
+      "tests/Integration/ApplicationConsoleKernelTest.php",
+      "tests/Internal/Application/ApplicationCommandDiscoveryIntegrationTest.php",
+      "tests/Internal/Console/ApplicationCommandCollisionValidatorTest.php",
+      "tests/Internal/Projection/Command/CommandProjectionTargetRegistryTest.php",
+      "tests/Internal/Projection/Command/CommandProjectionProducerTest.php",
+      "tests/Internal/Projection/Command/CommandProjectionListCommandTest.php",
+      "tests/Internal/Scheduler/MaintenanceSchedulerTest.php",
+      "tests/Internal/Migration/DatabaseMigrationRunnerTest.php",
+      "tests/Internal/Migration/ConfigurablePostgreSqlMigrationFactoryTest.php",
+      "tests/Internal/Migration/PostgreSqlMigrationSchemaTest.php",
+      "tests/Internal/Console/DatabaseMigrationCommandTest.php",
+      "tests/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStorePostgreSqlTest.php",
+      "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "tests/Architecture/AuditArtifactArchitectureTest.php",
+      "tests/Architecture/AuditStoreArchitectureTest.php",
+      "tests/Architecture/AuditRecordArchitectureTest.php",
+      "tests/Architecture/AuditOutboxStorageArchitectureTest.php",
+      "tests/Architecture/AuditRelayArchitectureTest.php",
+      "tests/Architecture/AuditAnchorStateArchitectureTest.php",
+      "tests/Architecture/AuditPublicApiTest.php",
+      "tests/Architecture/PublicApiArchitectureTest.php"
+    ],
+    "newFixturesAndTools": [
+      "tests/Fixtures/Audit/CheckpointProductionApplication.php",
+      "tests/Fixtures/Audit/CheckpointProductionPostgreSql.php",
+      "tests/Fixtures/Audit/checkpoint-production-child.php",
+      "tests/Fixtures/Audit/checkpoint-commit-response-proxy.php",
+      "tests/Fixtures/Audit/audit-authority-provenance-v1.json",
+      "tests/Fixtures/Audit/audit-authority-provenance-golden.mjs",
+      "tests/Fixtures/Audit/authority-filesystem-fault.c",
+      "tests/Fixtures/Audit/authority-filesystem-native.php",
+      "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+      "tests/Consumer/audit-authority-native.py",
+      "tests/Fixtures/Quality/phpunit-predecessor-inventory.json",
+      "tests/Fixtures/Quality/phpunit-partition.php",
+      "tests/Fixtures/Quality/quality-results.mjs",
+      "tests/Fixtures/Quality/quality-results.test.mjs"
+    ],
+    "existingToolingChanges": [
+      ".github/workflows/ci.yml",
+      "tests/Consumer/framework-package-export.sh",
+      "tests/Consumer/framework-package-required-inventory.sh"
+    ]
+  },
+  "inventoryChecks": {
+    "newPhpCount": 28,
+    "existingPhpCount": 25,
+    "newFixtureToolCount": 14,
+    "newPathsAbsent": true,
+    "existingPathsPresent": true,
+    "uniqueProposedPaths": true,
+    "markdownFencesPaired": true
+  },
+  "nativeSuites": {
+    "io": {
+      "baseCases": [
+        "permission-mode",
+        "permission-erofs",
+        "scratch-enospc",
+        "durable-enospc",
+        "short-write-progress",
+        "zero-write",
+        "partial-then-write-error"
+      ],
+      "variants": [
+        "control",
+        "exercise"
+      ],
+      "runIds": [
+        "permission-mode/control",
+        "permission-mode/exercise",
+        "permission-erofs/control",
+        "permission-erofs/exercise",
+        "scratch-enospc/control",
+        "scratch-enospc/exercise",
+        "durable-enospc/control",
+        "durable-enospc/exercise",
+        "short-write-progress/control",
+        "short-write-progress/exercise",
+        "zero-write/control",
+        "zero-write/exercise",
+        "partial-then-write-error/control",
+        "partial-then-write-error/exercise"
+      ]
+    },
+    "durability": {
+      "baseCases": [
+        "post-cast-flush-error",
+        "file-sync-error",
+        "immutable-file-sync-error",
+        "directory-sync-error",
+        "seek-error",
+        "truncate-error",
+        "unlock-error",
+        "consumed-close-error",
+        "nonconsuming-close-counterexample"
+      ],
+      "variants": [
+        "control",
+        "exercise"
+      ],
+      "runIds": [
+        "post-cast-flush-error/control",
+        "post-cast-flush-error/exercise",
+        "file-sync-error/control",
+        "file-sync-error/exercise",
+        "immutable-file-sync-error/control",
+        "immutable-file-sync-error/exercise",
+        "directory-sync-error/control",
+        "directory-sync-error/exercise",
+        "seek-error/control",
+        "seek-error/exercise",
+        "truncate-error/control",
+        "truncate-error/exercise",
+        "unlock-error/control",
+        "unlock-error/exercise",
+        "consumed-close-error/control",
+        "consumed-close-error/exercise",
+        "nonconsuming-close-counterexample/control",
+        "nonconsuming-close-counterexample/exercise"
+      ]
+    },
+    "interruption": {
+      "baseCases": [
+        "process-control",
+        "scratch-unlink-error",
+        "scratch-rmdir-error",
+        "two-process-lock-death",
+        "anonymous-capture-death",
+        "floor-partial-write-death",
+        "floor-post-sync-death",
+        "archive-link-death",
+        "archive-directory-sync-death"
+      ],
+      "variants": [
+        "control",
+        "exercise"
+      ],
+      "runIds": [
+        "process-control/control",
+        "process-control/exercise",
+        "scratch-unlink-error/control",
+        "scratch-unlink-error/exercise",
+        "scratch-rmdir-error/control",
+        "scratch-rmdir-error/exercise",
+        "two-process-lock-death/control",
+        "two-process-lock-death/exercise",
+        "anonymous-capture-death/control",
+        "anonymous-capture-death/exercise",
+        "floor-partial-write-death/control",
+        "floor-partial-write-death/exercise",
+        "floor-post-sync-death/control",
+        "floor-post-sync-death/exercise",
+        "archive-link-death/control",
+        "archive-link-death/exercise",
+        "archive-directory-sync-death/control",
+        "archive-directory-sync-death/exercise"
+      ]
+    },
+    "cold": {
+      "baseCases": [
+        "cold-unicode-maintenance",
+        "cold-unicode-installation"
+      ],
+      "variants": [
+        "initialized",
+        "missing",
+        "late",
+        "empty-warmup"
+      ],
+      "runIds": [
+        "cold-unicode-maintenance/initialized",
+        "cold-unicode-maintenance/missing",
+        "cold-unicode-maintenance/late",
+        "cold-unicode-maintenance/empty-warmup",
+        "cold-unicode-installation/initialized",
+        "cold-unicode-installation/missing",
+        "cold-unicode-installation/late",
+        "cold-unicode-installation/empty-warmup"
+      ]
+    }
+  },
+  "nativeBaseCaseCount": 27,
+  "nativeVariantRunCount": 58,
+  "nodeArgv": [
+    "node",
+    "--test",
+    "--test-isolation=none",
+    "--test-reporter=tap",
+    "tests/Fixtures/Audit/audit-authority-provenance-golden.mjs",
+    "tests/Fixtures/Audit/audit-signed-artifacts-golden.mjs",
+    "tests/Fixtures/Audit/audit-anchor-state-golden.mjs",
+    "tests/Fixtures/Audit/audit-canonical-record-golden.mjs",
+    "tests/Fixtures/Audit/audit-operation-read-foundation-golden.mjs",
+    "tests/Fixtures/Audit/audit-operational-event-catalog-golden.mjs",
+    "tests/Fixtures/Audit/observed-audit-record-golden.mjs",
+    "tests/Fixtures/Audit/audit-event-catalog-golden.mjs",
+    "tests/Fixtures/Audit/audit-postgresql-store-golden.mjs",
+    "tests/Fixtures/Quality/quality-results.test.mjs"
+  ],
+  "measuredPredecessor": {
+    "testCount": 3986,
+    "discoveryClassCount": 478,
+    "assertions": 8634246,
+    "junitSuiteSeconds": "1568.458437",
+    "wallSeconds": 1572.523063,
+    "retainedReceiptStatus": "Passed",
+    "retainedReceiptExit": 0,
+    "retainedInputsPreserved": true,
+    "primaryDiscoveryExactlyMatchesJunit": true,
+    "partitionMeasurement": [
+      {
+        "partition": "legacy-heavy",
+        "predecessorCaseCount": 6,
+        "observedCaseSeconds": "842.254433",
+        "sortedIdsSha256": "70a7eef1c7ae34802c96c97b578b0bf5f82b40abc1905d0b3976d29db334a3ed"
+      },
+      {
+        "partition": "legacy-architecture",
+        "predecessorCaseCount": 169,
+        "observedCaseSeconds": "513.619481",
+        "sortedIdsSha256": "1503e980e8bd3189a65663e275166274a3f2ef2f1c7775fe0faaaf124e84b257"
+      },
+      {
+        "partition": "legacy-runtime",
+        "predecessorCaseCount": 3811,
+        "observedCaseSeconds": "212.584549",
+        "sortedIdsSha256": "29b2308b95a75d6b585081d7a9ea05df9f66c936b2cdc7a3f8e0768f70341b10"
+      }
+    ],
+    "longestCase": {
+      "id": "BlackOps\\Tests\\Architecture\\AuditOperationReadArchitectureTest::testTokenAwareOracleRejectsArchitectureMutationsAndKeepsFalsePositives",
+      "seconds": "831.224429"
+    },
+    "newCheckpointPartitionDuration": null,
+    "onlyAllowedRename": {
+      "from": "BlackOps\\Tests\\Internal\\Projection\\Command\\CommandProjectionTargetRegistryTest::testFrameworkNamesAreTheCurrentTwentyNineOnly",
+      "to": "BlackOps\\Tests\\Internal\\Projection\\Command\\CommandProjectionTargetRegistryTest::testFrameworkNamesAreTheCurrentThirtyOnly"
+    }
+  },
+  "ciCandidate": {
+    "changedWorkflow": ".github/workflows/ci.yml",
+    "requiredAggregateId": "quality",
+    "requiredAggregateName": "Mago, PHPUnit, and Deptrac",
+    "aggregateTimeoutMinutes": 30,
+    "needs": [
+      "quality-static",
+      "quality-package",
+      "quality-phpunit",
+      "quality-vectors",
+      "audit-authority-native"
+    ],
+    "expectedProducerArtifactCount": 11,
+    "phpPartitions": [
+      "legacy-heavy",
+      "legacy-architecture",
+      "legacy-runtime",
+      "checkpoint-production"
+    ],
+    "phpMatrixTimeoutMinutes": 30,
+    "phpMemoryLimit": "512M",
+    "nativeSuites": [
+      "io",
+      "durability",
+      "interruption",
+      "cold"
+    ],
+    "nativeMatrixTimeoutMinutes": 30,
+    "vectorsTimeoutMinutes": 20,
+    "rejectResults": [
+      "failure",
+      "cancelled",
+      "skipped",
+      "missing"
+    ],
+    "unrelatedJobsUnchanged": [
+      "community-board-clean-install",
+      "community-board-foundation",
+      "frontend",
+      "framework-update-runtime",
+      "website"
+    ],
+    "actualFutureExecutionStatus": "not_run"
+  },
+  "pendingExternalImport": {
+    "owner": "/root/f5_native_contract_plan",
+    "path": "online-delegate-checkpoint-issuance-r1.md",
+    "binding": "Exact online snapshot/key/seed and private purpose-specific delegate constructors, methods and callers; source names/fixture calls must bind after freeze",
+    "inventedFallback": false
+  },
+  "bookkeepingOnly": [
+    "read selected source/proposal bytes",
+    "parsed retained XML/JSON and matched all3986 identities",
+    "summed already recorded per-case durations",
+    "checked exact proposed path existence/absence and native run counts",
+    "hashed selected inputs and candidate output"
+  ],
+  "notExecuted": [
+    "PHP",
+    "Node",
+    "PHPUnit/tests",
+    "compiler/native probe",
+    "Docker",
+    "PostgreSQL/DB",
+    "Git",
+    "network"
+  ],
+  "unchangedByThisLane": [
+    "Product",
+    "test/fixture/tool implementation",
+    "workflow",
+    "migration",
+    "governance/STATE",
+    "all earlier frozen evidence"
+  ],
+  "output": {
+    "root": "E13",
+    "path": "checkpoint-test-ci-bindings-r1.md",
+    "bytes": 54451,
+    "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+  }
+}

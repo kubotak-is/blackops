@@ -1,0 +1,19 @@
+{
+  "status": "Candidate only; no authority adoption or Product issuance",
+  "createdAt": "2026-10-14T10:02:39+09:00",
+  "diffSha256": "0be04105dd4a7aa250e5be040445fb5d9007f91a10c052817feac36f8d48f143",
+  "files": [
+    {
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "beforeSha256": "044639432fd345d0bd023825d5183c7b0735b26a27a437ecae325d183048997e",
+      "candidateSha256": "c028a81608c0a20f6eb2b3e2919c2562f4fe50870372ade2047a0c9d8b3b8a02"
+    },
+    {
+      "path": "develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "beforeSha256": "d051046774398dad0e18bcfa971bfd756e2b55a856bf7ad71c97929f56406fef",
+      "candidateSha256": "a50834a5cb3c1da927b2fc09d04bd6016d5a2410412661cb42807ba85412f72b"
+    }
+  ],
+  "frozenTypeClosureSha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+  "remainingReview": "HT-01/02 correction plus this narrow Reader/preload promotion delta"
+}

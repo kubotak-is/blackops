@@ -1,0 +1,4117 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent affected verification review r2",
+  "owner": "/root/f5_native_contract_plan",
+  "status": "changes_required_one_finite_intro_consistency_finding",
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013"
+  },
+  "rootReportedBase": "ba026679c258a48414e5dd39d3551d9c1913cb51 at current STATE; no Git verification",
+  "gitIndependentlyVerified": false,
+  "selectedInputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1.md",
+      "before": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+        "bytes": 54451
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1-inputs.json",
+      "before": {
+        "bytes": 40776,
+        "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+        "bytes": 40776
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 40776,
+        "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r1.md",
+      "before": {
+        "bytes": 23157,
+        "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec",
+        "bytes": 23157
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 23157,
+        "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r1-inputs.json",
+      "before": {
+        "bytes": 61052,
+        "sha256": "d344dc8f7fca65d4daeb46c3819b4b7d656917067125a40aadea1cd3aa25057b"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "d344dc8f7fca65d4daeb46c3819b4b7d656917067125a40aadea1cd3aa25057b",
+        "bytes": 61052
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 61052,
+        "sha256": "d344dc8f7fca65d4daeb46c3819b4b7d656917067125a40aadea1cd3aa25057b"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-production-verification-packet-r1.md",
+      "before": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+        "bytes": 11675
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.md",
+      "before": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+        "bytes": 41271
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.json",
+      "before": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+        "bytes": 527107
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-issuance-candidate-r1.md",
+      "before": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+        "bytes": 11494
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1.md",
+      "before": {
+        "bytes": 48741,
+        "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+        "bytes": 48741
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 48741,
+        "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-history-type-closure-r1-inputs.json",
+      "before": {
+        "bytes": 14750,
+        "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854",
+        "bytes": 14750
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 14750,
+        "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1.md",
+      "before": {
+        "bytes": 88993,
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+        "bytes": 88993
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 88993,
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2.md",
+      "before": {
+        "bytes": 41493,
+        "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+        "bytes": 41493
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 41493,
+        "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2-inputs.json",
+      "before": {
+        "bytes": 52625,
+        "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478",
+        "bytes": 52625
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 52625,
+        "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md",
+      "before": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+        "bytes": 35267
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-proposal-r2.md",
+      "before": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+        "bytes": 8844
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-review-r2.md",
+      "before": {
+        "bytes": 5723,
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37",
+        "bytes": 5723
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 5723,
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-driver.php",
+      "before": {
+        "bytes": 8795,
+        "sha256": "5d591d0f8939ea8847902f4c5f5143a5625e0c0cc6c8f3e0f53b9043e51808f5"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "5d591d0f8939ea8847902f4c5f5143a5625e0c0cc6c8f3e0f53b9043e51808f5",
+        "bytes": 8795
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 8795,
+        "sha256": "5d591d0f8939ea8847902f4c5f5143a5625e0c0cc6c8f3e0f53b9043e51808f5"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-probe.c",
+      "before": {
+        "bytes": 5356,
+        "sha256": "1c57d1d905e5b5893f4de4fe2fd02ce6af6d64b2a17ef974587d5f45e30ded0e"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "1c57d1d905e5b5893f4de4fe2fd02ce6af6d64b2a17ef974587d5f45e30ded0e",
+        "bytes": 5356
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 5356,
+        "sha256": "1c57d1d905e5b5893f4de4fe2fd02ce6af6d64b2a17ef974587d5f45e30ded0e"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-runner.py",
+      "before": {
+        "bytes": 5284,
+        "sha256": "a2592fb5a06fd314b875ed9aef04976cb3647778522b3ff299d031a5af04e351"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "a2592fb5a06fd314b875ed9aef04976cb3647778522b3ff299d031a5af04e351",
+        "bytes": 5284
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 5284,
+        "sha256": "a2592fb5a06fd314b875ed9aef04976cb3647778522b3ff299d031a5af04e351"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/calibrate-r3-result.json",
+      "before": {
+        "bytes": 30963,
+        "sha256": "59b4f099123b6f14a2c6bbebdbe157c72a23f37d2b2b75847d3dc786089a14bf"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "59b4f099123b6f14a2c6bbebdbe157c72a23f37d2b2b75847d3dc786089a14bf",
+        "bytes": 30963
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 30963,
+        "sha256": "59b4f099123b6f14a2c6bbebdbe157c72a23f37d2b2b75847d3dc786089a14bf"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/calibrate-r4-result.json",
+      "before": {
+        "bytes": 16371,
+        "sha256": "8766d20f7e2e30789da5a1003ec3f9eb49b032c016af4c47062b6f98ed1c7565"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "8766d20f7e2e30789da5a1003ec3f9eb49b032c016af4c47062b6f98ed1c7565",
+        "bytes": 16371
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 16371,
+        "sha256": "8766d20f7e2e30789da5a1003ec3f9eb49b032c016af4c47062b6f98ed1c7565"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+        "bytes": 10392
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/.github/workflows/ci.yml",
+      "before": {
+        "bytes": 13200,
+        "sha256": "d8f36f3fdabf7b51a20d8b469393c762d762139e922f94584ee688e4133f0d28"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "d8f36f3fdabf7b51a20d8b469393c762d762139e922f94584ee688e4133f0d28",
+        "bytes": 13200
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 13200,
+        "sha256": "d8f36f3fdabf7b51a20d8b469393c762d762139e922f94584ee688e4133f0d28"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/phpunit.xml",
+      "before": {
+        "bytes": 492,
+        "sha256": "e52021086875cccf296f2b97c03e8e7268c7c5e9f75cc0f1436c7daa5c60ae1d"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "e52021086875cccf296f2b97c03e8e7268c7c5e9f75cc0f1436c7daa5c60ae1d",
+        "bytes": 492
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 492,
+        "sha256": "e52021086875cccf296f2b97c03e8e7268c7c5e9f75cc0f1436c7daa5c60ae1d"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mise.toml",
+      "before": {
+        "bytes": 67,
+        "sha256": "a5bc98ebca9ccbe3939eed8747f41be9f58cdb60fedba7945cb46ec7892491c6"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "a5bc98ebca9ccbe3939eed8747f41be9f58cdb60fedba7945cb46ec7892491c6",
+        "bytes": 67
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 67,
+        "sha256": "a5bc98ebca9ccbe3939eed8747f41be9f58cdb60fedba7945cb46ec7892491c6"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/Dockerfile",
+      "before": {
+        "bytes": 764,
+        "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62",
+        "bytes": 764
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 764,
+        "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/compose.yaml",
+      "before": {
+        "bytes": 1636,
+        "sha256": "bcca4ac25247f5c21f430d0b00021aa2ade4deff6186e5e103bdcdf0173c4d92"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "bcca4ac25247f5c21f430d0b00021aa2ade4deff6186e5e103bdcdf0173c4d92",
+        "bytes": 1636
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 1636,
+        "sha256": "bcca4ac25247f5c21f430d0b00021aa2ade4deff6186e5e103bdcdf0173c4d92"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.json",
+      "before": {
+        "bytes": 2385,
+        "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d",
+        "bytes": 2385
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 2385,
+        "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Application/ApplicationAuditConfigurationTest.php",
+      "before": {
+        "bytes": 6637,
+        "sha256": "69a9e965943b03dbc4673d10b5e097c81cd8dd6ea26a34274ae60d877dfaf487"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "69a9e965943b03dbc4673d10b5e097c81cd8dd6ea26a34274ae60d877dfaf487",
+        "bytes": 6637
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 6637,
+        "sha256": "69a9e965943b03dbc4673d10b5e097c81cd8dd6ea26a34274ae60d877dfaf487"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactScalar.php",
+      "before": {
+        "bytes": 1913,
+        "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946"
+      },
+      "reviewedAuthorExpected": {
+        "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946",
+        "bytes": 1913
+      },
+      "matchesAuthorPin": true,
+      "after": {
+        "bytes": 1913,
+        "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946"
+      },
+      "unchanged": true
+    },
+    {
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 9988,
+        "sha256": "dd98d30e3706e3766bade50d87c9875922d2fd157d12c5d00c865f2b9857589f"
+      },
+      "after": {
+        "bytes": 8302,
+        "sha256": "215c9046b0b8e4d5297e9a145e1aa5952d664b30d4208e5c2c724fdaf357eb67"
+      },
+      "unchanged": false,
+      "driftClassification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 34449,
+        "sha256": "51ac2ab7155dd6763fb607c54d96b387549d4dfd1ff97b29b306052e61332430"
+      },
+      "after": {
+        "bytes": 34442,
+        "sha256": "0e66923251d52c8aa807ec588e32a4243fb40330fd73b8b2de09e7b9b4e1fc1f"
+      },
+      "unchanged": false,
+      "driftClassification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/.codex/config.toml",
+      "before": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "after": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/STATE.md",
+      "before": {
+        "bytes": 9988,
+        "sha256": "20722cc1d9785796b0f968a9d854fcf587d044af129fb4e6b7903f36d409bf3a"
+      },
+      "after": {
+        "bytes": 8302,
+        "sha256": "31660f23ecddf65bdf0bfe423230944c40f75fb2f18340aef359163edfef375d"
+      },
+      "unchanged": false,
+      "driftClassification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 34449,
+        "sha256": "51ac2ab7155dd6763fb607c54d96b387549d4dfd1ff97b29b306052e61332430"
+      },
+      "after": {
+        "bytes": 34442,
+        "sha256": "0e66923251d52c8aa807ec588e32a4243fb40330fd73b8b2de09e7b9b4e1fc1f"
+      },
+      "unchanged": false,
+      "driftClassification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/README.md",
+      "before": {
+        "bytes": 46481,
+        "sha256": "1257ca6efda0eef6606cde30bcf4143ec464d6310a9fda886e00f3e6ffe36044"
+      },
+      "after": {
+        "bytes": 46481,
+        "sha256": "1257ca6efda0eef6606cde30bcf4143ec464d6310a9fda886e00f3e6ffe36044"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/109-ai-development-workflow.md",
+      "before": {
+        "bytes": 13331,
+        "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb"
+      },
+      "after": {
+        "bytes": 13331,
+        "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/release-authority.json",
+      "before": {
+        "bytes": 6385,
+        "sha256": "bfdc4ac892bfcf41ce499d73301eb8bfd8232bd723cd4ca3a804e6dfbbd44b43"
+      },
+      "after": {
+        "bytes": 6385,
+        "sha256": "bfdc4ac892bfcf41ce499d73301eb8bfd8232bd723cd4ca3a804e6dfbbd44b43"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2.md",
+      "before": {
+        "bytes": 45277,
+        "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39"
+      },
+      "after": {
+        "bytes": 45277,
+        "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-correction-r2-inputs.json",
+      "before": {
+        "bytes": 177287,
+        "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807"
+      },
+      "after": {
+        "bytes": 177287,
+        "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r2.md",
+      "before": {
+        "bytes": 13687,
+        "sha256": "939e594aa673a11416109e03c541514a9c6618b4adb661f8deffd6f164c9e225"
+      },
+      "after": {
+        "bytes": 13687,
+        "sha256": "939e594aa673a11416109e03c541514a9c6618b4adb661f8deffd6f164c9e225"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r2-inputs.json",
+      "before": {
+        "bytes": 33988,
+        "sha256": "1f4326128278657bca6d98115d561e0440a04269087a382814c89caf1df177a8"
+      },
+      "after": {
+        "bytes": 33988,
+        "sha256": "1f4326128278657bca6d98115d561e0440a04269087a382814c89caf1df177a8"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030920550572-full/full.xml",
+      "before": {
+        "bytes": 1559132,
+        "sha256": "efbe6ae85b2aab8734fba8877e12531611aac37448894cfccf238035639784f8"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 1559132,
+        "sha256": "efbe6ae85b2aab8734fba8877e12531611aac37448894cfccf238035639784f8"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030054341168-discovery/test-inventory.xml",
+      "before": {
+        "bytes": 1443072,
+        "sha256": "f1bcd4f51df140845b6b0c1aeb8925cbe809aaf84864100eeabb2d9b8b8e7650"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 1443072,
+        "sha256": "f1bcd4f51df140845b6b0c1aeb8925cbe809aaf84864100eeabb2d9b8b8e7650"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030920550572-full/receipt.json",
+      "before": {
+        "bytes": 1257,
+        "sha256": "f8a38ed54825f87b704ee6ef7afce59c51e98b7d8915b3adb42cd6cdd3f312aa"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 1257,
+        "sha256": "f8a38ed54825f87b704ee6ef7afce59c51e98b7d8915b3adb42cd6cdd3f312aa"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Help.php",
+      "before": {
+        "bytes": 26167,
+        "sha256": "1bf0915a319f8b3ad41064a2db81a76a4ed195fcd6c9b2421266ffacec56e81a"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 26167,
+        "sha256": "1bf0915a319f8b3ad41064a2db81a76a4ed195fcd6c9b2421266ffacec56e81a"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Configuration/Cli/Builder.php",
+      "before": {
+        "bytes": 44202,
+        "sha256": "92c413ba74ee0394b0322c0e519883c6820c2a334f9e70d5b725774ba2a274cd"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 44202,
+        "sha256": "92c413ba74ee0394b0322c0e519883c6820c2a334f9e70d5b725774ba2a274cd"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/TestSuiteFilterProcessor.php",
+      "before": {
+        "bytes": 4029,
+        "sha256": "ddf56ee3d1e796f955b0dae37df368df7d37316ae5cff187b6f2331d6ad5943d"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 4029,
+        "sha256": "ddf56ee3d1e796f955b0dae37df368df7d37316ae5cff187b6f2331d6ad5943d"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestIdsCommand.php",
+      "before": {
+        "bytes": 1133,
+        "sha256": "3b90f7b7d56518b44c194a0fac51dad539ded93855148a516a381e7559653e88"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 1133,
+        "sha256": "3b90f7b7d56518b44c194a0fac51dad539ded93855148a516a381e7559653e88"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestsAsXmlCommand.php",
+      "before": {
+        "bytes": 3898,
+        "sha256": "bb1c06cc2db3c08afb6db65f5a867784357cc79780b035aa25418045c1e75db7"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 3898,
+        "sha256": "bb1c06cc2db3c08afb6db65f5a867784357cc79780b035aa25418045c1e75db7"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/Runner/Filter/TestIdFilterIterator.php",
+      "before": {
+        "bytes": 1726,
+        "sha256": "c8bff0d1d8f3282525dc58fb4ee746271e01471f980e699d65d799da0db1f845"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 1726,
+        "sha256": "c8bff0d1d8f3282525dc58fb4ee746271e01471f980e699d65d799da0db1f845"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/Event/Value/Test/TestMethod.php",
+      "before": {
+        "bytes": 3486,
+        "sha256": "6fb632a73b98985bfe972167addd8a906eb81a9c483246ca72b93f4acbe49d5e"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 3486,
+        "sha256": "6fb632a73b98985bfe972167addd8a906eb81a9c483246ca72b93f4acbe49d5e"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/Logging/JUnit/JunitXmlLogger.php",
+      "before": {
+        "bytes": 14821,
+        "sha256": "11558f5115dda3b8f32ada7ef3bc80d722b3df9894e6ea02f6072972510c91b4"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 14821,
+        "sha256": "11558f5115dda3b8f32ada7ef3bc80d722b3df9894e6ea02f6072972510c91b4"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Application.php",
+      "before": {
+        "bytes": 32767,
+        "sha256": "020340289ffb63883f19459755dbe457476696ba58ef64eb8b585bf764d4eb54"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 32767,
+        "sha256": "020340289ffb63883f19459755dbe457476696ba58ef64eb8b585bf764d4eb54"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030920550572-full/output.log",
+      "before": {
+        "bytes": 18818,
+        "sha256": "45d0095571cad13fcd2537c69c803fc568e4cbe31c63b0817097a42034e645ad"
+      },
+      "basis": "Hash-matched unchanged predecessor/filter implementation input from prior independent review; no new execution or repeat XML derivation.",
+      "after": {
+        "bytes": 18818,
+        "sha256": "45d0095571cad13fcd2537c69c803fc568e4cbe31c63b0817097a42034e645ad"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "before": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditAnchorStateArchitectureTest.php",
+      "before": {
+        "bytes": 215817,
+        "sha256": "8ea140b2ea6f9b70efc9fd7a7ddad3d202d122865d4368226cc2706caca3cb2b"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 215817,
+        "sha256": "8ea140b2ea6f9b70efc9fd7a7ddad3d202d122865d4368226cc2706caca3cb2b"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "before": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "before": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "before": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditOutboxStorageArchitectureTest.php",
+      "before": {
+        "bytes": 84770,
+        "sha256": "385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 84770,
+        "sha256": "385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditPublicApiTest.php",
+      "before": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "before": {
+        "bytes": 254508,
+        "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 254508,
+        "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRelayArchitectureTest.php",
+      "before": {
+        "bytes": 119159,
+        "sha256": "3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 119159,
+        "sha256": "3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditStoreArchitectureTest.php",
+      "before": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/PublicApiArchitectureTest.php",
+      "before": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Integration/ApplicationConsoleKernelTest.php",
+      "before": {
+        "bytes": 21535,
+        "sha256": "f6a714826b87dc86d672cb1c6e247a98a58bd26f74c8dd982444c3a3da2e753b"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 21535,
+        "sha256": "f6a714826b87dc86d672cb1c6e247a98a58bd26f74c8dd982444c3a3da2e753b"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+      "before": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Application/ApplicationCommandDiscoveryIntegrationTest.php",
+      "before": {
+        "bytes": 18436,
+        "sha256": "e7ea360cd4a57ffd8d8e48c5e026c15e95d81f9f02809c1c75dd0addcf11d72f"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 18436,
+        "sha256": "e7ea360cd4a57ffd8d8e48c5e026c15e95d81f9f02809c1c75dd0addcf11d72f"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Application/ApplicationConsoleKernelTest.php",
+      "before": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStorePostgreSqlTest.php",
+      "before": {
+        "bytes": 188058,
+        "sha256": "2e490f24c9e1fef4502eed41c106c3ea5165c70cbbbbfbfae50dc1196e7c9075"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 188058,
+        "sha256": "2e490f24c9e1fef4502eed41c106c3ea5165c70cbbbbfbfae50dc1196e7c9075"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Console/ApplicationCommandCollisionValidatorTest.php",
+      "before": {
+        "bytes": 9170,
+        "sha256": "4411871868c253fe0e30ebb18ed272425d035ee00e3d0d23d7612b862952c799"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 9170,
+        "sha256": "4411871868c253fe0e30ebb18ed272425d035ee00e3d0d23d7612b862952c799"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Console/DatabaseMigrationCommandTest.php",
+      "before": {
+        "bytes": 9990,
+        "sha256": "7c1fb597a8ee0ee102069efd3a98b0ed14c54cbc3ba75cbff54498a71fa82e63"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 9990,
+        "sha256": "7c1fb597a8ee0ee102069efd3a98b0ed14c54cbc3ba75cbff54498a71fa82e63"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Migration/ConfigurablePostgreSqlMigrationFactoryTest.php",
+      "before": {
+        "bytes": 2604,
+        "sha256": "c6c0fcf1b407a58d9ac02c87352ee8575a1c2fee65f7b859dad48537e2e4bca9"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 2604,
+        "sha256": "c6c0fcf1b407a58d9ac02c87352ee8575a1c2fee65f7b859dad48537e2e4bca9"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Migration/DatabaseMigrationRunnerTest.php",
+      "before": {
+        "bytes": 65329,
+        "sha256": "07881ec730486123f012f521a015365dbea0e50cd209a715725b393f8345293c"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 65329,
+        "sha256": "07881ec730486123f012f521a015365dbea0e50cd209a715725b393f8345293c"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Migration/PostgreSqlMigrationSchemaTest.php",
+      "before": {
+        "bytes": 1440,
+        "sha256": "e79572d8b735b1f91334d368b7ebf43915b5096882466aae6a57f6361d775af8"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 1440,
+        "sha256": "e79572d8b735b1f91334d368b7ebf43915b5096882466aae6a57f6361d775af8"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Projection/Command/CommandProjectionListCommandTest.php",
+      "before": {
+        "bytes": 28967,
+        "sha256": "2f7adc7c99ca576242fdfd907d35a26bca58fc247e9e5ed6581e8b2cd48fcef7"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 28967,
+        "sha256": "2f7adc7c99ca576242fdfd907d35a26bca58fc247e9e5ed6581e8b2cd48fcef7"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Projection/Command/CommandProjectionProducerTest.php",
+      "before": {
+        "bytes": 6163,
+        "sha256": "251d099df3e6ff37332145e7a1ed161c137969335246d61af3927a8914f907ba"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 6163,
+        "sha256": "251d099df3e6ff37332145e7a1ed161c137969335246d61af3927a8914f907ba"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Projection/Command/CommandProjectionTargetRegistryTest.php",
+      "before": {
+        "bytes": 13279,
+        "sha256": "367057fac16647adced613952054c79ca6ec53023c1b573beb9d9a4f5aad032c"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 13279,
+        "sha256": "367057fac16647adced613952054c79ca6ec53023c1b573beb9d9a4f5aad032c"
+      },
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Scheduler/MaintenanceSchedulerTest.php",
+      "before": {
+        "bytes": 7726,
+        "sha256": "cb9eeff78df3b65e0c883c9a317ded1b215391a4559ca86e42bd70769c85c32d"
+      },
+      "basis": "Exact existing26 path source pin; text/hash only, no test execution.",
+      "after": {
+        "bytes": 7726,
+        "sha256": "cb9eeff78df3b65e0c883c9a317ded1b215391a4559ca86e42bd70769c85c32d"
+      },
+      "unchanged": true
+    }
+  ],
+  "selectedInputCount": 81,
+  "firstPinAt": "2026-10-14T00:54:52.416640+00:00",
+  "pinTiming": "After initial targeted scope/finding/author reads, before review conclusions; all30 author-selected hashes independently matched.",
+  "ownedOutputs": [
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r2.md",
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r2-inputs.json"
+  ],
+  "independence": {
+    "reviewedAuthor": "/root/f4_shared_source_inventory",
+    "ownCryptoProtocol": "dependency independently reviewed by f3; not accepted here",
+    "pendingHistoryTypeFindings": "HT-01/02 separately assigned; no closure inferred here"
+  },
+  "notRun": [
+    "Git",
+    "PHP",
+    "Node",
+    "tests",
+    "native children",
+    "compiler",
+    "Docker/container",
+    "database",
+    "network"
+  ],
+  "productModified": false,
+  "governanceModified": false,
+  "originalEvidenceModified": false,
+  "memoryUse": {
+    "source": "MEMORY.md:24-31",
+    "note": "Contract/native calibration does not establish Product Acceptance; current reviewed source and scope verified separately",
+    "rolloutId": "01a0d0c8-2f24-7751-9900-0ffaf5a6867d"
+  },
+  "independentLiteralChecks": {
+    "newPaths": 35,
+    "existingPaths": 26,
+    "newPathsExactlyMatchFrozenUnionAndMarkdown": true,
+    "newPathsAllAbsent": true,
+    "existingPathsAllPresent": true,
+    "existingDeltaExactlyApprovedOnePath": true,
+    "newExistingDisjoint": true,
+    "literalNewPaths": [
+      "tests/Architecture/AuditAuthorityArchitectureTest.php",
+      "tests/Architecture/AuditAuthorityHistoryArchitectureTest.php",
+      "tests/Architecture/AuditCheckpointProductionArchitectureTest.php",
+      "tests/Architecture/AuditControlInstallationArchitectureTest.php",
+      "tests/Architecture/AuditProvenanceArchitectureTest.php",
+      "tests/Internal/Application/ApplicationAuditCheckpointCompositionTest.php",
+      "tests/Internal/Application/ApplicationAuditControlInstallationIntegrationTest.php",
+      "tests/Internal/Application/ApplicationRetentionRuntimeTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityDocumentCodecTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityJsonPreflightTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityProvenanceVectorTest.php",
+      "tests/Internal/Audit/Authority/AuditCheckpointCandidateSignerTest.php",
+      "tests/Internal/Audit/Authority/AuditCheckpointPhaseAcquisitionTest.php",
+      "tests/Internal/Audit/Authority/AuditSigningImportNativeIntegrationTest.php",
+      "tests/Internal/Audit/Authority/Custody/AuditControlDelegateCustodyTest.php",
+      "tests/Internal/Audit/Authority/History/AuditCheckpointArtifactReplayTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryCapturePostgreSqlTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryGrammarTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "tests/Internal/Audit/Control/AuditControlInstallationPublicationTest.php",
+      "tests/Internal/Audit/Provenance/AuditCheckpointAmbiguityPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/AuditCheckpointConcurrencyPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointProductionTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditControlInstallationPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaTest.php",
+      "tests/Internal/Audit/Signing/AuditCheckpointOnlineChecksTest.php",
+      "tests/Internal/Audit/Signing/AuditOnlineAcquisitionTest.php",
+      "tests/Internal/Audit/Signing/AuditOnlineConfigurationTest.php",
+      "tests/Internal/Audit/Signing/OrdinaryAuditSignCompositionPostgreSqlTest.php",
+      "tests/Internal/Console/AuditControlPublishCommandTest.php",
+      "tests/Internal/Tooling/PhpUnitPartitionTest.php"
+    ],
+    "literalExistingPaths": [
+      "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "tests/Architecture/AuditAnchorStateArchitectureTest.php",
+      "tests/Architecture/AuditArtifactArchitectureTest.php",
+      "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "tests/Architecture/AuditOutboxStorageArchitectureTest.php",
+      "tests/Architecture/AuditPublicApiTest.php",
+      "tests/Architecture/AuditRecordArchitectureTest.php",
+      "tests/Architecture/AuditRelayArchitectureTest.php",
+      "tests/Architecture/AuditStoreArchitectureTest.php",
+      "tests/Architecture/PublicApiArchitectureTest.php",
+      "tests/Integration/ApplicationConsoleKernelTest.php",
+      "tests/Internal/Application/ApplicationAuditConfigurationTest.php",
+      "tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+      "tests/Internal/Application/ApplicationCommandDiscoveryIntegrationTest.php",
+      "tests/Internal/Application/ApplicationConsoleKernelTest.php",
+      "tests/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStorePostgreSqlTest.php",
+      "tests/Internal/Console/ApplicationCommandCollisionValidatorTest.php",
+      "tests/Internal/Console/DatabaseMigrationCommandTest.php",
+      "tests/Internal/Migration/ConfigurablePostgreSqlMigrationFactoryTest.php",
+      "tests/Internal/Migration/DatabaseMigrationRunnerTest.php",
+      "tests/Internal/Migration/PostgreSqlMigrationSchemaTest.php",
+      "tests/Internal/Projection/Command/CommandProjectionListCommandTest.php",
+      "tests/Internal/Projection/Command/CommandProjectionProducerTest.php",
+      "tests/Internal/Projection/Command/CommandProjectionTargetRegistryTest.php",
+      "tests/Internal/Scheduler/MaintenanceSchedulerTest.php"
+    ],
+    "nativeBases": 27,
+    "nativeRunCount": 58,
+    "nativeRunIdsExactlyMatchPredecessorBinder": true,
+    "nativeRunIdsUnique": true,
+    "nativeCounts": {
+      "io": 14,
+      "durability": 18,
+      "interruption": 18,
+      "cold": 8
+    },
+    "allFixtureEntriesArgumentsReceiptPathsMatch": true,
+    "allProductCallExpectedReachedFieldsBoolean": true,
+    "coldActualAssemblyOnlyInitializedOrLate": true,
+    "nodesExactlyUnchanged": true,
+    "ciExactlyUnchanged": true,
+    "measuredPredecessorExactlyUnchanged": true
+  },
+  "reusedUnchangedPredecessorInputs": [
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030920550572-full/full.xml",
+      "sha256": "efbe6ae85b2aab8734fba8877e12531611aac37448894cfccf238035639784f8"
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030054341168-discovery/test-inventory.xml",
+      "sha256": "f1bcd4f51df140845b6b0c1aeb8925cbe809aaf84864100eeabb2d9b8b8e7650"
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030920550572-full/receipt.json",
+      "sha256": "f8a38ed54825f87b704ee6ef7afce59c51e98b7d8915b3adb42cd6cdd3f312aa"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Help.php",
+      "sha256": "1bf0915a319f8b3ad41064a2db81a76a4ed195fcd6c9b2421266ffacec56e81a"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Configuration/Cli/Builder.php",
+      "sha256": "92c413ba74ee0394b0322c0e519883c6820c2a334f9e70d5b725774ba2a274cd"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/TestSuiteFilterProcessor.php",
+      "sha256": "ddf56ee3d1e796f955b0dae37df368df7d37316ae5cff187b6f2331d6ad5943d"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestIdsCommand.php",
+      "sha256": "3b90f7b7d56518b44c194a0fac51dad539ded93855148a516a381e7559653e88"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestsAsXmlCommand.php",
+      "sha256": "bb1c06cc2db3c08afb6db65f5a867784357cc79780b035aa25418045c1e75db7"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/Runner/Filter/TestIdFilterIterator.php",
+      "sha256": "c8bff0d1d8f3282525dc58fb4ee746271e01471f980e699d65d799da0db1f845"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/Event/Value/Test/TestMethod.php",
+      "sha256": "6fb632a73b98985bfe972167addd8a906eb81a9c483246ca72b93f4acbe49d5e"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/Logging/JUnit/JunitXmlLogger.php",
+      "sha256": "11558f5115dda3b8f32ada7ef3bc80d722b3df9894e6ea02f6072972510c91b4"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/phpunit/phpunit/src/TextUI/Application.php",
+      "sha256": "020340289ffb63883f19459755dbe457476696ba58ef64eb8b585bf764d4eb54"
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/run-20261012T030920550572-full/output.log",
+      "sha256": "45d0095571cad13fcd2537c69c803fc568e4cbe31c63b0817097a42034e645ad"
+    }
+  ],
+  "reviewedNativeRows": [
+    {
+      "suite": "io",
+      "runId": "permission-mode/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-mode",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyIdentity.php",
+          "method": "checkConfiguredPath",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_EX|LOCK_NB); corresponding LOCK_UN",
+        "expectedSelectedHitsAndResults": "EX1 success; UN1 success",
+        "expectedInterventions": 0,
+        "independentWitness": "target mode0600 control /0644 exercise after valid config; exact inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "io/permission-mode/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "permission-mode/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-mode",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyIdentity.php",
+          "method": "checkConfiguredPath",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_EX|LOCK_NB); corresponding LOCK_UN",
+        "expectedSelectedHitsAndResults": "EX0; UN0; fresh actual permission rejection before lock",
+        "expectedInterventions": 0,
+        "independentWitness": "target mode0600 control /0644 exercise after valid config; exact inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "io/permission-mode/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "permission-erofs/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-erofs",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "open|open64|openat|openat64 target existing floor",
+        "expectedSelectedHitsAndResults": "1 success; then EX1/UN1",
+        "expectedInterventions": 0,
+        "independentWitness": "read-only bind mount; actual kernel errno; existing0600 inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "io/permission-erofs/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "permission-erofs/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "permission-erofs",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "open|open64|openat|openat64 target existing floor",
+        "expectedSelectedHitsAndResults": "1 -1 EROFS; EX0/write0",
+        "expectedInterventions": 0,
+        "independentWitness": "read-only bind mount; actual kernel errno; existing0600 inode/bytes unchanged",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "io/permission-erofs/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "scratch-enospc/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "scratch-enospc",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "same full32MiB tmpfs; separately owned filler; target anonymous nlink0,size0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "io/scratch-enospc/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "scratch-enospc/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "scratch-enospc",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 -1 ENOSPC; no later data write",
+        "expectedInterventions": 0,
+        "independentWitness": "same full32MiB tmpfs; separately owned filler; target anonymous nlink0,size0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "io/scratch-enospc/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "durable-enospc/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "durable-enospc",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8; truncate/flush/fsync complete",
+        "expectedInterventions": 0,
+        "independentWitness": "actual no-space filler; same empty0600 nlink1 target inode",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "io/durable-enospc/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "durable-enospc/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "durable-enospc",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 -1 ENOSPC; truncate0/sync0",
+        "expectedInterventions": 0,
+        "independentWitness": "actual no-space filler; same empty0600 nlink1 target inode",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "io/durable-enospc/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "short-write-progress/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "short-write-progress",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "original exact8-byte SHA/length; actual offset8; nlink0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "io/short-write-progress/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "short-write-progress/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "short-write-progress",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "2 positive real effects4+4; owner returns complete8",
+        "expectedInterventions": 1,
+        "independentWitness": "original exact8-byte SHA/length; actual offset8; nlink0",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-short-write-completion",
+      "receiptPath": "io/short-write-progress/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "zero-write/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "zero-write",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "actual target size/offset0; no sealed result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "io/zero-write/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "zero-write/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "zero-write",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result0; no write retry",
+        "expectedInterventions": 1,
+        "independentWitness": "actual target size/offset0; no sealed result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "io/zero-write/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "partial-then-write-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "partial-then-write-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "1 result8",
+        "expectedInterventions": 0,
+        "independentWitness": "size4/prefix SHA/nlink0 before checked close; owner failure",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "io/partial-then-write-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "io",
+      "runId": "partial-then-write-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "io",
+        "arguments": [
+          "partial-then-write-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write",
+        "expectedSelectedHitsAndResults": "2: real prefix4 then-1 EIO; no third write",
+        "expectedInterventions": 2,
+        "independentWitness": "size4/prefix SHA/nlink0 before checked close; owner failure",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "io/partial-then-write-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "post-cast-flush-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "post-cast-flush-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fflush explicit post-cast second-writeDurably stage",
+        "expectedSelectedHitsAndResults": "1 success plus later internal-fsync flush separately labelled",
+        "expectedInterventions": 0,
+        "independentWitness": "real first successful writeDurably/fsync cast; same descriptor/inode; no durable result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/post-cast-flush-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "post-cast-flush-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "post-cast-flush-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fflush explicit post-cast second-writeDurably stage",
+        "expectedSelectedHitsAndResults": "1 EOF/EIO; later fsync0",
+        "expectedInterventions": 1,
+        "independentWitness": "real first successful writeDurably/fsync cast; same descriptor/inode; no durable result",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "durability/post-cast-flush-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "file-sync-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "file-sync-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync regular locked floor",
+        "expectedSelectedHitsAndResults": "1 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "full prior actual write/truncate/fflush; no durable result; UN/close once",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/file-sync-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "file-sync-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "file-sync-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync regular locked floor",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "full prior actual write/truncate/fflush; no durable result; UN/close once",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "durability/file-sync-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "immutable-file-sync-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "immutable-file-sync-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync readonly immutable policy descriptor",
+        "expectedSelectedHitsAndResults": "1 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "same original policy inode/hash/nlink; no write/truncate/link",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/immutable-file-sync-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "immutable-file-sync-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "immutable-file-sync-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync readonly immutable policy descriptor",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "same original policy inode/hash/nlink; no write/truncate/link",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "durability/immutable-file-sync-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "directory-sync-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "directory-sync-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync directory descriptor",
+        "expectedSelectedHitsAndResults": "1 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "actual directory inode and file namespace; regular fsync cannot count",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/directory-sync-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "directory-sync-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "directory-sync-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync directory descriptor",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "actual directory inode and file namespace; regular fsync cannot count",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "durability/directory-sync-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "seek-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "seek-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "seek",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "lseek|lseek64",
+        "expectedSelectedHitsAndResults": "1 result0 from actual offset8",
+        "expectedInterventions": 0,
+        "independentWitness": "anonymous nlink0/8 original bytes; failed transition prevents read/append/seal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/seek-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "seek-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "seek-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "seek",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "lseek|lseek64",
+        "expectedSelectedHitsAndResults": "1 -1 EIO",
+        "expectedInterventions": 1,
+        "independentWitness": "anonymous nlink0/8 original bytes; failed transition prevents read/append/seal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "durability/seek-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "truncate-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "truncate-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "ftruncate|ftruncate64",
+        "expectedSelectedHitsAndResults": "1 length8 result0",
+        "expectedInterventions": 0,
+        "independentWitness": "same initial10-byte inode; actual8-byte replacement prefix plus old2 suffix remains",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/truncate-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "truncate-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "truncate-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "ftruncate|ftruncate64",
+        "expectedSelectedHitsAndResults": "1 -1 EIO; later flush/fsync0",
+        "expectedInterventions": 1,
+        "independentWitness": "same initial10-byte inode; actual8-byte replacement prefix plus old2 suffix remains",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "durability/truncate-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "unlock-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "unlock-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_UN)",
+        "expectedSelectedHitsAndResults": "1 result0 then close1",
+        "expectedInterventions": 0,
+        "independentWitness": "actual original EX; close releases native lock; fresh independent contender acquires; original error wins",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/unlock-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "unlock-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "unlock-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock(LOCK_UN)",
+        "expectedSelectedHitsAndResults": "1 -1 EIO then close1; no retry",
+        "expectedInterventions": 1,
+        "independentWitness": "actual original EX; close releases native lock; fresh independent contender acquires; original error wins",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "durability/unlock-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "consumed-close-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "consumed-close-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fclose after successful fsync cast",
+        "expectedSelectedHitsAndResults": "1 real consume/result0",
+        "expectedInterventions": 0,
+        "independentWitness": "PHP resource invalid and native target fd0; earlier durability actual; not negative PASS",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/consumed-close-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "consumed-close-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "consumed-close-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fclose after successful fsync cast",
+        "expectedSelectedHitsAndResults": "1 real consume then EOF/EIO hidden by calibrated PHP",
+        "expectedInterventions": 1,
+        "independentWitness": "PHP resource invalid and native target fd0; earlier durability actual; not negative PASS",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "supported-consumed-hidden-error",
+      "receiptPath": "durability/consumed-close-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "nonconsuming-close-counterexample/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "nonconsuming-close-counterexample",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "close direct-descriptor readonly path",
+        "expectedSelectedHitsAndResults": "1 real consume/result0",
+        "expectedInterventions": 0,
+        "independentWitness": "PHP invalid but native fd1 before child exit; unsupported; process reap supplies final disposal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "durability/nonconsuming-close-counterexample/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "durability",
+      "runId": "nonconsuming-close-counterexample/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "durability",
+        "arguments": [
+          "nonconsuming-close-counterexample",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "readBounded",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "close direct-descriptor readonly path",
+        "expectedSelectedHitsAndResults": "1 -1 EIO without consume",
+        "expectedInterventions": 1,
+        "independentWitness": "PHP invalid but native fd1 before child exit; unsupported; process reap supplies final disposal",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "unsupported-nonconsuming-counterexample",
+      "receiptPath": "durability/nonconsuming-close-counterexample/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "process-control/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "process-control",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "readFloor",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock(EX|NB) success then barrier",
+        "expectedSelectedHitsAndResults": "EX1; release1; read success; UN1/close1; child0",
+        "expectedInterventions": 0,
+        "independentWitness": "actual held lock before kill; reaped PID; no fd and fresh contender lock succeeds",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/process-control/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "process-control/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "process-control",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "readFloor",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock(EX|NB) success then barrier",
+        "expectedSelectedHitsAndResults": "EX1; release0; SIGKILL1; UN0; no method return",
+        "expectedInterventions": 0,
+        "independentWitness": "actual held lock before kill; reaped PID; no fd and fresh contender lock succeeds",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "receiptPath": "interruption/process-control/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "scratch-unlink-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-unlink-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "unlink|unlinkat owned capture name",
+        "expectedSelectedHitsAndResults": "primary1 success; no cleanup unlink",
+        "expectedInterventions": 0,
+        "independentWitness": "before-error-return native barrier shows still-owned named0600 file; no payload; no H returned",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/scratch-unlink-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "scratch-unlink-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-unlink-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "unlink|unlinkat owned capture name",
+        "expectedSelectedHitsAndResults": "primary1 -1 EIO; one distinct managed cleanup unlink success",
+        "expectedInterventions": 1,
+        "independentWitness": "before-error-return native barrier shows still-owned named0600 file; no payload; no H returned",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "interruption/scratch-unlink-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "scratch-rmdir-error/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-rmdir-error",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "rmdir|unlinkat(AT_REMOVEDIR) owned empty capture dir",
+        "expectedSelectedHitsAndResults": "primary1 success; no cleanup rmdir",
+        "expectedInterventions": 0,
+        "independentWitness": "file already nlink0; dir descriptor closed; empty dir present before error return; no payload",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/scratch-rmdir-error/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "scratch-rmdir-error/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "scratch-rmdir-error",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "rmdir|unlinkat(AT_REMOVEDIR) owned empty capture dir",
+        "expectedSelectedHitsAndResults": "primary1 -1 EIO; one distinct managed cleanup rmdir success",
+        "expectedInterventions": 1,
+        "independentWitness": "file already nlink0; dir descriptor closed; empty dir present before error return; no payload",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "observable-owner-failure",
+      "receiptPath": "interruption/scratch-rmdir-error/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "two-process-lock-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "two-process-lock-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock across exactly two registered processes/new owners",
+        "expectedSelectedHitsAndResults": "EX attempts3:2 success/1 EWOULDBLOCK; UN2",
+        "expectedInterventions": 0,
+        "independentWitness": "P2 observes contention before release/death, then new owner succeeds after; no inherited descriptors",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/two-process-lock-death/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "two-process-lock-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "two-process-lock-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlLockedSession.php",
+          "method": "open",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditControlFloorSession.php",
+          "method": "finish",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "flock across exactly two registered processes/new owners",
+        "expectedSelectedHitsAndResults": "same EX3 success2/contention1; UN1; P1 SIGKILL1",
+        "expectedInterventions": 0,
+        "independentWitness": "P2 observes contention before release/death, then new owner succeeds after; no inherited descriptors",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "receiptPath": "interruption/two-process-lock-death/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "anonymous-capture-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "anonymous-capture-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write first8 to actual anonymous H then barrier",
+        "expectedSelectedHitsAndResults": "write1 result8; release1; flush/position/close checked",
+        "expectedInterventions": 0,
+        "independentWitness": "nlink0 and directory/name absent before payload; zero surviving owned PID/fd after reap",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/anonymous-capture-death/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "anonymous-capture-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "anonymous-capture-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPrivateHistoryFiles.php",
+          "method": "create",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "appendChunk",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditPrivateHistoryFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write first8 to actual anonymous H then barrier",
+        "expectedSelectedHitsAndResults": "write1 actual8; SIGKILL1 before method result",
+        "expectedInterventions": 0,
+        "independentWitness": "nlink0 and directory/name absent before payload; zero surviving owned PID/fd after reap",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "receiptPath": "interruption/anonymous-capture-death/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "floor-partial-write-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-partial-write-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write controlled positive prefix then barrier",
+        "expectedSelectedHitsAndResults": "prefix write1; release1; remaining write1; truncate/flush/fsync1 complete",
+        "expectedInterventions": 1,
+        "independentWitness": "same actual floor inode; fixed reviewed prefix index yields neither complete old nor complete new bytes; no result on kill",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/floor-partial-write-death/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "floor-partial-write-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-partial-write-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "write controlled positive prefix then barrier",
+        "expectedSelectedHitsAndResults": "prefix write1; SIGKILL1; remaining0/truncate0/fsync0",
+        "expectedInterventions": 1,
+        "independentWitness": "same actual floor inode; fixed reviewed prefix index yields neither complete old nor complete new bytes; no result on kill",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "receiptPath": "interruption/floor-partial-write-death/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "floor-post-sync-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-post-sync-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync result0 then barrier before return/unlock",
+        "expectedSelectedHitsAndResults": "fsync1; release1; UN1/close1; normal result",
+        "expectedInterventions": 0,
+        "independentWitness": "exact new bytes/length same inode and actual sync; fresh contender after reap; no authority inferred",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/floor-post-sync-death/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "floor-post-sync-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "floor-post-sync-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": false,
+          "reason": "Protected later call is forbidden after the specified actual earlier admission failure/interruption; no result is fabricated."
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "fsync result0 then barrier before return/unlock",
+        "expectedSelectedHitsAndResults": "fsync1; SIGKILL1; UN0/no returned result",
+        "expectedInterventions": 0,
+        "independentWitness": "exact new bytes/length same inode and actual sync; fresh contender after reap; no authority inferred",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "receiptPath": "interruption/floor-post-sync-death/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "archive-link-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-link-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "link|linkat no-replace then barrier; actual Product recovery fsync",
+        "expectedSelectedHitsAndResults": "installer link1; release1; directory sync2 around own-temp removal; runtime file sync1+dir sync1",
+        "expectedInterventions": 0,
+        "independentWitness": "final+known temp share inode nlink2 on killed installer; exact bytes; runtime no rewrite/alias removal; separate fixture ownership",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/archive-link-death/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "archive-link-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-link-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "link|linkat no-replace then barrier; actual Product recovery fsync",
+        "expectedSelectedHitsAndResults": "installer link1; SIGKILL1 before installer directory sync; recovery file sync1+dir sync1",
+        "expectedInterventions": 0,
+        "independentWitness": "final+known temp share inode nlink2 on killed installer; exact bytes; runtime no rewrite/alias removal; separate fixture ownership",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "receiptPath": "interruption/archive-link-death/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "archive-directory-sync-death/control",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-directory-sync-death",
+          "control"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "directory fsync result0 following link then barrier; Product recovery",
+        "expectedSelectedHitsAndResults": "installer link1,first dirsync1,release1,temp remove,second dirsync1; recovery file1/dir1",
+        "expectedInterventions": 0,
+        "independentWitness": "same nlink2 final/temp before cleanup; prior successful sync cannot skip fresh actual immutable confirmation",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "positive-owner-control",
+      "receiptPath": "interruption/archive-directory-sync-death/control/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "interruption",
+      "runId": "archive-directory-sync-death/exercise",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "interruption",
+        "arguments": [
+          "archive-directory-sync-death",
+          "exercise"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "writeDurably",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveReader.php",
+          "method": "policy",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "confirmDurability",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditPolicyArchiveFile.php",
+          "method": "close",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "syncPublication",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditCustodyDirectory.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "directory fsync result0 following link then barrier; Product recovery",
+        "expectedSelectedHitsAndResults": "link1,first dirsync1,SIGKILL1; recovery file1/dir1 repeats checks",
+        "expectedInterventions": 0,
+        "independentWitness": "same nlink2 final/temp before cleanup; prior successful sync cannot skip fresh actual immutable confirmation",
+        "stageSeparation": "setup/selected operation/managed cleanup separately traced; wrong/unhit/extra selected route fails"
+      },
+      "expectedDisposition": "expected-process-interruption-with-checked-supervisor-cleanup",
+      "receiptPath": "interruption/archive-directory-sync-death/exercise/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-maintenance/initialized",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "initialized"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "scheduler",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "signingTasks",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "0 codec/history/Normalizer data opens after actual floor lock; exact type/table closure already loaded before",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "actual assembly/initializer before floor"
+      },
+      "expectedDisposition": "actual-assembly-cold-qualified",
+      "receiptPath": "cold/cold-unicode-maintenance/initialized/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-maintenance/missing",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "missing"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedDisposition": "cold-order-rejected",
+      "receiptPath": "cold/cold-unicode-maintenance/missing/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-maintenance/late",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "late"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "scheduler",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+          "method": "signingTasks",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "floor before actual assembly/initializer"
+      },
+      "expectedDisposition": "cold-order-rejected",
+      "receiptPath": "cold/cold-unicode-maintenance/late/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-maintenance/empty-warmup",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldMaintenance",
+        "arguments": [
+          "empty-warmup"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedDisposition": "cold-order-rejected",
+      "receiptPath": "cold/cold-unicode-maintenance/empty-warmup/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-installation/initialized",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "initialized"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationAuditControlInstallationComposer.php",
+          "method": "compose",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "0 codec/history/Normalizer data opens after actual floor lock; exact type/table closure already loaded before",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "actual assembly/initializer before floor"
+      },
+      "expectedDisposition": "actual-assembly-cold-qualified",
+      "receiptPath": "cold/cold-unicode-installation/initialized/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-installation/missing",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "missing"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedDisposition": "cold-order-rejected",
+      "receiptPath": "cold/cold-unicode-installation/missing/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-installation/late",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "late"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Application/ApplicationAuditControlInstallationComposer.php",
+          "method": "compose",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+          "method": "initialize",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "floor before actual assembly/initializer"
+      },
+      "expectedDisposition": "cold-order-rejected",
+      "receiptPath": "cold/cold-unicode-installation/late/receipt.json",
+      "qualificationExecuted": false
+    },
+    {
+      "suite": "cold",
+      "runId": "cold-unicode-installation/empty-warmup",
+      "fixtureEntry": {
+        "path": "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+        "method": "coldInstallation",
+        "arguments": [
+          "empty-warmup"
+        ]
+      },
+      "actualProductCalls": [
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "__construct",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "unsigned",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/History/AuditCheckpointArtifactReplay.php",
+          "method": "complete",
+          "expectedReached": true
+        },
+        {
+          "path": "src/Internal/Audit/Authority/Custody/AuditNativeFloorFile.php",
+          "method": "close",
+          "expectedReached": true
+        }
+      ],
+      "nativePlan": {
+        "selectedOperation": "actual floor flock EX1/UN1 plus exact codec/history/Normalizer loader opens through fixed open/open64/openat/openat64 family",
+        "expectedSelectedHitsAndResults": "each of three Normalizer FORM_C data files opens exactly1 under actual floor; actual cold class opens retained against literal list",
+        "expectedInterventions": 0,
+        "independentWitness": "fresh process/actual assembly entry or explicit negative omission, exact source/load paths/hashes, real native floor lock time/order and nonASCII original byte result",
+        "ordering": "no actual assembly/initializer; intentional negative observation"
+      },
+      "expectedDisposition": "cold-order-rejected",
+      "receiptPath": "cold/cold-unicode-installation/empty-warmup/receipt.json",
+      "qualificationExecuted": false
+    }
+  ],
+  "reusedConclusions": {
+    "sourceReview": "checkpoint-verification-review-r1.md SHA256766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec",
+    "predecessor": {
+      "discoveryCount": 3986,
+      "duplicateDiscovery": [],
+      "junitCount": 3986,
+      "duplicateJUnitCount": 0,
+      "identitySetsEqual": true,
+      "missingFromJUnit": [],
+      "extraJUnit": [],
+      "assertions": 8634246,
+      "faults": [],
+      "partitions": [
+        {
+          "name": "legacy-heavy",
+          "count": 6,
+          "seconds": "842.254433",
+          "sortedIdsSha256": "70a7eef1c7ae34802c96c97b578b0bf5f82b40abc1905d0b3976d29db334a3ed"
+        },
+        {
+          "name": "legacy-architecture",
+          "count": 169,
+          "seconds": "513.619481",
+          "sortedIdsSha256": "1503e980e8bd3189a65663e275166274a3f2ef2f1c7775fe0faaaf124e84b257"
+        },
+        {
+          "name": "legacy-runtime",
+          "count": 3811,
+          "seconds": "212.584549",
+          "sortedIdsSha256": "29b2308b95a75d6b585081d7a9ea05df9f66c936b2cdc7a3f8e0768f70341b10"
+        }
+      ],
+      "totalSeconds": "1568.458463",
+      "discoveryClassCount": 478,
+      "junitSuiteSeconds": "1568.458437",
+      "discoveryXmlNamespace": "https://xml.phpunit.de/testSuite",
+      "primaryGroupsOnly": true,
+      "initialBookkeepingCorrection": "Initial unqualified XML lookup selected zero namespaced classes; corrected explicit namespace before any conclusion. No PHP/test process was run."
+    },
+    "log": {
+      "memory": "307.00 MB",
+      "phpLimit": "512M",
+      "tests": 3986,
+      "assertions": 8634246,
+      "deprecations": 1,
+      "phpunitDeprecations": 2,
+      "phpunitNotices": 13,
+      "logSha256": "45d0095571cad13fcd2537c69c803fc568e4cbe31c63b0817097a42034e645ad",
+      "notNewRun": true
+    },
+    "ci": {
+      "changedWorkflow": ".github/workflows/ci.yml",
+      "requiredAggregateId": "quality",
+      "requiredAggregateName": "Mago, PHPUnit, and Deptrac",
+      "aggregateTimeoutMinutes": 30,
+      "needs": [
+        "quality-static",
+        "quality-package",
+        "quality-phpunit",
+        "quality-vectors",
+        "audit-authority-native"
+      ],
+      "expectedProducerArtifactCount": 11,
+      "phpPartitions": [
+        "legacy-heavy",
+        "legacy-architecture",
+        "legacy-runtime",
+        "checkpoint-production"
+      ],
+      "phpMatrixTimeoutMinutes": 30,
+      "phpMemoryLimit": "512M",
+      "nativeSuites": [
+        "io",
+        "durability",
+        "interruption",
+        "cold"
+      ],
+      "nativeMatrixTimeoutMinutes": 30,
+      "vectorsTimeoutMinutes": 20,
+      "rejectResults": [
+        "failure",
+        "cancelled",
+        "skipped",
+        "missing"
+      ],
+      "unrelatedJobsUnchanged": [
+        "community-board-clean-install",
+        "community-board-foundation",
+        "frontend",
+        "framework-update-runtime",
+        "website"
+      ],
+      "actualFutureExecutionStatus": "not_run"
+    },
+    "nodeArgv": [
+      "node",
+      "--test",
+      "--test-isolation=none",
+      "--test-reporter=tap",
+      "tests/Fixtures/Audit/audit-authority-provenance-golden.mjs",
+      "tests/Fixtures/Audit/audit-signed-artifacts-golden.mjs",
+      "tests/Fixtures/Audit/audit-anchor-state-golden.mjs",
+      "tests/Fixtures/Audit/audit-canonical-record-golden.mjs",
+      "tests/Fixtures/Audit/audit-operation-read-foundation-golden.mjs",
+      "tests/Fixtures/Audit/audit-operational-event-catalog-golden.mjs",
+      "tests/Fixtures/Audit/observed-audit-record-golden.mjs",
+      "tests/Fixtures/Audit/audit-event-catalog-golden.mjs",
+      "tests/Fixtures/Audit/audit-postgresql-store-golden.mjs",
+      "tests/Fixtures/Quality/quality-results.test.mjs"
+    ],
+    "limits": {
+      "phpMemoryMiB": 512,
+      "containerMemoryAndSwapMiB": 768,
+      "pids": 32,
+      "tmpMiB": 16,
+      "faultMiB": 32,
+      "executableBuildMiB": 64,
+      "handshakeSeconds": 8,
+      "primitiveSeconds": 15,
+      "outerCaseSeconds": 60,
+      "qualityTimeoutMinutes": 30,
+      "nativeTimeoutMinutes": 30,
+      "vectorsTimeoutMinutes": 20
+    },
+    "doNotInferNewRun": true
+  },
+  "findings": [
+    {
+      "id": "CVR-02R-01",
+      "status": "open",
+      "scope": "Only section5 blanket interruption prose versus the two scratch observable-error rows",
+      "evidence": {
+        "markdown": "checkpoint-verification-correction-r2.md",
+        "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+        "blanketLine": 148,
+        "specificRowLines": [
+          153,
+          154
+        ],
+        "inputRunIds": [
+          "scratch-unlink-error/control",
+          "scratch-unlink-error/exercise",
+          "scratch-rmdir-error/control",
+          "scratch-rmdir-error/exercise"
+        ]
+      },
+      "impact": "Mandatory SIGKILL contradicts in-process managed cleanup/original-failure proof for two exercise rows and misclassifies their receipts.",
+      "requiredCorrection": "Only seven literal process-interruption bases receive barrier/release-or-kill requirement; the two scratch namespace-error bases retain exact observable-error/managed-cleanup rows with no selected interruption barrier and no SIGKILL.",
+      "preserve": "All58 IDs/27 bases and row bodies,35 new/26 existing paths,resource/CI/predecessor contracts unchanged.",
+      "reviewAfterCorrection": "Affected prose exception and class assignment only; no repeated35/26/58/predecessor/CI bookkeeping for unchanged inputs."
+    }
+  ],
+  "closedOrRetainedConclusions": {
+    "CVR-01": "closed_at_declaration_level",
+    "CVR-02": "58 concrete executable mappings otherwise resolved; only CVR-02R-01 remains",
+    "wholeProductionDbObligations": "mandatory separate named tests unchanged; not executed",
+    "selfCryptoAcceptance": false,
+    "historyHT01HT02": "separate author/independent authority review; not closed here",
+    "GreenProductIssuance": false
+  },
+  "processInterruptionBases": [
+    "process-control",
+    "two-process-lock-death",
+    "anonymous-capture-death",
+    "floor-partial-write-death",
+    "floor-post-sync-death",
+    "archive-link-death",
+    "archive-directory-sync-death"
+  ],
+  "managedErrorInterruptionBases": [
+    "scratch-unlink-error",
+    "scratch-rmdir-error"
+  ],
+  "expectedInterruptionRunSplit": {
+    "processInterruption": 14,
+    "managedError": 4,
+    "total": 18,
+    "totalNativeUnchanged": 58
+  },
+  "currentSourceReportedBase": "87f5595b1394446aa788fb4a5dcff95bd15473ab",
+  "currentSourceReportedStateCheckpoint": "2026-10-14T10:00:15+09:00",
+  "inputChangesDuringReview": [
+    {
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 9988,
+        "sha256": "dd98d30e3706e3766bade50d87c9875922d2fd157d12c5d00c865f2b9857589f"
+      },
+      "after": {
+        "bytes": 8302,
+        "sha256": "215c9046b0b8e4d5297e9a145e1aa5952d664b30d4208e5c2c724fdaf357eb67"
+      },
+      "classification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 34449,
+        "sha256": "51ac2ab7155dd6763fb607c54d96b387549d4dfd1ff97b29b306052e61332430"
+      },
+      "after": {
+        "bytes": 34442,
+        "sha256": "0e66923251d52c8aa807ec588e32a4243fb40330fd73b8b2de09e7b9b4e1fc1f"
+      },
+      "classification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/STATE.md",
+      "before": {
+        "bytes": 9988,
+        "sha256": "20722cc1d9785796b0f968a9d854fcf587d044af129fb4e6b7903f36d409bf3a"
+      },
+      "after": {
+        "bytes": 8302,
+        "sha256": "31660f23ecddf65bdf0bfe423230944c40f75fb2f18340aef359163edfef375d"
+      },
+      "classification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 34449,
+        "sha256": "51ac2ab7155dd6763fb607c54d96b387549d4dfd1ff97b29b306052e61332430"
+      },
+      "after": {
+        "bytes": 34442,
+        "sha256": "0e66923251d52c8aa807ec588e32a4243fb40330fd73b8b2de09e7b9b4e1fc1f"
+      },
+      "classification": "Named Root bookkeeping update to delivered installation-authority base87f5595 and current HT/CVR assignments; no Product/test/evidence change."
+    }
+  ],
+  "unchangedSelectedInputCount": 77,
+  "allSelectedInputsUnchanged": false,
+  "allNonGovernanceSelectedInputsUnchanged": true,
+  "checksPerformed": [
+    "Targeted instruction/STATE/Task/frozen artifact reads, plus native-owner contract text references; no new protocol research.",
+    "All30 author source pins checked.",
+    "Exact35 JSON/Markdown/mechanical union and original25+approved1 existing inventory checked; absence/presence confirmed.",
+    "All58 exact original run IDs,counts,fixture entries/arguments,receipts,expectedReached booleans and cold entry distinctions checked.",
+    "Every prose native case/result/cleanup read against JSON and existing frozen holder interfaces.",
+    "Original measured predecessor/CI/Node objects exactly equal;13 underlying retained/filter source hashes unchanged; no repeat XML derivation.",
+    "All81 selected hashes checked after review;four named Root governance changes recorded."
+  ],
+  "remainingWork": [
+    "Root finite interruption intro supplement and affected check",
+    "Separate HT correction/independent review",
+    "Complete durable child packet adoption before Luna/resource issuance",
+    "Actual implementation and strict/full512M/PostgreSQL/native/cold/vector/CI/export qualification",
+    "Upper F4/F5/D/Required and BlackOps1.3 release/documentation gates"
+  ],
+  "frozenAt": "2026-10-14T01:02:41.557495+00:00",
+  "output": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r2.md",
+    "bytes": 16265,
+    "sha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a"
+  }
+}

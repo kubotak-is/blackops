@@ -1,0 +1,1738 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent-combined-authority-review",
+  "reviewer": "/root/f3_authority_review",
+  "status": "Changes Required",
+  "root": "/home/kubotak/projects/blackops",
+  "checkout": ".phpunit.cache/f2-orchestration/accepted-integration",
+  "rootReportedBase": "ba026679c258a48414e5dd39d3551d9c1913cb51",
+  "gitIndependentlyVerified": false,
+  "reviewedCandidate": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+  "afterRecordedAt": "2026-10-13T17:46:07.870109+00:00",
+  "selectedInputCount": 91,
+  "unchangedSelectedInputCount": 89,
+  "allFrozenSemanticInputsUnchanged": true,
+  "allSelectedInputsUnchanged": false,
+  "changedCheckpointPaths": [
+    "develop/STATE.md",
+    ".phpunit.cache/f2-orchestration/accepted-integration/develop/STATE.md"
+  ],
+  "authorPinDrift": [
+    {
+      "path": "develop/STATE.md",
+      "authorHash": "3419b5f8d0fe403756108abf39b2ef14a5c86fff3459708f0fede0ac38414a55",
+      "currentAtReviewStart": "4dc53cbab0c1b5fb99c35a9a829f03fd57816e26a037d587e2a12d0ab92c77d3",
+      "classification": "later Root instruction checkpoint; not semantic candidate drift"
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "authorHash": "09a1577a132d9441cc41f401e640248c24a3dfa0683c52cfd4d7081e0ebb7079",
+      "currentAtReviewStart": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786",
+      "classification": "later Root instruction checkpoint; not semantic candidate drift"
+    }
+  ],
+  "inputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md",
+      "bytes": 142484,
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "source": "combined",
+      "expected": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "after": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1-inputs.json",
+      "bytes": 82572,
+      "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+      "source": "combined",
+      "expected": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "after": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+      "bytes": 77964,
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "source": "combined",
+      "expected": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "after": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1-inputs.json",
+      "bytes": 12374,
+      "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+      "source": "combined",
+      "expected": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "after": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1.md",
+      "bytes": 28662,
+      "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc",
+      "source": "combined",
+      "expected": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 28662,
+        "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc"
+      },
+      "after": {
+        "bytes": 28662,
+        "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1-inputs.json",
+      "bytes": 13579,
+      "sha256": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6",
+      "source": "combined",
+      "expected": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 13579,
+        "sha256": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6"
+      },
+      "after": {
+        "bytes": 13579,
+        "sha256": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md",
+      "bytes": 35267,
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "source": "combined",
+      "expected": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "after": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "bytes": 20085,
+      "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+      "source": "combined",
+      "expected": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "after": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md",
+      "bytes": 75458,
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "source": "combined",
+      "expected": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "after": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1-inputs.json",
+      "bytes": 41583,
+      "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94",
+      "source": "combined",
+      "expected": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 41583,
+        "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94"
+      },
+      "after": {
+        "bytes": 41583,
+        "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2.md",
+      "bytes": 3178,
+      "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+      "source": "combined",
+      "expected": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "after": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2-inputs.json",
+      "bytes": 1554,
+      "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199",
+      "source": "combined",
+      "expected": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 1554,
+        "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199"
+      },
+      "after": {
+        "bytes": 1554,
+        "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1.md",
+      "bytes": 88993,
+      "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "source": "combined",
+      "expected": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 88993,
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b"
+      },
+      "after": {
+        "bytes": 88993,
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1-inputs.json",
+      "bytes": 70270,
+      "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5",
+      "source": "combined",
+      "expected": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 70270,
+        "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5"
+      },
+      "after": {
+        "bytes": 70270,
+        "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-production-verification-packet-r1.md",
+      "bytes": 11675,
+      "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "source": "combined",
+      "expected": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "after": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1.md",
+      "bytes": 54451,
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "source": "combined",
+      "expected": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "after": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1-inputs.json",
+      "bytes": 40776,
+      "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+      "source": "combined",
+      "expected": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 40776,
+        "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce"
+      },
+      "after": {
+        "bytes": 40776,
+        "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "bytes": 43059,
+      "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d",
+      "source": "combined",
+      "expected": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "after": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "bytes": 83242,
+      "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649",
+      "source": "combined",
+      "expected": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "after": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/131-audit-ordinary-sign-service.md",
+      "bytes": 18894,
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "source": "combined",
+      "expected": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "after": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/132-audit-anchor-authenticated-provenance.md",
+      "bytes": 13080,
+      "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986",
+      "source": "combined",
+      "expected": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "after": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 10392,
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "source": "online",
+      "expected": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".codex/config.toml",
+      "bytes": 53,
+      "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f",
+      "source": "online",
+      "expected": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "after": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/STATE.md",
+      "bytes": 7959,
+      "sha256": "4dc53cbab0c1b5fb99c35a9a829f03fd57816e26a037d587e2a12d0ab92c77d3",
+      "source": "online",
+      "expected": "3419b5f8d0fe403756108abf39b2ef14a5c86fff3459708f0fede0ac38414a55",
+      "matchesExpected": false,
+      "before": {
+        "bytes": 7959,
+        "sha256": "4dc53cbab0c1b5fb99c35a9a829f03fd57816e26a037d587e2a12d0ab92c77d3"
+      },
+      "after": {
+        "bytes": 8685,
+        "sha256": "ae54a6a489cc9aecce61db6b977b1f44dd3786914234310ab08e3d88176dedd9"
+      },
+      "unchanged": false,
+      "classification": "instruction checkpoint; mutable Root bookkeeping"
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "bytes": 25188,
+      "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786",
+      "source": "online",
+      "expected": "09a1577a132d9441cc41f401e640248c24a3dfa0683c52cfd4d7081e0ebb7079",
+      "matchesExpected": false,
+      "before": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "after": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/spec/README.md",
+      "bytes": 46471,
+      "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f",
+      "source": "online",
+      "expected": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "after": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/spec/105-blackops-1-3-capability-contract.md",
+      "bytes": 421724,
+      "sha256": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193",
+      "source": "online",
+      "expected": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 421724,
+        "sha256": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193"
+      },
+      "after": {
+        "bytes": 421724,
+        "sha256": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "bytes": 43059,
+      "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d",
+      "source": "online",
+      "expected": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "after": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "bytes": 83242,
+      "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649",
+      "source": "online",
+      "expected": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "after": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/spec/131-audit-ordinary-sign-service.md",
+      "bytes": 18894,
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "source": "online",
+      "expected": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "after": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/spec/132-audit-anchor-authenticated-provenance.md",
+      "bytes": 13080,
+      "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986",
+      "source": "online",
+      "expected": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "after": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/spec/release-authority.json",
+      "bytes": 6518,
+      "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06",
+      "source": "online",
+      "expected": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "after": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": "develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "bytes": 8229,
+      "sha256": "1a8b80e91a835f66ab7757e56a76b52d5f399a6dd9ed27ed2a4b6a510d10a09b",
+      "source": "online",
+      "expected": "1a8b80e91a835f66ab7757e56a76b52d5f399a6dd9ed27ed2a4b6a510d10a09b",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 8229,
+        "sha256": "1a8b80e91a835f66ab7757e56a76b52d5f399a6dd9ed27ed2a4b6a510d10a09b"
+      },
+      "after": {
+        "bytes": 8229,
+        "sha256": "1a8b80e91a835f66ab7757e56a76b52d5f399a6dd9ed27ed2a4b6a510d10a09b"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-review-r2.md",
+      "bytes": 10595,
+      "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2",
+      "source": "online",
+      "expected": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 10595,
+        "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2"
+      },
+      "after": {
+        "bytes": 10595,
+        "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-codec-adoption-review-r2.md",
+      "bytes": 2815,
+      "sha256": "eddff5b355b8276c4263e5b5b236f93899a85c9fb91e2c209b0786eb368ef081",
+      "source": "online",
+      "expected": "eddff5b355b8276c4263e5b5b236f93899a85c9fb91e2c209b0786eb368ef081",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 2815,
+        "sha256": "eddff5b355b8276c4263e5b5b236f93899a85c9fb91e2c209b0786eb368ef081"
+      },
+      "after": {
+        "bytes": 2815,
+        "sha256": "eddff5b355b8276c4263e5b5b236f93899a85c9fb91e2c209b0786eb368ef081"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-composition-correction-r2.md",
+      "bytes": 5587,
+      "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77",
+      "source": "online",
+      "expected": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 5587,
+        "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77"
+      },
+      "after": {
+        "bytes": 5587,
+        "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-calibration-contract-proposal-r2.md",
+      "bytes": 8844,
+      "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+      "source": "online",
+      "expected": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "after": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-custody-adoption-review-r1.md",
+      "bytes": 6452,
+      "sha256": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a",
+      "source": "online",
+      "expected": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 6452,
+        "sha256": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a"
+      },
+      "after": {
+        "bytes": 6452,
+        "sha256": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactSigner.php",
+      "bytes": 4101,
+      "sha256": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152",
+      "source": "online",
+      "expected": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 4101,
+        "sha256": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152"
+      },
+      "after": {
+        "bytes": 4101,
+        "sha256": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactVerifier.php",
+      "bytes": 3654,
+      "sha256": "a21dd9bffa1299061a96dec59931e1025bddc1169c5093112bb7d1ade2228864",
+      "source": "online",
+      "expected": "a21dd9bffa1299061a96dec59931e1025bddc1169c5093112bb7d1ade2228864",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3654,
+        "sha256": "a21dd9bffa1299061a96dec59931e1025bddc1169c5093112bb7d1ade2228864"
+      },
+      "after": {
+        "bytes": 3654,
+        "sha256": "a21dd9bffa1299061a96dec59931e1025bddc1169c5093112bb7d1ade2228864"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditTrustSnapshotCodec.php",
+      "bytes": 2483,
+      "sha256": "ba745b4309a99bf1ef2b354c5cb64ab85e9d119ee2efe9d1e4041d920583d291",
+      "source": "online",
+      "expected": "ba745b4309a99bf1ef2b354c5cb64ab85e9d119ee2efe9d1e4041d920583d291",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 2483,
+        "sha256": "ba745b4309a99bf1ef2b354c5cb64ab85e9d119ee2efe9d1e4041d920583d291"
+      },
+      "after": {
+        "bytes": 2483,
+        "sha256": "ba745b4309a99bf1ef2b354c5cb64ab85e9d119ee2efe9d1e4041d920583d291"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditTrustSnapshotShape.php",
+      "bytes": 3011,
+      "sha256": "1379d2c6dc1561df252b99a85af3d8959aea94e0e51114fdd1d8aadede953ec1",
+      "source": "online",
+      "expected": "1379d2c6dc1561df252b99a85af3d8959aea94e0e51114fdd1d8aadede953ec1",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3011,
+        "sha256": "1379d2c6dc1561df252b99a85af3d8959aea94e0e51114fdd1d8aadede953ec1"
+      },
+      "after": {
+        "bytes": 3011,
+        "sha256": "1379d2c6dc1561df252b99a85af3d8959aea94e0e51114fdd1d8aadede953ec1"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditTrustEntryShape.php",
+      "bytes": 2441,
+      "sha256": "f745e10a52cdb90a8586b4a3cd4a35a29453ba293e4da6a64370e46c28f672db",
+      "source": "online",
+      "expected": "f745e10a52cdb90a8586b4a3cd4a35a29453ba293e4da6a64370e46c28f672db",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 2441,
+        "sha256": "f745e10a52cdb90a8586b4a3cd4a35a29453ba293e4da6a64370e46c28f672db"
+      },
+      "after": {
+        "bytes": 2441,
+        "sha256": "f745e10a52cdb90a8586b4a3cd4a35a29453ba293e4da6a64370e46c28f672db"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditTrustEntryRelation.php",
+      "bytes": 1586,
+      "sha256": "2705cad8247ba89b71b1c99abcb96cec7bebe0a82cae84600667f5fe22846737",
+      "source": "online",
+      "expected": "2705cad8247ba89b71b1c99abcb96cec7bebe0a82cae84600667f5fe22846737",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 1586,
+        "sha256": "2705cad8247ba89b71b1c99abcb96cec7bebe0a82cae84600667f5fe22846737"
+      },
+      "after": {
+        "bytes": 1586,
+        "sha256": "2705cad8247ba89b71b1c99abcb96cec7bebe0a82cae84600667f5fe22846737"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditTrustScalar.php",
+      "bytes": 2116,
+      "sha256": "a6fe5337700d927d8a1757556459a65212c2d368e5ac446f5634df5e5babcdaa",
+      "source": "online",
+      "expected": "a6fe5337700d927d8a1757556459a65212c2d368e5ac446f5634df5e5babcdaa",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 2116,
+        "sha256": "a6fe5337700d927d8a1757556459a65212c2d368e5ac446f5634df5e5babcdaa"
+      },
+      "after": {
+        "bytes": 2116,
+        "sha256": "a6fe5337700d927d8a1757556459a65212c2d368e5ac446f5634df5e5babcdaa"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditTrustLookup.php",
+      "bytes": 3495,
+      "sha256": "8008fa1196e0bece03806a7c982959ca69630df41f9771d9f73b52348459b4cd",
+      "source": "online",
+      "expected": "8008fa1196e0bece03806a7c982959ca69630df41f9771d9f73b52348459b4cd",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3495,
+        "sha256": "8008fa1196e0bece03806a7c982959ca69630df41f9771d9f73b52348459b4cd"
+      },
+      "after": {
+        "bytes": 3495,
+        "sha256": "8008fa1196e0bece03806a7c982959ca69630df41f9771d9f73b52348459b4cd"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactCanonical.php",
+      "bytes": 1849,
+      "sha256": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e",
+      "source": "online",
+      "expected": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 1849,
+        "sha256": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e"
+      },
+      "after": {
+        "bytes": 1849,
+        "sha256": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactException.php",
+      "bytes": 498,
+      "sha256": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8",
+      "source": "online",
+      "expected": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 498,
+        "sha256": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8"
+      },
+      "after": {
+        "bytes": 498,
+        "sha256": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactFailure.php",
+      "bytes": 306,
+      "sha256": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b",
+      "source": "online",
+      "expected": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 306,
+        "sha256": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b"
+      },
+      "after": {
+        "bytes": 306,
+        "sha256": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditCheckpointCodec.php",
+      "bytes": 3352,
+      "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362",
+      "source": "online",
+      "expected": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3352,
+        "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362"
+      },
+      "after": {
+        "bytes": 3352,
+        "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactShape.php",
+      "bytes": 11829,
+      "sha256": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4",
+      "source": "online",
+      "expected": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 11829,
+        "sha256": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4"
+      },
+      "after": {
+        "bytes": 11829,
+        "sha256": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactRelation.php",
+      "bytes": 2382,
+      "sha256": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6",
+      "source": "online",
+      "expected": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 2382,
+        "sha256": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6"
+      },
+      "after": {
+        "bytes": 2382,
+        "sha256": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactScalar.php",
+      "bytes": 1913,
+      "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946",
+      "source": "online",
+      "expected": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 1913,
+        "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946"
+      },
+      "after": {
+        "bytes": 1913,
+        "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactIntegrity.php",
+      "bytes": 3093,
+      "sha256": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67",
+      "source": "online",
+      "expected": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3093,
+        "sha256": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67"
+      },
+      "after": {
+        "bytes": 3093,
+        "sha256": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php",
+      "bytes": 1718,
+      "sha256": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207",
+      "source": "online",
+      "expected": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 1718,
+        "sha256": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207"
+      },
+      "after": {
+        "bytes": 1718,
+        "sha256": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/AuditCheckpointPreparation.php",
+      "bytes": 5563,
+      "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214",
+      "source": "online",
+      "expected": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 5563,
+        "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214"
+      },
+      "after": {
+        "bytes": 5563,
+        "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php",
+      "bytes": 7939,
+      "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208",
+      "source": "online",
+      "expected": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 7939,
+        "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208"
+      },
+      "after": {
+        "bytes": 7939,
+        "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php",
+      "bytes": 7288,
+      "sha256": "6e4727e40027179670dd6a926222ac9e4bc4bda60228085694d19d602dada951",
+      "source": "online",
+      "expected": "6e4727e40027179670dd6a926222ac9e4bc4bda60228085694d19d602dada951",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 7288,
+        "sha256": "6e4727e40027179670dd6a926222ac9e4bc4bda60228085694d19d602dada951"
+      },
+      "after": {
+        "bytes": 7288,
+        "sha256": "6e4727e40027179670dd6a926222ac9e4bc4bda60228085694d19d602dada951"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "bytes": 3479,
+      "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734",
+      "source": "online",
+      "expected": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3479,
+        "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734"
+      },
+      "after": {
+        "bytes": 3479,
+        "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php",
+      "bytes": 8613,
+      "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794",
+      "source": "online",
+      "expected": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 8613,
+        "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794"
+      },
+      "after": {
+        "bytes": 8613,
+        "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTransactionPolicy.php",
+      "bytes": 1898,
+      "sha256": "72b6bf4bf0af96d14b797381267b35bde66dbf6edf3a2c1af73dabbeab658452",
+      "source": "online",
+      "expected": "72b6bf4bf0af96d14b797381267b35bde66dbf6edf3a2c1af73dabbeab658452",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 1898,
+        "sha256": "72b6bf4bf0af96d14b797381267b35bde66dbf6edf3a2c1af73dabbeab658452"
+      },
+      "after": {
+        "bytes": 1898,
+        "sha256": "72b6bf4bf0af96d14b797381267b35bde66dbf6edf3a2c1af73dabbeab658452"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditJcsCodec.php",
+      "bytes": 32528,
+      "sha256": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999",
+      "source": "online",
+      "expected": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 32528,
+        "sha256": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999"
+      },
+      "after": {
+        "bytes": 32528,
+        "sha256": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditJcsObject.php",
+      "bytes": 460,
+      "sha256": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883",
+      "source": "online",
+      "expected": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 460,
+        "sha256": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883"
+      },
+      "after": {
+        "bytes": 460,
+        "sha256": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "bytes": 1295,
+      "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd",
+      "source": "online",
+      "expected": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 1295,
+        "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd"
+      },
+      "after": {
+        "bytes": 1295,
+        "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Orchestration/AuditDeliveryException.php",
+      "bytes": 939,
+      "sha256": "c42eb6c89d849950edd67631f166ab8cc0a247f3ac2e08147b13e2b82dfa115f",
+      "source": "online",
+      "expected": "c42eb6c89d849950edd67631f166ab8cc0a247f3ac2e08147b13e2b82dfa115f",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 939,
+        "sha256": "c42eb6c89d849950edd67631f166ab8cc0a247f3ac2e08147b13e2b82dfa115f"
+      },
+      "after": {
+        "bytes": 939,
+        "sha256": "c42eb6c89d849950edd67631f166ab8cc0a247f3ac2e08147b13e2b82dfa115f"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Orchestration/AuditDeliveryFailure.php",
+      "bytes": 427,
+      "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7",
+      "source": "online",
+      "expected": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 427,
+        "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7"
+      },
+      "after": {
+        "bytes": 427,
+        "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Application/ApplicationRetentionRuntime.php",
+      "bytes": 3326,
+      "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae",
+      "source": "online",
+      "expected": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "after": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+      "bytes": 8016,
+      "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f",
+      "source": "online",
+      "expected": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "after": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Application/ApplicationOperationRuntimeComposer.php",
+      "bytes": 7074,
+      "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e",
+      "source": "online",
+      "expected": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "after": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "bytes": 128581,
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "source": "online",
+      "expected": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "after": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "bytes": 153184,
+      "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e",
+      "source": "online",
+      "expected": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "after": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "bytes": 246960,
+      "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0",
+      "source": "online",
+      "expected": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "after": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/PublicApiArchitectureTest.php",
+      "bytes": 2550,
+      "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576",
+      "source": "online",
+      "expected": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576",
+      "matchesExpected": true,
+      "before": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "after": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/AGENTS.md",
+      "bytes": 10392,
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "source": "review-scope",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/STATE.md",
+      "bytes": 7959,
+      "sha256": "15a21cc615e4471778a2a0c9c630ee965a87a98c76d33350e8016a7c2eb5307b",
+      "source": "review-scope",
+      "before": {
+        "bytes": 7959,
+        "sha256": "15a21cc615e4471778a2a0c9c630ee965a87a98c76d33350e8016a7c2eb5307b"
+      },
+      "after": {
+        "bytes": 8685,
+        "sha256": "a25cbc082247a79f60622a91da93e02788cc28f46c01ecbdace4358887a8dffe"
+      },
+      "unchanged": false,
+      "classification": "instruction checkpoint; mutable Root bookkeeping"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "bytes": 25188,
+      "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786",
+      "source": "review-scope",
+      "before": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "after": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-issuance-candidate-r1.md",
+      "bytes": 11494,
+      "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+      "source": "review-scope",
+      "before": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "after": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-issuance-candidate-r1-inputs.json",
+      "bytes": 5134,
+      "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca",
+      "source": "review-scope",
+      "before": {
+        "bytes": 5134,
+        "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca"
+      },
+      "after": {
+        "bytes": 5134,
+        "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-review-r1.md",
+      "bytes": 14754,
+      "sha256": "b593fb5adacb6550bc49445d64b82b241a49f18eb182eac7e4c2707191149fcf",
+      "source": "review-scope",
+      "before": {
+        "bytes": 14754,
+        "sha256": "b593fb5adacb6550bc49445d64b82b241a49f18eb182eac7e4c2707191149fcf"
+      },
+      "after": {
+        "bytes": 14754,
+        "sha256": "b593fb5adacb6550bc49445d64b82b241a49f18eb182eac7e4c2707191149fcf"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-review-r1-inputs.json",
+      "bytes": 14458,
+      "sha256": "f05c87e57f3a28a278580637c6f10fb4d09f8fb132296e8d4380b3ee804cab7e",
+      "source": "review-scope",
+      "before": {
+        "bytes": 14458,
+        "sha256": "f05c87e57f3a28a278580637c6f10fb4d09f8fb132296e8d4380b3ee804cab7e"
+      },
+      "after": {
+        "bytes": 14458,
+        "sha256": "f05c87e57f3a28a278580637c6f10fb4d09f8fb132296e8d4380b3ee804cab7e"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-review-r2-inputs.json",
+      "bytes": 33964,
+      "sha256": "e6e361b8c30e559243d5f43f01a9a3af54a028bfc45d09660edd3e77dfdee632",
+      "source": "review-scope",
+      "before": {
+        "bytes": 33964,
+        "sha256": "e6e361b8c30e559243d5f43f01a9a3af54a028bfc45d09660edd3e77dfdee632"
+      },
+      "after": {
+        "bytes": 33964,
+        "sha256": "e6e361b8c30e559243d5f43f01a9a3af54a028bfc45d09660edd3e77dfdee632"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-codec-adoption-review-r2-inputs.json",
+      "bytes": 6666,
+      "sha256": "1f14382605405fa5d1e2fa87b60f0ea618c8af6473d3765e2e2f0cf25020e026",
+      "source": "review-scope",
+      "before": {
+        "bytes": 6666,
+        "sha256": "1f14382605405fa5d1e2fa87b60f0ea618c8af6473d3765e2e2f0cf25020e026"
+      },
+      "after": {
+        "bytes": 6666,
+        "sha256": "1f14382605405fa5d1e2fa87b60f0ea618c8af6473d3765e2e2f0cf25020e026"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/native-custody-adoption-review-r1-inputs.json",
+      "bytes": 12110,
+      "sha256": "bbf811a1496bcb890a7d9838e18f127739e03e3e28b2397aa393fe7497dbd1b3",
+      "source": "review-scope",
+      "before": {
+        "bytes": 12110,
+        "sha256": "bbf811a1496bcb890a7d9838e18f127739e03e3e28b2397aa393fe7497dbd1b3"
+      },
+      "after": {
+        "bytes": 12110,
+        "sha256": "bbf811a1496bcb890a7d9838e18f127739e03e3e28b2397aa393fe7497dbd1b3"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/shared-provenance-sql-contract-review-r1.md",
+      "bytes": 12667,
+      "sha256": "64f9b74f56b18fc33fb411c08fd74489910f6914e71490cfc93525ba54d3e2ef",
+      "source": "prior-independent-review",
+      "before": {
+        "bytes": 12667,
+        "sha256": "64f9b74f56b18fc33fb411c08fd74489910f6914e71490cfc93525ba54d3e2ef"
+      },
+      "after": {
+        "bytes": 12667,
+        "sha256": "64f9b74f56b18fc33fb411c08fd74489910f6914e71490cfc93525ba54d3e2ef"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/shared-provenance-sql-contract-review-r1-inputs.json",
+      "bytes": 20833,
+      "sha256": "5819f2a8a7158f400e00bf7977a0292ce627f796c75d5e4c9b7f48aa02f31142",
+      "source": "prior-independent-review",
+      "before": {
+        "bytes": 20833,
+        "sha256": "5819f2a8a7158f400e00bf7977a0292ce627f796c75d5e4c9b7f48aa02f31142"
+      },
+      "after": {
+        "bytes": 20833,
+        "sha256": "5819f2a8a7158f400e00bf7977a0292ce627f796c75d5e4c9b7f48aa02f31142"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/authority-filesystem-history-contract-review-r2.md",
+      "bytes": 4988,
+      "sha256": "75cd36c1abc9f7996951bd7f4f1ef9206f0b1e1e52d4f165c1f21bb730036a34",
+      "source": "prior-independent-review",
+      "before": {
+        "bytes": 4988,
+        "sha256": "75cd36c1abc9f7996951bd7f4f1ef9206f0b1e1e52d4f165c1f21bb730036a34"
+      },
+      "after": {
+        "bytes": 4988,
+        "sha256": "75cd36c1abc9f7996951bd7f4f1ef9206f0b1e1e52d4f165c1f21bb730036a34"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/authority-filesystem-history-contract-review-r2-inputs.json",
+      "bytes": 11451,
+      "sha256": "71bd9ec85514fdf0b305107c57b8466148831dc833ef611de4086830ef838573",
+      "source": "prior-independent-review",
+      "before": {
+        "bytes": 11451,
+        "sha256": "71bd9ec85514fdf0b305107c57b8466148831dc833ef611de4086830ef838573"
+      },
+      "after": {
+        "bytes": 11451,
+        "sha256": "71bd9ec85514fdf0b305107c57b8466148831dc833ef611de4086830ef838573"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-composition-correction-review-r2.md",
+      "bytes": 6581,
+      "sha256": "24c15adb50c2d665549f50ddf9ae371b207a1d0162b3f7f0a429dfda68c8bd4c",
+      "source": "prior-independent-review",
+      "before": {
+        "bytes": 6581,
+        "sha256": "24c15adb50c2d665549f50ddf9ae371b207a1d0162b3f7f0a429dfda68c8bd4c"
+      },
+      "after": {
+        "bytes": 6581,
+        "sha256": "24c15adb50c2d665549f50ddf9ae371b207a1d0162b3f7f0a429dfda68c8bd4c"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-composition-correction-review-r2-inputs.json",
+      "bytes": 15867,
+      "sha256": "1ef0fed1fe23c6d2759ad2ada4882e42f7b9e22d5234936dec4fd52d15c341b7",
+      "source": "prior-independent-review",
+      "before": {
+        "bytes": 15867,
+        "sha256": "1ef0fed1fe23c6d2759ad2ada4882e42f7b9e22d5234936dec4fd52d15c341b7"
+      },
+      "after": {
+        "bytes": 15867,
+        "sha256": "1ef0fed1fe23c6d2759ad2ada4882e42f7b9e22d5234936dec4fd52d15c341b7"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.md",
+      "bytes": 41271,
+      "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+      "source": "mechanical-union",
+      "before": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "after": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-path-inventory-r1.json",
+      "bytes": 527107,
+      "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+      "source": "mechanical-union",
+      "before": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "after": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "unchanged": true,
+      "classification": "frozen selected review input"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CIR-01",
+      "severity": "Blocking issuance",
+      "status": "Open",
+      "subject": "Online constructor/Preflight/settings exact joins"
+    },
+    {
+      "id": "CIR-02",
+      "severity": "Blocking issuance",
+      "status": "Open",
+      "subject": "Native observation byte-read and exact endpoint identity handoff"
+    }
+  ],
+  "mechanicalInventory": {
+    "markdownHash": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+    "jsonHash": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+    "reusedFrom": "/root/f4_shared_source_inventory",
+    "notRecollated": true,
+    "issues": [
+      {
+        "id": "PI-01",
+        "kind": "concrete test allowlist conflict",
+        "status": "requires explicit Root correction",
+        "detail": "Frozen binder admits exactly28 new PHPUnit paths; online map adds7 distinct named paths. Mechanical union is35. Replace literal admission/counts with exact35, never catch-all.",
+        "references": [
+          "checkpoint-test-ci-bindings-r1.md:171-188",
+          "online-delegate-checkpoint-issuance-r1.md:282-290"
+        ]
+      },
+      {
+        "id": "PI-02",
+        "kind": "missing type path and/or surface entries",
+        "status": "finite Root type-closure needed",
+        "detail": "23 actual signature/fact types listed in missingNamedTypeEntries are absent from C and from exact path manifests. Their already described semantics remain; collation selects no new namespace/API/helper.",
+        "references": [
+          "history-capture-issuance-map-r1.md:350-426",
+          "installation-publication-issuance-r1.md:128-150"
+        ]
+      },
+      {
+        "id": "PI-03",
+        "kind": "path resolved but exact surface missing",
+        "status": "finite Root fact closure needed",
+        "detail": "UnsignedFacts and CompleteFacts resolve to the common History namespace, so they are included among173 proposed Product paths. Exact declared constructor/factory/getters/fields/callers remain unspecified; do not count this simple prefix expansion as a design question.",
+        "references": [
+          "pure-checkpoint-codec-floor-delta-r1.md:112",
+          "pure-checkpoint-codec-floor-delta-r2.md:26-31",
+          "history-capture-issuance-map-r1.md:316-320"
+        ]
+      },
+      {
+        "id": "PI-04",
+        "kind": "existing change surface left as placeholder",
+        "status": "literal parser integration needed",
+        "detail": "ApplicationAuditConfiguration.php is explicitly a modified existing file in composition32 and its input manifest. That row leaves parser budget/property map to Root/history; online Configuration.fromConfiguration exists as a new parser but does not give an exact replacement/addition surface for this existing class. Retain the file in scope; do not delete it based on online273 wording that says no other existing edits.",
+        "references": [
+          "checkpoint-issuance-map-r1.md:32",
+          "checkpoint-issuance-map-r1-inputs.json:/candidateModifiedProductFiles",
+          "online-delegate-checkpoint-issuance-r1.md:19-31,273"
+        ]
+      },
+      {
+        "id": "PI-05",
+        "kind": "nonliteral documentation wording",
+        "status": "not an extra allowlist grant",
+        "detail": "The14 concrete reader paths in this union include all explicit guide/internal names and source-confirmed routes. Online341 additionally says audit/configuration/troubleshooting/internal architecture guides without naming an audit/troubleshooting source. No unnamed route or guessed guide path is added; any additional intended document requires its exact existing path.",
+        "references": [
+          "checkpoint-issuance-map-r1.md:362",
+          "installation-publication-issuance-r1.md:361-363",
+          "online-delegate-checkpoint-issuance-r1.md:341"
+        ]
+      }
+    ]
+  },
+  "boundaries": {
+    "directionReviewOnly": true,
+    "productIssuance": false,
+    "productAcceptance": false,
+    "fullF5Acceptance": false,
+    "sourceImplementationReviewed": false,
+    "nativeEvidenceCreated": false,
+    "unchangedPriorReviewsReused": true
+  },
+  "notRun": [
+    "PHP",
+    "Node",
+    "tests",
+    "DB",
+    "Docker/containers",
+    "native experiments",
+    "network",
+    "Git",
+    "subagents"
+  ],
+  "ownedOutputs": [
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r1.md",
+    ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-authority-review-r1-inputs.json"
+  ],
+  "onlyOwnedOutputsWritten": true
+}

@@ -1,0 +1,2486 @@
+{
+  "schemaVersion": 1,
+  "kind": "read_only_checkpoint_issuance_map_selected_inputs",
+  "owner": "/root/f5_native_contract_plan",
+  "status": "frozen_candidate_not_issued",
+  "recordedAt": "2026-10-13T01:26:39+09:00",
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E5": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261012",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013"
+  },
+  "rootReportedBase": "35df513e65d687086d47517df9dca6f3b5081457",
+  "gitIndependentlyVerified": false,
+  "selectedInputs": [
+    {
+      "root": "C",
+      "path": "migrations/postgresql/Version20261001000000.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1280,
+        "sha256": "39890cd0cb0092733806149d715d1087475055acaa2283c1069b9b444fdf0b6c"
+      },
+      "after": {
+        "bytes": 1280,
+        "sha256": "39890cd0cb0092733806149d715d1087475055acaa2283c1069b9b444fdf0b6c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Audit/AuditCatalogProvider.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 235,
+        "sha256": "5fa665bf41bdfc7f2987d3e05f89cec0bd5bdf39c14510bad64e0558980a2cee"
+      },
+      "after": {
+        "bytes": 235,
+        "sha256": "5fa665bf41bdfc7f2987d3e05f89cec0bd5bdf39c14510bad64e0558980a2cee"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Console/ConsoleActorProvider.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 218,
+        "sha256": "50b9211730e86e449018b8b38204cbd17410806e88efa667cbc185eb3e3ac9a3"
+      },
+      "after": {
+        "bytes": 218,
+        "sha256": "50b9211730e86e449018b8b38204cbd17410806e88efa667cbc185eb3e3ac9a3"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Console/ConsoleTenantProvider.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 222,
+        "sha256": "70d7e956b1d3817ceae82aa4d909fce2dd869656a866f089f4dfc0708225c19f"
+      },
+      "after": {
+        "bytes": 222,
+        "sha256": "70d7e956b1d3817ceae82aa4d909fce2dd869656a866f089f4dfc0708225c19f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/ActorContext.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 574,
+        "sha256": "39a7701ad0876fe7a79ef562a47c8e8194a1c08acf7e77e039f77ddbf88c74d5"
+      },
+      "after": {
+        "bytes": 574,
+        "sha256": "39a7701ad0876fe7a79ef562a47c8e8194a1c08acf7e77e039f77ddbf88c74d5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/ActorRef.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 796,
+        "sha256": "e9347ea41080e21f0ac64c3486ac95e04931b42aa9ac03bb48f9dca17c6cdea1"
+      },
+      "after": {
+        "bytes": 796,
+        "sha256": "e9347ea41080e21f0ac64c3486ac95e04931b42aa9ac03bb48f9dca17c6cdea1"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Audit/AuditRecordActor.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 544,
+        "sha256": "cc9d9e9a4232f97f46d0f57f01073da64701605c9a0924ea577ea79ad568b309"
+      },
+      "after": {
+        "bytes": 544,
+        "sha256": "cc9d9e9a4232f97f46d0f57f01073da64701605c9a0924ea577ea79ad568b309"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Audit/AuditRecordDraft.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1479,
+        "sha256": "65b6bfbd3f0b0168b892f75734e588ff0d444f50c81b9f137956701820b8468c"
+      },
+      "after": {
+        "bytes": 1479,
+        "sha256": "65b6bfbd3f0b0168b892f75734e588ff0d444f50c81b9f137956701820b8468c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Audit/AuditRecordSource.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 773,
+        "sha256": "c2afdde517b5ea007938fe17b0c2185711ea56498d4bc522eb1c314d5872e8a2"
+      },
+      "after": {
+        "bytes": 773,
+        "sha256": "c2afdde517b5ea007938fe17b0c2185711ea56498d4bc522eb1c314d5872e8a2"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Audit/AuditTypedReference.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1645,
+        "sha256": "e8e373bdedec3bae53e061cd8b195cda106a43d92d3868d857894c044cb87dbb"
+      },
+      "after": {
+        "bytes": 1645,
+        "sha256": "e8e373bdedec3bae53e061cd8b195cda106a43d92d3868d857894c044cb87dbb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Authorization/AuthorizationDecision.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1229,
+        "sha256": "bbf4dbd29ef13a03a9553e683b6a50ca2749e1a9ebe536750d47d10b32a6fff2"
+      },
+      "after": {
+        "bytes": 1229,
+        "sha256": "bbf4dbd29ef13a03a9553e683b6a50ca2749e1a9ebe536750d47d10b32a6fff2"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Authorization/AuthorizationRequest.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1232,
+        "sha256": "03fb24a05b3ce6ed9b594897b3c4f6957645a1b04e01a8743df33ffcf350dc31"
+      },
+      "after": {
+        "bytes": 1232,
+        "sha256": "03fb24a05b3ce6ed9b594897b3c4f6957645a1b04e01a8743df33ffcf350dc31"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/OperationEnvelope.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1290,
+        "sha256": "2421f156471d836d318f70ce581854dd903268f4764c4327e506c921c2c67f25"
+      },
+      "after": {
+        "bytes": 1290,
+        "sha256": "2421f156471d836d318f70ce581854dd903268f4764c4327e506c921c2c67f25"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/OperationResult.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2100,
+        "sha256": "a6c6844fb047131d70a950e147535bef919e6127cf06be6d87185b4db15a45df"
+      },
+      "after": {
+        "bytes": 2100,
+        "sha256": "a6c6844fb047131d70a950e147535bef919e6127cf06be6d87185b4db15a45df"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/Registry/OperationMetadata.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1293,
+        "sha256": "56106b353db4f65ee4997e0596be72331e26fff8743adcdd67fd6d26d81404cf"
+      },
+      "after": {
+        "bytes": 1293,
+        "sha256": "56106b353db4f65ee4997e0596be72331e26fff8743adcdd67fd6d26d81404cf"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Core/TenantRef.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 796,
+        "sha256": "d3376f1f6d323c525bf4f4457605f8d56d3dba979ed6812f56a1345f1e9955a4"
+      },
+      "after": {
+        "bytes": 796,
+        "sha256": "d3376f1f6d323c525bf4f4457605f8d56d3dba979ed6812f56a1345f1e9955a4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationAuditConfiguration.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2736,
+        "sha256": "e0e21c56912fc060ed5fb68b4f308faa705eae1fc59280cb69af6bd0e37329dc"
+      },
+      "after": {
+        "bytes": 2736,
+        "sha256": "e0e21c56912fc060ed5fb68b4f308faa705eae1fc59280cb69af6bd0e37329dc"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationAuditRuntime.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 3583,
+        "sha256": "54ded77b05566926bde9610dbc559ff1f8e47da306d88c375cc4da9cc251ec7a"
+      },
+      "after": {
+        "bytes": 3583,
+        "sha256": "54ded77b05566926bde9610dbc559ff1f8e47da306d88c375cc4da9cc251ec7a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "after": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationConsoleKernel.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 16922,
+        "sha256": "16d71bb469a79e9cbf94510a4058740efbc5c62dc1c55f341c2fe103b16c0363"
+      },
+      "after": {
+        "bytes": 16922,
+        "sha256": "16d71bb469a79e9cbf94510a4058740efbc5c62dc1c55f341c2fe103b16c0363"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationDatabaseConnectionLifecycle.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2272,
+        "sha256": "dd12f8d3e7ef7df2d201185b5f255864ed2fe1be0f35920f56f81fd1fab3e42a"
+      },
+      "after": {
+        "bytes": 2272,
+        "sha256": "dd12f8d3e7ef7df2d201185b5f255864ed2fe1be0f35920f56f81fd1fab3e42a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationOperationInvocationLifecycle.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2097,
+        "sha256": "1dc917a48570875e3bb9fb57a2bfe634a8bba09f552a3c9067f379cf0f5c8d10"
+      },
+      "after": {
+        "bytes": 2097,
+        "sha256": "1dc917a48570875e3bb9fb57a2bfe634a8bba09f552a3c9067f379cf0f5c8d10"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationOperationRuntimeComposer.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "after": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationOperationRuntimeComposition.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1753,
+        "sha256": "6ca21e4255d63a0302deec33ff64716d31dce8066ebde7a5d9bdd1b96ece480b"
+      },
+      "after": {
+        "bytes": 1753,
+        "sha256": "6ca21e4255d63a0302deec33ff64716d31dce8066ebde7a5d9bdd1b96ece480b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationRetentionCommandFactory.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2484,
+        "sha256": "408777310e5135b2cb8d2f47a30e42388a767d08a9c6aa6850f42773c7010e45"
+      },
+      "after": {
+        "bytes": 2484,
+        "sha256": "408777310e5135b2cb8d2f47a30e42388a767d08a9c6aa6850f42773c7010e45"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationRetentionConfiguration.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 3257,
+        "sha256": "c50928e0c21c0991f4033b20d589f20855d47680231275114693f063d0e4b328"
+      },
+      "after": {
+        "bytes": 3257,
+        "sha256": "c50928e0c21c0991f4033b20d589f20855d47680231275114693f063d0e4b328"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "after": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditArtifactSigner.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 4101,
+        "sha256": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152"
+      },
+      "after": {
+        "bytes": 4101,
+        "sha256": "37f8b4c856778dedc99739879e91f691295fce8c18e34821777c19a02fb18152"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Artifact/AuditCheckpointCodec.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 3352,
+        "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362"
+      },
+      "after": {
+        "bytes": 3352,
+        "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 4084,
+        "sha256": "f4bd6b0def2ce1c4f63ce0aa59fb6afbd7bbb1365e12bd538a98b614927337b4"
+      },
+      "after": {
+        "bytes": 4084,
+        "sha256": "f4bd6b0def2ce1c4f63ce0aa59fb6afbd7bbb1365e12bd538a98b614927337b4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Catalog/FrameworkAuditEventCatalog.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 6665,
+        "sha256": "e54b6cc894768ce92f2b9b8770e24dc29344fe9f919dbcf11f568c3e8be31865"
+      },
+      "after": {
+        "bytes": 6665,
+        "sha256": "e54b6cc894768ce92f2b9b8770e24dc29344fe9f919dbcf11f568c3e8be31865"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 6098,
+        "sha256": "789ecb55b0e4a94dc2095563faf18ae98067940ab93549179fb867aca13a0cf2"
+      },
+      "after": {
+        "bytes": 6098,
+        "sha256": "789ecb55b0e4a94dc2095563faf18ae98067940ab93549179fb867aca13a0cf2"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/AuditCheckpointPreparation.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 5563,
+        "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214"
+      },
+      "after": {
+        "bytes": 5563,
+        "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPredecessor.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 5947,
+        "sha256": "a25104de549f0487fd8b66ff92b2fb935b1aac15695175da1d9338b61dbf342d"
+      },
+      "after": {
+        "bytes": 5947,
+        "sha256": "a25104de549f0487fd8b66ff92b2fb935b1aac15695175da1d9338b61dbf342d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 8613,
+        "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794"
+      },
+      "after": {
+        "bytes": 8613,
+        "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSchema.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 3779,
+        "sha256": "c6f019d75fe08a661a42ab3a76f0b2edc01ef99c82e81aa00f33fe39c175dc2d"
+      },
+      "after": {
+        "bytes": 3779,
+        "sha256": "c6f019d75fe08a661a42ab3a76f0b2edc01ef99c82e81aa00f33fe39c175dc2d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 7939,
+        "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208"
+      },
+      "after": {
+        "bytes": 7939,
+        "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 5147,
+        "sha256": "2d10f9d6158d18370e0824ea6521e3ae926641852c9ba4e450176939d825b847"
+      },
+      "after": {
+        "bytes": 5147,
+        "sha256": "2d10f9d6158d18370e0824ea6521e3ae926641852c9ba4e450176939d825b847"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentPages.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2616,
+        "sha256": "96ec8b7ba77f27c665aa5cc601cb20520dce225928bb423206f4631ae6769484"
+      },
+      "after": {
+        "bytes": 2616,
+        "sha256": "96ec8b7ba77f27c665aa5cc601cb20520dce225928bb423206f4631ae6769484"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentQueries.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 9425,
+        "sha256": "f1a7261c75ba52eee79d974cf0620460422900f79e18ec917236c9a6c6968b11"
+      },
+      "after": {
+        "bytes": 9425,
+        "sha256": "f1a7261c75ba52eee79d974cf0620460422900f79e18ec917236c9a6c6968b11"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentReader.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 8135,
+        "sha256": "bcac415d2100f9f020a3076bb6462eb06cc82996da0437c01d67b6689f2e0b85"
+      },
+      "after": {
+        "bytes": 8135,
+        "sha256": "bcac415d2100f9f020a3076bb6462eb06cc82996da0437c01d67b6689f2e0b85"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 4380,
+        "sha256": "d8a4193c86c1bc5c050aa1b6dd297d67fbaf3f80990b5c45ed5208368d48184f"
+      },
+      "after": {
+        "bytes": 4380,
+        "sha256": "d8a4193c86c1bc5c050aa1b6dd297d67fbaf3f80990b5c45ed5208368d48184f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/HmacAuditOpaqueIdDeriver.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 7665,
+        "sha256": "cfd806c28492edddece6cb4489c9f193b656180cb4c91a3ee7c5a25ee351d83c"
+      },
+      "after": {
+        "bytes": 7665,
+        "sha256": "cfd806c28492edddece6cb4489c9f193b656180cb4c91a3ee7c5a25ee351d83c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Key/ApplicationAuditProtectionKeySource.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 4159,
+        "sha256": "382b19e9281184e5e3e1c7ff2bdd9d3c9501616c023e40b06ea93db769339d1a"
+      },
+      "after": {
+        "bytes": 4159,
+        "sha256": "382b19e9281184e5e3e1c7ff2bdd9d3c9501616c023e40b06ea93db769339d1a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Orchestration/AuditDeliveryCoordinator.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 4604,
+        "sha256": "dc0032caac84c6a5043c924db733e6bf031f3ed84b1f816bf7d1f6ae410c8d58"
+      },
+      "after": {
+        "bytes": 4604,
+        "sha256": "dc0032caac84c6a5043c924db733e6bf031f3ed84b1f816bf7d1f6ae410c8d58"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Orchestration/AuditDeliveryFailure.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 427,
+        "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7"
+      },
+      "after": {
+        "bytes": 427,
+        "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Orchestration/AuditDeliveryRequest.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2341,
+        "sha256": "9f405253e2f070755f126f6e4de278e2941aa67848ef80b09941a75fc336e652"
+      },
+      "after": {
+        "bytes": 2341,
+        "sha256": "9f405253e2f070755f126f6e4de278e2941aa67848ef80b09941a75fc336e652"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Orchestration/AuditDeliverySelector.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 5075,
+        "sha256": "c502fdc9b2222f76dffc223083bfbfd9fabedfa062337fc84bdd9feb3f638332"
+      },
+      "after": {
+        "bytes": 5075,
+        "sha256": "c502fdc9b2222f76dffc223083bfbfd9fabedfa062337fc84bdd9feb3f638332"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Read/OperationReadAuditSessionFactory.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 12466,
+        "sha256": "c130eca9ce37153227f42a7433c07211a16e0473b497d6a0df73e54fe49a51b5"
+      },
+      "after": {
+        "bytes": 12466,
+        "sha256": "c130eca9ce37153227f42a7433c07211a16e0473b497d6a0df73e54fe49a51b5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Record/AuditPartitionIdDeriver.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1317,
+        "sha256": "fe7c51eeb29a4372caa1db880b9245a7b3c1950a03daa6bcf4e31d79f83e194c"
+      },
+      "after": {
+        "bytes": 1317,
+        "sha256": "fe7c51eeb29a4372caa1db880b9245a7b3c1950a03daa6bcf4e31d79f83e194c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Storage/AuditStoreFailure.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 371,
+        "sha256": "be1e9269a229770404888d6f8cf47972f7a92fdaad8f186827a87fbb78a53be8"
+      },
+      "after": {
+        "bytes": 371,
+        "sha256": "be1e9269a229770404888d6f8cf47972f7a92fdaad8f186827a87fbb78a53be8"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Storage/PostgreSqlAuditSchema.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 18047,
+        "sha256": "1ab271ae5c192d4a520e9912f18f255fac5bcaf04f2f0fbd5fbfeef0dba5bcb7"
+      },
+      "after": {
+        "bytes": 18047,
+        "sha256": "1ab271ae5c192d4a520e9912f18f255fac5bcaf04f2f0fbd5fbfeef0dba5bcb7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Authorization/AuthorizationEvaluator.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1482,
+        "sha256": "f1becc0e82766972dc369ffc70ff72299822d0283ca8529f4a7d94c25f0627ec"
+      },
+      "after": {
+        "bytes": 1482,
+        "sha256": "f1becc0e82766972dc369ffc70ff72299822d0283ca8529f4a7d94c25f0627ec"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Authorization/AuthorizationPolicyResolver.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1002,
+        "sha256": "b2bc2e715bd95b2e1479e83ecf21c56c39d49e2da07001b0fdb2e557b74bb1c3"
+      },
+      "after": {
+        "bytes": 1002,
+        "sha256": "b2bc2e715bd95b2e1479e83ecf21c56c39d49e2da07001b0fdb2e557b74bb1c3"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Console/LazyFrameworkCommand.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1449,
+        "sha256": "eb8b82bd32f335d7ae176d9745d7f74a579a80ab82bb468c37149e2c3f1b711d"
+      },
+      "after": {
+        "bytes": 1449,
+        "sha256": "eb8b82bd32f335d7ae176d9745d7f74a579a80ab82bb468c37149e2c3f1b711d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Console/SchedulerDaemonCommand.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 3406,
+        "sha256": "f1256578cf8ddf3039b2c21ce3ff367ef25bd7910498efaf5a294db1c1825492"
+      },
+      "after": {
+        "bytes": 3406,
+        "sha256": "f1256578cf8ddf3039b2c21ce3ff367ef25bd7910498efaf5a294db1c1825492"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Console/SchedulerRunCommand.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1591,
+        "sha256": "7d29f4a42ae9d1233cad5bbcee47e87956b986dd636d5076c8e9392261464862"
+      },
+      "after": {
+        "bytes": 1591,
+        "sha256": "7d29f4a42ae9d1233cad5bbcee47e87956b986dd636d5076c8e9392261464862"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Database/DoctrineDatabaseManager.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2066,
+        "sha256": "36711a1f3175c96e963448a7251c8428bf3b16091ab354cd727981456e71206b"
+      },
+      "after": {
+        "bytes": 2066,
+        "sha256": "36711a1f3175c96e963448a7251c8428bf3b16091ab354cd727981456e71206b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Execution/HandlerInvoker.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 2377,
+        "sha256": "440d4bce176b0fdb95aeabd89af2566f7ad762ca0f052f5160189598cbceb8b1"
+      },
+      "after": {
+        "bytes": 2377,
+        "sha256": "440d4bce176b0fdb95aeabd89af2566f7ad762ca0f052f5160189598cbceb8b1"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/ExecutionContext/ExecutionContextFactory.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 5971,
+        "sha256": "de07f3e921ae22ee1841fb0f451bd695eeaf247df5ffc930cca58c51a80bd243"
+      },
+      "after": {
+        "bytes": 5971,
+        "sha256": "de07f3e921ae22ee1841fb0f451bd695eeaf247df5ffc930cca58c51a80bd243"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Migration/ConfigurablePostgreSqlMigrationFactory.php",
+      "group": "selected_actual_source",
+      "before": {
+        "bytes": 1581,
+        "sha256": "e726650867b3bba68c11ca4b46ef58585bc9fe88d7848ee955ad5e54aae8857d"
+      },
+      "after": {
+        "bytes": 1581,
+        "sha256": "e726650867b3bba68c11ca4b46ef58585bc9fe88d7848ee955ad5e54aae8857d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Migration/DoctrineMigrationDependencyFactory.php",
+      "group": "selected_actual_source",
+      "before": {
+        "bytes": 7911,
+        "sha256": "060b001e903c303802fe585eb841d268ccd0cba2220993efcf2274fef25c4426"
+      },
+      "after": {
+        "bytes": 7911,
+        "sha256": "060b001e903c303802fe585eb841d268ccd0cba2220993efcf2274fef25c4426"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Migration/PostgreSqlMigrationSchema.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1227,
+        "sha256": "0c1429c0dd55eff174bcda1e1dcd6c23f9b903f0a7a3948e595759e193d43747"
+      },
+      "after": {
+        "bytes": 1227,
+        "sha256": "0c1429c0dd55eff174bcda1e1dcd6c23f9b903f0a7a3948e595759e193d43747"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Registry/OperationMetadataCompiler.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 10127,
+        "sha256": "1a7caed1d6b168b9e265c18fcf5f5a03f0f110e945bd02f6fed40eaccf4802a0"
+      },
+      "after": {
+        "bytes": 10127,
+        "sha256": "1a7caed1d6b168b9e265c18fcf5f5a03f0f110e945bd02f6fed40eaccf4802a0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Scheduler/MaintenanceScheduler.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 1913,
+        "sha256": "99c365639b4d2bbfa1440eeb6e3c2552b3ad8ed8d6727fab467c9ed3a48c8cbe"
+      },
+      "after": {
+        "bytes": 1913,
+        "sha256": "99c365639b4d2bbfa1440eeb6e3c2552b3ad8ed8d6727fab467c9ed3a48c8cbe"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Scheduler/MaintenanceTask.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 236,
+        "sha256": "3a841eb6cdd1307dd79f075cb89ed6fb5534fa132f4cd6d9f05b3534f29cce76"
+      },
+      "after": {
+        "bytes": 236,
+        "sha256": "3a841eb6cdd1307dd79f075cb89ed6fb5534fa132f4cd6d9f05b3534f29cce76"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Scheduler/MaintenanceTaskResult.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 862,
+        "sha256": "4d3fa0a89ff5775c7a4c15783caf552eeced639576834d922b7811aa2159b703"
+      },
+      "after": {
+        "bytes": 862,
+        "sha256": "4d3fa0a89ff5775c7a4c15783caf552eeced639576834d922b7811aa2159b703"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Scheduler/OutboxRelayMaintenanceTask.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 823,
+        "sha256": "03e31c2cfdd816fbf550cdd43c24b670a8b879f426ad64d5d8f6e64217040a5c"
+      },
+      "after": {
+        "bytes": 823,
+        "sha256": "03e31c2cfdd816fbf550cdd43c24b670a8b879f426ad64d5d8f6e64217040a5c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "after": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditAnchorStateArchitectureTest.php",
+      "group": "exact_guard_owner",
+      "before": {
+        "bytes": 215817,
+        "sha256": "8ea140b2ea6f9b70efc9fd7a7ddad3d202d122865d4368226cc2706caca3cb2b"
+      },
+      "after": {
+        "bytes": 215817,
+        "sha256": "8ea140b2ea6f9b70efc9fd7a7ddad3d202d122865d4368226cc2706caca3cb2b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditArtifactArchitectureTest.php",
+      "group": "exact_guard_owner",
+      "before": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "after": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "group": "exact_guard_owner",
+      "before": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "after": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "after": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditOutboxStorageArchitectureTest.php",
+      "group": "exact_guard_owner",
+      "before": {
+        "bytes": 84770,
+        "sha256": "385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d"
+      },
+      "after": {
+        "bytes": 84770,
+        "sha256": "385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditPublicApiTest.php",
+      "group": "exact_guard_owner",
+      "before": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "after": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditRecordArchitectureTest.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 254508,
+        "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42"
+      },
+      "after": {
+        "bytes": 254508,
+        "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditRelayArchitectureTest.php",
+      "group": "exact_guard_owner",
+      "before": {
+        "bytes": 119159,
+        "sha256": "3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb"
+      },
+      "after": {
+        "bytes": 119159,
+        "sha256": "3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditStoreArchitectureTest.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "after": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Consumer/framework-package-export.sh",
+      "group": "selected_actual_source",
+      "before": {
+        "bytes": 20437,
+        "sha256": "dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717"
+      },
+      "after": {
+        "bytes": 20437,
+        "sha256": "dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/symfony/dependency-injection/Container.php",
+      "group": "reused_selected_actual_source",
+      "before": {
+        "bytes": 14942,
+        "sha256": "ce358ce91447d0c6fc32785345c6fb0d768ec4f27e9163faf73200e74b761656"
+      },
+      "after": {
+        "bytes": 14942,
+        "sha256": "ce358ce91447d0c6fc32785345c6fb0d768ec4f27e9163faf73200e74b761656"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-composition-correction-r2-inputs.json",
+      "group": "root_correction",
+      "before": {
+        "bytes": 1322,
+        "sha256": "332a720b8f580ec306d38be6eee22bbe4f4df7351ef691a3782481f11819ac44"
+      },
+      "after": {
+        "bytes": 1322,
+        "sha256": "332a720b8f580ec306d38be6eee22bbe4f4df7351ef691a3782481f11819ac44"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-composition-correction-r2.md",
+      "group": "root_correction",
+      "before": {
+        "bytes": 5587,
+        "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77"
+      },
+      "after": {
+        "bytes": 5587,
+        "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-composition-correction-review-r2.md",
+      "group": "root_correction",
+      "before": {
+        "bytes": 6581,
+        "sha256": "24c15adb50c2d665549f50ddf9ae371b207a1d0162b3f7f0a429dfda68c8bd4c"
+      },
+      "after": {
+        "bytes": 6581,
+        "sha256": "24c15adb50c2d665549f50ddf9ae371b207a1d0162b3f7f0a429dfda68c8bd4c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "authority-filesystem-history-contract-review-r2.md",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 4988,
+        "sha256": "75cd36c1abc9f7996951bd7f4f1ef9206f0b1e1e52d4f165c1f21bb730036a34"
+      },
+      "after": {
+        "bytes": 4988,
+        "sha256": "75cd36c1abc9f7996951bd7f4f1ef9206f0b1e1e52d4f165c1f21bb730036a34"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "checkpoint-composition-sql-review-r1.md",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 14412,
+        "sha256": "504e0f9da6b129b1dda65e94541484d1b2910d84f53b2a1c34d46ef1ab9fad5a"
+      },
+      "after": {
+        "bytes": 14412,
+        "sha256": "504e0f9da6b129b1dda65e94541484d1b2910d84f53b2a1c34d46ef1ab9fad5a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "checkpoint-production-composition-proposal-r1-inputs.json",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 22357,
+        "sha256": "3f6ee835b3b11843aa1b959585728c3bb8e40b6c4120af787e5151b87dfc99eb"
+      },
+      "after": {
+        "bytes": 22357,
+        "sha256": "3f6ee835b3b11843aa1b959585728c3bb8e40b6c4120af787e5151b87dfc99eb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "checkpoint-production-composition-proposal-r1.md",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 60669,
+        "sha256": "11a695ff38c2093f1addd38095ca1c9e584e585e9e6b62680a3b9553f98d488d"
+      },
+      "after": {
+        "bytes": 60669,
+        "sha256": "11a695ff38c2093f1addd38095ca1c9e584e585e9e6b62680a3b9553f98d488d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "checkpoint-selector-lazy-composition-proposal-r1-inputs.json",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 9750,
+        "sha256": "32472659a86a8d5adc83c6e9c08daa253930f57c5a83e7ce5e218e5985a9fa92"
+      },
+      "after": {
+        "bytes": 9750,
+        "sha256": "32472659a86a8d5adc83c6e9c08daa253930f57c5a83e7ce5e218e5985a9fa92"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "checkpoint-selector-lazy-composition-proposal-r1.md",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 45353,
+        "sha256": "f2391720411a9f52c33897aa773a5b9bf5397da1ebea56b8f768fd729bcd15cf"
+      },
+      "after": {
+        "bytes": 45353,
+        "sha256": "f2391720411a9f52c33897aa773a5b9bf5397da1ebea56b8f768fd729bcd15cf"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "shared-provenance-exact-ddl-proposal-r1-inputs.json",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 13376,
+        "sha256": "75002dd2443a776f3380fd84fbec10f53d7f3acaaa788c7c58e61944496ca381"
+      },
+      "after": {
+        "bytes": 13376,
+        "sha256": "75002dd2443a776f3380fd84fbec10f53d7f3acaaa788c7c58e61944496ca381"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "shared-provenance-exact-ddl-proposal-r1.md",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 47086,
+        "sha256": "6eb421227d30fcf7b9e6574058b6934d9900faf85b149d1feb4953bf4dc63cc7"
+      },
+      "after": {
+        "bytes": 47086,
+        "sha256": "6eb421227d30fcf7b9e6574058b6934d9900faf85b149d1feb4953bf4dc63cc7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "shared-provenance-sql-contract-proposal-r1-inputs.json",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 26562,
+        "sha256": "c54dbe9a1d7dce17a695e8af10b757fee65311fe33ad374e7599d71e24478dee"
+      },
+      "after": {
+        "bytes": 26562,
+        "sha256": "c54dbe9a1d7dce17a695e8af10b757fee65311fe33ad374e7599d71e24478dee"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "shared-provenance-sql-contract-proposal-r1.md",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 66935,
+        "sha256": "d3dc8e4ba5b29727b5e38ef356e27f26d057f094ec32ecca9f05d00ee040a9cc"
+      },
+      "after": {
+        "bytes": 66935,
+        "sha256": "d3dc8e4ba5b29727b5e38ef356e27f26d057f094ec32ecca9f05d00ee040a9cc"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "shared-provenance-sql-contract-review-r1.md",
+      "group": "frozen_reviewed_foundation",
+      "before": {
+        "bytes": 12667,
+        "sha256": "64f9b74f56b18fc33fb411c08fd74489910f6914e71490cfc93525ba54d3e2ef"
+      },
+      "after": {
+        "bytes": 12667,
+        "sha256": "64f9b74f56b18fc33fb411c08fd74489910f6914e71490cfc93525ba54d3e2ef"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".codex/config.toml",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "after": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "AGENTS.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 8615,
+        "sha256": "8bcf3832de246ce7d8ba3048cb0f563510ea1138c42eadfce31676c4d0857821"
+      },
+      "after": {
+        "bytes": 8615,
+        "sha256": "8bcf3832de246ce7d8ba3048cb0f563510ea1138c42eadfce31676c4d0857821"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/STATE.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 6473,
+        "sha256": "2eab5384aa22f9b239ef4c41e82a1757b5410b35b90d8e1315468870cfc9bb9a"
+      },
+      "after": {
+        "bytes": 6473,
+        "sha256": "2eab5384aa22f9b239ef4c41e82a1757b5410b35b90d8e1315468870cfc9bb9a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 15349,
+        "sha256": "41263ef815070b9d67baf66d42607ba1e2de9c3d7fe57c9740565939f8335e1c"
+      },
+      "after": {
+        "bytes": 15910,
+        "sha256": "150ef69e013c1387a26669ef6f4f44e7084a0084648b3b100c0a098c4ecf22ee"
+      },
+      "unchanged": false
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/125-audit-checkpoint-persistence.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 134842,
+        "sha256": "0246b22e4d655610e4dc414fe5448a140312c37c1a0fbefffa40bcac30326c3b"
+      },
+      "after": {
+        "bytes": 134842,
+        "sha256": "0246b22e4d655610e4dc414fe5448a140312c37c1a0fbefffa40bcac30326c3b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 39299,
+        "sha256": "c8e0aad46a30592b9b002deb8d0e63e99afcc269707d2510e1e5710e31153dfd"
+      },
+      "after": {
+        "bytes": 39299,
+        "sha256": "c8e0aad46a30592b9b002deb8d0e63e99afcc269707d2510e1e5710e31153dfd"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 72705,
+        "sha256": "ef85bcb7ed50d3d5fb8da22de2eec67ccc56b26fe6a3d0ad50ee387addd0f727"
+      },
+      "after": {
+        "bytes": 73285,
+        "sha256": "e514b1809cec1b50c5704d95393c6ed88492df6982903a411a45fc16c4709049"
+      },
+      "unchanged": false
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/131-audit-ordinary-sign-service.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 17332,
+        "sha256": "7a81c24cfa20c1c98dcbba2081d3544ef0eaa6f4a130005abfec083675bcb85d"
+      },
+      "after": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "unchanged": false
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/132-audit-anchor-authenticated-provenance.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "after": {
+        "bytes": 13080,
+        "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/README.md",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "after": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/release-authority.json",
+      "group": "current_authority_or_context",
+      "before": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "after": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1.md",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "after": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1-inputs.json",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "after": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "authority-filesystem-history-contract-proposal-r2.md",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 23766,
+        "sha256": "cc0314f9aee0ee038f61f75e9237e77dcc35b03951764cde85f8cb902f172127"
+      },
+      "after": {
+        "bytes": 23766,
+        "sha256": "cc0314f9aee0ee038f61f75e9237e77dcc35b03951764cde85f8cb902f172127"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBinding.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 7630,
+        "sha256": "2aea6757b10659c4f1e6e80559acc9125f1a83c8d8d52cfa36f06abc1f11068b"
+      },
+      "after": {
+        "bytes": 7630,
+        "sha256": "2aea6757b10659c4f1e6e80559acc9125f1a83c8d8d52cfa36f06abc1f11068b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 3479,
+        "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734"
+      },
+      "after": {
+        "bytes": 3479,
+        "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 3607,
+        "sha256": "774178c7a3f1ae812a6f02434377bc157fd0efc854f39708368cd90a2f444787"
+      },
+      "after": {
+        "bytes": 3607,
+        "sha256": "774178c7a3f1ae812a6f02434377bc157fd0efc854f39708368cd90a2f444787"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "after": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationConsoleKernelTest.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "after": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Scheduler/MaintenanceSchedulerTest.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 7726,
+        "sha256": "cb9eeff78df3b65e0c883c9a317ded1b215391a4559ca86e42bd70769c85c32d"
+      },
+      "after": {
+        "bytes": 7726,
+        "sha256": "cb9eeff78df3b65e0c883c9a317ded1b215391a4559ca86e42bd70769c85c32d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/ConfigurablePostgreSqlMigrationFactoryTest.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 2604,
+        "sha256": "c6c0fcf1b407a58d9ac02c87352ee8575a1c2fee65f7b859dad48537e2e4bca9"
+      },
+      "after": {
+        "bytes": 2604,
+        "sha256": "c6c0fcf1b407a58d9ac02c87352ee8575a1c2fee65f7b859dad48537e2e4bca9"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/PostgreSqlMigrationSchemaTest.php",
+      "group": "final_source_and_cross_lane_alignment",
+      "before": {
+        "bytes": 1440,
+        "sha256": "e79572d8b735b1f91334d368b7ebf43915b5096882466aae6a57f6361d775af8"
+      },
+      "after": {
+        "bytes": 1440,
+        "sha256": "e79572d8b735b1f91334d368b7ebf43915b5096882466aae6a57f6361d775af8"
+      },
+      "unchanged": true
+    }
+  ],
+  "selectedInputCount": 116,
+  "notRun": [
+    "Git",
+    "Product runtime",
+    "PHP",
+    "Node",
+    "tests",
+    "DB/SQL",
+    "network",
+    "native tools",
+    "leases"
+  ],
+  "notModified": [
+    "Product",
+    "governance",
+    "STATE",
+    "frozen E5 evidence",
+    "root correction"
+  ],
+  "ddl": {
+    "source": "E5/shared-provenance-exact-ddl-proposal-r1.md",
+    "sourceSha256": "6eb421227d30fcf7b9e6574058b6934d9900faf85b149d1feb4953bf4dc63cc7",
+    "first28BlockSha256": "2bc8fded97523d9e3e9cce4813ef61cbbd06c9194e48ba4920c2052cca8cfeb9",
+    "consolidatedStatementCount": 29,
+    "consolidatedBlockSha256": "f7ef7e2fb75e923c8f9278b06b6a7b64560c17c602f11649ef14b8d9878bf416",
+    "consolidatedBlockBytes": 31529,
+    "proposedUnreservedMigration": "migrations/postgresql/Version20261012000000.php",
+    "statements": [
+      {
+        "ordinal": 1,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_policy_envelopes\" (",
+        "sha256": "ecdebccd66fa435dba6948fe556351d198041ae2eaa0cc0a65c32ffc3c714524",
+        "bytes": 2400
+      },
+      {
+        "ordinal": 2,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_segment_bindings\" (",
+        "sha256": "76f3eb57b2934325fa3e6ad3272c28985d2cdd2357dc696917d4da9d74542f9a",
+        "bytes": 3626
+      },
+      {
+        "ordinal": 3,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_work_reservations\" (",
+        "sha256": "96c3df421af91bbf46ba661b0f09c43d1b2ead8cb38a7aab320c867cf236e615",
+        "bytes": 5458
+      },
+      {
+        "ordinal": 4,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_work_steps\" (",
+        "sha256": "bed662cc25d12331a1f971b465bc924105911331e5968670ac028ea571454efb",
+        "bytes": 3586
+      },
+      {
+        "ordinal": 5,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_policy_transitions\" (",
+        "sha256": "81ebff520c6d0a14c61315d8aad4765eb2753e0ac469f2c26043eb1cf97b287f",
+        "bytes": 3067
+      },
+      {
+        "ordinal": 6,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_transition_acks\" (",
+        "sha256": "6ed4b99248679d602783a11816c86f603bde1764a180c50353a939b8f736fd79",
+        "bytes": 2240
+      },
+      {
+        "ordinal": 7,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_publication_candidates\" (",
+        "sha256": "67657a19bb2f3a1028e01fa10abd89f8c0c2565e1635350c08e6eb7ac893149b",
+        "bytes": 5474
+      },
+      {
+        "ordinal": 8,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_work_dispatch\" (",
+        "sha256": "08521be17429ad061788d2256ba058f7730ad486e4fb2f6e65691e85ca29825a",
+        "bytes": 1093
+      },
+      {
+        "ordinal": 9,
+        "firstLine": "CREATE TABLE \"blackops\".\"audit_f_policy_dispatch\" (",
+        "sha256": "861090c5d309634ad436b848ee07f647597be0fe83eb0df18d52fd5d2ce80fa0",
+        "bytes": 939
+      },
+      {
+        "ordinal": 10,
+        "firstLine": "CREATE UNIQUE INDEX \"af_segment_next_uq\" ON \"blackops\".\"audit_f_segment_bindings\" (\"installation_ref\", \"previous_binding_digest\") WHERE \"previous_binding_digest\" IS NOT NULL;",
+        "sha256": "33afee031446e062ff7b8d330fbeba05ca9330da823d81c2bedb5ca6f30397f1",
+        "bytes": 174
+      },
+      {
+        "ordinal": 11,
+        "firstLine": "CREATE UNIQUE INDEX \"af_segment_bootstrap_uq\" ON \"blackops\".\"audit_f_segment_bindings\" (\"installation_ref\") WHERE \"previous_binding_digest\" IS NULL;",
+        "sha256": "aab1642ae2cce9df5c5d1c72845e31bd9e6025b664d9705a1498ea27ae2d98a2",
+        "bytes": 148
+      },
+      {
+        "ordinal": 12,
+        "firstLine": "CREATE UNIQUE INDEX \"af_work_checkpoint_slot_uq\" ON \"blackops\".\"audit_f_work_reservations\" (\"partition_id\", \"segment_id\") WHERE \"artifact_kind\" = 'audit_checkpoint';",
+        "sha256": "5853603490c2813a5f5d1e5c6a0fd6a07430c2fc7f1fdfdfe8032ebef26cae3f",
+        "bytes": 165
+      },
+      {
+        "ordinal": 13,
+        "firstLine": "CREATE UNIQUE INDEX \"af_work_receipt_slot_uq\" ON \"blackops\".\"audit_f_work_reservations\" (\"partition_id\", \"intent_id\") WHERE \"artifact_kind\" = 'audit_anchor_receipt';",
+        "sha256": "13e08c53f54f81701fc800769d134833d3053fce9a600f0384fc9643e419c45c",
+        "bytes": 165
+      },
+      {
+        "ordinal": 14,
+        "firstLine": "CREATE UNIQUE INDEX \"af_work_receipt_id_uq\" ON \"blackops\".\"audit_f_work_reservations\" (\"anchor_receipt_id\") WHERE \"artifact_kind\" = 'audit_anchor_receipt';",
+        "sha256": "b75ad9eeb66481044d98627f799cb26b04fccc77357146e57bdc5199be74703f",
+        "bytes": 155
+      },
+      {
+        "ordinal": 15,
+        "firstLine": "CREATE UNIQUE INDEX \"af_transition_next_uq\" ON \"blackops\".\"audit_f_policy_transitions\" (\"installation_ref\", \"previous_transition_digest\") WHERE \"previous_transition_digest\" IS NOT NULL;",
+        "sha256": "95ebd546c6b795521acefe99be2c3398fd22c332c3a14ae00cb54e5d8eb8bfa4",
+        "bytes": 185
+      },
+      {
+        "ordinal": 16,
+        "firstLine": "CREATE UNIQUE INDEX \"af_transition_bootstrap_uq\" ON \"blackops\".\"audit_f_policy_transitions\" (\"installation_ref\") WHERE \"previous_transition_digest\" IS NULL;",
+        "sha256": "96e1a548bc7e2acab0638746ed247fbc164e51286f7a40a199fc11337659e3ad",
+        "bytes": 156
+      },
+      {
+        "ordinal": 17,
+        "firstLine": "CREATE UNIQUE INDEX \"af_publication_next_uq\" ON \"blackops\".\"audit_f_publication_candidates\" (\"installation_ref\", \"previous_head_digest\") WHERE \"previous_head_digest\" IS NOT NULL;",
+        "sha256": "aca09d9aa9f6ec8ed2bdd3abbc8e75abe058562ccd29f1469b4c1ee077a4adc2",
+        "bytes": 178
+      },
+      {
+        "ordinal": 18,
+        "firstLine": "CREATE UNIQUE INDEX \"af_publication_bootstrap_uq\" ON \"blackops\".\"audit_f_publication_candidates\" (\"installation_ref\") WHERE \"previous_head_digest\" IS NULL;",
+        "sha256": "e6a98fe32fb338ee6312af4c1bad6eb7f890e988ad29218e952ac55e9779f6e3",
+        "bytes": 155
+      },
+      {
+        "ordinal": 19,
+        "firstLine": "CREATE INDEX \"af_work_dispatch_due_idx\" ON \"blackops\".\"audit_f_work_dispatch\" (\"pending_state\", \"next_attempt_at\", \"work_id\");",
+        "sha256": "fd99e03308b96897be67fdf5b565ea584e31de656fc085d793d881d852389f30",
+        "bytes": 126
+      },
+      {
+        "ordinal": 20,
+        "firstLine": "CREATE INDEX \"af_policy_dispatch_due_idx\" ON \"blackops\".\"audit_f_policy_dispatch\" (\"next_attempt_at\", \"transition_id\");",
+        "sha256": "9f8bd2e7b37d1bcc661f29ac214d766238a2e85cb67db64345437e79d458cc5c",
+        "bytes": 119
+      },
+      {
+        "ordinal": 21,
+        "firstLine": "CREATE FUNCTION \"blackops\".\"audit_f_reject_immutable_change\"()",
+        "sha256": "5a12a8df79848ef644d6fd910ca32c09e83da301d73c4bd48c2162b1d96794e5",
+        "bytes": 307
+      },
+      {
+        "ordinal": 22,
+        "firstLine": "CREATE TRIGGER \"af_policy_immutable\"",
+        "sha256": "8bc0e6352fe0ee82773473f6d55311cc734665dba63e543c64b352e5e5639de3",
+        "bytes": 197
+      },
+      {
+        "ordinal": 23,
+        "firstLine": "CREATE TRIGGER \"af_segment_immutable\"",
+        "sha256": "671b23c7f799dea45882e58cd088191ef7b1a335634a0f1ee8281500228e60ed",
+        "bytes": 198
+      },
+      {
+        "ordinal": 24,
+        "firstLine": "CREATE TRIGGER \"af_work_immutable\"",
+        "sha256": "3aec3f240a33207665797e2e170706353c0f8ed0bffe72cf5a4a00e4b7e584d6",
+        "bytes": 196
+      },
+      {
+        "ordinal": 25,
+        "firstLine": "CREATE TRIGGER \"af_step_immutable\"",
+        "sha256": "3b9c9f67ebed5f52ce0abe2315ba79d187207705f865f610a52fc65bd72021e0",
+        "bytes": 189
+      },
+      {
+        "ordinal": 26,
+        "firstLine": "CREATE TRIGGER \"af_transition_immutable\"",
+        "sha256": "1541baf15148a8068348d6fc61addd4185374d9036e5d2721a798e70838f234c",
+        "bytes": 203
+      },
+      {
+        "ordinal": 27,
+        "firstLine": "CREATE TRIGGER \"af_ack_immutable\"",
+        "sha256": "778a3256ac85a9553bdaf9312f5739ab923256aa8d3fcce9c5d5ac9de217e800",
+        "bytes": 193
+      },
+      {
+        "ordinal": 28,
+        "firstLine": "CREATE TRIGGER \"af_publication_immutable\"",
+        "sha256": "71780de5a3acae38220f5a4f490a35124460c884c0f7d4a456773341c0441996",
+        "bytes": 208
+      },
+      {
+        "ordinal": 29,
+        "firstLine": "CREATE INDEX \"audit_segments_checkpoint_selection_idx\" ON \"blackops\".\"audit_segments\" (\"partition_id\", \"first_sequence\", \"segment_id\") WHERE \"state\" IN ('closed', 'sealed');",
+        "sha256": "61b9ec12e201df223f4beb1f56b62efffbead7f523f6cd69b9175a239803779d",
+        "bytes": 173
+      }
+    ]
+  },
+  "selector": {
+    "source": "E5/checkpoint-selector-lazy-composition-proposal-r1.md",
+    "literalSqlBlockCount": 8,
+    "queriesUnchanged": true
+  },
+  "crossLaneHistory": {
+    "mapSha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+    "inputsSha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+    "mapPinsThisCompanion": false
+  },
+  "addedAlignmentInputsAt": "2026-10-13T01:57:47+09:00",
+  "candidateNewProductTypes": [
+    {
+      "path": "src/Internal/Application/ApplicationAuditRecordComposition.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditCheckpointProofComponents.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditCheckpointComposition.php",
+      "declaredMethodBudget": 10,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditOrdinarySignConfiguration.php",
+      "declaredMethodBudget": 10,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignDefinition.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignIdentity.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignOperation.php",
+      "declaredMethodBudget": 0,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignValue.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignPolicy.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignRuntime.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditCheckpointPreparation.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignExecution.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditCheckpointProduction.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignHandler.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignContextFactory.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignDrafts.php",
+      "declaredMethodBudget": 10,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignAudit.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditSigningGraphState.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryAuditSignDecision.php",
+      "declaredMethodBudget": 0,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/PostgreSqlOrdinaryCheckpointSelector.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OrdinaryCheckpointSelection.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/HeldAuditArtifactOutcome.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OwnedSignRequestBasis.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Signing/OwnedSignContext.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Scheduler/OrdinaryAuditSignMaintenanceTask.php",
+      "declaredMethodBudget": 3,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Scheduler/AuditControlMaintenanceTask.php",
+      "declaredMethodBudget": 3,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditProvenanceTransaction.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditProvenanceReadTransaction.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectionQueries.php",
+      "declaredMethodBudget": 5,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditWorkRows.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointMutationAdmission.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditOrdinaryCheckpointRegistration.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditControlCheckpointIssuer.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointReservationAcquisition.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointPreparationWorkflow.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointCandidateWorkflow.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointPersistenceWorkflow.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditWorkProvenanceRecorder.php",
+      "declaredMethodBudget": 10,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointArtifactFacts.php",
+      "declaredMethodBudget": 3,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationWriter.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/ReservedCheckpointWork.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PreparedCheckpointWork.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/SignedCheckpointCandidate.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/HeldCheckpointCandidate.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PersistedCheckpointOutcome.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointSigningKey.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointReservationResources.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchema.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditProvenanceWorkDdl.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlHistoryDdl.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlBindingRows.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlTransitionRows.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationRows.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointAdmission.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointAdmissionQueries.php",
+      "declaredMethodBudget": 5,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Checkpoint/AuditCheckpointSlot.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/PostgreSqlAuditControlCheckpointSelector.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlCheckpointProduction.php",
+      "declaredMethodBudget": 6,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlMaintenanceRuntime.php",
+      "declaredMethodBudget": 7,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlSegmentProofWorkflow.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlPublicationWorkflow.php",
+      "declaredMethodBudget": 10,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlCheckpointSelection.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlSegmentSelection.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlClosedSegmentProof.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlPublicationCandidate.php",
+      "declaredMethodBudget": 9,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlHeadSelection.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlPendingPublication.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlBootstrapSelection.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued",
+      "requiredRootJoin": "Independent actual installation factory caller remains unissued"
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlRootRevisionSelection.php",
+      "declaredMethodBudget": 8,
+      "ordinaryArgumentMaximum": 5,
+      "status": "candidate_not_issued",
+      "requiredRootJoin": "Independent actual installation factory caller remains unissued"
+    }
+  ],
+  "candidateNewProductTypeCount": 69,
+  "candidateModifiedProductFiles": [
+    "src/Internal/Application/ApplicationRetentionRuntime.php",
+    "src/Internal/Application/ApplicationRetentionCommandFactory.php",
+    "src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+    "src/Internal/Application/ApplicationAuditConfiguration.php"
+  ],
+  "importedAuthoritySeams": [
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointPhaseAcquisition.php",
+      "methodBudget": 10,
+      "unbound": "Actual concrete online acquisition and current-verifier/key methods"
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointCandidateSigner.php",
+      "methodBudgetMaximum": 10,
+      "unbound": "Actual current online acquisition/private seed custody and fixed real F1 call"
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Custody/AuditControlDelegateCustody.php",
+      "methodBudgetMaximum": 10,
+      "unbound": "Actual private phase-specific delegate custody/frame builders"
+    }
+  ],
+  "candidateMigration": {
+    "path": "migrations/postgresql/Version20261012000000.php",
+    "reserved": false,
+    "methodBudget": 4,
+    "statementCount": 29
+  },
+  "limits": {
+    "newTypeTotalDeclaredMethodsMaximum": 10,
+    "ordinaryArgumentsMaximum": 5,
+    "cyclomaticComplexity": 15,
+    "phpMemoryLimit": "512M",
+    "measuredProductPass": false
+  },
+  "changedSelectedInputs": [
+    {
+      "root": "P",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": "41263ef815070b9d67baf66d42607ba1e2de9c3d7fe57c9740565939f8335e1c",
+      "after": "150ef69e013c1387a26669ef6f4f44e7084a0084648b3b100c0a098c4ecf22ee"
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "before": "ef85bcb7ed50d3d5fb8da22de2eec67ccc56b26fe6a3d0ad50ee387addd0f727",
+      "after": "e514b1809cec1b50c5704d95393c6ed88492df6982903a411a45fc16c4709049"
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/131-audit-ordinary-sign-service.md",
+      "before": "7a81c24cfa20c1c98dcbba2081d3544ef0eaa6f4a130005abfec083675bcb85d",
+      "after": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+    }
+  ],
+  "allSelectedInputsUnchanged": false,
+  "nativeColumnCounts": {
+    "audit_f_policy_envelopes": 8,
+    "audit_f_segment_bindings": 10,
+    "audit_f_work_reservations": 15,
+    "audit_f_work_steps": 10,
+    "audit_f_policy_transitions": 9,
+    "audit_f_transition_acks": 7,
+    "audit_f_publication_candidates": 13,
+    "audit_f_work_dispatch": 5,
+    "audit_f_policy_dispatch": 4
+  },
+  "nativeColumns": {
+    "audit_f_policy_envelopes": [
+      "installation_ref",
+      "policy_version",
+      "policy_digest",
+      "previous_policy_version",
+      "previous_policy_digest",
+      "authority_ref",
+      "policy_id",
+      "envelope"
+    ],
+    "audit_f_segment_bindings": [
+      "installation_ref",
+      "binding_digest",
+      "policy_digest",
+      "partition_id",
+      "segment_id",
+      "first_sequence",
+      "last_sequence",
+      "successor_segment_id",
+      "previous_binding_digest",
+      "envelope"
+    ],
+    "audit_f_work_reservations": [
+      "work_id",
+      "installation_ref",
+      "reservation_digest",
+      "policy_digest",
+      "artifact_kind",
+      "partition_id",
+      "segment_id",
+      "production_class",
+      "segment_binding_digest",
+      "checkpoint_reservation_digest",
+      "intent_id",
+      "receipt_checkpoint_id",
+      "anchor_reservation_digest",
+      "anchor_receipt_id",
+      "envelope"
+    ],
+    "audit_f_work_steps": [
+      "work_id",
+      "ordinal",
+      "reservation_digest",
+      "previous_step_ordinal",
+      "previous_step_digest",
+      "authorizing_policy_digest",
+      "phase",
+      "step_digest",
+      "envelope",
+      "complete_bytes"
+    ],
+    "audit_f_policy_transitions": [
+      "installation_ref",
+      "transition_id",
+      "transition_digest",
+      "authorizing_policy_digest",
+      "previous_transition_digest",
+      "previous_policy_state_digest",
+      "new_policy_state_digest",
+      "cause",
+      "envelope"
+    ],
+    "audit_f_transition_acks": [
+      "installation_ref",
+      "acknowledgement_digest",
+      "authorizing_policy_digest",
+      "transition_id",
+      "transition_digest",
+      "ingress_key",
+      "envelope"
+    ],
+    "audit_f_publication_candidates": [
+      "installation_ref",
+      "revision",
+      "head_digest",
+      "previous_revision",
+      "previous_head_digest",
+      "policy_digest",
+      "policy_state_digest",
+      "closed_segment_tail_digest",
+      "transition_tail_digest",
+      "acknowledged_transition_digest",
+      "transition_ack_digest",
+      "document_sha256",
+      "document_bytes"
+    ],
+    "audit_f_work_dispatch": [
+      "work_id",
+      "source_digest",
+      "pending_state",
+      "next_attempt_at",
+      "retry_count"
+    ],
+    "audit_f_policy_dispatch": [
+      "transition_id",
+      "source_digest",
+      "next_attempt_at",
+      "retry_count"
+    ]
+  },
+  "bookkeepingOnlyChecks": {
+    "ddlBlocksRetainFrozen28PlusIndex29": true,
+    "ddlStatementCount": 29,
+    "selectorLiteralBlockCount": 8,
+    "candidateBudgetEntriesWithinTen": true,
+    "sqlParsedOrExecuted": false,
+    "newProductCodeExistsOrTested": false,
+    "selectedInputCount": 116,
+    "unchangedSelectedInputCount": 113,
+    "concurrentRootGovernanceChangeCount": 3,
+    "importedHistoryMapMatchesFrozenHash": true,
+    "unresolvedInstallerOriginPreserved": true,
+    "selfCheckAt": "2026-10-13T02:08:37+09:00"
+  },
+  "rootDecisions": [
+    "Complete remaining native RR READ ONLY and pure F1 replay review/adoption; Root concurrent131 composer/lazy and130/131 monotone graph wording now present",
+    "Reserve or rename proposed29-statement migration",
+    "Bind actual online/private artifact seed/delegate custody imports to the full authority map",
+    "Name independent installer selection entry for exact archived bootstrap/root-revision policy",
+    "Freeze independently reviewed full combined caller/verification/resource packet before Luna issuance"
+  ],
+  "remaining": [
+    "Complete prerequisite implementation and native qualification",
+    "Actual F4 receipt-first selection and both real post-Required continuations",
+    "Actual D-control ingress and signed acknowledgements",
+    "Full F5 AC2-6 and remaining BlackOps1.3 release gates"
+  ],
+  "memoryUse": {
+    "file": "/home/kubotak/.codex/memories/MEMORY.md",
+    "lines": "34",
+    "use": "Retained F3 pure/F4 persistence/F5 trust ownership; current authority independently read"
+  },
+  "selfCheckedAt": "2026-10-13T02:02:12+09:00",
+  "frozenAt": "2026-10-13T02:08:37+09:00",
+  "unchangedSelectedInputCount": 113,
+  "concurrentRootChangesRead": "Current F5 Task calibration/pure-codec scopes and130/131 same-graph composer/lazy/monotone-failure construction text read before freeze; no Product or retained proposal drift.",
+  "output": {
+    "path": "E13/checkpoint-issuance-map-r1.md",
+    "bytes": 142484,
+    "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+  },
+  "separateChatRecommendation": "A narrow installation CLI/composition recommendation was sent to Root separately; no installer constructors/command scope added to this frozen map."
+}

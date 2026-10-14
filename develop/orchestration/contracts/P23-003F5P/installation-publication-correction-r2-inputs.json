@@ -1,0 +1,35 @@
+{
+  "owner": "Root",
+  "status": "bounded correction; complete issuance review pending",
+  "inputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md",
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1-inputs.json",
+      "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-review-r1.md",
+      "sha256": "b593fb5adacb6550bc49445d64b82b241a49f18eb182eac7e4c2707191149fcf"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-review-r1-inputs.json",
+      "sha256": "f05c87e57f3a28a278580637c6f10fb4d09f8fb132296e8d4380b3ee804cab7e"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Projection/Command/CommandProjectionTargetRegistry.php",
+      "sha256": "ce83f5515405c17fe75c7e65765efff2141f999fbbf352dc4d238e204206d2b3"
+    }
+  ],
+  "output": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2.md",
+    "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+  },
+  "no_product_or_execution": true
+}

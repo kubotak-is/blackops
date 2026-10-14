@@ -947,9 +947,21 @@ Streaming readers check tag/length before allocation and detect cap+1 overflow.
 No total history, revision count or successful-prefix limit is introduced.
 
 Only `AuditWorkHistoryReplay` and the F2-association portion of
-`AuditCheckpointHistoryReplay` call the two entries. The latter has exactly five
-constructor collaborators: Reader, WorkReplay, SegmentReplay, HistoricalAuthority
-and ArtifactReplay. ArtifactReplay has only constructor, unsigned, complete,
+`AuditCheckpointHistoryReplay` call the two entries. The latter has exactly four
+shared constructor collaborators: WorkReplay, SegmentReplay, HistoricalAuthority
+and the same ArtifactReplay supplied to WorkReplay. `AuditControlHistoryReplay`
+also has exactly four: PublicationReplay, TransitionReplay, SegmentReplay and
+HistoricalAuthority. A shared Replay cannot receive a Reader before a capture
+exists. Each replay constructs its own Reader from the actual capsule's one
+replay loan and exact typed scope. The only other Reader construction sites are
+`AuditCheckpointMutationAdmission::assertUnchanged` and
+`PostgreSqlAuditControlPublicationWriter::recheck`, for the first fenced comparison
+of the same successfully replayed capture. A loan requires original endpoint,
+capture and scope identity; claiming a replay loan is not proof of successful
+replay. Phase7's later comparison uses retained bounded original facts after
+checked closure; it never reopens or constructs another Reader. Reader owns only
+parser state; native ownership stays with the captured/sealed history.
+ArtifactReplay has only constructor, unsigned, complete,
 private admit and private input methods; its constructor receives the actual
 `AuditAuthorityJsonPreflight`. The one admit -> assertDocument call dominates both
 entries. No service lookup, caller value factory or namespace-wide exception is
@@ -986,6 +998,31 @@ BlackOps\Core\Audit\AuditValidationFailure
 
 It also resolves the new History ArtifactReplay, CheckpointUnsignedFacts and
 CheckpointCompleteFacts types; the actual Preflight is constructed before replay.
+The same initializer additionally resolves these16 exact history/authority types
+before either floor, since their first construction can occur during replay:
+
+```text
+BlackOps\Internal\Audit\Authority\History\AuditHistoryReader
+BlackOps\Internal\Audit\Authority\History\AuditHistoryGrammar
+BlackOps\Internal\Audit\Authority\History\AuditHistoryGroupCodec
+BlackOps\Internal\Audit\Authority\History\AuditHistoryTag
+BlackOps\Internal\Audit\Authority\History\AuditHistoryRecord
+BlackOps\Internal\Audit\Authority\History\AuditHistoryNativeGroup
+BlackOps\Internal\Audit\Authority\History\AuditVerifiedWorkEndpoints
+BlackOps\Internal\Audit\Authority\History\AuditVerifiedSegmentEndpoints
+BlackOps\Internal\Audit\Authority\History\AuditVerifiedStagedEndpoints
+BlackOps\Internal\Audit\Authority\History\AuditVerifiedTransitionEndpoints
+BlackOps\Internal\Audit\Authority\History\AuditVerifiedPublicationEndpoints
+BlackOps\Internal\Audit\Authority\History\AuditVerifiedCheckpointEndpoints
+BlackOps\Internal\Audit\Authority\History\AuditVerifiedControlEndpoints
+BlackOps\Internal\Audit\Authority\AuditHistoricalPolicy
+BlackOps\Internal\Audit\Authority\AuditHistoricalEnvelope
+BlackOps\Internal\Audit\Authority\AuditAuthenticatedControlHead
+```
+
+This is a finite resolution list, not a namespace exemption. Types constructed
+earlier in the actual graph must already be resolved there; a `::class` literal
+alone does not establish loading. No extra initializer caller is introduced.
 Literal type names alone do not prove eager loading. Resolve Normalizer and require
 `Normalizer::normalize("e\u{0301}", Normalizer::FORM_C) === "\u{00E9}"`.
 This nonempty check warms the already required polyfill's canonicalDecomposition,

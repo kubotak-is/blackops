@@ -1,0 +1,1239 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded_installation_publication_issuance_delta",
+  "owner": "/root/f5_native_contract_plan",
+  "status": "frozen_candidate_not_issued",
+  "startedAt": "2026-10-13T22:10:31+09:00",
+  "rootReportedBase": "046fa8a1d122d4d031622b6bc880f8fd40f5a990",
+  "gitIndependentlyVerified": false,
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013"
+  },
+  "selectedInputs": [
+    {
+      "root": "P",
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": ".codex/config.toml",
+      "before": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "after": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 7727,
+        "sha256": "d98a30defddd80d4df721335e86194c6816ecb0983f5e75b2af3f2d964269950"
+      },
+      "after": {
+        "bytes": 7727,
+        "sha256": "d98a30defddd80d4df721335e86194c6816ecb0983f5e75b2af3f2d964269950"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 18482,
+        "sha256": "0346b15eb39d54ee0503e826621b326db446238e26e37023646b07246c8b4036"
+      },
+      "after": {
+        "bytes": 18482,
+        "sha256": "0346b15eb39d54ee0503e826621b326db446238e26e37023646b07246c8b4036"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/README.md",
+      "before": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "after": {
+        "bytes": 46471,
+        "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/105-blackops-1-3-capability-contract.md",
+      "before": {
+        "bytes": 421724,
+        "sha256": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193"
+      },
+      "after": {
+        "bytes": 421724,
+        "sha256": "4c9613473f21c7b0d40f35b6fd787d0109271abc97381f705fff87cbc9639193"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "before": {
+        "bytes": 74360,
+        "sha256": "5f69bb834f48b61fc0a711d7e777e19ce1e410aa47c697b926e54713b396d0c8"
+      },
+      "after": {
+        "bytes": 74360,
+        "sha256": "5f69bb834f48b61fc0a711d7e777e19ce1e410aa47c697b926e54713b396d0c8"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/131-audit-ordinary-sign-service.md",
+      "before": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "after": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/release-authority.json",
+      "before": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "after": {
+        "bytes": 6518,
+        "sha256": "17e075d40ba167b60ab9bbb3b9579bc8433654720adb2952cc979c08d56cdb06"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-entry-decision-r1.md",
+      "before": {
+        "bytes": 2932,
+        "sha256": "b77875a9fe24b47f8b67e8b1cea774e9326003363f265262c36f94dd4ce8b1d4"
+      },
+      "after": {
+        "bytes": 2932,
+        "sha256": "b77875a9fe24b47f8b67e8b1cea774e9326003363f265262c36f94dd4ce8b1d4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-entry-decision-r1-inputs.json",
+      "before": {
+        "bytes": 1087,
+        "sha256": "1110af512fd51852e47e0e241a280b40545f2f4c2687d41e8396a4a68678728e"
+      },
+      "after": {
+        "bytes": 1087,
+        "sha256": "1110af512fd51852e47e0e241a280b40545f2f4c2687d41e8396a4a68678728e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-issuance-map-r1.md",
+      "before": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "after": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-issuance-map-r1-inputs.json",
+      "before": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "after": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1.md",
+      "before": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "after": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1-inputs.json",
+      "before": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "after": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-proposal-r2.md",
+      "before": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "after": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-proposal-r2-inputs.json",
+      "before": {
+        "bytes": 1170,
+        "sha256": "259e18395c4465c3a2caab134afc2d4a019cc083634befb49924b64d15d93e5c"
+      },
+      "after": {
+        "bytes": 1170,
+        "sha256": "259e18395c4465c3a2caab134afc2d4a019cc083634befb49924b64d15d93e5c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-review-r2.md",
+      "before": {
+        "bytes": 5723,
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37"
+      },
+      "after": {
+        "bytes": 5723,
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-review-r2-inputs.json",
+      "before": {
+        "bytes": 17654,
+        "sha256": "3851d55e01e9ef402eff555aca940c5d3355b121093a26b54e90f87e6fe8b1d7"
+      },
+      "after": {
+        "bytes": 17654,
+        "sha256": "3851d55e01e9ef402eff555aca940c5d3355b121093a26b54e90f87e6fe8b1d7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Application/Application.php",
+      "before": {
+        "bytes": 2913,
+        "sha256": "1a3e841a59f78587fa2cfe1bc2166fd53e7a8ac2827d493c0db82ab8b0c25861"
+      },
+      "after": {
+        "bytes": 2913,
+        "sha256": "1a3e841a59f78587fa2cfe1bc2166fd53e7a8ac2827d493c0db82ab8b0c25861"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Application/ApplicationBuilder.php",
+      "before": {
+        "bytes": 6992,
+        "sha256": "86121119b9e270078a554d95c2bb6effdf6115bc46fa2e23fbdbb1ced36e5a57"
+      },
+      "after": {
+        "bytes": 6992,
+        "sha256": "86121119b9e270078a554d95c2bb6effdf6115bc46fa2e23fbdbb1ced36e5a57"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Application/ConsoleKernel.php",
+      "before": {
+        "bytes": 1102,
+        "sha256": "51ab7101d252552482b0471ac50d49cce83cd43c74994ed3eb63c9b6a9610239"
+      },
+      "after": {
+        "bytes": 1102,
+        "sha256": "51ab7101d252552482b0471ac50d49cce83cd43c74994ed3eb63c9b6a9610239"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationConsoleKernel.php",
+      "before": {
+        "bytes": 16922,
+        "sha256": "16d71bb469a79e9cbf94510a4058740efbc5c62dc1c55f341c2fe103b16c0363"
+      },
+      "after": {
+        "bytes": 16922,
+        "sha256": "16d71bb469a79e9cbf94510a4058740efbc5c62dc1c55f341c2fe103b16c0363"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationConsoleCommandFactory.php",
+      "before": {
+        "bytes": 10483,
+        "sha256": "c9e20e513735109bef6da2a532060acd1047f17b5aee9e499f1a5606317416c8"
+      },
+      "after": {
+        "bytes": 10483,
+        "sha256": "c9e20e513735109bef6da2a532060acd1047f17b5aee9e499f1a5606317416c8"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationOperationRuntimeComposition.php",
+      "before": {
+        "bytes": 1753,
+        "sha256": "6ca21e4255d63a0302deec33ff64716d31dce8066ebde7a5d9bdd1b96ece480b"
+      },
+      "after": {
+        "bytes": 1753,
+        "sha256": "6ca21e4255d63a0302deec33ff64716d31dce8066ebde7a5d9bdd1b96ece480b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationOperationRuntimeComposer.php",
+      "before": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "after": {
+        "bytes": 7074,
+        "sha256": "5c079c2550be97d06734c650b04dbd559b13a8fd722136c97b2d51948b71952e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+      "before": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "after": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationRetentionCommandFactory.php",
+      "before": {
+        "bytes": 2484,
+        "sha256": "408777310e5135b2cb8d2f47a30e42388a767d08a9c6aa6850f42773c7010e45"
+      },
+      "after": {
+        "bytes": 2484,
+        "sha256": "408777310e5135b2cb8d2f47a30e42388a767d08a9c6aa6850f42773c7010e45"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationStorageProtectionCommands.php",
+      "before": {
+        "bytes": 2666,
+        "sha256": "f9e1f6786ac9a5449b061a84a7961bfb16cd2ab30d45a728071962c8a1a1d2e3"
+      },
+      "after": {
+        "bytes": 2666,
+        "sha256": "f9e1f6786ac9a5449b061a84a7961bfb16cd2ab30d45a728071962c8a1a1d2e3"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Console/LazyFrameworkCommand.php",
+      "before": {
+        "bytes": 1449,
+        "sha256": "eb8b82bd32f335d7ae176d9745d7f74a579a80ab82bb468c37149e2c3f1b711d"
+      },
+      "after": {
+        "bytes": 1449,
+        "sha256": "eb8b82bd32f335d7ae176d9745d7f74a579a80ab82bb468c37149e2c3f1b711d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Console/FrameworkCommandNames.php",
+      "before": {
+        "bytes": 343,
+        "sha256": "b5c3c21c3bafd72f9c5fdd06b791a8a8f89f85dd0a846533ec2f77fb7cc05747"
+      },
+      "after": {
+        "bytes": 343,
+        "sha256": "b5c3c21c3bafd72f9c5fdd06b791a8a8f89f85dd0a846533ec2f77fb7cc05747"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Console/DatabaseMigrationMigrateCommand.php",
+      "before": {
+        "bytes": 1634,
+        "sha256": "b10c08d634f74adc63d1294b766305fd6dbed319bf81d3f15425706cec423492"
+      },
+      "after": {
+        "bytes": 1634,
+        "sha256": "b10c08d634f74adc63d1294b766305fd6dbed319bf81d3f15425706cec423492"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Projection/Command/CommandProjectionTargetRegistry.php",
+      "before": {
+        "bytes": 7599,
+        "sha256": "ce83f5515405c17fe75c7e65765efff2141f999fbbf352dc4d238e204206d2b3"
+      },
+      "after": {
+        "bytes": 7599,
+        "sha256": "ce83f5515405c17fe75c7e65765efff2141f999fbbf352dc4d238e204206d2b3"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Projection/Command/CommandProjectionReservationRegistry.php",
+      "before": {
+        "bytes": 575,
+        "sha256": "377ddcff501fbb78c3e8fc3f62e6978445b95dde6b39f643824ab607da3ab059"
+      },
+      "after": {
+        "bytes": 575,
+        "sha256": "377ddcff501fbb78c3e8fc3f62e6978445b95dde6b39f643824ab607da3ab059"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Projection/Command/CommandProjectionNamespaceResolver.php",
+      "before": {
+        "bytes": 7580,
+        "sha256": "d4fe507e8d3fe0bc2f0f61a43d6761ca2a035fd0141af9848ce810a55d2bb17d"
+      },
+      "after": {
+        "bytes": 7580,
+        "sha256": "d4fe507e8d3fe0bc2f0f61a43d6761ca2a035fd0141af9848ce810a55d2bb17d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationConsoleKernelTest.php",
+      "before": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "after": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Integration/ApplicationConsoleKernelTest.php",
+      "before": {
+        "bytes": 21535,
+        "sha256": "f6a714826b87dc86d672cb1c6e247a98a58bd26f74c8dd982444c3a3da2e753b"
+      },
+      "after": {
+        "bytes": 21535,
+        "sha256": "f6a714826b87dc86d672cb1c6e247a98a58bd26f74c8dd982444c3a3da2e753b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Console/ApplicationCommandCollisionValidatorTest.php",
+      "before": {
+        "bytes": 9170,
+        "sha256": "4411871868c253fe0e30ebb18ed272425d035ee00e3d0d23d7612b862952c799"
+      },
+      "after": {
+        "bytes": 9170,
+        "sha256": "4411871868c253fe0e30ebb18ed272425d035ee00e3d0d23d7612b862952c799"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionTargetRegistryTest.php",
+      "before": {
+        "bytes": 13279,
+        "sha256": "367057fac16647adced613952054c79ca6ec53023c1b573beb9d9a4f5aad032c"
+      },
+      "after": {
+        "bytes": 13279,
+        "sha256": "367057fac16647adced613952054c79ca6ec53023c1b573beb9d9a4f5aad032c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionProducerTest.php",
+      "before": {
+        "bytes": 6163,
+        "sha256": "251d099df3e6ff37332145e7a1ed161c137969335246d61af3927a8914f907ba"
+      },
+      "after": {
+        "bytes": 6163,
+        "sha256": "251d099df3e6ff37332145e7a1ed161c137969335246d61af3927a8914f907ba"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionListCommandTest.php",
+      "before": {
+        "bytes": 28967,
+        "sha256": "2f7adc7c99ca576242fdfd907d35a26bca58fc247e9e5ed6581e8b2cd48fcef7"
+      },
+      "after": {
+        "bytes": 28967,
+        "sha256": "2f7adc7c99ca576242fdfd907d35a26bca58fc247e9e5ed6581e8b2cd48fcef7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "docs/guide/project-cli.md",
+      "before": {
+        "bytes": 15971,
+        "sha256": "9e1b5756eb4f954580d31f828abb878a8b7eaad037a6e9039298efacf85a9f00"
+      },
+      "after": {
+        "bytes": 15971,
+        "sha256": "9e1b5756eb4f954580d31f828abb878a8b7eaad037a6e9039298efacf85a9f00"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "docs/guide/console-command.md",
+      "before": {
+        "bytes": 4862,
+        "sha256": "c94524356ed0ddba59d81c09ff95a49e5f769a242fa48d6d182c1e073d158096"
+      },
+      "after": {
+        "bytes": 4862,
+        "sha256": "c94524356ed0ddba59d81c09ff95a49e5f769a242fa48d6d182c1e073d158096"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "docs/guide/configuration.md",
+      "before": {
+        "bytes": 22193,
+        "sha256": "577fde3a7dfb9f5778acdf766661495fec1a81151889bcf51f8adc9244514bac"
+      },
+      "after": {
+        "bytes": 22193,
+        "sha256": "577fde3a7dfb9f5778acdf766661495fec1a81151889bcf51f8adc9244514bac"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "docs/internal/maintenance-scheduler.md",
+      "before": {
+        "bytes": 2539,
+        "sha256": "93dd8dd1b31c0c4677c1c182f6ddf62c867dee71d980a2d5683a44e63ee08cf6"
+      },
+      "after": {
+        "bytes": 2539,
+        "sha256": "93dd8dd1b31c0c4677c1c182f6ddf62c867dee71d980a2d5683a44e63ee08cf6"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "examples/quickstart/blackops",
+      "before": {
+        "bytes": 265,
+        "sha256": "3cc5779d57fbe8316f7e03746fffaee987644fb7ad3348a7e2a497f8838b4901"
+      },
+      "after": {
+        "bytes": 265,
+        "sha256": "3cc5779d57fbe8316f7e03746fffaee987644fb7ad3348a7e2a497f8838b4901"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "before": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-custody-adoption-review-r1.md",
+      "before": {
+        "bytes": 6452,
+        "sha256": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 6452,
+        "sha256": "f97994ce429d7baf3ae859deb110b07cd6a90c3f526d31ccfbec9c788cd9f78a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-custody-adoption-review-r1-inputs.json",
+      "before": {
+        "bytes": 12110,
+        "sha256": "bbf811a1496bcb890a7d9838e18f127739e03e3e28b2397aa393fe7497dbd1b3"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 12110,
+        "sha256": "bbf811a1496bcb890a7d9838e18f127739e03e3e28b2397aa393fe7497dbd1b3"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-delta-r2.md",
+      "before": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "before": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Authoring/ApplicationAuditCatalogRegistry.php",
+      "before": {
+        "bytes": 4084,
+        "sha256": "f4bd6b0def2ce1c4f63ce0aa59fb6afbd7bbb1365e12bd538a98b614927337b4"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 4084,
+        "sha256": "f4bd6b0def2ce1c4f63ce0aa59fb6afbd7bbb1365e12bd538a98b614927337b4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Catalog/ImmutableAuditEventCatalogLookup.php",
+      "before": {
+        "bytes": 6098,
+        "sha256": "789ecb55b0e4a94dc2095563faf18ae98067940ab93549179fb867aca13a0cf2"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 6098,
+        "sha256": "789ecb55b0e4a94dc2095563faf18ae98067940ab93549179fb867aca13a0cf2"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationOperationInvocationLifecycle.php",
+      "before": {
+        "bytes": 2097,
+        "sha256": "1dc917a48570875e3bb9fb57a2bfe634a8bba09f552a3c9067f379cf0f5c8d10"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 2097,
+        "sha256": "1dc917a48570875e3bb9fb57a2bfe634a8bba09f552a3c9067f379cf0f5c8d10"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/symfony/console/Command/Command.php",
+      "before": {
+        "bytes": 24921,
+        "sha256": "89e4c45e4aa2b608805618e5378cc0773b5521cd7490294cad9f232ec6ce27b6"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 24921,
+        "sha256": "89e4c45e4aa2b608805618e5378cc0773b5521cd7490294cad9f232ec6ce27b6"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "docs/website/content-map.mjs",
+      "before": {
+        "bytes": 23811,
+        "sha256": "0748bf3044af4cce3190c297bf667f28ddad9f42017fa2baf9b6e985ebd3e592"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 23811,
+        "sha256": "0748bf3044af4cce3190c297bf667f28ddad9f42017fa2baf9b6e985ebd3e592"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationCommandDiscoveryIntegrationTest.php",
+      "before": {
+        "bytes": 18436,
+        "sha256": "e7ea360cd4a57ffd8d8e48c5e026c15e95d81f9f02809c1c75dd0addcf11d72f"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 18436,
+        "sha256": "e7ea360cd4a57ffd8d8e48c5e026c15e95d81f9f02809c1c75dd0addcf11d72f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+      "before": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "before": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "before": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "before": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditStoreArchitectureTest.php",
+      "before": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditArtifactArchitectureTest.php",
+      "before": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/PublicApiArchitectureTest.php",
+      "before": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditPublicApiTest.php",
+      "before": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Consumer/framework-package-export.sh",
+      "before": {
+        "bytes": 20437,
+        "sha256": "dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717"
+      },
+      "observationStage": "late_exact_source_or_frozen_companion_alignment",
+      "after": {
+        "bytes": 20437,
+        "sha256": "dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717"
+      },
+      "unchanged": true
+    }
+  ],
+  "selectedInputCount": 66,
+  "ownedOutputs": [
+    "E13/installation-publication-issuance-r1.md",
+    "E13/installation-publication-issuance-r1-inputs.json"
+  ],
+  "noProductImplementation": true,
+  "limits": {
+    "methodsPerTypeIncludingMagicAndConstructor": 10,
+    "ordinaryArguments": 5,
+    "complexity": 15,
+    "phpMemoryMiB": 512,
+    "measuredStaticPass": false
+  },
+  "candidateNewProductTypes": [
+    {
+      "path": "src/Internal/Application/ApplicationAuditControlInstallationCommandFactory.php",
+      "declaredMethods": 6,
+      "maximumOrdinaryArguments": 1,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Console/AuditControlPublishCommand.php",
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 3,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditControlInstallationRuntime.php",
+      "declaredMethods": 6,
+      "maximumOrdinaryArguments": 1,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditControlInstallationComposer.php",
+      "declaredMethods": 6,
+      "maximumOrdinaryArguments": 1,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditControlInstallationComposition.php",
+      "declaredMethods": 7,
+      "maximumOrdinaryArguments": 3,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlInstallationPublicationWorkflow.php",
+      "declaredMethods": 10,
+      "maximumOrdinaryArguments": 5,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlInstallationSelector.php",
+      "declaredMethods": 10,
+      "maximumOrdinaryArguments": 5,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlInstallationRead.php",
+      "declaredMethods": 10,
+      "maximumOrdinaryArguments": 3,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditSelectedControlPolicy.php",
+      "declaredMethods": 8,
+      "maximumOrdinaryArguments": 3,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlInstallationRows.php",
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 5,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlStagedPublicationSelection.php",
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 4,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlPinnedPublicationSelection.php",
+      "declaredMethods": 10,
+      "maximumOrdinaryArguments": 4,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlPublicationStatus.php",
+      "declaredMethods": 0,
+      "maximumOrdinaryArguments": 0,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": false
+    },
+    {
+      "path": "src/Internal/Audit/Control/AuditControlPublicationResult.php",
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 5,
+      "status": "proposed_not_implemented",
+      "alreadyNamedUnfilledInHistoryMap": true
+    }
+  ],
+  "candidateNewProductTypeCount": 14,
+  "candidateChangedProductPaths": [
+    "src/Internal/Application/ApplicationConsoleKernel.php",
+    "src/Internal/Projection/Command/CommandProjectionTargetRegistry.php",
+    "src/Internal/Audit/Control/AuditControlBootstrapSelection.php",
+    "src/Internal/Audit/Control/AuditControlRootRevisionSelection.php",
+    "src/Internal/Audit/Control/AuditControlPendingPublication.php",
+    "src/Internal/Audit/Control/AuditControlPublicationWorkflow.php",
+    "src/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationWriter.php",
+    "src/Internal/Audit/Authority/History/AuditControlHistoryCapture.php",
+    "src/Internal/Audit/Authority/History/AuditControlCaptureScope.php",
+    "src/Internal/Audit/Authority/History/AuditControlHistoryReplay.php",
+    "src/Internal/Audit/Authority/AuditControlPublisher.php"
+  ],
+  "candidateCallerOrEndpointDeltaPaths": [
+    "src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+    "src/Internal/Application/ApplicationAuditCheckpointComposition.php",
+    "src/Internal/Audit/Signing/AuditSigningGraphState.php",
+    "src/Internal/Audit/Control/AuditControlSegmentProofWorkflow.php",
+    "src/Internal/Audit/Authority/AuditControlPublicationAcquisition.php",
+    "src/Internal/Audit/Authority/AuditControlCandidateAcquisition.php",
+    "src/Internal/Audit/Authority/History/AuditCheckpointReplayRuntimePrerequisite.php",
+    "src/Internal/Audit/Authority/History/AuditControlCaptureWriter.php",
+    "src/Internal/Audit/Authority/History/AuditHistoryGrammar.php",
+    "src/Internal/Audit/Authority/History/AuditPublicationHistoryReplay.php"
+  ],
+  "changedTypeBudgets": {
+    "ApplicationConsoleKernel": {
+      "declaredMethods": 3,
+      "frameworkCommandsArguments": 3
+    },
+    "CommandProjectionTargetRegistry": {
+      "declaredMethods": 10
+    },
+    "AuditControlBootstrapSelection": {
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 4
+    },
+    "AuditControlRootRevisionSelection": {
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 4
+    },
+    "AuditControlPendingPublication": {
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 3
+    },
+    "AuditControlPublicationWorkflow": {
+      "declaredMethods": 9,
+      "maximumOrdinaryArguments": 5
+    },
+    "PostgreSqlAuditControlPublicationWriter": {
+      "declaredMethods": 7,
+      "maximumOrdinaryArguments": 5
+    },
+    "AuditControlHistoryCapture": {
+      "declaredMethodCeiling": 10,
+      "maximumOrdinaryArguments": 1
+    },
+    "AuditControlCaptureScope": {
+      "declaredMethods": 10,
+      "maximumOrdinaryArguments": 3
+    },
+    "AuditControlHistoryReplay": {
+      "declaredMethodCeiling": 10,
+      "signatureUnchangedFromFrozenCompanion": true
+    },
+    "AuditControlPublisher": {
+      "declaredMethodCeiling": 10,
+      "signatureUnchangedFromFrozenCompanion": true
+    },
+    "AuditSigningGraphState": {
+      "declaredMethods": 7,
+      "maximumOrdinaryArguments": 1
+    },
+    "AuditControlPublicationAcquisition": {
+      "declaredMethodCeiling": 10,
+      "maximumOrdinaryArguments": 2
+    }
+  },
+  "candidateNewTestPaths": [
+    "tests/Internal/Console/AuditControlPublishCommandTest.php",
+    "tests/Internal/Application/ApplicationAuditControlInstallationIntegrationTest.php",
+    "tests/Internal/Audit/Control/AuditControlInstallationPublicationTest.php",
+    "tests/Internal/Audit/Provenance/PostgreSqlAuditControlInstallationPostgreSqlTest.php",
+    "tests/Architecture/AuditControlInstallationArchitectureTest.php"
+  ],
+  "reusedProposedArchitecturePaths": [
+    "tests/Architecture/AuditCheckpointProductionArchitectureTest.php",
+    "tests/Architecture/AuditProvenanceArchitectureTest.php"
+  ],
+  "candidateGuidePaths": [
+    "docs/guide/project-cli.md",
+    "docs/guide/configuration.md",
+    "docs/guide/console-command.md",
+    "docs/internal/maintenance-scheduler.md",
+    "docs/internal/audit-control-installation.md"
+  ],
+  "sourceConfirmedRoutes": [
+    "/reference/project-cli/",
+    "/reference/configuration/",
+    "/execution/console-command/"
+  ],
+  "releaseAuthority": {
+    "version": "1.2.1",
+    "releaseState": "experimental-stable",
+    "framework": {
+      "tag": "1.2.1",
+      "directRef": "1c72fced890c7f4cfc2cf88a4d2b08dbcfc85dd3",
+      "peeledSource": "4efee09f13bebedc1639333f79550a36a4e8ca91"
+    },
+    "skeleton": {
+      "tag": "1.2.1",
+      "directRef": "7a47e344ecba6193628119f0e95cb23dc5e0be83",
+      "peeledSource": "87a025380df8abcd0c514abf50e139dbbc1953c7"
+    }
+  },
+  "releaseImpact": {
+    "existingCapability": "framework-core",
+    "newCapabilityIdAllocated": false,
+    "roadmapVersion": "1.3.0",
+    "roadmapState": "unreleased",
+    "publicSourcesChanged": 0,
+    "generatedArtifactsVerified": false,
+    "deployOrPublication": false
+  },
+  "ddl": {
+    "statementCountReused": 29,
+    "newStatements": 0,
+    "modifiedStatements": 0,
+    "migrationCandidate": "Version20261012000000.php",
+    "migrationReservedOrIssued": false,
+    "sourceMapSha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+  },
+  "fixedEntry": {
+    "name": "audit:control:publish",
+    "aliases": [],
+    "hidden": false,
+    "origin": "framework",
+    "requiredArgument": "policy-digest",
+    "encoding": "exact 64 lowercase hex, no normalization",
+    "description": "Publish an installed audit control policy by its archived digest.",
+    "newConfigurationKey": false,
+    "newPublicApplicationMethod": false,
+    "schedulerNewPolicySelection": false
+  },
+  "crossLaneDeltas": [
+    {
+      "owner": "ApplicationAuditControlInstallationComposer::compose",
+      "change": "Return closed ApplicationAuditControlInstallationComposition; literal ReplayRuntimePrerequisite.initialize caller unchanged."
+    },
+    {
+      "owner": "AuditControlCaptureScope",
+      "change": "Scope consumes exact Bootstrap/RootRevision/Pending fact once; those facts expose only their actual installation scope to matching capture methods (9 methods each); installationSelection and recoverySelection projections retain Scope total10."
+    },
+    {
+      "owner": "AuditControlHistoryReplay",
+      "change": "Check retained original selected policy digest against actual signed phase14 candidate before publication I/O."
+    },
+    {
+      "owner": "PublicationEnd tag79",
+      "change": "Exact already-accepted phase14/15 replay endpoints use candidate revision/head/document and strict greater-row probe without max+1."
+    }
+  ],
+  "rootRemaining": [
+    "Adopt narrow130 installation composition/publication ownership and105/131 release/barrier references.",
+    "Bind already assigned actual parser/delegate/custody constructor imports; keep no online/F2/work signer entry in installation graph.",
+    "Adopt/review finite capture scope, endpoint and composer-result integration deltas.",
+    "Reserve existing migration and exact native resource/command plan.",
+    "Obtain complete independent issuance review before Luna implementation.",
+    "Qualify actual CLI/native/bootstrap/root revision/recovery and later F4/D/Required/full F5 release work."
+  ],
+  "notRun": [
+    "Git",
+    "PHP/Node/Product runtime",
+    "DB",
+    "native/Docker/compiler/calibration",
+    "unit/integration/architecture/static/full tests",
+    "query plan",
+    "package export/CI",
+    "Source/Search/LLM generation or validation",
+    "deployment/publication"
+  ],
+  "notModified": [
+    "Product",
+    "tests",
+    "migrations",
+    "vendor",
+    "governance/spec/Task/Report/STATE",
+    "Git/index/worktree metadata",
+    "resource leases",
+    "any frozen sibling evidence"
+  ],
+  "memoryUse": {
+    "registryLines": "MEMORY.md:22-26",
+    "use": "Retained F5 contract versus Product qualification boundary; current workspace authority reread."
+  },
+  "selectedInputHashesRecordedAt": "2026-10-13T22:36:41+09:00",
+  "frozenAt": "2026-10-13T22:40:02+09:00",
+  "unchangedSelectedInputCount": 66,
+  "allSelectedInputsUnchanged": true,
+  "changedSelectedInputs": [],
+  "rootReportedLaterGovernanceCommits": [
+    "509ca1e",
+    "070c752"
+  ],
+  "frozenCompanionIdentitiesChecked": {
+    "checkpoint-issuance-map-r1.md": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+    "history-capture-issuance-map-r1.md": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+    "pure-checkpoint-codec-floor-delta-r2.md": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+    "pure-checkpoint-codec-floor-delta-r2-inputs.json": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+    "native-calibration-contract-proposal-r2.md": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118",
+    "native-calibration-contract-review-r2.md": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37"
+  },
+  "bookkeepingOnlyChecks": {
+    "jsonParsed": true,
+    "selectedHashesBeforeAfterEqual": true,
+    "selectedInputs": 66,
+    "allReferencedProductPathsPresent": true,
+    "proposedUniqueProductDeltaPaths": 35,
+    "newTypeBudgetsWithinLimit": true,
+    "changedTypeBudgetsWithinLimit": true,
+    "maxNewMethods": 10,
+    "maxOrdinaryArguments": 5,
+    "markdownCodeFencesPaired": true,
+    "productOrNativeVerification": false,
+    "elapsedSeconds": 0.004984
+  },
+  "output": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md",
+    "bytes": 75458,
+    "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+  }
+}

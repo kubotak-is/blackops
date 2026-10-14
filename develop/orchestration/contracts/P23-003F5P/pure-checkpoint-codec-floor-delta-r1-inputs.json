@@ -1,0 +1,255 @@
+{
+  "status": "author candidate; independent review/adoption/implementation/native qualification not performed",
+  "owner": "/root/f4_shared_source_inventory",
+  "created_at": "2026-10-13T02:13:53+09:00",
+  "source_checkout": ".phpunit.cache/f2-orchestration/accepted-integration",
+  "git_independently_checked": false,
+  "scope": "Only pure-checkpoint-codec-floor-delta-r1.md and this inputs JSON written; original history map frozen",
+  "root_selected_deltas": [
+    "Only AuditCheckpointArtifactReplay direct signingInput/decode/bytesHash sites after bounded raw preflight under control floor",
+    "Finite pre-floor runtime initialization of exact reachable codec classes and existing Normalizer FORM_C fallback; no ext-intl requirement or new dependency"
+  ],
+  "inputs": [
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditCheckpointCodec.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 3352,
+      "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactShape.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 11829,
+      "sha256": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactScalar.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 1913,
+      "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactRelation.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 2382,
+      "sha256": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactCanonical.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 1849,
+      "sha256": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 1718,
+      "sha256": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactIntegrity.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 3093,
+      "sha256": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactException.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 498,
+      "sha256": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactFailure.php",
+      "role": "existing permitted codec graph; only named reachable branches",
+      "bytes": 306,
+      "sha256": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditJcsCodec.php",
+      "role": "existing canonicalization and scalar validation graph",
+      "bytes": 32528,
+      "sha256": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditJcsObject.php",
+      "role": "existing canonicalization and scalar validation graph",
+      "bytes": 460,
+      "sha256": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditStringValidator.php",
+      "role": "existing canonicalization and scalar validation graph",
+      "bytes": 1101,
+      "sha256": "1557bc52da89b1b25356522b03cd08a008d28b721ed10e2fe8929292fe9c3f74"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "role": "existing timestamp validation and finite failure graph",
+      "bytes": 1295,
+      "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationException.php",
+      "role": "existing timestamp validation and finite failure graph",
+      "bytes": 1976,
+      "sha256": "655dce3de27e7a43c5a8c240f672f7377062e371eecbed4a3807c3b7267eb808"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationFailure.php",
+      "role": "existing timestamp validation and finite failure graph",
+      "bytes": 618,
+      "sha256": "01a6e229e4e95e707f9796ff13ac47cd330ba1cf7dff61d87007d9040364ac23"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Orchestration/AuditDeliveryException.php",
+      "role": "existing sanitized assembly failure",
+      "bytes": 939,
+      "sha256": "c42eb6c89d849950edd67631f166ab8cc0a247f3ac2e08147b13e2b82dfa115f"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Orchestration/AuditDeliveryFailure.php",
+      "role": "existing sanitized assembly failure",
+      "bytes": 427,
+      "sha256": "49709ee683bc38b083ae406eea89af22ccb9a857130abe8c7241877970c723d7"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.json",
+      "role": "declared dependency and runtime source; no runtime proof",
+      "bytes": 2385,
+      "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.lock",
+      "role": "declared dependency and runtime source; no runtime proof",
+      "bytes": 271332,
+      "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/Dockerfile",
+      "role": "declared dependency and runtime source; no runtime proof",
+      "bytes": 764,
+      "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/composer.json",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 1019,
+      "sha256": "55e6d5615cae9bb4b83413fd669f8889cf206a94c7efacae6c4ddddc9d0c5ca5"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/Normalizer.php",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 11537,
+      "sha256": "bbf10f7fe0001810003a49bd54596b8f388500dd078da4e33c85551455de59de"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/bootstrap.php",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 1012,
+      "sha256": "707dfe47527fbe8f599183654f3b9c43185c8cac9c5e90946c84c1fedf607eb7"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/bootstrap80.php",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 1013,
+      "sha256": "fd291307bc8e8ed55a2d113cb31eb0aac2e17bdd0b6e0d757df89da3f9202d0b"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 404,
+      "sha256": "f98e9fe75a0e2008e4e16ca369aa132a45408d4034b668e4afea9fcddca69964"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/Resources/unidata/canonicalDecomposition.php",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 43156,
+      "sha256": "f18eff69d692a7ca81087e88139cde529633306d7bbfd984157308af37fd2781"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/Resources/unidata/combiningClass.php",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 15379,
+      "sha256": "cca4e04adef70dc4fdeca8261f18eb0b34c656fb774aca9a18860fc563c2ded2"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/symfony/polyfill-intl-normalizer/Resources/unidata/canonicalComposition.php",
+      "role": "installed v1.38.0 fallback dependency source and exact FORM_C data; source-only evidence",
+      "bytes": 19516,
+      "sha256": "fed784fd0631b7dbe55e6fde75915d2e9b4c715067726ed529992ea336912ca9"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "role": "existing exact outside caller, static count and callback guards",
+      "bytes": 128581,
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Application/ApplicationRetentionRuntime.php",
+      "role": "accepted current source; proposed signingTasks not implemented",
+      "bytes": 3326,
+      "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "role": "adopted phase and authority ordering",
+      "bytes": 39299,
+      "sha256": "c8e0aad46a30592b9b002deb8d0e63e99afcc269707d2510e1e5710e31153dfd"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "role": "adopted phase and authority ordering",
+      "bytes": 73285,
+      "sha256": "e514b1809cec1b50c5704d95393c6ed88492df6982903a411a45fc16c4709049"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/authority-filesystem-history-contract-proposal-r2.md",
+      "role": "reviewed history/custody protocol with blanket no-F1 phrase",
+      "bytes": 23766,
+      "sha256": "cc0314f9aee0ee038f61f75e9237e77dcc35b03951764cde85f8cb902f172127"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+      "role": "frozen original map; no mutation allowed",
+      "bytes": 77964,
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1-inputs.json",
+      "role": "frozen original selected inputs",
+      "bytes": 12374,
+      "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md",
+      "role": "independently frozen companion; exact proposed RetentionRuntime.signingTasks caller",
+      "bytes": 142484,
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1-inputs.json",
+      "role": "frozen companion selected inputs",
+      "bytes": 82572,
+      "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+    }
+  ],
+  "final_check": {
+    "selected_count": 37,
+    "all_hashes_unchanged_on_second_read": true,
+    "original_history_sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+    "companion_sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+    "verification_kind": "source hashes only; no Product/native/tests"
+  },
+  "remaining_exact_joins": [
+    "Add exact ArtifactReplay -> AuthorityJsonPreflight caller",
+    "Reconcile direct CheckpointHistoryReplay -> ArtifactReplay dependency with frozen four-argument constructor",
+    "Resolve native descriptor representation requirements versus maximum declared method counts",
+    "Pin proposed replay/fact class resolution and actual cold-process proof in complete issuance map"
+  ],
+  "proposal": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1.md",
+    "bytes": 28662,
+    "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc"
+  },
+  "execution_limits": "No PHP/compiler/Docker/DB/tests/network/Git/Product/governance/STATE commands or edits; Python used only for evidence/hashing"
+}

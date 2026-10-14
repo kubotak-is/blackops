@@ -1,0 +1,247 @@
+{
+  "status": "source-only candidate; no runtime or acceptance proof",
+  "owner": "/root/f4_shared_source_inventory",
+  "created_at": "2026-10-12T16:34:17.108327+00:00",
+  "source_checkout": ".phpunit.cache/f2-orchestration/accepted-integration",
+  "root_reported_base": "35df513e65d687086d47517df9dca6f3b5081457",
+  "git_independently_checked": false,
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "8bcf3832de246ce7d8ba3048cb0f563510ea1138c42eadfce31676c4d0857821",
+      "bytes": 8615
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "sha256": "41263ef815070b9d67baf66d42607ba1e2de9c3d7fe57c9740565939f8335e1c",
+      "bytes": 15349
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "sha256": "c8e0aad46a30592b9b002deb8d0e63e99afcc269707d2510e1e5710e31153dfd",
+      "bytes": 39299
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "ef85bcb7ed50d3d5fb8da22de2eec67ccc56b26fe6a3d0ad50ee387addd0f727",
+      "bytes": 72705
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/authority-filesystem-history-contract-proposal-r2.md",
+      "sha256": "cc0314f9aee0ee038f61f75e9237e77dcc35b03951764cde85f8cb902f172127",
+      "bytes": 23766
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/authority-filesystem-history-contract-review-r2.md",
+      "sha256": "75cd36c1abc9f7996951bd7f4f1ef9206f0b1e1e52d4f165c1f21bb730036a34",
+      "bytes": 4988
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/shared-provenance-sql-contract-proposal-r1.md",
+      "sha256": "d3dc8e4ba5b29727b5e38ef356e27f26d057f094ec32ecca9f05d00ee040a9cc",
+      "bytes": 66935
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/shared-provenance-sql-contract-review-r1.md",
+      "sha256": "64f9b74f56b18fc33fb411c08fd74489910f6914e71490cfc93525ba54d3e2ef",
+      "bytes": 12667
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/checkpoint-selector-lazy-composition-proposal-r1.md",
+      "sha256": "f2391720411a9f52c33897aa773a5b9bf5397da1ebea56b8f768fd729bcd15cf",
+      "bytes": 45353
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/checkpoint-production-composition-proposal-r1.md",
+      "sha256": "11a695ff38c2093f1addd38095ca1c9e584e585e9e6b62680a3b9553f98d488d",
+      "bytes": 60669
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-composition-correction-r2.md",
+      "sha256": "f8ec05b748190d249d7cbc09956b7ed847e34edd91eec4643e7eb06632846d77",
+      "bytes": 5587
+    },
+    {
+      "path": ".phpunit.cache/f3-orchestration/20261009/f5-source-support-inventory-r1.md",
+      "sha256": "ec07bc05e989c78fce04b8655c0de52fe61a7e99193ce1e6d366a7027c48ae11",
+      "bytes": 13398
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/private-history-capture-source-inventory-r1.md",
+      "sha256": "7c8e85e34899ad492a55481cad85ed3f6983762b5d60e5874a0888d9f1b26b9b",
+      "bytes": 14350
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/native-custody-environment-inventory-r1.md",
+      "sha256": "ac13cc3e895a218c1a9d3000d3c7778f0b25b91520355a59dadcfa0bde07b2e1",
+      "bytes": 14456
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/custody-capability-result.json",
+      "sha256": "8d5a39e1633fbeb5028bf9c9cfaeb18c0676fa6fac5534ebf4482e869ce90194",
+      "bytes": 3921
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261012/native-authority-fault-verification-proposal-r1.md",
+      "sha256": "684a807ce3d87c7ddeb0de10b0da46f41970384e13595f405b3734e8ba7eaf02",
+      "bytes": 26654
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/AuditCheckpointPreparation.php",
+      "sha256": "23ee08b259c68b0706f7e5ce375164201f1dd2aa62523a9422efb8a286a8c214",
+      "bytes": 5563
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php",
+      "sha256": "cec5b9437318862ccc27d8e07586428cdc8c0526c4a4870e569a5886e65c678c",
+      "bytes": 3115
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointBytes.php",
+      "sha256": "774178c7a3f1ae812a6f02434377bc157fd0efc854f39708368cd90a2f444787",
+      "bytes": 3607
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointRows.php",
+      "sha256": "aaa8bfdbffdb7820c80af59810643565399047e161ce12e88448b78cdfd62794",
+      "bytes": 8613
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentReader.php",
+      "sha256": "bcac415d2100f9f020a3076bb6462eb06cc82996da0437c01d67b6689f2e0b85",
+      "bytes": 8135
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php",
+      "sha256": "8a20b5a4ce5923c93c20b90aa45d9ace6ecc6a784db8da52b305ec4726cfad77",
+      "bytes": 4507
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentEndpoint.php",
+      "sha256": "e3690675ba602e9997c35650192bbdb8dd7cce3bcd9fb80b567dab05136a2449",
+      "bytes": 3257
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentQueries.php",
+      "sha256": "f1a7261c75ba52eee79d974cf0620460422900f79e18ec917236c9a6c6968b11",
+      "bytes": 9425
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditCheckpointCodec.php",
+      "sha256": "65e05020b8ac701907da2750de8100f115134d02786eeddddadf09379b001362",
+      "bytes": 3352,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactShape.php",
+      "sha256": "3765a24b2d8ec32324193ce671ccb01d67d95e8a4af189ab42a8cabefa682ba4",
+      "bytes": 11829,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactScalar.php",
+      "sha256": "a0539465aa93a1d59dbe0c66ce0d80d83e8e09e8b28ef5910062e7aec930e946",
+      "bytes": 1913,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactRelation.php",
+      "sha256": "2b61cdeac508ffd75f27cb58c67f8316db29bb17618e6f233f14eb0dac3574e6",
+      "bytes": 2382,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactCanonical.php",
+      "sha256": "942e6812937d66127f298abd4353305dbd8346912cb3254d0e44cd73b1df836e",
+      "bytes": 1849,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactWirePreflight.php",
+      "sha256": "a50b9824068367daa48d1f873f283f30905de557b50b5c78cff3785cebab6207",
+      "bytes": 1718,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactIntegrity.php",
+      "sha256": "482e7390eda51402072934991ee83787cd3a83e1d1f7620fce1ef260c7d4bd67",
+      "bytes": 3093,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditJcsCodec.php",
+      "sha256": "6914f1b4ee76ec513fbb5b75a086077cbbaf4106df4307949fcd47bd55b70999",
+      "bytes": 32528,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditJcsObject.php",
+      "sha256": "26b343a915323296ac93b58a2afc46a827e6c4456e6b7bd2f024916e82a52883",
+      "bytes": 460,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/AuditStringValidator.php",
+      "sha256": "1557bc52da89b1b25356522b03cd08a008d28b721ed10e2fe8929292fe9c3f74",
+      "bytes": 1101,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd",
+      "bytes": 1295,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationException.php",
+      "sha256": "655dce3de27e7a43c5a8c240f672f7377062e371eecbed4a3807c3b7267eb808",
+      "bytes": 1976,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationFailure.php",
+      "sha256": "01a6e229e4e95e707f9796ff13ac47cd330ba1cf7dff61d87007d9040364ac23",
+      "bytes": 618,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactException.php",
+      "sha256": "dca8e24bd8ac525df08e209f6e8278e48b612aceaa8ba4d88a6cb357e1acdad8",
+      "bytes": 498,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Artifact/AuditArtifactFailure.php",
+      "sha256": "79f84694db5efaffb16f110d7eb81ed35c339cc16ae00f44f400c9ef3467fb1b",
+      "bytes": 306,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "bytes": 128581,
+      "role": "Root-selected pure F1 replay graph and exact outside-caller guard"
+    }
+  ],
+  "final_check": {
+    "checked_at": "2026-10-12T16:53:33.354069+00:00",
+    "selected_input_count": 40,
+    "unchanged_count": 40,
+    "changed": [],
+    "scope": "selected bytes only; not whole-checkout or runtime proof"
+  },
+  "root_selected_delta": "Only History/AuditCheckpointArtifactReplay may call AuditCheckpointCodec signingInput/decode/bytesHash under the control floor; bounded independent review/adoption still required.",
+  "companion_coordination": {
+    "owner": "/root/f5_native_contract_plan",
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md",
+    "pinned_here": false,
+    "reason": "Owner will pin this completed map; avoid moving draft and mutual hash cycle. Exact seams reconciled by direct agent messages."
+  },
+  "remaining_concrete_choice": "Root installation-owned exact next archived policy selection entry for zero-source bootstrap/stopped root revision; no new config/CLI/fallback is inferred.",
+  "native_calibration": "Root-owned; not run or interpreted by this investigation. fflush/fclose guards remain mandatory.",
+  "proposal": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+    "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+    "bytes": 77964
+  }
+}

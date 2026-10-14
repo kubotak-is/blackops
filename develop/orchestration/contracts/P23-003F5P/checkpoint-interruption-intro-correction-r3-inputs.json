@@ -1,0 +1,34 @@
+{
+  "status": "Root finite correction candidate; affected review pending",
+  "createdAt": "2026-10-14T10:03:58+09:00",
+  "inputs": [
+    {
+      "path": "checkpoint-interruption-intro-correction-r3.md",
+      "sha256": "51bf76fd4190654a002fac3454c12a97a943335c89095b20fcf17b4f3c2e5535"
+    },
+    {
+      "path": "checkpoint-verification-correction-r2.md",
+      "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39"
+    },
+    {
+      "path": "checkpoint-verification-correction-r2-inputs.json",
+      "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807"
+    },
+    {
+      "path": "checkpoint-verification-review-r2.md",
+      "sha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a"
+    },
+    {
+      "path": "checkpoint-verification-review-r2-inputs.json",
+      "sha256": "82e7c9b2df77ed2818b8172e2ff8d0a89bd769dc55dcd5ce2076d9d986453ed8"
+    }
+  ],
+  "changes": "Only universal introductory rule split into7 process-interruption bases and2 managed-error bases; all58 row objects preserved",
+  "notRun": [
+    "PHP",
+    "Node",
+    "native",
+    "DB",
+    "CI"
+  ]
+}

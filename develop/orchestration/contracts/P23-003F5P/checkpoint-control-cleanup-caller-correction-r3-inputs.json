@@ -1,0 +1,59 @@
+{
+  "status": "Root candidate; bounded r3 review pending",
+  "createdAt": "2026-10-14T10:13:29+09:00",
+  "inputs": [
+    {
+      "path": "checkpoint-control-cleanup-caller-correction-r3.md",
+      "sha256": "527e1d138fb6ffbe432cd14095164e17c8a9375fa1045238c228c9595d998d57"
+    },
+    {
+      "path": "checkpoint-history-type-correction-r2.md",
+      "sha256": "7794b5359adc605a4c6a83333b152b93cb9fcb3f442d8857e1707394f0b80908"
+    },
+    {
+      "path": "checkpoint-history-type-correction-r2-inputs.json",
+      "sha256": "c0c25bfa496a48e3547acec4850ffacfac5ffbbccaaeaaba9c3c59bd63561ea2"
+    },
+    {
+      "path": "installation-publication-issuance-r1.md",
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+    }
+  ],
+  "removedCaller": "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::rootRevision",
+  "replacements": {
+    "cleanupCallers": {
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedControlHistory::close": [
+        "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedControlEndpoints::finishComparison",
+        "BlackOps\\Internal\\Audit\\Authority\\History\\AuditVerifiedControlEndpoints::discardAfterFailure",
+        "BlackOps\\Internal\\Audit\\Authority\\AuditControlCandidateAcquisition::acquire",
+        "BlackOps\\Internal\\Audit\\Authority\\AuditControlPublisher::publish",
+        "BlackOps\\Internal\\Audit\\Authority\\AuditControlPublisher::recover",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::segmentAdvance",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::refresh",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::recoverExact",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::bootstrap",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::rootRevision",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::staged",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::pinned"
+      ]
+    },
+    "callerCounts": {
+      "BlackOps\\Internal\\Audit\\Authority\\History\\AuditCapturedControlHistory::close": 12
+    },
+    "rootOwnership": {
+      "controlSameCapsuleFailureFallbacks": [
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::segmentAdvance",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::refresh",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlPublicationWorkflow::recoverExact",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::bootstrap",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::rootRevision",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::staged",
+        "BlackOps\\Internal\\Audit\\Control\\AuditControlInstallationPublicationWorkflow::pinned"
+      ]
+    },
+    "ordinaryWorkflowDeclaredMethods": 9
+  },
+  "unchanged": "All other HT r2 and original installation protocol surfaces; Writer and InstallationWorkflow rootRevision retained",
+  "newPaths": [],
+  "runtimeExecuted": false
+}

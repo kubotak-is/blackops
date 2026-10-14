@@ -1,0 +1,1015 @@
+{
+  "schemaVersion": 1,
+  "kind": "finite author correction for CIR-01/CIR-02 and PI-04",
+  "owner": "/root/f5_native_contract_plan",
+  "status": "frozen_author_candidate_pending_independent_review",
+  "rootReportedBase": "ba026679c258a48414e5dd39d3551d9c1913cb51",
+  "gitIndependentlyVerified": false,
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013"
+  },
+  "selectedInputHashesRecordedAt": "2026-10-13T18:02:30.730290+00:00",
+  "pinTiming": "Selected hashes taken after initial targeted source reads and before amendment authoring; frozen-map expected hashes checked separately. After hashes will be taken at freeze.",
+  "selectedInputs": [
+    {
+      "root": "P",
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 9247,
+        "sha256": "345a581c0f83fbd51ddc9d7a18b0e776bfe8e9739f5e4c3b7276fe436ef49589"
+      },
+      "after": {
+        "bytes": 9988,
+        "sha256": "dd98d30e3706e3766bade50d87c9875922d2fd157d12c5d00c865f2b9857589f"
+      },
+      "unchanged": false,
+      "driftClassification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "P",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 29385,
+        "sha256": "82f4778c3eb42eaa4c09fd023712f82b321d99f165b5ddf259c36d01ae806fdb"
+      },
+      "after": {
+        "bytes": 31746,
+        "sha256": "4b07b096591d565c10b9bb3e2722840af3c0672e9d8a26325b2a4d829e145679"
+      },
+      "unchanged": false,
+      "driftClassification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "C",
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": ".codex/config.toml",
+      "before": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "after": {
+        "bytes": 53,
+        "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 9247,
+        "sha256": "b34495b511098f6340d2b9c1afa95e28143426a1ba8c0f059c12619765a34097"
+      },
+      "after": {
+        "bytes": 9988,
+        "sha256": "20722cc1d9785796b0f968a9d854fcf587d044af129fb4e6b7903f36d409bf3a"
+      },
+      "unchanged": false,
+      "driftClassification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "C",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 29385,
+        "sha256": "82f4778c3eb42eaa4c09fd023712f82b321d99f165b5ddf259c36d01ae806fdb"
+      },
+      "after": {
+        "bytes": 31746,
+        "sha256": "4b07b096591d565c10b9bb3e2722840af3c0672e9d8a26325b2a4d829e145679"
+      },
+      "unchanged": false,
+      "driftClassification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/README.md",
+      "before": {
+        "bytes": 46481,
+        "sha256": "1257ca6efda0eef6606cde30bcf4143ec464d6310a9fda886e00f3e6ffe36044"
+      },
+      "after": {
+        "bytes": 46481,
+        "sha256": "1257ca6efda0eef6606cde30bcf4143ec464d6310a9fda886e00f3e6ffe36044"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/109-ai-development-workflow.md",
+      "before": {
+        "bytes": 13331,
+        "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb"
+      },
+      "after": {
+        "bytes": 13331,
+        "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "before": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "after": {
+        "bytes": 43059,
+        "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "before": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "after": {
+        "bytes": 87391,
+        "sha256": "044639432fd345d0bd023825d5183c7b0735b26a27a437ecae325d183048997e"
+      },
+      "unchanged": false,
+      "driftClassification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/131-audit-ordinary-sign-service.md",
+      "before": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "after": {
+        "bytes": 18894,
+        "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/release-authority.json",
+      "before": {
+        "bytes": 6385,
+        "sha256": "bfdc4ac892bfcf41ce499d73301eb8bfd8232bd723cd4ca3a804e6dfbbd44b43"
+      },
+      "after": {
+        "bytes": 6385,
+        "sha256": "bfdc4ac892bfcf41ce499d73301eb8bfd8232bd723cd4ca3a804e6dfbbd44b43"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationAuditConfiguration.php",
+      "before": {
+        "bytes": 2736,
+        "sha256": "e0e21c56912fc060ed5fb68b4f308faa705eae1fc59280cb69af6bd0e37329dc"
+      },
+      "after": {
+        "bytes": 2736,
+        "sha256": "e0e21c56912fc060ed5fb68b4f308faa705eae1fc59280cb69af6bd0e37329dc"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+      "before": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "after": {
+        "bytes": 8016,
+        "sha256": "0b13ed33af979e342e63857d67f123cd9f6bc0072f8ae44f8abf97e687e8ea3f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+      "before": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "after": {
+        "bytes": 3326,
+        "sha256": "0ff9c937baf7c75ab241368565b4b63fd32c5fe5dfe9e836425bda0d7ef9e4ae"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationConfigurationSnapshot.php",
+      "before": {
+        "bytes": 2264,
+        "sha256": "e82a9aea1e7f1842232ef90e844dbcebd34bfcc71d82f850ca35e770c09f517b"
+      },
+      "after": {
+        "bytes": 2264,
+        "sha256": "e82a9aea1e7f1842232ef90e844dbcebd34bfcc71d82f850ca35e770c09f517b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Audit/Delivery/AuditOutboxConfiguration.php",
+      "before": {
+        "bytes": 783,
+        "sha256": "b007d7309903db4265d595ac8fb430b3eadbe2c6e2a00e92f47a8c872d91d2c3"
+      },
+      "after": {
+        "bytes": 783,
+        "sha256": "b007d7309903db4265d595ac8fb430b3eadbe2c6e2a00e92f47a8c872d91d2c3"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationAuditConfigurationTest.php",
+      "before": {
+        "bytes": 6637,
+        "sha256": "69a9e965943b03dbc4673d10b5e097c81cd8dd6ea26a34274ae60d877dfaf487"
+      },
+      "after": {
+        "bytes": 6637,
+        "sha256": "69a9e965943b03dbc4673d10b5e097c81cd8dd6ea26a34274ae60d877dfaf487"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "before": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "after": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "before": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "after": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "before": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "after": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "online-delegate-checkpoint-issuance-r1.md",
+      "before": {
+        "bytes": 88993,
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b"
+      },
+      "after": {
+        "bytes": 88993,
+        "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "online-delegate-checkpoint-issuance-r1-inputs.json",
+      "before": {
+        "bytes": 70270,
+        "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5"
+      },
+      "after": {
+        "bytes": 70270,
+        "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-authority-review-r1.md",
+      "before": {
+        "bytes": 14569,
+        "sha256": "f6ab5e96d5ac3ef42f8c1381f3bedb946d83abb3563f3add988109780aa80445"
+      },
+      "after": {
+        "bytes": 14569,
+        "sha256": "f6ab5e96d5ac3ef42f8c1381f3bedb946d83abb3563f3add988109780aa80445"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-authority-review-r1-inputs.json",
+      "before": {
+        "bytes": 69727,
+        "sha256": "2064d94d7adde33ff2db88603b996c773f1e2c420c834296a90bff3b09c4dd73"
+      },
+      "after": {
+        "bytes": 69727,
+        "sha256": "2064d94d7adde33ff2db88603b996c773f1e2c420c834296a90bff3b09c4dd73"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-path-inventory-r1.md",
+      "before": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "after": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-path-inventory-r1.json",
+      "before": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "after": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-issuance-candidate-r1.md",
+      "before": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "after": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-issuance-map-r1.md",
+      "before": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "after": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-issuance-map-r1-inputs.json",
+      "before": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "after": {
+        "bytes": 82572,
+        "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1.md",
+      "before": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "after": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1-inputs.json",
+      "before": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "after": {
+        "bytes": 12374,
+        "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-delta-r2.md",
+      "before": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "after": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "before": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "after": {
+        "bytes": 20085,
+        "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-issuance-r1.md",
+      "before": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "after": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-correction-r2.md",
+      "before": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "after": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-test-ci-bindings-r1.md",
+      "before": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "after": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-history-type-closure-r1.md",
+      "before": {
+        "bytes": 48741,
+        "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817"
+      },
+      "pinTiming": "Added after sibling author freeze, before this amendment freeze; no mutual draft pin.",
+      "after": {
+        "bytes": 48741,
+        "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-history-type-closure-r1-inputs.json",
+      "before": {
+        "bytes": 14750,
+        "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854"
+      },
+      "pinTiming": "Added after sibling author freeze, before this amendment freeze; no mutual draft pin.",
+      "after": {
+        "bytes": 14750,
+        "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854"
+      },
+      "unchanged": true
+    }
+  ],
+  "selectedInputCount": 40,
+  "ownedOutputs": [
+    ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2.md",
+    ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2-inputs.json"
+  ],
+  "scope": [
+    "CIR-01",
+    "CIR-02",
+    "PI-04"
+  ],
+  "notRun": [
+    "Git",
+    "PHP",
+    "Node",
+    "tests",
+    "database",
+    "native process",
+    "Docker/container",
+    "network"
+  ],
+  "noProductImplementation": true,
+  "originalMapsModified": false,
+  "selfApproval": false,
+  "observedReadFailures": [
+    "One targeted rg included not-yet-existing ApplicationAuditRecordComposition.php; exit2; corrected to actual accepted ApplicationAuditRuntimeComposer.php. No mutation or runtime.",
+    "One targeted rg used shortened nonexistent130 filename; exit2; corrected to actual 130-audit-control-authority-and-production-provenance.md. No mutation or runtime."
+  ],
+  "amendedTypes": [
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineConfiguration.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(AuditOnlineAuthoritySettings,array exactSeedBindings,?ApplicationAuditOrdinarySignConfiguration ordinary); static fromConfiguration(array audit,AuditCustodyIdentity):self; settings():AuditOnlineAuthoritySettings; checkpointSeed(string ref,string fingerprint):AuditCheckpointSeedBinding; ordinary():?ApplicationAuditOrdinarySignConfiguration; seedIdentities():array exact configured role/ref/fingerprint/path/native-identity records; R4",
+      "callers": "fromConfiguration only ApplicationRetentionRuntime.signingTasks from actual full audit subtree; settings direct sites exactly OnlineDocument.__construct, OnlinePayload.__construct, OnlineFloorCodec.__construct, SigningFiles.onlineSource, SigningFiles.onlineFloor; seedIdentities only SigningFiles.onlineSource; ordinary only RetentionRuntime.signingTasks; other frozen leaf readers unchanged."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineAuthoritySettings.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(array identity,array paths,int minimumEpoch); static fromConfiguration(same3):self; identity():array exact installationRef/authorityRef/rootRef/raw32Root/rootFingerprint; paths():array exact authorityFile/highWaterFile and detached native identities; minimumEpoch():int; R4",
+      "callers": "fromConfiguration only OnlineConfiguration.fromConfiguration; identity only OnlineDocument.__construct, OnlinePayload.__construct, OnlineFloorCodec.__construct; minimumEpoch only OnlineFloorCodec.__construct; paths only SigningFiles.onlineSource and SigningFiles.onlineFloor. Each named site once."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineDocument.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "ctor(AuditOnlineConfiguration,AuditAuthorityDocumentCodec,AuditAuthorityDocumentVerifier); authenticate(string):array exact authenticated envelope/payload/digest; private envelope(array):void; R4",
+      "callers": "Constructor only ApplicationRetentionRuntime.signingTasks; authenticate only AuditOnlineAcquisition.source; constructor reads Configuration.settings once and its Settings.identity once; exact shared DocumentCodec/DocumentVerifier unchanged."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlinePayload.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3,
+      "surface": "ctor(AuditOnlineConfiguration); current(array authenticatedDocument,string partition,string now):array exact admitted online facts; private scope(array):array; private snapshots(array,string):void; private selected(array,string):array; private interval(array,string):void; private exact(array):void; private invalid():never",
+      "callers": "Constructor only AuditOnlineAcquisition.__construct with same admitted configuration; constructor reads settings/identity once; current only Acquisition.floor at actual operations Clock sample."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineFloorCodec.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 4,
+      "surface": "ctor(AuditOnlineConfiguration,AuditAuthorityJsonPreflight); decode(string):array exact9; advance(array floor,array authenticatedDocument,array admittedFacts,string now):string; private binding(array):void; private epoch(array,array):void; private canonical(array):string; private invalid():never",
+      "callers": "Constructor only ApplicationRetentionRuntime.signingTasks with exact common Preflight; ctor reads settings/identity/minimumEpoch once; decode/advance only Acquisition.floor."
+    },
+    {
+      "path": "src/Internal/Audit/Signing/AuditOnlineAcquisition.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 5,
+      "surface": "ctor(AuditOnlineConfiguration,ClockInterface,AuditSigningFiles,AuditOnlineDocument,AuditOnlineFloorCodec); acquire(string partition):AuditOnlineAuthority; private source():array; private floor(array authenticated,string partition):AuditOnlineAuthority; private failure(Throwable):AuditOnlineException; R4",
+      "callers": "Only RetentionRuntime.signingTasks constructs with actual operations.clock; constructor creates one fixed private AuditOnlinePayload from the same configuration; no direct settings call or FloorCodec construction. Four fixed OnlineChecks operations remain sole acquire callers."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/Custody/AuditSigningFiles.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 2,
+      "surface": "ctor(AuditCustodyIdentity); onlineSource(AuditOnlineConfiguration):AuditNativeFile; onlineFloor(AuditOnlineConfiguration):AuditNativeFloorFile; checkpointSeed(AuditCheckpointSeedBinding):AuditNativeFile; delegateSeed(AuditControlConfiguration,AuditDelegateUnsignedEnvelope):AuditNativeFile; R4",
+      "callers": "Constructor at two frozen actual composers. onlineSource reads settings().paths and seedIdentities once; onlineFloor reads settings().paths once. Fixed four opener callers unchanged; no seed-content read from settings."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlConfiguration.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 4,
+      "surface": "private ctor(array identity,array paths,array delegate,array minima); static fromConfiguration(array audit,AuditCustodyIdentity):self; identity():array exact installed installation/root/authority metadata; paths():array exact archive/source/control-floor paths and native identities; delegate():array exact configured ref/fingerprint/seed path/native identity; minima():array exact minimum policyVersion/lineageRevision; R4",
+      "callers": "Both actual composers construct from actual snapshot. Existing history/session/archive/current acquisition and new SigningFiles/DelegateCustody consume the fixed groups. No online/checkpoint seed requirement is added to installer publication. Add exactly History/AuditHistoryInstallation.__construct -> identity once; HistoryInstallation.fromComposition only the two actual composers from same admitted configuration/GraphState."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditProvenanceTransaction.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 2,
+      "surface": "ctor(Connection,AuditSigningGraphState); beginRoot():void; commit():void; abort(Throwable):AuditDeliveryException; private rollbackOwned():void; private closeOnce():void; private assertRoot():void; assertCurrent(Connection,?int expectedGeneration=null):int",
+      "callers": "assertCurrent direct callers: MutationAdmission.assertUnchanged, ControlPublicationWriter.recheck, both NativeObservation private ctors, CheckpointNativeObservation.factsFor/candidateFor, ControlNativeObservation.factsFor. Other frozen owner callers unchanged.",
+      "state": "Private monotone generation reserved before each begin attempt; active generation invalidated by commit/abort/disposal; overflow fails before begin; same native Connection/RR write/level1/autocommit/healthy root invariants remain."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedCheckpointEndpoints.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(AuditCheckpointCaptureScope,array finiteFacts,AuditCapturedCheckpointHistory); static fromReplay(same3):self; comparison():array{scope,finiteFacts,capture,actual}; finishComparison(array CheckpointNativeComparison):void; R4",
+      "callers": "fromReplay only CheckpointHistoryReplay.replay after full successful replay/physical EOF. comparison only MutationAdmission.assertUnchanged and its frozen comparison helpers, CheckpointHistoryReplay.replay, ControlPhaseGrant.fromAcquisition, CapturedCheckpointHistory.borrowForComparison, CheckpointNativeObservation.__construct. finishComparison only MutationAdmission.",
+      "state": "actual null/capture original until full comparison and checked close; then actual detached closed group/capture null; phase7 final root compares retained expected facts without transcript reopen."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditVerifiedControlEndpoints.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(AuditControlCaptureScope,array finiteFacts,AuditCapturedControlHistory); static fromReplay(same3):self; comparison():array{scope,finiteFacts,capture,actual}; finishComparison(array ControlNativeComparison):void; R4",
+      "callers": "fromReplay only ControlHistoryReplay.replay after complete successful replay/physical EOF. comparison only ControlPhaseGrant.fromAcquisition, PostgreSqlAuditControlPublicationWriter.recheck, CapturedControlHistory.borrowForComparison, ControlNativeObservation.__construct. finishComparison only Writer.recheck.",
+      "state": "No observation before complete native comparison and checked capture close; original scope/endpoint identity retained independently of scalar groups."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointNativeObservation.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(Connection,PostgreSqlAuditProvenanceTransaction,AuditVerifiedCheckpointEndpoints); static fromAdmission(same3):self; factsFor(AuditControlPhaseGrant):array{scope:AuditCheckpointCaptureScope,endpoints:AuditVerifiedCheckpointEndpoints,native:CheckpointNativeComparison}; candidateFor(PreparedCheckpointWork,AuditCheckpointPhaseAuthority):?array exact Q4 actual ordinal2 row; R4",
+      "callers": "fromAdmission only MutationAdmission.assertUnchanged after comparison/checked close inside actual root. private ctor reads endpoint.comparison once, Transaction.assertCurrent once. factsFor only ControlPhaseGrant.claim; it reads supplied Grant.facts once. candidateFor only CandidateObservation.fromAdmission; calls Authority.assertCandidateComparison once, never currentGrant/facts. Both data methods assert retained root generation; shared one-attempt use state.",
+      "fields": "Original scope object; original endpoint object; same Connection and Transaction; captured active generation; detached CheckpointNativeComparison; monotone attempted state; no transcript/descriptor/authority accessor."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditControlNativeObservation.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(Connection,PostgreSqlAuditProvenanceTransaction,AuditVerifiedControlEndpoints); static fromWriter(same3):self; factsFor(AuditControlPhaseGrant):array{scope:AuditControlCaptureScope,endpoints:AuditVerifiedControlEndpoints,native:ControlNativeComparison}; R4",
+      "callers": "fromWriter only PublicationWriter.recheck after native comparison/checked close inside actual root. private ctor reads comparison once and Transaction.assertCurrent once; factsFor only Grant.claim, reads Grant.facts once and reasserts retained generation; one attempt only.",
+      "fields": "Original scope/endpoints; exact Connection/Transaction and active generation; detached ControlNativeComparison; monotone attempted state. No capsule/descriptor returned or retained."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditControlPhaseGrant.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 5,
+      "surface": "private ctor(AuditCheckpointCaptureScope|AuditControlCaptureScope exactScope,AuditVerifiedCheckpointEndpoints|AuditVerifiedControlEndpoints exactEndpoints,array exactAuthenticatedPolicy,array exactCurrentDelegate,string acquiredNow); static fromAcquisition(same5):self; facts():array exact scope/policy/delegate/now/authenticated checkpoint choice; assertCheckpoint(string partition,string ref,string fingerprint):void; markConsumed(AuditCheckpointCaptureScope|AuditControlCaptureScope exactScope,AuditVerifiedCheckpointEndpoints|AuditVerifiedControlEndpoints exactEndpoints):void; claim(AuditCheckpointNativeObservation|AuditControlNativeObservation):array exact signing facts, one-use; R4",
+      "callers": "Factories and existing fixed readers unchanged except exact two NativeObservation.factsFor sites. claim only eight fixed frame factories, checks consumed and one-use then original returned scope/endpoints object identities against its PRIVATE retained fields and exact fixed phase/native relation. markConsumed only corresponding main Authority.consume; no endpoint exposed by facts.",
+      "observationReturn": "Exactly {scope:original live scope,endpoints:original live endpoint,native:matching closed actual comparison group}; wrong pairing/digest-only/equal-valued replacement/stale root/reuse fail."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointPhaseAuthority.php",
+      "methods": 10,
+      "maxOrdinaryArguments": 4,
+      "surface": "private ctor(AuditCheckpointCaptureScope,AuditVerifiedCheckpointEndpoints,AuditControlPhaseGrant,string now); static fromAcquisition(same4):self; consume(AuditCheckpointCaptureScope):AuditVerifiedCheckpointEndpoints; candidatePermit(PreparedCheckpointWork):AuditCheckpointCandidatePermit; assertCandidateComparison(PreparedCheckpointWork,AuditVerifiedCheckpointEndpoints):void; currentGrant():AuditControlPhaseGrant; R4",
+      "callers": "Remove boundPhase. candidatePermit only CandidateSigner.complete; assertCandidateComparison only CheckpointNativeObservation.candidateFor; consume only MutationAdmission.consume. currentGrant only OnlineChecks.reservation/key and five fixed work Frame.fromRecorder factories; remove NativeObservation.candidateFor currentGrant edge. Factories remain acquisition only.",
+      "state": "Private same original scope/endpoints/grant; one retained issued permit; comparison attempt/completed state; main consume one-use. Phase7 consume requires original permit successfully taken and original endpoint/Prepared comparison completed; earlier phase authorities cannot substitute."
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointCandidatePermit.php",
+      "methods": 8,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(AuditCheckpointPhaseAuthority,AuditCheckpointCaptureScope,AuditVerifiedCheckpointEndpoints); static fromAuthority(same3):self; take(PreparedCheckpointWork):array exact original authority/scope/endpoints; assertTaken(PreparedCheckpointWork,AuditCheckpointCaptureScope,AuditVerifiedCheckpointEndpoints):void; R4",
+      "callers": "fromAuthority only PhaseAuthority.candidatePermit; take only CandidateAdmission.admit; assertTaken only original PhaseAuthority.assertCandidateComparison. Attempt marked before validation; successful take proof bound to original scope/endpoints/prepared; no Grant or new permit output from assertion."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointMutationAdmission.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 4,
+      "surface": "ctor(Connection,PostgreSqlAuditCheckpointAdmission,PostgreSqlAuditWorkRows,PostgreSqlAuditCheckpointSelectionQueries); consume(AuditCheckpointPhaseAuthority,AuditCheckpointCaptureScope):AuditVerifiedCheckpointEndpoints; assertUnchanged(AuditVerifiedCheckpointEndpoints,PostgreSqlAuditProvenanceTransaction):AuditCheckpointNativeObservation; private fence(string partition):void; private selectedBoundary(AuditVerifiedCheckpointEndpoints):void; private workEndpoint(AuditVerifiedCheckpointEndpoints):void",
+      "callers": "Existing exact Recorder/pre-F2/CandidateAdmission callers; consume checks actual supplied scope phase/target then Authority.consume checks private original identity. assertUnchanged checks generation before/after, lends same capture only first comparison, compares full original bytes/native rows, finishes checked close and creates observation in same root. No boundPhase reader."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationWriter.php",
+      "methods": 7,
+      "maxOrdinaryArguments": 5,
+      "surface": "ctor(Connection,PostgreSqlAuditProvenanceSchema,AuditControlDelegateCustody,AuditControlSegmentProofWorkflow,AuditSigningGraphState); rootRevision(AuditControlPublicationAuthority):AuditControlPublicationCandidate; segmentAdvance(AuditControlPublicationAuthority,AuditControlClosedSegmentProof):AuditControlPublicationCandidate; refresh(AuditControlPublicationAuthority):AuditControlPublicationCandidate; recoverExact(AuditControlPublicationAuthority):AuditControlPublicationCandidate; private recheck(AuditControlPublicationAuthority,AuditVerifiedControlEndpoints):AuditControlNativeObservation; readCommittedCandidate(AuditControlStagedPublicationSelection|AuditControlPinnedPublicationSelection):AuditControlPublicationCandidate",
+      "callers": "Fixed public branch checks unchanged PublicationAuthority.boundPhase and consumes before owned root; recheck compares native proof/endpoints and root generation before/after checked close, then constructs actual observation. Three signing-frame branches remain; recover/replay yields no signing claim.",
+      "surfaceReference": "installation-publication-issuance-r1.md plus online-delegate-checkpoint-issuance-r1.md §8.1; no additional method"
+    },
+    {
+      "path": "src/Internal/Audit/Authority/AuditCheckpointCandidateAdmission.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 3,
+      "surface": "ctor(PostgreSqlAuditProvenanceTransaction,AuditCheckpointMutationAdmission,AuditSigningGraphState); admit(PreparedCheckpointWork,AuditCheckpointCandidatePermit):AuditCheckpointCandidateObservation; R4",
+      "callers": "Only CandidateSigner.complete calls admit. Original permit.take before own root; actual MutationAdmission.assertUnchanged; stages CandidateObservation via fromAdmission while root active; commit/end checks before returning. Failure/disposal/close/commit ambiguity returns no candidate or seed permission."
+    },
+    {
+      "path": "src/Internal/Audit/Provenance/AuditCheckpointCandidateObservation.php",
+      "methods": 9,
+      "maxOrdinaryArguments": 3,
+      "surface": "private ctor(PreparedCheckpointWork,AuditCheckpointPhaseAuthority,?array exactActualCandidate); static fromAdmission(PreparedCheckpointWork,AuditCheckpointPhaseAuthority,AuditCheckpointNativeObservation):self; prepared():PreparedCheckpointWork; candidate():?array exact candidate row/envelope/bytes; assertAuthority(AuditCheckpointPhaseAuthority):void; R4",
+      "callers": "Only CandidateAdmission.admit creates through factory with actual Prepared/same PhaseAuthority/actual NativeObservation. Factory calls candidateFor once in owned root. Private ctor retains original Prepared/Authority and nullable actual Q4 candidate. Caller return only after commit. OnlineChecks.complete and CandidateSigner exact readers unchanged."
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditConfiguration.php",
+      "methods": 4,
+      "maxOrdinaryArguments": 1,
+      "surface": "private ctor(AuditOutboxConfiguration); static fromConfiguration(array):self; outbox():AuditOutboxConfiguration; private static assertAuthorityObjects(array audit):void",
+      "callers": "fromConfiguration exact three production sites: ApplicationRetentionRuntime.signingTasks, ApplicationAuditControlInstallationComposer.compose, ApplicationAuditRuntimeComposer.build. assertAuthorityObjects only own fromConfiguration before missing-outbox early return; outbox existing consumers unchanged.",
+      "fields": "Retain final readonly and sole private outbox property. No signing/control property, getter, parsed-authority success flag or stored raw snapshot.",
+      "validation": "Pure closed audit siblings outbox/signing/control; exact signing8 required+optional ordinary and control12 required keys, closed array containers. Keep exact original outbox validation/defaults/errors. Complete scalar/material/ordinary validation only actual lazy Online/Control factories on same unfiltered subtree."
+    },
+    {
+      "path": "src/Internal/Application/ApplicationRetentionRuntime.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 1,
+      "surface": "Frozen ctor(snapshot); scheduler(); private composeScheduler(); private existingTasks(); private signingTasks(); private auditCatalogs(container) surface retained",
+      "callers": "signingTasks owns actual full config admission; Online/Control actual parser before providers/selection; Document/FloorCodec construction and literal initialization order; no direct Payload constructor. Same graph remains cached only at lazy scheduler accessor; no help/list/plan/purge eager signing work."
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditControlInstallationComposer.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 1,
+      "surface": "Frozen compose(snapshot):ApplicationAuditControlInstallationComposition; private catalogs(container); R4",
+      "callers": "Only installation runtime compose caller retained; actual full ApplicationAuditConfiguration and ControlConfiguration admission from same snapshot; common root equality, shared history/files/delegate graph only. Existing ReplayPrerequisite.initialize once before floors; no online graph/initialize or checkpoint seed import."
+    },
+    {
+      "path": "src/Internal/Application/ApplicationAuditRuntimeComposer.php",
+      "methods": 6,
+      "maxOrdinaryArguments": 3,
+      "surface": "compose(snapshot,operations,catalogs):ApplicationAuditRuntime; composeForCheckpointProduction(same3):ApplicationAuditCheckpointComposition; private build(same3):ApplicationAuditRecordComposition; private database; private assertConnection; private providers (existing fixed signatures unchanged)",
+      "callers": "Both public composition routes share actual build -> ApplicationAuditConfiguration.fromConfiguration once; no filtered audit subtree or second C3 graph; accepted outbox consumption retained."
+    }
+  ],
+  "amendedTypeCount": 24,
+  "limits": {
+    "maximumDeclaredMethodsPerType": 10,
+    "maximumOrdinaryArguments": 5,
+    "maximumCyclomaticComplexity": 15,
+    "memoryLimit": "512M",
+    "measurementsStatus": "candidate static inventory only; no PHP/static/native runtime executed"
+  },
+  "findings": [
+    {
+      "id": "CIR-01",
+      "status": "author_proposed_closed_pending_independent_review"
+    },
+    {
+      "id": "CIR-02",
+      "status": "author_proposed_closed_pending_independent_review"
+    },
+    {
+      "id": "PI-04",
+      "status": "author_proposed_closed_pending_independent_review"
+    }
+  ],
+  "exactSettingsReaders": [
+    {
+      "configurationMethod": "settings",
+      "caller": "AuditOnlineDocument.__construct",
+      "settingsCalls": [
+        "identity"
+      ]
+    },
+    {
+      "configurationMethod": "settings",
+      "caller": "AuditOnlinePayload.__construct",
+      "settingsCalls": [
+        "identity"
+      ]
+    },
+    {
+      "configurationMethod": "settings",
+      "caller": "AuditOnlineFloorCodec.__construct",
+      "settingsCalls": [
+        "identity",
+        "minimumEpoch"
+      ]
+    },
+    {
+      "configurationMethod": "settings",
+      "caller": "AuditSigningFiles.onlineSource",
+      "settingsCalls": [
+        "paths"
+      ]
+    },
+    {
+      "configurationMethod": "settings",
+      "caller": "AuditSigningFiles.onlineFloor",
+      "settingsCalls": [
+        "paths"
+      ]
+    }
+  ],
+  "removedCallerEdges": [
+    "ApplicationRetentionRuntime.signingTasks -> new AuditOnlinePayload",
+    "AuditOnlineAcquisition.__construct -> new AuditOnlineFloorCodec",
+    "AuditOnlineAcquisition -> AuditOnlineConfiguration.settings",
+    "AuditCheckpointMutationAdmission.consume -> AuditCheckpointPhaseAuthority.boundPhase",
+    "AuditCheckpointNativeObservation.candidateFor -> AuditCheckpointPhaseAuthority.currentGrant"
+  ],
+  "additionalComparisonReaders": [
+    "AuditCapturedCheckpointHistory.borrowForComparison -> AuditVerifiedCheckpointEndpoints.comparison",
+    "AuditCapturedControlHistory.borrowForComparison -> AuditVerifiedControlEndpoints.comparison",
+    "AuditCheckpointNativeObservation.__construct -> AuditVerifiedCheckpointEndpoints.comparison",
+    "AuditControlNativeObservation.__construct -> AuditVerifiedControlEndpoints.comparison"
+  ],
+  "sharedControlIdentityReader": "AuditHistoryInstallation.__construct -> AuditControlConfiguration.identity once; same admitted configuration and GraphState, no getter.",
+  "closedComparisonGroups": {
+    "source": "checkpoint-history-type-closure-r1.md §2.5",
+    "sourceSha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+    "declarations": "CheckpointNativeComparison = {\n boundary:{partition:T16,target:Segment12,successor:Segment12,\n           predecessor:?Segment12,previousRecord:?T21},\n slot:{preparation:?T31,unsignedBytes:?string,complete:?T33,completeBytes:?string},\n work:{presence:T25,reservation:?T26,reservationEnvelope:?string,\n       steps:list0..4<{native:T28,envelope:string,completeBytes:?string}>,end:T35},\n control:{anchor:T3,sourceBytes:string,open:?Segment12,\n          published:?{begin:T48,end:T51,requested:?T49,requestedEnvelope:?string},\n          publication:?{accepted:T73,acceptedDocument:string,\n                        next:?T76,nextDocument:?string}}}\n\nControlNativeComparison = {\n partition:T16,open:Segment12,\n boundary:?{target:Segment12,successor:Segment12,\n            predecessor:?Segment12,previousRecord:?T21},proof:?T24,\n published:?{begin:T48,end:T51,requested:?T49,requestedEnvelope:?string},\n staged:?{begin:T52,end:T55,tip:?T53,tipEnvelope:?string},\n transitions:?{begin:T64,end:T67,tail:T65,tailEnvelope:string,\n               acknowledgement:?T68,acknowledgementEnvelope:?string,pendingCount:0..32},\n publication:{accepted:?T73,acceptedDocument:?string,candidate:?T76,\n              candidateDocument:?string,end:T79},floor:Floor13,sourceBytes:string}",
+    "docOnly": true,
+    "noNewClassOrQuery": true,
+    "externalExpectedContext": "sourceBytes/anchor/floor retained authenticated expected context; actual B2/F2/work/publication native members come from fenced read; original scope/endpoint identity required separately"
+  },
+  "phase7Order": [
+    "same live PhaseAuthority issues one permit",
+    "CandidateAdmission consumes actual permit before root",
+    "named owned root fences and rereads full actual rows/bytes",
+    "checked comparison-capture close",
+    "NativeObservation obtains same root generation and original endpoints",
+    "CandidateObservation factory calls candidateFor -> same authority assertCandidateComparison -> actual retained permit.assertTaken",
+    "commit/end checks before returned observation",
+    "fresh real online check; current recovery verification or absent-slot exact seed/F1 sign",
+    "SignedCandidate retains same authority",
+    "Recorder checks same authority, main consumes once",
+    "new named root full retained-fact reread; actual frame claim/delegate append; drift denies"
+  ],
+  "existingTestAmendment": {
+    "path": "tests/Internal/Application/ApplicationAuditConfigurationTest.php",
+    "authorization": "Root explicit one-path amendment; no other path implied",
+    "source": {
+      "bytes": 6637,
+      "sha256": "69a9e965943b03dbc4673d10b5e097c81cd8dd6ea26a34274ae60d877dfaf487"
+    },
+    "retainedTestMethods": [
+      "testMissingAuditAndOutboxUseOneAcceptedConfiguration",
+      "testClosedNativeIntegerConfigurationIsPassedToC1",
+      "testEmptyOutboxObjectUsesAcceptedDefaults",
+      "testEveryC1MemberAcceptsItsClosedBoundsAndRejectsOutsideThem",
+      "testEveryC1MemberRejectsNonNativeScalarAndArrayValues",
+      "testUnknownParentsMembersNullAndNonNativeValuesAreConfigurationFailures"
+    ],
+    "retainedHelper": "property(string):string",
+    "newTestMethods": [
+      "testInstalledSigningAndControlObjectsPreserveOutboxConfiguration",
+      "testAuthorityContainerKeysRemainClosedBeforeOutboxDefaults",
+      "testAuthorityAdmissionRemainsPureAndDoesNotResolveSigningRuntime"
+    ],
+    "declaredMethodsBefore": 7,
+    "declaredMethodsAfter": 10,
+    "partition": "legacy-runtime",
+    "existingModifiedTestPathsBefore": 25,
+    "existingModifiedTestPathsAfter": 26,
+    "newPhpTestPaths": 35,
+    "newPathUnionChanged": false,
+    "predecessorTestIdsPreserved": 3986,
+    "exactAssertions": "Markdown §3.1; no predecessor method rename/drop or missing-outbox validation bypass"
+  },
+  "negativeObligations": [
+    "wrong constructor owner/common Preflight/settings reader/late prerequisite",
+    "outer missing/extra/numeric/null authority object before missing outbox early return",
+    "actual lazy semantic failure before provider/target/seed and preserved plan/purge/help laziness",
+    "foreign or equal-valued distinct endpoint/scope; actual Q4 ordinal2 wrong preparation/bytes/absence",
+    "permit failed/repeated/untaken; comparison repeated/consumed; observation reuse; early/repeated Grant.claim",
+    "wrong Connection/disposed/inactive root; same owner new generation stale observation",
+    "checked close/commit/ambiguity failure exposes no candidate/seed; phase7 second-root drift rejects append",
+    "no seed/sign on actual recovered candidate; fresh real current online verification retained"
+  ],
+  "noNewF1OrNativeCalls": true,
+  "newF1DirectCallsUnchanged": [
+    {
+      "owner": "Signing/AuditOnlinePayload::snapshots",
+      "target": "AuditTrustSnapshotCodec::validate",
+      "sites": 1
+    },
+    {
+      "owner": "Signing/AuditCheckpointOnlineChecks::key",
+      "target": "AuditTrustSnapshotCodec::key",
+      "sites": 1
+    },
+    {
+      "owner": "Signing/AuditCheckpointOnlineChecks::key",
+      "target": "AuditTrustSnapshotCodec::assertSignedAt",
+      "sites": 1
+    },
+    {
+      "owner": "Signing/AuditCheckpointOnlineChecks::complete",
+      "target": "AuditArtifactVerifier::checkpoint",
+      "sites": 1
+    },
+    {
+      "owner": "Authority/AuditCheckpointCandidateSigner::signPrepared",
+      "target": "AuditArtifactSigner::checkpoint",
+      "sites": 1
+    }
+  ],
+  "memoryUse": {
+    "source": "MEMORY.md:24-31",
+    "purpose": "Native calibration and contract-versus-Product acceptance boundary only; current sources and Root scope verified separately",
+    "rolloutId": "01a0d0c8-2f24-7751-9900-0ffaf5a6867d"
+  },
+  "frozenAt": "2026-10-13T18:25:18.977835+00:00",
+  "unchangedSelectedInputCount": 35,
+  "allSelectedInputsUnchanged": false,
+  "changedSelectedInputs": [
+    {
+      "root": "P",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 9247,
+        "sha256": "345a581c0f83fbd51ddc9d7a18b0e776bfe8e9739f5e4c3b7276fe436ef49589"
+      },
+      "after": {
+        "bytes": 9988,
+        "sha256": "dd98d30e3706e3766bade50d87c9875922d2fd157d12c5d00c865f2b9857589f"
+      },
+      "classification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "P",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 29385,
+        "sha256": "82f4778c3eb42eaa4c09fd023712f82b321d99f165b5ddf259c36d01ae806fdb"
+      },
+      "after": {
+        "bytes": 31746,
+        "sha256": "4b07b096591d565c10b9bb3e2722840af3c0672e9d8a26325b2a4d829e145679"
+      },
+      "classification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "C",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 9247,
+        "sha256": "b34495b511098f6340d2b9c1afa95e28143426a1ba8c0f059c12619765a34097"
+      },
+      "after": {
+        "bytes": 9988,
+        "sha256": "20722cc1d9785796b0f968a9d854fcf587d044af129fb4e6b7903f36d409bf3a"
+      },
+      "classification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "C",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 29385,
+        "sha256": "82f4778c3eb42eaa4c09fd023712f82b321d99f165b5ddf259c36d01ae806fdb"
+      },
+      "after": {
+        "bytes": 31746,
+        "sha256": "4b07b096591d565c10b9bb3e2722840af3c0672e9d8a26325b2a4d829e145679"
+      },
+      "classification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "before": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "after": {
+        "bytes": 87391,
+        "sha256": "044639432fd345d0bd023825d5183c7b0735b26a27a437ecae325d183048997e"
+      },
+      "classification": "Root-owned concurrent governance checkpoint / independently adopted installation-only authority; not this correction or Product"
+    }
+  ],
+  "concurrentRootChangesRead": {
+    "files": "P/C STATE and F5 Task; C130 sections6 and9.4",
+    "authorityAdoption": "Task records2026-10-14T03:13:25+09:00 candidate5e20e792 after independent Greenb5ead1c5/df497d16",
+    "scope": "installation ownership/CLI/digest/recovery only; CIR/PI/type/Reader/verification corrections remain pending",
+    "noGitVerification": true
+  },
+  "bookkeepingOnlyChecks": {
+    "selectedHashPairs": 40,
+    "unchanged": 35,
+    "namedRootGovernanceDrift": 5,
+    "uniqueAffectedTypePaths": 24,
+    "typeMethodAndArgumentCeilings": true,
+    "existingTestMethodsMeasured": 7,
+    "proposedExistingTestMethods": 10,
+    "existingTestPathCount": 26,
+    "newPhpPathCountUnchanged": 35,
+    "historyClosedGroupsExactMatch": true,
+    "jsonParsed": true,
+    "runtimeQualification": false
+  },
+  "output": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-correction-r2.md",
+    "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+    "bytes": 41493
+  }
+}

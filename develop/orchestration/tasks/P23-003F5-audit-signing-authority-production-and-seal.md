@@ -15,8 +15,8 @@ required. Parent006 owns final release/publication/Documentation delivery.
 Root owns the management promotion below and exact prerequisite/API/SQL/resource
 contract preparation. Implementation base is the clean accepted integration
 checkout `.phpunit.cache/f2-orchestration/accepted-integration`,branch
-`agent/p23-006-accepted-integration`,HEAD070c752692bad46acc1334d37c59a769d511ec0e
-at the current finite replay adoption. Earlier starts retain their own recorded SHA.
+`agent/p23-006-accepted-integration`,HEAD87f5595b1394446aa788fb4a5dcff95bd15473ab
+at the delivered installation-authority checkpoint. Earlier starts retain their own recorded SHA.
 The primary mixed Product/index and unrelated/newer Website stay preserved.
 Production work will be issued only to the configured Luna Max worker after an
 exact file/API/verification packet and independent authority review. No Product,
@@ -361,6 +361,112 @@ requested by independent reviewb593fb5a. The complete issuance review retains
 those literal deltas. Root owns integration,STATE,resources,Acceptance and
 Git. No agent changes Product/governance/tests or opens DB/native/runtime leases.
 
+## Complete prerequisite review — 2026-10-14
+
+The finished replay adoption is separately committed asba026679c258a48414e5dd39d3551d9c1913cb51,
+pushed and independently remote-matched in E13/pure-codec-unit-remote-proof.json.
+C is clean at that checkpoint; primary Product/index remain preserved.
+Frozen online/delegate map4b3d1730/inputsaabefa2a and verification/CI binder
+bd77b117/inputs2ec28fd1 are now complete. Neither is independently adopted yet.
+
+Root owns checkpoint-combined-issuance-candidate-r1.md and inputs under E13.
+It joins all frozen contracts with explicit override precedence and corrects the
+resource draft's “reverse teardown”: migration down is irreversible,exactly as
+the unchanged29-DDL composition map requires. Product remains unissued.
+
+Read-only bounded assignments,all allowed outputs only under E13:
+- f3_authority_review: checkpoint-combined-authority-review-r1.md and inputs;
+  review actual whole-production joins with the new online/phase7/seed/delegate
+  import,then the final mechanical inventory. Reuse unchanged reviewed boundaries.
+- f5_native_contract_plan: checkpoint-verification-review-r1.md and inputs;
+  independently review the other author's test/CI binder and Root resource
+  contract. Its own crypto import remains under the separate f3 review.
+- f4_shared_source_inventory: checkpoint-combined-path-inventory-r1.md/.json;
+  mechanically union exact Product/fact/enum/helper/test/fixture/workflow/guide
+  paths from the fixed maps; flag concrete conflicts/missing names,choose no
+  new semantic API. Reviewers must receive it before final issuance sign-off.
+Root alone may prepare the durable child P23-003F5P Task/Report and its exact
+contract appendices after review. No Product/runtime/DB/native lease is opened.
+
+
+## Finite combined-review corrections — 2026-10-14T02:52:20+09:00
+
+Independent authority reviewf6ab5e96/inputs2064d94d and verification review766dda21/
+inputsd344dc8f are Changes Required. The mechanical unionff20b23a/83d0b5d8 is
+frozen. These bounded corrections close the complete prerequisite packet; no
+reopening of the reviewed protocol or smaller Product substitute is authorized.
+
+All outputs below are ignored evidence under E13. Existing inputs stay immutable.
+- f5_native_contract_plan owns online-delegate-checkpoint-correction-r2.md and
+  its input JSON: close CIR-01 exact Document constructor owner,common Preflight
+  construction and literal Settings readers; CIR-02 actual bounded observation
+  bytes and original endpoint/authority object identities,one-use and root state;
+  PI-04 existing ApplicationAuditConfiguration exact parser/property/method join.
+  Reconcile named source guards and existing meaningful negative cases. Preserve
+  all fixed wires,Clock/floor/seed/phase order,10 methods/5 arguments and strict
+  errors. No service lookup,resource getter,callback or generic authority surface.
+- f4_shared_source_inventory owns checkpoint-history-type-closure-r1.md and
+  inputs: complete only PI-02/03's23 named types and two resolved History facts,
+  exact namespaces/paths,constructors/factories/accessors/field and caller counts.
+  Use the frozen tag/scalar/phase/ownership semantics,not a new protocol. It also
+  owns checkpoint-verification-correction-r2.md and inputs: CVR-01 completeLiteral35
+  admission with all3986 predecessor IDs retained; CVR-02 exact27 bases/58 runs
+  bound to actual owner/method/fixture/native symbol-hit/observable result. Whole
+  production/DB proof remains a separate mandatory obligation. No case drops,
+  baseline/threshold/timeout/memory changes or generic automatic test admission.
+- f3_authority_review remains independent and read-only. Once Root supplies the
+  completed type/import deltas,it owns checkpoint-combined-authority-review-r2.md
+  and inputs,reviewing only the finite changes and their complete joins. The
+  verification correction receives separate independent review by f5 only after
+  its author output is frozen. No self-approval is permitted.
+Root owns corrected literal inventory,durable child packaging,governance,STATE,
+Git and Acceptance. No Product/test/public-source edit or PHP/Node/native/DB/
+Docker/runtime lease is issued. The pending Task/Report/STATE/archive group is
+not yet a completed commit unit: these concrete Findings must close first.
+
+
+### Explicit Reader lifetime correction candidate — 2026-10-14T02:59:55+09:00
+
+While completing PI-02/03,the history author found that HistoryReader's bound
+(sealedHistory,expectedScope) constructor cannot be injected into a shared Replay
+before any capture exists. Root selects local per-capture Reader construction,
+not a resettable prototype or a new factory/helper. The two shared Replay
+constructors become exactly4: Checkpoint(WorkReplay,SegmentReplay,
+HistoricalAuthority,ArtifactReplay) and Control(PublicationReplay,
+TransitionReplay,SegmentReplay,HistoricalAuthority). The shared ArtifactReplay
+identity and its exact three F1 sites remain. This is an explicit proposed
+correction to130 section9.1/pure r2,not already adopted under their earlier Green.
+
+The assigned history closure must fix the exact local Reader constructor callers,
+sealed/capture loan identity,one successful locked replay and the separately
+required fenced reread. Root permits one tenth CapturedHistory method,
+borrowForComparison,to the two exact comparison owners only; no reopen after
+phase7 close. Its premise must be an actual successful Replay/VerifiedEndpoints
+join and checked same capture,not an unexplained success flag/setter. Final
+phase7 comparison uses retained bounded facts. Any necessary fixed argument or
+identity reader is explicit. The finite cold-resolution list must include every
+newly needed under-floor concrete class before either floor. No dynamic loader,
+new generic access or late autoload is authorized. f3 reviews these exact deltas
+before Root changes authority or issues Product. All existing maps stay immutable.
+
+
+### Parallel installation-authority adoption review — 2026-10-14T03:05:37+09:00
+
+The preceding goal turn is Progress: two independent reviews froze concrete
+Findings,Root assigned their finite corrections and the Reader lifetime decision,
+and preserved the primary index/Product. All Product/runtime gates remain open.
+While those authors finish,Root owns E13/checkpoint-installation-authority-adoption-
+r1.diff and inputs. This proposes only the already selected explicit Console
+entry and additional installation-only ownership in130 section6/new9.4 and D179.
+It does not adopt pending Reader/import/type corrections or claim Product proof.
+The current authority files stay unchanged until this exact delta is reviewed.
+f3_authority_review owns only checkpoint-installation-authority-adoption-review-
+r1.md and inputs for this bounded promotion review,reusing the frozen installation
+protocol/correction and r1 combined conclusions. Its separate affected combined
+review continues when the authors freeze their deltas. No new general review or
+Product/runtime/DB/native/Git/STATE action is delegated. Root retains adoption,
+complete packet integration and coherent commit ownership.
+
 
 ## Adopted installation publication authority — 2026-10-14T03:13:25+09:00
 
@@ -379,3 +485,86 @@ pending implementation-packet work. No PHP/native/CI/export/browser/deploy gate
 is run for this authority-only adoption. Root owns scoped Git,STATE and preserved
 primary work. Next: close the finite correction reviews and issue the complete
 real prerequisite packet; no smaller Product substitute or acceptance waiver.
+
+
+## Final transport/cleanup correction and verification review — 2026-10-14T09:52:01+09:00
+
+Independent combined r2 review939e594a/inputs1f432612 closes CIR-01/02 and PI-04
+at the declaration level against7cfb9ec8/0afefd95. Its49 inputs stayed fixed.
+Type closure67af749f/7390836f resolves25 literal entries and the Reader/preload
+scope,but HT-01 transport callers and HT-02 failure disposal remain. Root reuses
+all other closed conclusions; Product remains unissued.
+
+Bounded outputs,only under E13:
+- f4_shared_source_inventory owns checkpoint-history-type-correction-r2.md and
+  inputs. Close HT-01 with one fixed typed native-group projection on the existing
+  Record within10 total methods,keeping GroupCodec decode at Reader and the exact
+  capture serializer. Pin constructor/factory arguments and all actual Record/
+  NativeGroup tag/bytes/scalars readers,including both outer Replay and both native
+  comparison methods. No new helper/parser or broad decoder/namespace grant.
+  Close HT-02 with exact checked disposal ownership: successfully sealed history
+  before failed RO commit/capsule transfer,after acquisition before/at write-root
+  start,during native comparison,and close failure. Name the literal actual
+  holders/callers and transfer state. An existing endpoint failure-disposal method
+  is permitted within its remaining budget if needed; never manufacture success
+  for finishComparison,expose a stream,reopen,retry native close or rely on GC.
+  Preserve the original sanitized failure and poisoned graph,one owned disposal
+  attempt,and explicit successful closure before seed/sign/F2/results. Cover all
+  affected actual entry handoffs,not only the already-open comparison root.
+- f5_native_contract_plan owns checkpoint-verification-review-r2.md and inputs,
+  independently reviewing the other author's frozen86b4fe03/inputsffe9d841
+  correction. It has exact35 NEW paths,26 existing edits and27 bases/58 runs.
+  Review the literal owner/method/fixture/native-route/observed result bindings,
+  actual cold assembly vs deliberate negatives,and honest independent-installer
+  archive kill/Product recovery distinction. Whole-production/DB proof remains
+  mandatory separately. Reuse already verified predecessor/CI/limits; no execution
+  or self-approval of the crypto map is delegated.
+- f3_authority_review later owns checkpoint-combined-authority-review-r3.md and
+  inputs once Root supplies the frozen HT amendment. Review only HT-01/02 and
+  their direct method/caller/identity/cleanup consequences; retain r2 closures.
+Root owns all authority promotion,durable packaging,STATE/Acceptance/Git. These
+are exact correction assignments,not Product/native/DB/runtime leases.
+
+
+### Complete child packaging and finite promotion scope — 2026-10-14T10:02:57+09:00
+
+Root owns durable Task/Report P23-003F5P-attributed-checkpoint-production and the
+literal contracts/P23-003F5P files pinned by its manifest; these management outputs
+preserve reviewed bytes and do not themselves issue Product/runtime work.
+The candidate allowlist61a77573/ebbfe5f9 mechanically closes295 edit paths plus62
+reference-only paths,with exactly35 new/26 existing test paths. No path wildcard.
+Root's candidate checkpoint-reader-authority-adoption-r1.diff0be04105 and inputs
+3efcb256 propose only130 sections9.1–9.2/D179's already selected four shared
+collaborators,local same-capture Readers and16 pre-floor resolutions. No authority
+file is changed before review. f3's assigned bounded r3 also checks this exact
+promotion diff alongside the frozen HT correction and r2's retained conclusions;
+it need not restart any unrelated review. Only its named r3 evidence is writable.
+
+
+The affected verification r2 review66df46a0/82e7c9b2 closes CVR-01 and all58 exact
+bindings except CVR-02R-01's universal interruption intro. Root owns only E13/
+checkpoint-interruption-intro-correction-r3.md/inputs to split seven process bases
+from two managed-error bases without changing rows or counts. f5_native_contract_plan
+owns checkpoint-verification-review-r3.md/inputs for that finite supplement only;
+reuse all other r2 conclusions. No Product or execution lease follows.
+
+
+The ongoing authority r3 found one stale HT caller: ordinary PublicationWorkflow's
+rootRevision was already removed by installer65c2e485. Root owns the finite
+checkpoint-control-cleanup-caller-correction-r3.md/inputs supplement,removing only
+that edge and correcting control fallback7,external close callers12,ordinary
+workflow9. InstallationWorkflow and PublicationWriter rootRevision stay. f3 checks
+this supplement in its current bounded r3; all frozen inputs remain immutable.
+
+
+## Complete real checkpoint packet adopted — 2026-10-14T10:17:12+09:00
+
+Independent authority9312efe1/4ec76e5b and verificationd1232dce/1be03368 are Green
+at declaration level. Root adopts exact Reader/preload diff0be04105 into130/D179
+(c028a816/a50834a5) and preserves the complete child Task/Report,manifest,literal
+295-edit/62-reference allowlist and finite immutable corrections under contracts/
+P23-003F5P. HT-01/02,CIR-01/02,PI-04 and CVR findings are closed for issuance;
+actual Product/native/DB/CI/export proof remains wholly separate. The completed
+management unit is committed before Luna starts. AC2's actual issuance checkpoint
+is recorded after that commit; no F5 Product/Acceptance or execution lease follows
+merely from this adoption. Next Task: [P23-003F5P](P23-003F5P-attributed-checkpoint-production.md).

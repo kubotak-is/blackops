@@ -1,0 +1,118 @@
+{
+  "status": "candidate; no Product/runtime issuance",
+  "base": "ba026679c258a48414e5dd39d3551d9c1913cb51",
+  "inputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1.md",
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "bytes": 142484
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-issuance-map-r1-inputs.json",
+      "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+      "bytes": 82572
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "bytes": 77964
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/history-capture-issuance-map-r1-inputs.json",
+      "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+      "bytes": 12374
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1.md",
+      "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc",
+      "bytes": 28662
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r1-inputs.json",
+      "sha256": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6",
+      "bytes": 13579
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2.md",
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "bytes": 35267
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+      "bytes": 20085
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1.md",
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "bytes": 75458
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-issuance-r1-inputs.json",
+      "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94",
+      "bytes": 41583
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2.md",
+      "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+      "bytes": 3178
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/installation-publication-correction-r2-inputs.json",
+      "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199",
+      "bytes": 1554
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1.md",
+      "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "bytes": 88993
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/online-delegate-checkpoint-issuance-r1-inputs.json",
+      "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5",
+      "bytes": 70270
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-production-verification-packet-r1.md",
+      "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "bytes": 11675
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1.md",
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "bytes": 54451
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-test-ci-bindings-r1-inputs.json",
+      "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+      "bytes": 40776
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/129-audit-online-authority-and-seed-custody.md",
+      "sha256": "7217336ec9073c5ab6413976a77e33b0aa2413bc8c32d41faf9d4bdde465532d",
+      "bytes": 43059
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649",
+      "bytes": 83242
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/131-audit-ordinary-sign-service.md",
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "bytes": 18894
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/132-audit-anchor-authenticated-provenance.md",
+      "sha256": "ad0e0229f8e8c0a0e5f6e7b1bb261fc250503253abaa182b43c4642035fb7986",
+      "bytes": 13080
+    }
+  ],
+  "output": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-combined-issuance-candidate-r1.md",
+    "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+    "bytes": 11494
+  },
+  "pending_mechanical_inventory": true,
+  "pending_independent_reviews": true
+}

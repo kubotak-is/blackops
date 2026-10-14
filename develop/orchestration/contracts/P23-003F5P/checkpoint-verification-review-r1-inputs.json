@@ -1,0 +1,1640 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent checkpoint verification contract review",
+  "owner": "/root/f5_native_contract_plan",
+  "status": "frozen_independent_review_needs_correction_CVR-01_CVR-02_not_execution_or_acceptance",
+  "rootReportedBase": "ba026679c258a48414e5dd39d3551d9c1913cb51",
+  "gitIndependentlyVerified": false,
+  "roots": {
+    "P": "/home/kubotak/projects/blackops",
+    "C": "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration",
+    "E13": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261013",
+    "E5": "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261012",
+    "F3": "/home/kubotak/projects/blackops/.phpunit.cache/f3-orchestration/20261009"
+  },
+  "firstPinAt": "2026-10-13T17:34:52.414287+00:00",
+  "selectedInputs": [
+    {
+      "root": "C",
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 7959,
+        "sha256": "15a21cc615e4471778a2a0c9c630ee965a87a98c76d33350e8016a7c2eb5307b"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 8685,
+        "sha256": "a25cbc082247a79f60622a91da93e02788cc28f46c01ecbdace4358887a8dffe"
+      },
+      "unchanged": false
+    },
+    {
+      "root": "C",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-production-verification-packet-r1.md",
+      "before": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 11675,
+        "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-issuance-map-r1.md",
+      "before": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 142484,
+        "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "history-capture-issuance-map-r1.md",
+      "before": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 77964,
+        "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-issuance-r1.md",
+      "before": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 75458,
+        "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-review-r1.md",
+      "before": {
+        "bytes": 14754,
+        "sha256": "b593fb5adacb6550bc49445d64b82b241a49f18eb182eac7e4c2707191149fcf"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 14754,
+        "sha256": "b593fb5adacb6550bc49445d64b82b241a49f18eb182eac7e4c2707191149fcf"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-delta-r2.md",
+      "before": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 35267,
+        "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "pure-checkpoint-codec-floor-review-r2.md",
+      "before": {
+        "bytes": 10595,
+        "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 10595,
+        "sha256": "16e69b9b23fdd890dd42eb847ae0d2be447abbb508bd9d63e88f35c9052c13d2"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-proposal-r2.md",
+      "before": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 8844,
+        "sha256": "847ca0bdfd192a72a631211d5ef3adff24684c2b2117981b2daba7fb1d61f118"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-contract-review-r2.md",
+      "before": {
+        "bytes": 5723,
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 5723,
+        "sha256": "79530b88355c2c5a5a2ff8bd644733171e8f103e30e66f1ee8441700ada58d37"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "native-calibration-runner.py",
+      "before": {
+        "bytes": 5284,
+        "sha256": "a2592fb5a06fd314b875ed9aef04976cb3647778522b3ff299d031a5af04e351"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 5284,
+        "sha256": "a2592fb5a06fd314b875ed9aef04976cb3647778522b3ff299d031a5af04e351"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E5",
+      "path": "native-authority-fault-verification-proposal-r1.md",
+      "before": {
+        "bytes": 26654,
+        "sha256": "684a807ce3d87c7ddeb0de10b0da46f41970384e13595f405b3734e8ba7eaf02"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 26654,
+        "sha256": "684a807ce3d87c7ddeb0de10b0da46f41970384e13595f405b3734e8ba7eaf02"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "F3",
+      "path": "run-20261012T030920550572-full/full.xml",
+      "before": {
+        "bytes": 1559132,
+        "sha256": "efbe6ae85b2aab8734fba8877e12531611aac37448894cfccf238035639784f8"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1559132,
+        "sha256": "efbe6ae85b2aab8734fba8877e12531611aac37448894cfccf238035639784f8"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "F3",
+      "path": "run-20261012T030054341168-discovery/test-inventory.xml",
+      "before": {
+        "bytes": 1443072,
+        "sha256": "f1bcd4f51df140845b6b0c1aeb8925cbe809aaf84864100eeabb2d9b8b8e7650"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1443072,
+        "sha256": "f1bcd4f51df140845b6b0c1aeb8925cbe809aaf84864100eeabb2d9b8b8e7650"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "F3",
+      "path": "run-20261012T030920550572-full/receipt.json",
+      "before": {
+        "bytes": 1257,
+        "sha256": "f8a38ed54825f87b704ee6ef7afce59c51e98b7d8915b3adb42cd6cdd3f312aa"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1257,
+        "sha256": "f8a38ed54825f87b704ee6ef7afce59c51e98b7d8915b3adb42cd6cdd3f312aa"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": ".github/workflows/ci.yml",
+      "before": {
+        "bytes": 13200,
+        "sha256": "d8f36f3fdabf7b51a20d8b469393c762d762139e922f94584ee688e4133f0d28"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 13200,
+        "sha256": "d8f36f3fdabf7b51a20d8b469393c762d762139e922f94584ee688e4133f0d28"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": ".github/workflows/docs.yml",
+      "before": {
+        "bytes": 6710,
+        "sha256": "2fb95884036fcedb2b25c231833309d8f76c2b388b4bef61542b045b7dd1d882"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 6710,
+        "sha256": "2fb95884036fcedb2b25c231833309d8f76c2b388b4bef61542b045b7dd1d882"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "composer.json",
+      "before": {
+        "bytes": 2385,
+        "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 2385,
+        "sha256": "b72d42f07444d974b7619c94fe93cfc36d8621d0830d62c084c5bec790ce143d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "composer.lock",
+      "before": {
+        "bytes": 271332,
+        "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 271332,
+        "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "phpunit.xml",
+      "before": {
+        "bytes": 492,
+        "sha256": "e52021086875cccf296f2b97c03e8e7268c7c5e9f75cc0f1436c7daa5c60ae1d"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 492,
+        "sha256": "e52021086875cccf296f2b97c03e8e7268c7c5e9f75cc0f1436c7daa5c60ae1d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "compose.yaml",
+      "before": {
+        "bytes": 1636,
+        "sha256": "bcca4ac25247f5c21f430d0b00021aa2ade4deff6186e5e103bdcdf0173c4d92"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1636,
+        "sha256": "bcca4ac25247f5c21f430d0b00021aa2ade4deff6186e5e103bdcdf0173c4d92"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "Dockerfile",
+      "before": {
+        "bytes": 764,
+        "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 764,
+        "sha256": "1c2e3c60542046589ef2afe906d6b3cb3a8846f4447fa6dded00874d2a6a9b62"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "mise.toml",
+      "before": {
+        "bytes": 67,
+        "sha256": "a5bc98ebca9ccbe3939eed8747f41be9f58cdb60fedba7945cb46ec7892491c6"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 67,
+        "sha256": "a5bc98ebca9ccbe3939eed8747f41be9f58cdb60fedba7945cb46ec7892491c6"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "mago.toml",
+      "before": {
+        "bytes": 1136,
+        "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1136,
+        "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "deptrac.yaml",
+      "before": {
+        "bytes": 8393,
+        "sha256": "9a3da378a338cfe1a007e1171e51df2cf664c454096c93aba593a81e0fb2fc0f"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 8393,
+        "sha256": "9a3da378a338cfe1a007e1171e51df2cf664c454096c93aba593a81e0fb2fc0f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-signed-artifacts-golden.mjs",
+      "before": {
+        "bytes": 23083,
+        "sha256": "87760135e7eacbacdfbae9aa0ce9b43fa9a62afd667f0a2367e4311a990bfb34"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 23083,
+        "sha256": "87760135e7eacbacdfbae9aa0ce9b43fa9a62afd667f0a2367e4311a990bfb34"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Audit/Artifact/AuditCheckpointCodecTest.php",
+      "before": {
+        "bytes": 25401,
+        "sha256": "feae938ac999e84440de13655e15a8f076f2e5e6fd482fc7581ff0dbcd11506a"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 25401,
+        "sha256": "feae938ac999e84440de13655e15a8f076f2e5e6fd482fc7581ff0dbcd11506a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStorePostgreSqlTest.php",
+      "before": {
+        "bytes": 188058,
+        "sha256": "2e490f24c9e1fef4502eed41c106c3ea5165c70cbbbbfbfae50dc1196e7c9075"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 188058,
+        "sha256": "2e490f24c9e1fef4502eed41c106c3ea5165c70cbbbbfbfae50dc1196e7c9075"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Audit/Orchestration/AuditDeliveryTransactionTest.php",
+      "before": {
+        "bytes": 60054,
+        "sha256": "090fcb0932586b1b877f6ccf27c224194b6e69d27ed5ac41cbf3839e0fdc7cde"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 60054,
+        "sha256": "090fcb0932586b1b877f6ccf27c224194b6e69d27ed5ac41cbf3839e0fdc7cde"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Console/ApplicationBuildCompileCommandTest.php",
+      "before": {
+        "bytes": 33176,
+        "sha256": "03cc08bc288e0233dd370c06c9b6f51ca18d87b3eb7412eb72d3603096ef7936"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 33176,
+        "sha256": "03cc08bc288e0233dd370c06c9b6f51ca18d87b3eb7412eb72d3603096ef7936"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Consumer/framework-package-export.sh",
+      "before": {
+        "bytes": 20437,
+        "sha256": "dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 20437,
+        "sha256": "dfefb0d3b707665c9e1ca22be63b26da3712913df4537a2fb1c8bf06c4106717"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Consumer/framework-package-required-inventory.sh",
+      "before": {
+        "bytes": 121431,
+        "sha256": "d814fe52b38f962f8bd627417344bb192d22114fcd63d094705a8cfe78f3dc20"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 121431,
+        "sha256": "d814fe52b38f962f8bd627417344bb192d22114fcd63d094705a8cfe78f3dc20"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/DatabaseMigrationRunnerTest.php",
+      "before": {
+        "bytes": 65329,
+        "sha256": "07881ec730486123f012f521a015365dbea0e50cd209a715725b393f8345293c"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 65329,
+        "sha256": "07881ec730486123f012f521a015365dbea0e50cd209a715725b393f8345293c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/ConfigurablePostgreSqlMigrationFactoryTest.php",
+      "before": {
+        "bytes": 2604,
+        "sha256": "c6c0fcf1b407a58d9ac02c87352ee8575a1c2fee65f7b859dad48537e2e4bca9"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 2604,
+        "sha256": "c6c0fcf1b407a58d9ac02c87352ee8575a1c2fee65f7b859dad48537e2e4bca9"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Migration/PostgreSqlMigrationSchemaTest.php",
+      "before": {
+        "bytes": 1440,
+        "sha256": "e79572d8b735b1f91334d368b7ebf43915b5096882466aae6a57f6361d775af8"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1440,
+        "sha256": "e79572d8b735b1f91334d368b7ebf43915b5096882466aae6a57f6361d775af8"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Console/DatabaseMigrationCommandTest.php",
+      "before": {
+        "bytes": 9990,
+        "sha256": "7c1fb597a8ee0ee102069efd3a98b0ed14c54cbc3ba75cbff54498a71fa82e63"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 9990,
+        "sha256": "7c1fb597a8ee0ee102069efd3a98b0ed14c54cbc3ba75cbff54498a71fa82e63"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Application/ApplicationDatabaseConfiguration.php",
+      "before": {
+        "bytes": 1240,
+        "sha256": "f8e8e271fa43006a796247b705902280eb63dd5b9173f214e5efec0e4fc8de0d"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1240,
+        "sha256": "f8e8e271fa43006a796247b705902280eb63dd5b9173f214e5efec0e4fc8de0d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Database/DatabaseConfigurationNormalizer.php",
+      "before": {
+        "bytes": 1262,
+        "sha256": "4cc28c94254caff8a8ed68077a0f4b8e119dfce12f31ec5a33e876bfbf72516b"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1262,
+        "sha256": "4cc28c94254caff8a8ed68077a0f4b8e119dfce12f31ec5a33e876bfbf72516b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Database/NamedDatabaseConfigurationNormalizer.php",
+      "before": {
+        "bytes": 3074,
+        "sha256": "d139c6ee64be5cf2388595ed8cc5cc11bd62a0610c9e6eb8b6420855d694eddc"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 3074,
+        "sha256": "d139c6ee64be5cf2388595ed8cc5cc11bd62a0610c9e6eb8b6420855d694eddc"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Internal/Database/DatabaseConfigurationValueValidator.php",
+      "before": {
+        "bytes": 1701,
+        "sha256": "33ed27c9a8bd802c1ee5f9360bbb641df0d38bef364c68a95959ed027de69440"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1701,
+        "sha256": "33ed27c9a8bd802c1ee5f9360bbb641df0d38bef364c68a95959ed027de69440"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Application/Application.php",
+      "before": {
+        "bytes": 2913,
+        "sha256": "1a3e841a59f78587fa2cfe1bc2166fd53e7a8ac2827d493c0db82ab8b0c25861"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 2913,
+        "sha256": "1a3e841a59f78587fa2cfe1bc2166fd53e7a8ac2827d493c0db82ab8b0c25861"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "src/Application/ApplicationBuilder.php",
+      "before": {
+        "bytes": 6992,
+        "sha256": "86121119b9e270078a554d95c2bb6effdf6115bc46fa2e23fbdbb1ced36e5a57"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 6992,
+        "sha256": "86121119b9e270078a554d95c2bb6effdf6115bc46fa2e23fbdbb1ced36e5a57"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationAuditRuntimeComposerTest.php",
+      "before": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 28756,
+        "sha256": "8fe9866f6914b5670611456eb2d6e2218299f2eb89bb8116040c0ec01cf98c05"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "before": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 83242,
+        "sha256": "34ec48a9c913a4384ec434ed56d77291d5a0de4e4fbbb5c25e376074fc665649"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Help.php",
+      "before": {
+        "bytes": 26167,
+        "sha256": "1bf0915a319f8b3ad41064a2db81a76a4ed195fcd6c9b2421266ffacec56e81a"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 26167,
+        "sha256": "1bf0915a319f8b3ad41064a2db81a76a4ed195fcd6c9b2421266ffacec56e81a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Configuration/Cli/Builder.php",
+      "before": {
+        "bytes": 44202,
+        "sha256": "92c413ba74ee0394b0322c0e519883c6820c2a334f9e70d5b725774ba2a274cd"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 44202,
+        "sha256": "92c413ba74ee0394b0322c0e519883c6820c2a334f9e70d5b725774ba2a274cd"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/TestSuiteFilterProcessor.php",
+      "before": {
+        "bytes": 4029,
+        "sha256": "ddf56ee3d1e796f955b0dae37df368df7d37316ae5cff187b6f2331d6ad5943d"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 4029,
+        "sha256": "ddf56ee3d1e796f955b0dae37df368df7d37316ae5cff187b6f2331d6ad5943d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestIdsCommand.php",
+      "before": {
+        "bytes": 1133,
+        "sha256": "3b90f7b7d56518b44c194a0fac51dad539ded93855148a516a381e7559653e88"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1133,
+        "sha256": "3b90f7b7d56518b44c194a0fac51dad539ded93855148a516a381e7559653e88"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Command/Commands/ListTestsAsXmlCommand.php",
+      "before": {
+        "bytes": 3898,
+        "sha256": "bb1c06cc2db3c08afb6db65f5a867784357cc79780b035aa25418045c1e75db7"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 3898,
+        "sha256": "bb1c06cc2db3c08afb6db65f5a867784357cc79780b035aa25418045c1e75db7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/Runner/Filter/TestIdFilterIterator.php",
+      "before": {
+        "bytes": 1726,
+        "sha256": "c8bff0d1d8f3282525dc58fb4ee746271e01471f980e699d65d799da0db1f845"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 1726,
+        "sha256": "c8bff0d1d8f3282525dc58fb4ee746271e01471f980e699d65d799da0db1f845"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/Event/Value/Test/TestMethod.php",
+      "before": {
+        "bytes": 3486,
+        "sha256": "6fb632a73b98985bfe972167addd8a906eb81a9c483246ca72b93f4acbe49d5e"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 3486,
+        "sha256": "6fb632a73b98985bfe972167addd8a906eb81a9c483246ca72b93f4acbe49d5e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/Logging/JUnit/JunitXmlLogger.php",
+      "before": {
+        "bytes": 14821,
+        "sha256": "11558f5115dda3b8f32ada7ef3bc80d722b3df9894e6ea02f6072972510c91b4"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 14821,
+        "sha256": "11558f5115dda3b8f32ada7ef3bc80d722b3df9894e6ea02f6072972510c91b4"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationConsoleKernelTest.php",
+      "before": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 41377,
+        "sha256": "d03df4de5ad06937c7c8808e21908a4cfe8152421ce5d4e6aa6fc1fd644e4f45"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Integration/ApplicationConsoleKernelTest.php",
+      "before": {
+        "bytes": 21535,
+        "sha256": "f6a714826b87dc86d672cb1c6e247a98a58bd26f74c8dd982444c3a3da2e753b"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 21535,
+        "sha256": "f6a714826b87dc86d672cb1c6e247a98a58bd26f74c8dd982444c3a3da2e753b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Application/ApplicationCommandDiscoveryIntegrationTest.php",
+      "before": {
+        "bytes": 18436,
+        "sha256": "e7ea360cd4a57ffd8d8e48c5e026c15e95d81f9f02809c1c75dd0addcf11d72f"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 18436,
+        "sha256": "e7ea360cd4a57ffd8d8e48c5e026c15e95d81f9f02809c1c75dd0addcf11d72f"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Console/ApplicationCommandCollisionValidatorTest.php",
+      "before": {
+        "bytes": 9170,
+        "sha256": "4411871868c253fe0e30ebb18ed272425d035ee00e3d0d23d7612b862952c799"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 9170,
+        "sha256": "4411871868c253fe0e30ebb18ed272425d035ee00e3d0d23d7612b862952c799"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionTargetRegistryTest.php",
+      "before": {
+        "bytes": 13279,
+        "sha256": "367057fac16647adced613952054c79ca6ec53023c1b573beb9d9a4f5aad032c"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 13279,
+        "sha256": "367057fac16647adced613952054c79ca6ec53023c1b573beb9d9a4f5aad032c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionProducerTest.php",
+      "before": {
+        "bytes": 6163,
+        "sha256": "251d099df3e6ff37332145e7a1ed161c137969335246d61af3927a8914f907ba"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 6163,
+        "sha256": "251d099df3e6ff37332145e7a1ed161c137969335246d61af3927a8914f907ba"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Projection/Command/CommandProjectionListCommandTest.php",
+      "before": {
+        "bytes": 28967,
+        "sha256": "2f7adc7c99ca576242fdfd907d35a26bca58fc247e9e5ed6581e8b2cd48fcef7"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 28967,
+        "sha256": "2f7adc7c99ca576242fdfd907d35a26bca58fc247e9e5ed6581e8b2cd48fcef7"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Internal/Scheduler/MaintenanceSchedulerTest.php",
+      "before": {
+        "bytes": 7726,
+        "sha256": "cb9eeff78df3b65e0c883c9a317ded1b215391a4559ca86e42bd70769c85c32d"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 7726,
+        "sha256": "cb9eeff78df3b65e0c883c9a317ded1b215391a4559ca86e42bd70769c85c32d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/ApplicationAuditAuthoringArchitectureTest.php",
+      "before": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 50110,
+        "sha256": "d01ed63d44cdbc37c42d1b6bc4efca21034ecff3f9044821b430ad2c14fded3e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditDeliveryArchitectureTest.php",
+      "before": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 246960,
+        "sha256": "4620ee629d4a37a48892f789fcaeacd4afc319613793eea0b8728939b44e10f0"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditCheckpointArchitectureTest.php",
+      "before": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 153184,
+        "sha256": "9375e1fc845ab4ef313214ec341229fa38c57e6b581f367b4193d6c33fe09b2e"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditArtifactArchitectureTest.php",
+      "before": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 128581,
+        "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditStoreArchitectureTest.php",
+      "before": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 182326,
+        "sha256": "9cdee9a477995e93f82067dd8cf40daf7d9d08bfd1a43f859e67af0634a2baed"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditRecordArchitectureTest.php",
+      "before": {
+        "bytes": 254508,
+        "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 254508,
+        "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditOutboxStorageArchitectureTest.php",
+      "before": {
+        "bytes": 84770,
+        "sha256": "385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 84770,
+        "sha256": "385fc104f44d49d478fba63b6cc0f544e16966afca90e5cb954638942abdf75d"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditRelayArchitectureTest.php",
+      "before": {
+        "bytes": 119159,
+        "sha256": "3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 119159,
+        "sha256": "3a0a25cec645d5669705dc627d1970e5595dd816641e96bffdcb8962390696fb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditAnchorStateArchitectureTest.php",
+      "before": {
+        "bytes": 215817,
+        "sha256": "8ea140b2ea6f9b70efc9fd7a7ddad3d202d122865d4368226cc2706caca3cb2b"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 215817,
+        "sha256": "8ea140b2ea6f9b70efc9fd7a7ddad3d202d122865d4368226cc2706caca3cb2b"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/AuditPublicApiTest.php",
+      "before": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 53681,
+        "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Architecture/PublicApiArchitectureTest.php",
+      "before": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 2550,
+        "sha256": "f236b4bc85445371cbfdc9938e815ca627061a79b3b6f5cd799cefb149a67576"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-anchor-state-golden.mjs",
+      "before": {
+        "bytes": 52894,
+        "sha256": "30295cfc0aacca3377f25039e292685a6e5cf7a9e9a27e22c8e2d98154836a0c"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 52894,
+        "sha256": "30295cfc0aacca3377f25039e292685a6e5cf7a9e9a27e22c8e2d98154836a0c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-canonical-record-golden.mjs",
+      "before": {
+        "bytes": 9389,
+        "sha256": "87038989b793e3905af75c0a3630944ed9bccad720a1a54725b1f3bb431bca64"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 9389,
+        "sha256": "87038989b793e3905af75c0a3630944ed9bccad720a1a54725b1f3bb431bca64"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-operation-read-foundation-golden.mjs",
+      "before": {
+        "bytes": 11616,
+        "sha256": "e01b14c84b652b7551fc33fddd66e9bd32b2deca16c1bd27b3db3d28ac6e5064"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 11616,
+        "sha256": "e01b14c84b652b7551fc33fddd66e9bd32b2deca16c1bd27b3db3d28ac6e5064"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-operational-event-catalog-golden.mjs",
+      "before": {
+        "bytes": 9569,
+        "sha256": "e9da34da0632e40090b6bf3c03be04ee3d99d3bfe44a2ebf291751c48c6a57bd"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 9569,
+        "sha256": "e9da34da0632e40090b6bf3c03be04ee3d99d3bfe44a2ebf291751c48c6a57bd"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/observed-audit-record-golden.mjs",
+      "before": {
+        "bytes": 4220,
+        "sha256": "cfa912261c6debcfc14c4800f1e6e6b8c7b0076fa34e21774215552178fa2b46"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 4220,
+        "sha256": "cfa912261c6debcfc14c4800f1e6e6b8c7b0076fa34e21774215552178fa2b46"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-event-catalog-golden.mjs",
+      "before": {
+        "bytes": 7729,
+        "sha256": "a390df5c65954d9d918ac232ce34de29fa398e75fff9fb089f6be097fe2147c3"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 7729,
+        "sha256": "a390df5c65954d9d918ac232ce34de29fa398e75fff9fb089f6be097fe2147c3"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-postgresql-store-golden.mjs",
+      "before": {
+        "bytes": 30987,
+        "sha256": "5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 30987,
+        "sha256": "5431f6c617c9286d1a8f79a3d0ef63b5b73b00f24802f5ad925cfc5b62ecd66a"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "tests/Fixtures/Audit/audit-signed-artifacts-v1.json",
+      "before": {
+        "bytes": 314797,
+        "sha256": "1a7f7d7e570189fbb48a1e7623c4fd4277d63c07a44ee8e282564fb014f12277"
+      },
+      "basis": "test-CI author source selection; evaluated only within independent verification scope",
+      "after": {
+        "bytes": 314797,
+        "sha256": "1a7f7d7e570189fbb48a1e7623c4fd4277d63c07a44ee8e282564fb014f12277"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "AGENTS.md",
+      "before": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 10392,
+        "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 7959,
+        "sha256": "4dc53cbab0c1b5fb99c35a9a829f03fd57816e26a037d587e2a12d0ab92c77d3"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 8685,
+        "sha256": "ae54a6a489cc9aecce61db6b977b1f44dd3786914234310ab08e3d88176dedd9"
+      },
+      "unchanged": false
+    },
+    {
+      "root": "P",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "before": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 25188,
+        "sha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "P",
+      "path": "develop/spec/109-ai-development-workflow.md",
+      "before": {
+        "bytes": 13331,
+        "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 13331,
+        "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-test-ci-bindings-r1.md",
+      "before": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 54451,
+        "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-test-ci-bindings-r1-inputs.json",
+      "before": {
+        "bytes": 40776,
+        "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 40776,
+        "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-issuance-candidate-r1.md",
+      "before": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 11494,
+        "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-issuance-candidate-r1-inputs.json",
+      "before": {
+        "bytes": 5134,
+        "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 5134,
+        "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "online-delegate-checkpoint-issuance-r1-inputs.json",
+      "before": {
+        "bytes": 70270,
+        "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 70270,
+        "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "installation-publication-correction-r2.md",
+      "before": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "basis": "review assignment/composition override or dependency test-path inventory only",
+      "after": {
+        "bytes": 3178,
+        "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "C",
+      "path": "vendor/phpunit/phpunit/src/TextUI/Application.php",
+      "before": {
+        "bytes": 32767,
+        "sha256": "020340289ffb63883f19459755dbe457476696ba58ef64eb8b585bf764d4eb54"
+      },
+      "basis": "Actual filtered-list execution order; read-only source inspection",
+      "after": {
+        "bytes": 32767,
+        "sha256": "020340289ffb63883f19459755dbe457476696ba58ef64eb8b585bf764d4eb54"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "F3",
+      "path": "run-20261012T030920550572-full/output.log",
+      "before": {
+        "bytes": 18818,
+        "sha256": "45d0095571cad13fcd2537c69c803fc568e4cbe31c63b0817097a42034e645ad"
+      },
+      "basis": "Retained predecessor terminal memory and inherited diagnostics; no rerun",
+      "after": {
+        "bytes": 18818,
+        "sha256": "45d0095571cad13fcd2537c69c803fc568e4cbe31c63b0817097a42034e645ad"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-path-inventory-r1.md",
+      "before": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "basis": "Final frozen mechanical inventory received before review freeze; exact35-test union only, no authority/type closure acceptance",
+      "after": {
+        "bytes": 41271,
+        "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5"
+      },
+      "unchanged": true
+    },
+    {
+      "root": "E13",
+      "path": "checkpoint-combined-path-inventory-r1.json",
+      "before": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "basis": "Final frozen mechanical inventory received before review freeze; exact35-test union only, no authority/type closure acceptance",
+      "after": {
+        "bytes": 527107,
+        "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5"
+      },
+      "unchanged": true
+    }
+  ],
+  "selectedInputCount": 95,
+  "authorToReviewInputChanges": [
+    {
+      "root": "C",
+      "path": "develop/STATE.md",
+      "authorSha256": "c0df035cc4b6b6083764498d66ea8a2b09f733f3fd9ccb28645dbb163acef5e6",
+      "reviewBeforeSha256": "15a21cc615e4471778a2a0c9c630ee965a87a98c76d33350e8016a7c2eb5307b"
+    },
+    {
+      "root": "C",
+      "path": "develop/orchestration/tasks/P23-003F5-audit-signing-authority-production-and-seal.md",
+      "authorSha256": "09a1577a132d9441cc41f401e640248c24a3dfa0683c52cfd4d7081e0ebb7079",
+      "reviewBeforeSha256": "6c0469fbe18844b07a443a82bbafa73b9c9ccc977bf88f4fc149c3fce5ab0786"
+    }
+  ],
+  "ownedOutputs": [
+    "checkpoint-verification-review-r1.md",
+    "checkpoint-verification-review-r1-inputs.json"
+  ],
+  "independence": "Review other author test-CI binder and Root resources/combined override. Own crypto map is only a dependency under f3 independent review; no self-acceptance.",
+  "notRun": [
+    "Git",
+    "PHP",
+    "Node",
+    "test runner",
+    "database",
+    "Docker/container",
+    "compiler/native child",
+    "network"
+  ],
+  "productModified": false,
+  "pendingMechanicalInventory": false,
+  "independentRetainedXmlCheck": {
+    "discoveryCount": 3986,
+    "duplicateDiscovery": [],
+    "junitCount": 3986,
+    "duplicateJUnitCount": 0,
+    "identitySetsEqual": true,
+    "missingFromJUnit": [],
+    "extraJUnit": [],
+    "assertions": 8634246,
+    "faults": [],
+    "partitions": [
+      {
+        "name": "legacy-heavy",
+        "count": 6,
+        "seconds": "842.254433",
+        "sortedIdsSha256": "70a7eef1c7ae34802c96c97b578b0bf5f82b40abc1905d0b3976d29db334a3ed"
+      },
+      {
+        "name": "legacy-architecture",
+        "count": 169,
+        "seconds": "513.619481",
+        "sortedIdsSha256": "1503e980e8bd3189a65663e275166274a3f2ef2f1c7775fe0faaaf124e84b257"
+      },
+      {
+        "name": "legacy-runtime",
+        "count": 3811,
+        "seconds": "212.584549",
+        "sortedIdsSha256": "29b2308b95a75d6b585081d7a9ea05df9f66c936b2cdc7a3f8e0768f70341b10"
+      }
+    ],
+    "totalSeconds": "1568.458463",
+    "discoveryClassCount": 478,
+    "junitSuiteSeconds": "1568.458437",
+    "discoveryXmlNamespace": "https://xml.phpunit.de/testSuite",
+    "primaryGroupsOnly": true,
+    "initialBookkeepingCorrection": "Initial unqualified XML lookup selected zero namespaced classes; corrected explicit namespace before any conclusion. No PHP/test process was run."
+  },
+  "independentStaticInventoryCheck": {
+    "binderNewPhpCount": 28,
+    "additionalImportCount": 7,
+    "overlap": [],
+    "unionCount": 35,
+    "literalUnion": [
+      "tests/Architecture/AuditAuthorityArchitectureTest.php",
+      "tests/Architecture/AuditAuthorityHistoryArchitectureTest.php",
+      "tests/Architecture/AuditCheckpointProductionArchitectureTest.php",
+      "tests/Architecture/AuditControlInstallationArchitectureTest.php",
+      "tests/Architecture/AuditProvenanceArchitectureTest.php",
+      "tests/Internal/Application/ApplicationAuditCheckpointCompositionTest.php",
+      "tests/Internal/Application/ApplicationAuditControlInstallationIntegrationTest.php",
+      "tests/Internal/Application/ApplicationRetentionRuntimeTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityDocumentCodecTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityJsonPreflightTest.php",
+      "tests/Internal/Audit/Authority/AuditAuthorityProvenanceVectorTest.php",
+      "tests/Internal/Audit/Authority/AuditCheckpointCandidateSignerTest.php",
+      "tests/Internal/Audit/Authority/AuditCheckpointPhaseAcquisitionTest.php",
+      "tests/Internal/Audit/Authority/AuditSigningImportNativeIntegrationTest.php",
+      "tests/Internal/Audit/Authority/Custody/AuditControlDelegateCustodyTest.php",
+      "tests/Internal/Audit/Authority/History/AuditCheckpointArtifactReplayTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryCapturePostgreSqlTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryGrammarTest.php",
+      "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "tests/Internal/Audit/Control/AuditControlInstallationPublicationTest.php",
+      "tests/Internal/Audit/Provenance/AuditCheckpointAmbiguityPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/AuditCheckpointConcurrencyPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointProductionTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditCheckpointSelectorTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditControlInstallationPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditControlPublicationPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaPostgreSqlTest.php",
+      "tests/Internal/Audit/Provenance/PostgreSqlAuditProvenanceSchemaTest.php",
+      "tests/Internal/Audit/Signing/AuditCheckpointOnlineChecksTest.php",
+      "tests/Internal/Audit/Signing/AuditOnlineAcquisitionTest.php",
+      "tests/Internal/Audit/Signing/AuditOnlineConfigurationTest.php",
+      "tests/Internal/Audit/Signing/OrdinaryAuditSignCompositionPostgreSqlTest.php",
+      "tests/Internal/Console/AuditControlPublishCommandTest.php",
+      "tests/Internal/Tooling/PhpUnitPartitionTest.php"
+    ],
+    "additionalImportPaths": [
+      "tests/Internal/Audit/Signing/AuditOnlineConfigurationTest.php",
+      "tests/Internal/Audit/Signing/AuditOnlineAcquisitionTest.php",
+      "tests/Internal/Audit/Signing/AuditCheckpointOnlineChecksTest.php",
+      "tests/Internal/Audit/Authority/AuditCheckpointCandidateSignerTest.php",
+      "tests/Internal/Audit/Authority/AuditCheckpointPhaseAcquisitionTest.php",
+      "tests/Internal/Audit/Authority/Custody/AuditControlDelegateCustodyTest.php",
+      "tests/Internal/Audit/Authority/AuditSigningImportNativeIntegrationTest.php"
+    ],
+    "allNewPathsAbsentFromAcceptedSource": true,
+    "basis": "Literal frozen binder input list and frozen import section10 only; not self-acceptance of crypto semantics",
+    "existingPhpEditCount": 25,
+    "newFixtureToolCount": 14,
+    "existingToolingEditCount": 3,
+    "nodeTargetCount": 10,
+    "nativeRunIdsBySuite": {
+      "io": [
+        "permission-mode/control",
+        "permission-mode/exercise",
+        "permission-erofs/control",
+        "permission-erofs/exercise",
+        "scratch-enospc/control",
+        "scratch-enospc/exercise",
+        "durable-enospc/control",
+        "durable-enospc/exercise",
+        "short-write-progress/control",
+        "short-write-progress/exercise",
+        "zero-write/control",
+        "zero-write/exercise",
+        "partial-then-write-error/control",
+        "partial-then-write-error/exercise"
+      ],
+      "durability": [
+        "post-cast-flush-error/control",
+        "post-cast-flush-error/exercise",
+        "file-sync-error/control",
+        "file-sync-error/exercise",
+        "immutable-file-sync-error/control",
+        "immutable-file-sync-error/exercise",
+        "directory-sync-error/control",
+        "directory-sync-error/exercise",
+        "seek-error/control",
+        "seek-error/exercise",
+        "truncate-error/control",
+        "truncate-error/exercise",
+        "unlock-error/control",
+        "unlock-error/exercise",
+        "consumed-close-error/control",
+        "consumed-close-error/exercise",
+        "nonconsuming-close-counterexample/control",
+        "nonconsuming-close-counterexample/exercise"
+      ],
+      "interruption": [
+        "process-control/control",
+        "process-control/exercise",
+        "scratch-unlink-error/control",
+        "scratch-unlink-error/exercise",
+        "scratch-rmdir-error/control",
+        "scratch-rmdir-error/exercise",
+        "two-process-lock-death/control",
+        "two-process-lock-death/exercise",
+        "anonymous-capture-death/control",
+        "anonymous-capture-death/exercise",
+        "floor-partial-write-death/control",
+        "floor-partial-write-death/exercise",
+        "floor-post-sync-death/control",
+        "floor-post-sync-death/exercise",
+        "archive-link-death/control",
+        "archive-link-death/exercise",
+        "archive-directory-sync-death/control",
+        "archive-directory-sync-death/exercise"
+      ],
+      "cold": [
+        "cold-unicode-maintenance/initialized",
+        "cold-unicode-maintenance/missing",
+        "cold-unicode-maintenance/late",
+        "cold-unicode-maintenance/empty-warmup",
+        "cold-unicode-installation/initialized",
+        "cold-unicode-installation/missing",
+        "cold-unicode-installation/late",
+        "cold-unicode-installation/empty-warmup"
+      ]
+    },
+    "nativeRunCount": 58,
+    "nativeRunIdsUnique": true,
+    "expectedProducerArtifacts": [
+      "quality-static",
+      "quality-package",
+      "quality-vectors",
+      "quality-phpunit-legacy-heavy",
+      "quality-phpunit-legacy-architecture",
+      "quality-phpunit-legacy-runtime",
+      "quality-phpunit-checkpoint-production",
+      "audit-authority-native-io",
+      "audit-authority-native-durability",
+      "audit-authority-native-interruption",
+      "audit-authority-native-cold"
+    ],
+    "expectedProducerCount": 11,
+    "expectedNeeds": [
+      "quality-static",
+      "quality-package",
+      "quality-phpunit",
+      "quality-vectors",
+      "audit-authority-native"
+    ]
+  },
+  "retainedPredecessorLogCheck": {
+    "memory": "307.00 MB",
+    "phpLimit": "512M",
+    "tests": 3986,
+    "assertions": 8634246,
+    "deprecations": 1,
+    "phpunitDeprecations": 2,
+    "phpunitNotices": 13,
+    "logSha256": "45d0095571cad13fcd2537c69c803fc568e4cbe31c63b0817097a42034e645ad",
+    "notNewRun": true
+  },
+  "findings": [
+    {
+      "id": "CVR-01",
+      "status": "open",
+      "summary": "Exact35-path checkpoint-production admission required; binder literal28 rejects seven imported tests."
+    },
+    {
+      "id": "CVR-02",
+      "status": "open",
+      "summary": "All58 native runs require exact actual owner/method/fixture/native-route/result mapping; native holder proof and whole-production/DB proof remain distinct."
+    }
+  ],
+  "mechanicalInventoryStatus": "Final frozen inventory received and exact35-test union independently matched. PI-01 aligns with CVR-01; PI-02 through PI-05 remain Root/authority-review scope. Receipt is not issuance sign-off.",
+  "futureRuntimeStatus": "not_run; contract review only",
+  "bookkeepingRecordedAt": "2026-10-13T17:45:42.571487+00:00",
+  "mechanicalInventoryTestUnionMatches": true,
+  "inputChangesDuringReview": [
+    {
+      "root": "C",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 7959,
+        "sha256": "15a21cc615e4471778a2a0c9c630ee965a87a98c76d33350e8016a7c2eb5307b"
+      },
+      "after": {
+        "bytes": 8685,
+        "sha256": "a25cbc082247a79f60622a91da93e02788cc28f46c01ecbdace4358887a8dffe"
+      },
+      "classification": "Root-owned concurrent02:45:34 STATE checkpoint; current findings and next-action update read before freeze; assignment and Product boundary unchanged"
+    },
+    {
+      "root": "P",
+      "path": "develop/STATE.md",
+      "before": {
+        "bytes": 7959,
+        "sha256": "4dc53cbab0c1b5fb99c35a9a829f03fd57816e26a037d587e2a12d0ab92c77d3"
+      },
+      "after": {
+        "bytes": 8685,
+        "sha256": "ae54a6a489cc9aecce61db6b977b1f44dd3786914234310ab08e3d88176dedd9"
+      },
+      "classification": "Root-owned concurrent02:45:34 STATE checkpoint; current findings and next-action update read before freeze; assignment and Product boundary unchanged"
+    }
+  ],
+  "allSelectedInputsPreserved": false,
+  "preservedSelectedInputCount": 93,
+  "allNonStateSelectedInputsPreserved": true,
+  "bookkeepingDiagnostic": "Initial final-freeze assertion stopped before writing on concurrent C/P STATE hash changes; both actual checkpoints read and exact governance changes retained. No Product test/runtime occurred.",
+  "frozenAt": "2026-10-13T17:51:03.772689+00:00",
+  "output": {
+    "path": ".phpunit.cache/f5-orchestration/20261013/checkpoint-verification-review-r1.md",
+    "bytes": 23157,
+    "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec"
+  },
+  "checksPerformed": [
+    "Read-only current AGENTS/STATE/Task and assigned source/contract inspection",
+    "Python standard-library retained discovery/JUnit exact-ID reconstruction;3986 unique matching IDs and three measured predecessor partitions",
+    "Literal28+7=35 new-PHP set comparison including final frozen mechanical inventory",
+    "Literal27-base/58-run native suite identity count and uniqueness, without runtime",
+    "Literal5-needs/11-artifacts/10-Node-target accounting and actual workflow/vendor source inspection",
+    "Selected source SHA-256 before/after:93 unchanged plus two exact concurrent Root STATE checkpoint deltas"
+  ],
+  "acceptance": "Two finite mandatory corrections; unchanged source-backed partition/CI/resource conclusions retained. No Green issuance or own-crypto acceptance."
+}
