@@ -1,6 +1,6 @@
 # P23-003F5P: Attributed Checkpoint Production
 
-Status: In Progress — phase/tag units committed; finite native-admission design under review
+Status: In Progress — admission contract adopted; bounded source unit ready for issuance
 
 ## Goal and acceptance boundary
 
@@ -630,3 +630,109 @@ This is an unadopted proposal. Current method/type/path restrictions remain unti
 Root integrates independent findings, adopts and commits an exact supplement.
 No Product edit or new execution lease is assigned. All original child/parent
 criteria and primary preservation/integration obligations remain.
+
+
+## Resume and affected admission correction — 2026-10-15T11:02:54+09:00
+
+Root reconciled C at82bb574c097f373fc3b46a7030e272507cc13e94 with independently
+observed remote829676129cbc04de6e674bc9292ae222d8029bc9. The reporting checkpoint
+is local; completed phase/tag source commits remain remote-retained. Primary
+remains at8106c35 and mixed. E15/resume-baseline.json pins2322 non-governance
+files/modes (AGENTS is excluded from that count), three index views and all four
+unfinished files. All41 semantic inputs of completed design review368a6286 match.
+E15 is .phpunit.cache/f5-orchestration/20261015.
+
+Review368a6286 requires HAD-01 actual-versus-captured versions, HAD-02 complete
+CheckpointEnd/Presence matrices with both recovery gaps, and HAD-03 the existing
+AuditRecordArchitectureTest timestamp caller owner. Root incorporated these in
+E15/admission-contract-candidate, supplement336ad3d1. All50 retained immutable
+inputs remain unchanged; only seven literal helper edit paths are added, making
+304/62, effective type34, additional preload25, unchanged tests35/26/native58.
+The finite mechanical inventory check passed; no Product runtime was executed.
+
+Configured Astra/max admission_contract_review owns only affected correction
+review and E15/history-admission-contract-review-r2.md plus -inputs.json. Original
+contracts/source remain frozen; no new helper or Product edit is issued yet.
+Root owns candidate/governance/STATE, adoption, Git and all runtime leases.
+No DB or native resource is assigned. After Green, Root validates and commits
+the management unit, then issues bounded Luna implementation from that SHA.
+
+Release Documentation Impact: internal admission/preload contract only; public
+API, command/configuration, source/routes and current1.2.1/unreleased1.3.0 tuple
+are unchanged. Source/Search/LLM rebuild is not needed for this management unit.
+All full-child/publication/Owner preview/same-SHA CI/export and delivery gates
+remain. Remaining: corrected contract adoption, carrier/codec/union and tests,
+then actual Reader/Writer/custody/replay/production and all parent obligations.
+Next Action: close only HAD-01..03 and finite integration review before issuance.
+
+
+## Adopted admission amendment and next source unit — 2026-10-15T11:12:11+09:00
+
+Affected Green206ba7e1 / inputs6b779d54 closes HAD-01..03 at contract level.
+Root corrected only the noted §3-to-§1 reference; final supplement SHA256
+0c52ab51e8ae3272d49c040387de6727c0b9af02d534ee21c41974b4069aa3c9.
+The durable manifest retains all50 earlier inputs plus six new records. Effective
+scope304/62, type closure34, additional preload25, tests35/26 and native58 are
+explicit. Root adopts the exact amendment and commits this management unit
+before source issuance. No Product Acceptance or runtime result follows.
+
+The next coherent source unit has two disjoint configured Luna Max owners. This
+explicitly supersedes the previous single-source-writer assignment only for the
+following13 literal paths, all under C. Root pins the actual management commit
+and issuance in E15/history-source-unit-issuance.json before either worker edits.
+Root owns Task/Report/STATE/Git, independent review and all resource leases.
+
+Carrier worker owns these11 paths:
+
+- `src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryRecord.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryScalar.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php`
+- `src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php`
+- `src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php`
+- `tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php`
+
+Architecture worker owns only these two paths:
+
+- `tests/Architecture/AuditAuthorityHistoryArchitectureTest.php`
+- `tests/Architecture/AuditRecordArchitectureTest.php`
+
+Carrier scope: implement the seven exact helper surfaces and sole NativeGroup
+admission, correct Codec/preflight and the three-way union in carriers/tests,
+close HL-01/04, repair invalid void-arrow/private-clone assertions, and supply
+all meaningful local positive/negative/privacy/representation cases. No helper,
+method, argument, baseline, suppression, schema or dependency beyond the adopted
+contract. Preserve the three committed enums and two capture-phase enums.
+
+Architecture scope: add the bounded implemented carrier/helper surfaces and
+exact helper callers, scalar-before-retention and sole-schema/pre-JCS boundaries
+to the assigned History architecture test with discriminating AST mutations;
+update the existing global timestamp/A2 owner to Scalar.admitString:1 with
+alias/FQCN positives and the named relocation/duplicate/sibling/extra-type
+negatives. Preserve every unrelated existing guard. Future Reader/capture/replay,
+actual preload, native58, full caller inventories and package required counts
+remain mandatory for the full child; this leaf unit does not implement or
+qualify absent owners, and no absent-owner test is skipped or claimed passed.
+
+Both workers write only assigned files and return chat evidence. No runtime,
+Docker, DB, formatting write, Git, STATE or Report action is assigned at issuance.
+They may inspect source/contracts and perform non-runtime path/diff checks.
+After both handoffs Root may delegate one exact formatting lease for the13
+paths, then freeze source/config/vendor/image inputs. Root runs meaningful
+Codec/JCS unit cases with exception arguments enabled, the four affected
+architecture suites (History, Record, Artifact, Public API), format src/tests,
+lint, analyze, Deptrac and management-ID absence. E15/run-history-gates.py
+records exact argv/inputs/logs/duration/exit; each action requires a fresh open
+Root lease. Pure APP uses the two-file E13 Compose override and --no-deps.
+No shared DB/native/cold/full suite or container remains owned by this unit.
+
+Independent Transaction/Security review checks only this source unit and open
+HL-01/04, against the committed corrected contract. Meaningful failing cases
+and strict quality gates must close before Root accepts/commits the leaf unit.
+Source/quality corrections trigger only affected checks; successful unchanged
+inputs are reused. Final full-child unpartitioned512M/SQL/native/cold/export and
+public Documentation review requirements are unchanged.

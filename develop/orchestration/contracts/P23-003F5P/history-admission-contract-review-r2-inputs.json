@@ -1,0 +1,1358 @@
+{
+  "review": "History admission contract correction r2",
+  "reviewer": "admission_contract_review; configured gpt-6-astra/max",
+  "cwd": "/home/kubotak/projects/blackops",
+  "startedAt": "2026-10-15T11:03:14+09:00",
+  "scope": "Affected contract review only; no Product/runtime/Git/DB/STATE action",
+  "candidateManifest": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate-inputs.json",
+  "before": [
+    {
+      "path": ".codex/config.toml",
+      "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f",
+      "bytes": 53
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.lock",
+      "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75",
+      "bytes": 271332
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "sha256": "4e98546698c251f51f58aea5cf90de71434a755b120ef0dd76c3f9a286bd2896",
+      "bytes": 12731
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/README.md",
+      "sha256": "da6ee2c77bd0f34d42ae447bbfe2f025d318f61a455bcaba0eb6f7cff24ca53c",
+      "bytes": 11349
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/allowlist.json",
+      "sha256": "816bd0bd25514e1a94e0b9e06f7fb124d0d206a351bc85e6bcc7d480d6e54c05",
+      "bytes": 29279
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r1-inputs.json",
+      "sha256": "2064d94d7adde33ff2db88603b996c773f1e2c420c834296a90bff3b09c4dd73",
+      "bytes": 69727
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r1.md",
+      "sha256": "f6ab5e96d5ac3ef42f8c1381f3bedb946d83abb3563f3add988109780aa80445",
+      "bytes": 14569
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r2-inputs.json",
+      "sha256": "1f4326128278657bca6d98115d561e0440a04269087a382814c89caf1df177a8",
+      "bytes": 33988
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r2.md",
+      "sha256": "939e594aa673a11416109e03c541514a9c6618b4adb661f8deffd6f164c9e225",
+      "bytes": 13687
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r3-inputs.json.encoded.json",
+      "sha256": "71d94447c38418f2a8b35e953beba8df14ba28874261633c9a269b58b96a889a",
+      "bytes": 34138
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r3.md.encoded.json",
+      "sha256": "0f35358fde07b88742ad262206c107a3ea8887acb2865614be2af44fa083ee4d",
+      "bytes": 11350
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-issuance-candidate-r1-inputs.json",
+      "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca",
+      "bytes": 5134
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-issuance-candidate-r1.md",
+      "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+      "bytes": 11494
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-path-inventory-r1.json",
+      "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+      "bytes": 527107
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-path-inventory-r1.md",
+      "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+      "bytes": 41271
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-control-cleanup-caller-correction-r3-inputs.json",
+      "sha256": "c10776309a856dd95acbc713f2c532b50dad7f1efb30be87306f6d25b1613cb3",
+      "bytes": 3270
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-control-cleanup-caller-correction-r3.md",
+      "sha256": "527e1d138fb6ffbe432cd14095164e17c8a9375fa1045238c228c9595d998d57",
+      "bytes": 1944
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-closure-r1-inputs.json",
+      "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854",
+      "bytes": 14750
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-closure-r1.md",
+      "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+      "bytes": 48741
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-correction-r2-inputs.json",
+      "sha256": "c0c25bfa496a48e3547acec4850ffacfac5ffbbccaaeaaba9c3c59bd63561ea2",
+      "bytes": 45616
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-correction-r2.md",
+      "sha256": "7794b5359adc605a4c6a83333b152b93cb9fcb3f442d8857e1707394f0b80908",
+      "bytes": 45284
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-interruption-intro-correction-r3-inputs.json",
+      "sha256": "2fbf02990d75d855dd91bd0a7757d82f74995bee6471f60a03942ce077dd1023",
+      "bytes": 1141
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-interruption-intro-correction-r3.md",
+      "sha256": "51bf76fd4190654a002fac3454c12a97a943335c89095b20fcf17b4f3c2e5535",
+      "bytes": 2525
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1-inputs.json",
+      "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+      "bytes": 82572
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "bytes": 142484
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-production-verification-packet-r1.md",
+      "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "bytes": 11675
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-reader-authority-adoption-r1-inputs.json",
+      "sha256": "3efcb2560d755e262ae199e3f6960b7dbdd96bf93d2f00cb4f9e534b7cef39a2",
+      "bytes": 979
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-reader-authority-adoption-r1.diff.encoded.json",
+      "sha256": "3d93ac773bbada1b2a42d219d59c5d8173112eb286d58c3e44e964cc80b74903",
+      "bytes": 6280
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-test-ci-bindings-r1-inputs.json",
+      "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+      "bytes": 40776
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-test-ci-bindings-r1.md",
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "bytes": 54451
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-correction-r2-inputs.json",
+      "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807",
+      "bytes": 177287
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-correction-r2.md",
+      "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+      "bytes": 45277
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r1-inputs.json",
+      "sha256": "d344dc8f7fca65d4daeb46c3819b4b7d656917067125a40aadea1cd3aa25057b",
+      "bytes": 61052
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r1.md",
+      "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec",
+      "bytes": 23157
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r2-inputs.json",
+      "sha256": "82e7c9b2df77ed2818b8172e2ff8d0a89bd769dc55dcd5ce2076d9d986453ed8",
+      "bytes": 162847
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r2.md",
+      "sha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a",
+      "bytes": 16265
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r3-inputs.json",
+      "sha256": "1be0336858fd377c36b258ed6e0c954ebbd93d443123ebc481e4072c897cb83c",
+      "bytes": 8108
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r3.md",
+      "sha256": "d1232dce4fe1168c864c9fdb456eda57b2cc43117666dc964ef0994d321e14da",
+      "bytes": 4868
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1-inputs.json",
+      "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+      "bytes": 12374
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "bytes": 77964
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-amendment-r1.md",
+      "sha256": "aa72ce285ca7d9439b9a63f6d2b4b6908e517f67abca5a6f1c5182043191ba06",
+      "bytes": 17990
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-review-r1-inputs.json",
+      "sha256": "3a971e0360ff1307a52ceb5934a2d114fa21e7e29584ab165347207979d3d444",
+      "bytes": 59275
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-review-r1.md",
+      "sha256": "2f463ef5fc11623348735ba46a30b5e73e80014e42d06abc4f484cacec00d78a",
+      "bytes": 11656
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-correction-r2-inputs.json",
+      "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199",
+      "bytes": 1554
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-correction-r2.md",
+      "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+      "bytes": 3178
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-issuance-r1-inputs.json",
+      "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94",
+      "bytes": 41583
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-issuance-r1.md",
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "bytes": 75458
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/manifest.json",
+      "sha256": "63a846eaade1e5b409985f9fcaf87cedfde1adadc5d710dd2d09de17c5ec593f",
+      "bytes": 16577
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-correction-r2-inputs.json",
+      "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478",
+      "bytes": 52625
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-correction-r2.md",
+      "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+      "bytes": 41493
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-issuance-r1-inputs.json",
+      "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5",
+      "bytes": 70270
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-issuance-r1.md",
+      "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "bytes": 88993
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r1-inputs.json",
+      "sha256": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6",
+      "bytes": 13579
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r1.md",
+      "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc",
+      "bytes": 28662
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+      "bytes": 20085
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r2.md",
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "bytes": 35267
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/125-audit-checkpoint-persistence.md",
+      "sha256": "0246b22e4d655610e4dc414fe5448a140312c37c1a0fbefffa40bcac30326c3b",
+      "bytes": 134842
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "a01379863f5e3423fd37b7b088d4e3c844c4c8b145058b7543b877cd0c3731fb",
+      "bytes": 89889
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/131-audit-ordinary-sign-service.md",
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "bytes": 18894
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mago.toml",
+      "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051",
+      "bytes": 1136
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd",
+      "bytes": 1295
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationException.php",
+      "sha256": "655dce3de27e7a43c5a8c240f672f7377062e371eecbed4a3807c3b7267eb808",
+      "bytes": 1976
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "sha256": "bf75aa4023260374ea388afac33cce4134e7a2452563ae02c6ce957d23221e0f",
+      "bytes": 12368
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "sha256": "216201e4fcb2e74f24fcdd8b5fdb0345c163c278a408fafe891c80e563259d51",
+      "bytes": 21043
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryRecord.php",
+      "sha256": "5bd3d5096e89e001dc45cc09dd89a785868d0aab7462bdab9b9da47cecf76e07",
+      "bytes": 4832
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php",
+      "sha256": "cec5b9437318862ccc27d8e07586428cdc8c0526c4a4870e569a5886e65c678c",
+      "bytes": 3115
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php",
+      "sha256": "19746456eac0935519b03ca08eae8f38c348230f20190d12b340db8d8da605ae",
+      "bytes": 7166
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php",
+      "sha256": "bf9fd05f3219fff318515caec9e43fc21bbbae81715de2c5e2301ac5ea4a2962",
+      "bytes": 7588
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php",
+      "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208",
+      "bytes": 7939
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734",
+      "bytes": 3479
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php",
+      "sha256": "e427482ebad4c9bacbe08409e651b2311f4e4577112e3fdfff5551909e33612e",
+      "bytes": 6795
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php",
+      "sha256": "2d10f9d6158d18370e0824ea6521e3ae926641852c9ba4e450176939d825b847",
+      "bytes": 5147
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php",
+      "sha256": "36846692da64663de920136f89c14e0c730ae9a0699271859c8738b8a92723c3",
+      "bytes": 3666
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php",
+      "sha256": "b7262da543f52ee455134cb3ebb7901d0e8e2c9bce138e1a41b9b230785927cb",
+      "bytes": 1564
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php",
+      "sha256": "8a20b5a4ce5923c93c20b90aa45d9ace6ecc6a784db8da52b305ec4726cfad77",
+      "bytes": 4507
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php",
+      "sha256": "dda65a1d90b599fc1143f8d1eda515489923474906db0a7bf9135020afeb8fdc",
+      "bytes": 96195
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "bytes": 128581
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditPublicApiTest.php",
+      "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79",
+      "bytes": 53681
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42",
+      "bytes": 254508
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "sha256": "39c88cd36e2e3b5afcac18df76e4b53bf8487dda953135a46dc4950aff93d0b9",
+      "bytes": 36189
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Checkpoint/AuditCheckpointPreparationTest.php",
+      "sha256": "76f1b735fb5feeeca313cd3c0d834840ba994708120c2907882b64a3b4203c25",
+      "bytes": 13053
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/schema.json",
+      "sha256": "9cbabd60f91d868484b6c397aab4b2c0b42ab432eb2ab9a8d4a37f0512433cb3",
+      "bytes": 269409
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md",
+      "sha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+      "bytes": 31275
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1-inputs.json",
+      "sha256": "5e6a28de76860255066d23b1d8fa201297f2ff29cd83620efc681af66dbce4ea",
+      "bytes": 39636
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1.md",
+      "sha256": "368a6286451f5264ab186a9c7fdadfd7125c1de83066795fe0506a16647a417e",
+      "bytes": 17872
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-correction-r2-inputs.json",
+      "sha256": "b114083e1db06566c0ba1a579fe4b7b5c9ce5c2c1762a7a93de43c3cd46414eb",
+      "bytes": 772
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-r2-runtime/lint.log",
+      "sha256": "af33521693e679b30e4e04337a222ea9db54ad36d2fbba1179218dccd0baa370",
+      "bytes": 24393
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-review-r2.md",
+      "sha256": "751000d8c73a0803ad58ca59892960f90c44f1c837add24e5a02719525d9272d",
+      "bytes": 20098
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate-inputs.json",
+      "sha256": "675eb31760dd26d38cf82e8c62a9825a0ee0165afca6259c6891bc6a844e4ba7",
+      "bytes": 1675
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "sha256": "0c781fc95394181a029493702ceeddbb6f52c76436623b4f905d1225b909a507",
+      "bytes": 14534
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/README.md",
+      "sha256": "d266c9df3e40e966d8d7cf98024a320436577183cf3a941d277e7943b292a695",
+      "bytes": 12241
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/allowlist.json",
+      "sha256": "1582ca472ca867eef08c168e692ee05cf54bd0845fce0bbd06a498d9e8164283",
+      "bytes": 29821
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-budget-options.md",
+      "sha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+      "bytes": 31275
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-design-review-r1-inputs.json",
+      "sha256": "5e6a28de76860255066d23b1d8fa201297f2ff29cd83620efc681af66dbce4ea",
+      "bytes": 39636
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-design-review-r1.md",
+      "sha256": "368a6286451f5264ab186a9c7fdadfd7125c1de83066795fe0506a16647a417e",
+      "bytes": 17872
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md",
+      "sha256": "336ad3d1bc96dfb96c0bbd801fb7f5adc5482b8ef8ce15bdc176f7ea8d8ef322",
+      "bytes": 25666
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/manifest.json",
+      "sha256": "0dd02575bf9553c40111ff1ae2bddd67524166489a69266b807a37cfbd23f071",
+      "bytes": 18589
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "f45d3662fba4df5e221ca5c091a7d3a271f12a36634efe289d8092d4798d43a5",
+      "bytes": 90389
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/resume-baseline.json",
+      "sha256": "3207219b1658061dabc05d80947cf29d65e0c40ed8c38fc54010cdb1d241e9e6",
+      "bytes": 457575
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392
+    },
+    {
+      "path": "develop/spec/109-ai-development-workflow.md",
+      "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb",
+      "bytes": 13331
+    },
+    {
+      "path": "develop/spec/README.md",
+      "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f",
+      "bytes": 46471
+    }
+  ],
+  "contextBefore": [
+    {
+      "path": "develop/STATE.md",
+      "sha256": "65f0898aa30c38fa3c3432c6b8bd2b15d750de588cf2cc582567c3d0e3682b61",
+      "bytes": 6265
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md",
+      "sha256": "8f5d7363a2071e67c304141511d4878750b78859975b79fc298e6a8cbb33720d",
+      "bytes": 41030
+    }
+  ],
+  "allNineCandidatePinsMatch": true,
+  "prior41SemanticPinsMatch": true,
+  "snapshotSeconds": 0.018907418999788206,
+  "additionalInputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-candidate-mechanical-check.json",
+      "sha256": "83a61cbfcc6cf4cc05487f3c070da9c05bc637d62c8ef5b9e135b8fcc8544365",
+      "bytes": 951,
+      "observedAt": "2026-10-15T11:03:59+09:00"
+    }
+  ],
+  "after": [
+    {
+      "path": ".codex/config.toml",
+      "sha256": "ebfcf0cdf7bcd23acc7bce6060e8590ed391f3c1f8292a59e66384f7c9abaf4f",
+      "bytes": 53
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.lock",
+      "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75",
+      "bytes": 271332
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "sha256": "4e98546698c251f51f58aea5cf90de71434a755b120ef0dd76c3f9a286bd2896",
+      "bytes": 12731
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/README.md",
+      "sha256": "da6ee2c77bd0f34d42ae447bbfe2f025d318f61a455bcaba0eb6f7cff24ca53c",
+      "bytes": 11349
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/allowlist.json",
+      "sha256": "816bd0bd25514e1a94e0b9e06f7fb124d0d206a351bc85e6bcc7d480d6e54c05",
+      "bytes": 29279
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r1-inputs.json",
+      "sha256": "2064d94d7adde33ff2db88603b996c773f1e2c420c834296a90bff3b09c4dd73",
+      "bytes": 69727
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r1.md",
+      "sha256": "f6ab5e96d5ac3ef42f8c1381f3bedb946d83abb3563f3add988109780aa80445",
+      "bytes": 14569
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r2-inputs.json",
+      "sha256": "1f4326128278657bca6d98115d561e0440a04269087a382814c89caf1df177a8",
+      "bytes": 33988
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r2.md",
+      "sha256": "939e594aa673a11416109e03c541514a9c6618b4adb661f8deffd6f164c9e225",
+      "bytes": 13687
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r3-inputs.json.encoded.json",
+      "sha256": "71d94447c38418f2a8b35e953beba8df14ba28874261633c9a269b58b96a889a",
+      "bytes": 34138
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-authority-review-r3.md.encoded.json",
+      "sha256": "0f35358fde07b88742ad262206c107a3ea8887acb2865614be2af44fa083ee4d",
+      "bytes": 11350
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-issuance-candidate-r1-inputs.json",
+      "sha256": "b9bc799d843fd87e4b6b8eefb741c12923c6c3c61c840281db696d3c52e32aca",
+      "bytes": 5134
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-issuance-candidate-r1.md",
+      "sha256": "cbf6641e46cdf5da4f5e42b764993305ca07e9cd53567313ceefc5b1fde6d6fb",
+      "bytes": 11494
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-path-inventory-r1.json",
+      "sha256": "83d0b5d813189f0b5455024202170bc2cfd54f6704b09f1867d20af9c00d11c5",
+      "bytes": 527107
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-combined-path-inventory-r1.md",
+      "sha256": "ff20b23aa9705a0b826839deb6d1546f8c0a9c7a24a163d308d6d3b87102f3d5",
+      "bytes": 41271
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-control-cleanup-caller-correction-r3-inputs.json",
+      "sha256": "c10776309a856dd95acbc713f2c532b50dad7f1efb30be87306f6d25b1613cb3",
+      "bytes": 3270
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-control-cleanup-caller-correction-r3.md",
+      "sha256": "527e1d138fb6ffbe432cd14095164e17c8a9375fa1045238c228c9595d998d57",
+      "bytes": 1944
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-closure-r1-inputs.json",
+      "sha256": "7390836f0af35987d4ac6681efff16c38c98c3c0506c94b37f85853c19fbc854",
+      "bytes": 14750
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-closure-r1.md",
+      "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+      "bytes": 48741
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-correction-r2-inputs.json",
+      "sha256": "c0c25bfa496a48e3547acec4850ffacfac5ffbbccaaeaaba9c3c59bd63561ea2",
+      "bytes": 45616
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-correction-r2.md",
+      "sha256": "7794b5359adc605a4c6a83333b152b93cb9fcb3f442d8857e1707394f0b80908",
+      "bytes": 45284
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-interruption-intro-correction-r3-inputs.json",
+      "sha256": "2fbf02990d75d855dd91bd0a7757d82f74995bee6471f60a03942ce077dd1023",
+      "bytes": 1141
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-interruption-intro-correction-r3.md",
+      "sha256": "51bf76fd4190654a002fac3454c12a97a943335c89095b20fcf17b4f3c2e5535",
+      "bytes": 2525
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1-inputs.json",
+      "sha256": "4472243fd865b5f36a4d50e01bc02b16cecfcfcff4c4d664c7067faff995b1d0",
+      "bytes": 82572
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "bytes": 142484
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-production-verification-packet-r1.md",
+      "sha256": "338d2727a7c724630a6e59b8bc65fd167108fd02ad9343a9c8adcd2bba92b2c4",
+      "bytes": 11675
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-reader-authority-adoption-r1-inputs.json",
+      "sha256": "3efcb2560d755e262ae199e3f6960b7dbdd96bf93d2f00cb4f9e534b7cef39a2",
+      "bytes": 979
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-reader-authority-adoption-r1.diff.encoded.json",
+      "sha256": "3d93ac773bbada1b2a42d219d59c5d8173112eb286d58c3e44e964cc80b74903",
+      "bytes": 6280
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-test-ci-bindings-r1-inputs.json",
+      "sha256": "2ec28fd1d722c634911237e9b60acd05ad5da7c894b92f830c9905e2fab267ce",
+      "bytes": 40776
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-test-ci-bindings-r1.md",
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "bytes": 54451
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-correction-r2-inputs.json",
+      "sha256": "ffe9d841a2407200c8d10262b04edc23c0e07763a8603635b1c96352eb927807",
+      "bytes": 177287
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-correction-r2.md",
+      "sha256": "86b4fe0391e310ceb4716d6739773550239e4c81e447ee1d7cfe0939b7158e39",
+      "bytes": 45277
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r1-inputs.json",
+      "sha256": "d344dc8f7fca65d4daeb46c3819b4b7d656917067125a40aadea1cd3aa25057b",
+      "bytes": 61052
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r1.md",
+      "sha256": "766dda2147f48b32b590dd6a97dc86e1f46bec46ba09a1bd685973dc2b4b1eec",
+      "bytes": 23157
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r2-inputs.json",
+      "sha256": "82e7c9b2df77ed2818b8172e2ff8d0a89bd769dc55dcd5ce2076d9d986453ed8",
+      "bytes": 162847
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r2.md",
+      "sha256": "66df46a001f0e810c38b19d781b1af09491f6632c6a6d70b2844d2c827eb1a5a",
+      "bytes": 16265
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r3-inputs.json",
+      "sha256": "1be0336858fd377c36b258ed6e0c954ebbd93d443123ebc481e4072c897cb83c",
+      "bytes": 8108
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-verification-review-r3.md",
+      "sha256": "d1232dce4fe1168c864c9fdb456eda57b2cc43117666dc964ef0994d321e14da",
+      "bytes": 4868
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1-inputs.json",
+      "sha256": "01ad90ad41c98ff72254905c6a5452487bd306bb7f663fe2b991e68e7796bfce",
+      "bytes": 12374
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "bytes": 77964
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-amendment-r1.md",
+      "sha256": "aa72ce285ca7d9439b9a63f6d2b4b6908e517f67abca5a6f1c5182043191ba06",
+      "bytes": 17990
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-review-r1-inputs.json",
+      "sha256": "3a971e0360ff1307a52ceb5934a2d114fa21e7e29584ab165347207979d3d444",
+      "bytes": 59275
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-review-r1.md",
+      "sha256": "2f463ef5fc11623348735ba46a30b5e73e80014e42d06abc4f484cacec00d78a",
+      "bytes": 11656
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-correction-r2-inputs.json",
+      "sha256": "74d3f09e913ea4afcc03c7f7745ae622e3200eefd407333450096c5f67a65199",
+      "bytes": 1554
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-correction-r2.md",
+      "sha256": "6263747d88ec991f545e5c66473d6608ee3b2341ec8340ce7065be0602eca936",
+      "bytes": 3178
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-issuance-r1-inputs.json",
+      "sha256": "20300372d0c168d013c379f907a7c2088382f685366f6f9200739bc953bcce94",
+      "bytes": 41583
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/installation-publication-issuance-r1.md",
+      "sha256": "65c2e485b19fee1242ded4c9c35d97b2a343b478b0961350b5aed3c19636aaea",
+      "bytes": 75458
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/manifest.json",
+      "sha256": "63a846eaade1e5b409985f9fcaf87cedfde1adadc5d710dd2d09de17c5ec593f",
+      "bytes": 16577
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-correction-r2-inputs.json",
+      "sha256": "0afefd95243260a2e69a9734a9a6c3d6120781a00bfa6efa04a46b1bf348d478",
+      "bytes": 52625
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-correction-r2.md",
+      "sha256": "7cfb9ec88576bcc60bd71e5bc9299c9d7eabcb23f2420577fb393b52a186af89",
+      "bytes": 41493
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-issuance-r1-inputs.json",
+      "sha256": "aabefa2aa1f429e33cb376c79ab2377dbffac5e56cda220a8eee43791ef7abf5",
+      "bytes": 70270
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/online-delegate-checkpoint-issuance-r1.md",
+      "sha256": "4b3d173075ccc83bd462dc09e60a65954c5c40cc1fa6be06acb7d57dddff1c4b",
+      "bytes": 88993
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r1-inputs.json",
+      "sha256": "5e556580a74a76e45cda2c9a755598da7fd8237d73d8d3ce41e45dccef3a28d6",
+      "bytes": 13579
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r1.md",
+      "sha256": "f816225a9bbd211feeed5533e5dbc0519be512d177b31dcdb3170c8ea7869bcc",
+      "bytes": 28662
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r2-inputs.json",
+      "sha256": "163a4f2e5dbb9a10730006cc4449d036bae4e27a4804b547854f674fd2e1cca0",
+      "bytes": 20085
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/pure-checkpoint-codec-floor-delta-r2.md",
+      "sha256": "a2dbcfecf79f9a7d9ecd1579ed58ef2f3c06204fc96ecd8b1a4e0f56a694144f",
+      "bytes": 35267
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/125-audit-checkpoint-persistence.md",
+      "sha256": "0246b22e4d655610e4dc414fe5448a140312c37c1a0fbefffa40bcac30326c3b",
+      "bytes": 134842
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "a01379863f5e3423fd37b7b088d4e3c844c4c8b145058b7543b877cd0c3731fb",
+      "bytes": 89889
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/131-audit-ordinary-sign-service.md",
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "bytes": 18894
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mago.toml",
+      "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051",
+      "bytes": 1136
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd",
+      "bytes": 1295
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationException.php",
+      "sha256": "655dce3de27e7a43c5a8c240f672f7377062e371eecbed4a3807c3b7267eb808",
+      "bytes": 1976
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "sha256": "bf75aa4023260374ea388afac33cce4134e7a2452563ae02c6ce957d23221e0f",
+      "bytes": 12368
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "sha256": "216201e4fcb2e74f24fcdd8b5fdb0345c163c278a408fafe891c80e563259d51",
+      "bytes": 21043
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryRecord.php",
+      "sha256": "5bd3d5096e89e001dc45cc09dd89a785868d0aab7462bdab9b9da47cecf76e07",
+      "bytes": 4832
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php",
+      "sha256": "cec5b9437318862ccc27d8e07586428cdc8c0526c4a4870e569a5886e65c678c",
+      "bytes": 3115
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php",
+      "sha256": "19746456eac0935519b03ca08eae8f38c348230f20190d12b340db8d8da605ae",
+      "bytes": 7166
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php",
+      "sha256": "bf9fd05f3219fff318515caec9e43fc21bbbae81715de2c5e2301ac5ea4a2962",
+      "bytes": 7588
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php",
+      "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208",
+      "bytes": 7939
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734",
+      "bytes": 3479
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php",
+      "sha256": "e427482ebad4c9bacbe08409e651b2311f4e4577112e3fdfff5551909e33612e",
+      "bytes": 6795
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php",
+      "sha256": "2d10f9d6158d18370e0824ea6521e3ae926641852c9ba4e450176939d825b847",
+      "bytes": 5147
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php",
+      "sha256": "36846692da64663de920136f89c14e0c730ae9a0699271859c8738b8a92723c3",
+      "bytes": 3666
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php",
+      "sha256": "b7262da543f52ee455134cb3ebb7901d0e8e2c9bce138e1a41b9b230785927cb",
+      "bytes": 1564
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php",
+      "sha256": "8a20b5a4ce5923c93c20b90aa45d9ace6ecc6a784db8da52b305ec4726cfad77",
+      "bytes": 4507
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php",
+      "sha256": "dda65a1d90b599fc1143f8d1eda515489923474906db0a7bf9135020afeb8fdc",
+      "bytes": 96195
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "bytes": 128581
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditPublicApiTest.php",
+      "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79",
+      "bytes": 53681
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42",
+      "bytes": 254508
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "sha256": "39c88cd36e2e3b5afcac18df76e4b53bf8487dda953135a46dc4950aff93d0b9",
+      "bytes": 36189
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Checkpoint/AuditCheckpointPreparationTest.php",
+      "sha256": "76f1b735fb5feeeca313cd3c0d834840ba994708120c2907882b64a3b4203c25",
+      "bytes": 13053
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/schema.json",
+      "sha256": "9cbabd60f91d868484b6c397aab4b2c0b42ab432eb2ab9a8d4a37f0512433cb3",
+      "bytes": 269409
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md",
+      "sha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+      "bytes": 31275
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1-inputs.json",
+      "sha256": "5e6a28de76860255066d23b1d8fa201297f2ff29cd83620efc681af66dbce4ea",
+      "bytes": 39636
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1.md",
+      "sha256": "368a6286451f5264ab186a9c7fdadfd7125c1de83066795fe0506a16647a417e",
+      "bytes": 17872
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-correction-r2-inputs.json",
+      "sha256": "b114083e1db06566c0ba1a579fe4b7b5c9ce5c2c1762a7a93de43c3cd46414eb",
+      "bytes": 772
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-r2-runtime/lint.log",
+      "sha256": "af33521693e679b30e4e04337a222ea9db54ad36d2fbba1179218dccd0baa370",
+      "bytes": 24393
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-review-r2.md",
+      "sha256": "751000d8c73a0803ad58ca59892960f90c44f1c837add24e5a02719525d9272d",
+      "bytes": 20098
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate-inputs.json",
+      "sha256": "675eb31760dd26d38cf82e8c62a9825a0ee0165afca6259c6891bc6a844e4ba7",
+      "bytes": 1675
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/decisions/179-audit-signing-authority-and-production-provenance.md",
+      "sha256": "0c781fc95394181a029493702ceeddbb6f52c76436623b4f905d1225b909a507",
+      "bytes": 14534
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/README.md",
+      "sha256": "d266c9df3e40e966d8d7cf98024a320436577183cf3a941d277e7943b292a695",
+      "bytes": 12241
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/allowlist.json",
+      "sha256": "1582ca472ca867eef08c168e692ee05cf54bd0845fce0bbd06a498d9e8164283",
+      "bytes": 29821
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-budget-options.md",
+      "sha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+      "bytes": 31275
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-design-review-r1-inputs.json",
+      "sha256": "5e6a28de76860255066d23b1d8fa201297f2ff29cd83620efc681af66dbce4ea",
+      "bytes": 39636
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-design-review-r1.md",
+      "sha256": "368a6286451f5264ab186a9c7fdadfd7125c1de83066795fe0506a16647a417e",
+      "bytes": 17872
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md",
+      "sha256": "336ad3d1bc96dfb96c0bbd801fb7f5adc5482b8ef8ce15bdc176f7ea8d8ef322",
+      "bytes": 25666
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/manifest.json",
+      "sha256": "0dd02575bf9553c40111ff1ae2bddd67524166489a69266b807a37cfbd23f071",
+      "bytes": 18589
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "f45d3662fba4df5e221ca5c091a7d3a271f12a36634efe289d8092d4798d43a5",
+      "bytes": 90389
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/resume-baseline.json",
+      "sha256": "3207219b1658061dabc05d80947cf29d65e0c40ed8c38fc54010cdb1d241e9e6",
+      "bytes": 457575
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392
+    },
+    {
+      "path": "develop/spec/109-ai-development-workflow.md",
+      "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb",
+      "bytes": 13331
+    },
+    {
+      "path": "develop/spec/README.md",
+      "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f",
+      "bytes": 46471
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/admission-candidate-mechanical-check.json",
+      "sha256": "83a61cbfcc6cf4cc05487f3c070da9c05bc637d62c8ef5b9e135b8fcc8544365",
+      "bytes": 951
+    }
+  ],
+  "changedSemanticInputs": [],
+  "allSemanticInputsStable": true,
+  "contextAfter": [
+    {
+      "path": "develop/STATE.md",
+      "sha256": "65f0898aa30c38fa3c3432c6b8bd2b15d750de588cf2cc582567c3d0e3682b61",
+      "bytes": 6265
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md",
+      "sha256": "8f5d7363a2071e67c304141511d4878750b78859975b79fc298e6a8cbb33720d",
+      "bytes": 41030
+    }
+  ],
+  "contextualChangesExcluded": [],
+  "contextExclusionReason": "Root-owned Task/STATE progress bookkeeping; frozen candidate and relied-on semantic inputs independently compared.",
+  "result": "Affected Green; HAD-01/02/03 closed at contract level; Root-owned nonblocking P3-01 editorial correction remains.",
+  "closedFindings": [
+    "HAD-01",
+    "HAD-02",
+    "HAD-03"
+  ],
+  "editorialFinding": {
+    "id": "P3-01",
+    "location": "amendment section4 line159",
+    "before": "each local relation in §3",
+    "after": "each local relation in §1",
+    "owner": "Root",
+    "semanticChange": false,
+    "closure": "Root reviews exact delta and records final hashes without unchanged semantic re-review."
+  },
+  "productTestsExecuted": false,
+  "fullSuiteRuns": 0,
+  "productTestSeconds": 0,
+  "runtimeExecuted": false,
+  "dbCommandsExecuted": false,
+  "gitCommandsExecuted": false,
+  "networkCommandsExecuted": false,
+  "semanticInputCount": 103,
+  "reportSha256": "206ba7e1b896f3df205ed9f9a23ab4f65bc474181e9466f914f2748efd1caf39",
+  "reportBytes": 13965,
+  "completedAt": "2026-10-15T11:09:10+09:00",
+  "afterSnapshotSeconds": 0.005185778000395658,
+  "inputSetSha256": "25c2b6b67f25e3d08ead946a9a59b82f874f9be0c299513937bb4cbfbd9fc961",
+  "reviewElapsedSecondsFromSnapshot": 356,
+  "commands": [
+    {
+      "label": "repository instructions",
+      "cmd": "cat AGENTS.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000015405,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "quick memory locator",
+      "cmd": "rg -n 'P23-003F5P|checkpoint-history|HL-01|admission' /home/kubotak/.codex/memories/MEMORY.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000011977,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "current context",
+      "cmd": "cat develop/STATE.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000014441,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "current task",
+      "cmd": "cat develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000016913,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "review inputs",
+      "cmd": "cat .phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1-inputs.json .phpunit.cache/f5-orchestration/20261015/admission-contract-candidate-inputs.json",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000026562,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "profile and memory locator",
+      "cmd": "sed -n '1,45p' .codex/config.toml\nsed -n '1,32p' /home/kubotak/.codex/memories/MEMORY.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000013168,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "workflow index",
+      "cmd": "rg -n '^#|P23-003F5P|109|130|131|132' develop/spec/README.md develop/spec/109-ai-development-workflow.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000013716,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "workflow",
+      "cmd": "cat develop/spec/109-ai-development-workflow.md\nsed -n '137,168p' develop/spec/README.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000010467,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "input-shapes",
+      "cmd": "python3 - <<'PY'\nimport json\nfrom pathlib import Path\nfor name in ['.phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1-inputs.json','.phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/manifest.json','.phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/manifest.json','.phpunit.cache/f5-orchestration/20261015/resume-baseline.json']:\n    data=json.loads(Path(name).read_text())\n    print(name)\n    print([(k,type(v).__name__,len(v) if isinstance(v,(list,dict)) else v) for k,v in data.items()])\n    if name.endswith('manifest.json'):\n        print(json.dumps(data,ensure_ascii=False,indent=2)[:2000])\nPY",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.00001897,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "before selected semantic pins",
+      "cmd": "python3 - <<'PY'\nfrom pathlib import Path\nimport json,hashlib,time,datetime\nstarted=time.perf_counter()\np=Path('.')\ne15=Path('.phpunit.cache/f5-orchestration/20261015')\nc=Path('.phpunit.cache/f2-orchestration/accepted-integration')\na=e15/'admission-contract-candidate'\ncontract=Path('develop/orchestration/contracts/P23-003F5P')\ncandidate=json.loads((e15/'admission-contract-candidate-inputs.json').read_text())\nr1=json.loads(Path('.phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1-inputs.json').read_text())\nmanifest=json.loads((c/contract/'manifest.json').read_text())\npaths={x['path'] for x in r1['end']}\npaths.update(str(c/contract/x['name']) for x in manifest['immutableInputs'])\npaths.update(str(a/x) for x in candidate)\npaths.update(['AGENTS.md','.codex/config.toml','develop/spec/README.md','develop/spec/109-ai-development-workflow.md','.phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1.md','.phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1-inputs.json',str(e15/'admission-contract-candidate-inputs.json'),str(e15/'resume-baseline.json'),str(c/'develop/decisions/179-audit-signing-authority-and-production-provenance.md')])\ndef pin(path):\n    raw=Path(path).read_bytes()\n    return {'path':path,'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}\nbefore=[pin(path) for path in sorted(paths)]\ncontexts=[pin(path) for path in ['develop/STATE.md','develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md']]\ncandidate_match=all(pin(str(a/path))['sha256']==item['sha256'] and pin(str(a/path))['bytes']==item['bytes'] for path,item in candidate.items())\nr1_match=all(pin(x['path'])['sha256']==x['sha256'] and pin(x['path'])['bytes']==x['bytes'] for x in r1['end'])\nresult={'review':'History admission contract correction r2','reviewer':'admission_contract_review; configured gpt-6-astra/max','cwd':'/home/kubotak/projects/blackops','startedAt':datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat(timespec='seconds'),'scope':'Affected contract review only; no Product/runtime/Git/DB/STATE action','candidateManifest':str(e15/'admission-contract-candidate-inputs.json'),'before':before,'contextBefore':contexts,'allNineCandidatePinsMatch':candidate_match,'prior41SemanticPinsMatch':r1_match,'snapshotSeconds':time.perf_counter()-started,'additionalInputs':[]}\noutput=e15/'history-admission-contract-review-r2-inputs.json'\nassert not output.exists(), 'Assigned output already exists'\noutput.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps({'selectedInputs':len(before),'candidatePinMatches':candidate_match,'r1PinMatches':r1_match,'seconds':result['snapshotSeconds']},ensure_ascii=False))\nPY",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.00001358,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "amendment",
+      "cmd": "nl -ba .phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.00001121,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "r1 findings",
+      "cmd": "nl -ba .phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000012461,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "amendment declarations",
+      "cmd": "sed -n '1,58p' .phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000017058,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "governance delta",
+      "cmd": "python3 - <<'PY'\nfrom pathlib import Path\nimport difflib\nc=Path('.phpunit.cache/f2-orchestration/accepted-integration')\na=Path('.phpunit.cache/f5-orchestration/20261015/admission-contract-candidate')\nfor rel in ['develop/orchestration/contracts/P23-003F5P/README.md','develop/orchestration/contracts/P23-003F5P/allowlist.json','develop/spec/130-audit-control-authority-and-production-provenance.md','develop/decisions/179-audit-signing-authority-and-production-provenance.md']:\n    print(''.join(difflib.unified_diff((c/rel).read_text().splitlines(keepends=True),(a/rel).read_text().splitlines(keepends=True),fromfile='C/'+rel,tofile='A/'+rel)))\nPY",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000017487,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "Root independent mechanical evidence reuse",
+      "cmd": "python3 - <<'PY'\nfrom pathlib import Path\nimport json,hashlib,datetime\nout=Path('.phpunit.cache/f5-orchestration/20261015/history-admission-contract-review-r2-inputs.json')\ndoc=json.loads(out.read_text())\npath='.phpunit.cache/f5-orchestration/20261015/admission-candidate-mechanical-check.json'\nraw=Path(path).read_bytes()\ndoc['additionalInputs'].append({'path':path,'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw),'observedAt':datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat(timespec='seconds')})\nout.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+'\\n')\nprint(raw.decode())\nPY",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000013695,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "timestamp guard",
+      "cmd": "sed -n '1380,1436p' .phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php\nsed -n '4512,4658p' .phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.00001271,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "endpoint captured ownership",
+      "cmd": "sed -n '215,255p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md\nsed -n '170,240p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000013522,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "version owner contracts",
+      "cmd": "sed -n '112,146p' .phpunit.cache/f2-orchestration/accepted-integration/develop/spec/125-audit-checkpoint-persistence.md\nsed -n '80,141p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md\nsed -n '88,114p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php\nsed -n '82,110p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000017185,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "finite precedence",
+      "cmd": "sed -n '1,140p' .phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/README.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000014652,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "quality config and preload",
+      "cmd": "cat .phpunit.cache/f2-orchestration/accepted-integration/mago.toml\nrg -n -A 6 '\"cyclomatic-complexity\"|\"kan-defect\"|\"too-many-methods\"|\"excessive-parameter-list\"' .phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/schema.json\nsed -n '990,1050p' .phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000011468,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "candidate binding delta",
+      "cmd": "python3 - <<'PY'\nfrom pathlib import Path\nimport json,difflib\nc=Path('.phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P')\na=Path('.phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P')\nprint(''.join(difflib.unified_diff((c/'manifest.json').read_text().splitlines(keepends=True),(a/'manifest.json').read_text().splitlines(keepends=True),fromfile='C/manifest.json',tofile='A/manifest.json')))\nal=json.loads((a/'allowlist.json').read_text())\npaths=['tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php','tests/Architecture/AuditAuthorityHistoryArchitectureTest.php','tests/Architecture/AuditRecordArchitectureTest.php','tests/Fixtures/Audit/AuthorityFilesystemCase.php','tests/Consumer/framework-package-export.sh','tests/Consumer/framework-package-required-inventory.sh']\nprint(json.dumps({'verificationPathMembership':{p:[k for k,v in al.items() if isinstance(v,list) and p in v] for p in paths}},indent=2))\nPY",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000014652,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "after selected semantic pins and review result",
+      "cmd": "python3 - <<'PY'\nfrom pathlib import Path\nimport json,hashlib,time,datetime\nstarted=time.perf_counter()\ne15=Path('.phpunit.cache/f5-orchestration/20261015')\ndoc=json.loads((e15/'history-admission-contract-review-r2-inputs.json').read_text())\ndef pin(path):\n    raw=Path(path).read_bytes()\n    return {'path':path,'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}\nexpected=doc['before']+[{k:x[k] for k in ['path','sha256','bytes']} for x in doc['additionalInputs']]\nafter=[pin(x['path']) for x in expected]\nchanged=[{'before':a,'after':b} for a,b in zip(expected,after) if a!=b]\ncontext_after=[pin(x['path']) for x in doc['contextBefore']]\ncontext_changed=[{'before':a,'after':b} for a,b in zip(doc['contextBefore'],context_after) if a!=b]\nreport=pin(str(e15/'history-admission-contract-review-r2.md'))\ndoc.update({'after':after,'changedSemanticInputs':changed,'allSemanticInputsStable':not changed,'contextAfter':context_after,'contextualChangesExcluded':context_changed,'contextExclusionReason':'Root-owned Task/STATE progress bookkeeping; frozen candidate and relied-on semantic inputs independently compared.','result':'Affected Green; HAD-01/02/03 closed at contract level; Root-owned nonblocking P3-01 editorial correction remains.','closedFindings':['HAD-01','HAD-02','HAD-03'],'editorialFinding':{'id':'P3-01','location':'amendment section4 line159','before':'each local relation in §3','after':'each local relation in §1','owner':'Root','semanticChange':False,'closure':'Root reviews exact delta and records final hashes without unchanged semantic re-review.'},'productTestsExecuted':False,'fullSuiteRuns':0,'productTestSeconds':0,'runtimeExecuted':False,'dbCommandsExecuted':False,'gitCommandsExecuted':False,'networkCommandsExecuted':False,'semanticInputCount':len(after),'reportSha256':report['sha256'],'reportBytes':report['bytes'],'completedAt':datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat(timespec='seconds'),'afterSnapshotSeconds':time.perf_counter()-started})\ndoc['inputSetSha256']=hashlib.sha256(json.dumps(after,sort_keys=True,separators=(',',':')).encode()).hexdigest()\ndoc['reviewElapsedSecondsFromSnapshot']=(datetime.datetime.fromisoformat(doc['completedAt'])-datetime.datetime.fromisoformat(doc['startedAt'])).total_seconds()\nprint(json.dumps(doc,ensure_ascii=False,indent=2))\nPY",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000014524,
+      "result": "Completed read-only inspection or assigned artifact bookkeeping",
+      "log": "This command record and pinned inspected input files; management outputs are retained in the two assigned reviewer artifacts."
+    },
+    {
+      "label": "read owned draft before finalization",
+      "cmd": "cat .phpunit.cache/f5-orchestration/20261015/history-admission-contract-review-r2-inputs.json",
+      "cwd": "/home/kubotak/projects/blackops",
+      "exit": 0,
+      "toolWallSeconds": 0.000010978,
+      "result": "Read assigned output only",
+      "log": "Inputs JSON retained."
+    }
+  ],
+  "commandNotes": [
+    "Durations labelled toolWallSeconds are the values returned by exec_command; separate Python internal snapshot durations are retained. No duration is a Product test result.",
+    "All dependency/input reads are literal in commands. Python writes were limited to the assigned inputs JSON; the report and final input record use apply_patch.",
+    "Truncated broad outputs were narrowed for relied-on sections. No original full F5 contract review was repeated.",
+    "Root's 0.024704-second mechanical check is reused from the pinned receipt and is not counted as a new execution.",
+    "Model metadata was not required from the process environment; there was no explicit denial or fallback.",
+    "The quick memory lookup supplied historical routing only; current evidence is independently pinned and controls this review."
+  ],
+  "reportWrite": {
+    "tool": "apply_patch",
+    "operation": "Add assigned review Markdown only",
+    "seconds": 0.092,
+    "result": {}
+  },
+  "finiteClosure": {
+    "helperPaths": 7,
+    "helperMethods": 27,
+    "admittedNativeGroups": 31,
+    "otherTagsRejected": 19,
+    "effectiveTypes": 34,
+    "additionalPreloadTypes": 25,
+    "literalEditPaths": 304,
+    "referenceOnlyPaths": 62,
+    "newPhpTests": 35,
+    "existingPhpTestEdits": 26,
+    "nativeRuns": 58,
+    "affectedVerificationPaths": [
+      "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "tests/Architecture/AuditAuthorityHistoryArchitectureTest.php",
+      "tests/Architecture/AuditRecordArchitectureTest.php",
+      "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+      "tests/Consumer/framework-package-export.sh",
+      "tests/Consumer/framework-package-required-inventory.sh"
+    ],
+    "quality": {
+      "classCyclomatic": 15,
+      "kan": 1.6,
+      "methods": 10,
+      "ordinaryParameters": 5,
+      "baseline": "strict",
+      "waiver": false
+    },
+    "originalImmutableInputsRetained": 50
+  }
+}

@@ -1,0 +1,952 @@
+{
+  "review": "History admission design/semantic review r1",
+  "startedAt": "2026-10-14T23:47:47+09:00",
+  "cwd": "/home/kubotak/projects/blackops",
+  "reviewer": "history_contract_review; configured Astra/max",
+  "proposalSha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+  "start": [
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.lock",
+      "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75",
+      "bytes": 271332
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/README.md",
+      "sha256": "da6ee2c77bd0f34d42ae447bbfe2f025d318f61a455bcaba0eb6f7cff24ca53c",
+      "bytes": 11349
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/allowlist.json",
+      "sha256": "816bd0bd25514e1a94e0b9e06f7fb124d0d206a351bc85e6bcc7d480d6e54c05",
+      "bytes": 29279
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-closure-r1.md",
+      "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+      "bytes": 48741
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-correction-r2.md",
+      "sha256": "7794b5359adc605a4c6a83333b152b93cb9fcb3f442d8857e1707394f0b80908",
+      "bytes": 45284
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "bytes": 142484
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "bytes": 77964
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-amendment-r1.md",
+      "sha256": "aa72ce285ca7d9439b9a63f6d2b4b6908e517f67abca5a6f1c5182043191ba06",
+      "bytes": 17990
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/manifest.json",
+      "sha256": "63a846eaade1e5b409985f9fcaf87cedfde1adadc5d710dd2d09de17c5ec593f",
+      "bytes": 16577
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/125-audit-checkpoint-persistence.md",
+      "sha256": "0246b22e4d655610e4dc414fe5448a140312c37c1a0fbefffa40bcac30326c3b",
+      "bytes": 134842
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "a01379863f5e3423fd37b7b088d4e3c844c4c8b145058b7543b877cd0c3731fb",
+      "bytes": 89889
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/131-audit-ordinary-sign-service.md",
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "bytes": 18894
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mago.toml",
+      "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051",
+      "bytes": 1136
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd",
+      "bytes": 1295
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationException.php",
+      "sha256": "655dce3de27e7a43c5a8c240f672f7377062e371eecbed4a3807c3b7267eb808",
+      "bytes": 1976
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "sha256": "bf75aa4023260374ea388afac33cce4134e7a2452563ae02c6ce957d23221e0f",
+      "bytes": 12368
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "sha256": "216201e4fcb2e74f24fcdd8b5fdb0345c163c278a408fafe891c80e563259d51",
+      "bytes": 21043
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php",
+      "sha256": "cec5b9437318862ccc27d8e07586428cdc8c0526c4a4870e569a5886e65c678c",
+      "bytes": 3115
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php",
+      "sha256": "19746456eac0935519b03ca08eae8f38c348230f20190d12b340db8d8da605ae",
+      "bytes": 7166
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php",
+      "sha256": "bf9fd05f3219fff318515caec9e43fc21bbbae81715de2c5e2301ac5ea4a2962",
+      "bytes": 7588
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php",
+      "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208",
+      "bytes": 7939
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734",
+      "bytes": 3479
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php",
+      "sha256": "e427482ebad4c9bacbe08409e651b2311f4e4577112e3fdfff5551909e33612e",
+      "bytes": 6795
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php",
+      "sha256": "2d10f9d6158d18370e0824ea6521e3ae926641852c9ba4e450176939d825b847",
+      "bytes": 5147
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php",
+      "sha256": "36846692da64663de920136f89c14e0c730ae9a0699271859c8738b8a92723c3",
+      "bytes": 3666
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php",
+      "sha256": "b7262da543f52ee455134cb3ebb7901d0e8e2c9bce138e1a41b9b230785927cb",
+      "bytes": 1564
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php",
+      "sha256": "8a20b5a4ce5923c93c20b90aa45d9ace6ecc6a784db8da52b305ec4726cfad77",
+      "bytes": 4507
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php",
+      "sha256": "dda65a1d90b599fc1143f8d1eda515489923474906db0a7bf9135020afeb8fdc",
+      "bytes": 96195
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Checkpoint/AuditCheckpointPreparationTest.php",
+      "sha256": "76f1b735fb5feeeca313cd3c0d834840ba994708120c2907882b64a3b4203c25",
+      "bytes": 13053
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/schema.json",
+      "sha256": "9cbabd60f91d868484b6c397aab4b2c0b42ab432eb2ab9a8d4a37f0512433cb3",
+      "bytes": 269409
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md",
+      "sha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+      "bytes": 31275
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-correction-r2-inputs.json",
+      "sha256": "b114083e1db06566c0ba1a579fe4b7b5c9ce5c2c1762a7a93de43c3cd46414eb",
+      "bytes": 772
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-r2-runtime/lint.log",
+      "sha256": "af33521693e679b30e4e04337a222ea9db54ad36d2fbba1179218dccd0baa370",
+      "bytes": 24393
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-review-r2.md",
+      "sha256": "751000d8c73a0803ad58ca59892960f90c44f1c837add24e5a02719525d9272d",
+      "bytes": 20098
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392
+    }
+  ],
+  "end": [
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/composer.lock",
+      "sha256": "75efc2f5af77e1d50215baedec2e68adbf4fa8b95f9bf04381907fecc9647b75",
+      "bytes": 271332
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/README.md",
+      "sha256": "da6ee2c77bd0f34d42ae447bbfe2f025d318f61a455bcaba0eb6f7cff24ca53c",
+      "bytes": 11349
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/allowlist.json",
+      "sha256": "816bd0bd25514e1a94e0b9e06f7fb124d0d206a351bc85e6bcc7d480d6e54c05",
+      "bytes": 29279
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-closure-r1.md",
+      "sha256": "67af749fc953f0ffbe9da9fdd3ecd0938d15fe29b87320abc6d230fe59bba817",
+      "bytes": 48741
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-correction-r2.md",
+      "sha256": "7794b5359adc605a4c6a83333b152b93cb9fcb3f442d8857e1707394f0b80908",
+      "bytes": 45284
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "sha256": "e39f62937df1afb4140072b843ec10d3473de889e660f23c764da9b975188647",
+      "bytes": 142484
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md",
+      "sha256": "4527806ba7734c5480dda53a202d1351a8e8e4753a2f1d484658308d2450b2df",
+      "bytes": 77964
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-tag-family-amendment-r1.md",
+      "sha256": "aa72ce285ca7d9439b9a63f6d2b4b6908e517f67abca5a6f1c5182043191ba06",
+      "bytes": 17990
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/manifest.json",
+      "sha256": "63a846eaade1e5b409985f9fcaf87cedfde1adadc5d710dd2d09de17c5ec593f",
+      "bytes": 16577
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/125-audit-checkpoint-persistence.md",
+      "sha256": "0246b22e4d655610e4dc414fe5448a140312c37c1a0fbefffa40bcac30326c3b",
+      "bytes": 134842
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "sha256": "a01379863f5e3423fd37b7b088d4e3c844c4c8b145058b7543b877cd0c3731fb",
+      "bytes": 89889
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/spec/131-audit-ordinary-sign-service.md",
+      "sha256": "bd3e80ff2e44986d678e4a8b633a962a2f86cf91ab8db2820eeea363b30cadbb",
+      "bytes": 18894
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mago.toml",
+      "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051",
+      "bytes": 1136
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "sha256": "22afdc1252fb2cda9671c6b48a883c483a31630b8d8bb9f51f918842bdab09dd",
+      "bytes": 1295
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationException.php",
+      "sha256": "655dce3de27e7a43c5a8c240f672f7377062e371eecbed4a3807c3b7267eb808",
+      "bytes": 1976
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "sha256": "bf75aa4023260374ea388afac33cce4134e7a2452563ae02c6ce957d23221e0f",
+      "bytes": 12368
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "sha256": "216201e4fcb2e74f24fcdd8b5fdb0345c163c278a408fafe891c80e563259d51",
+      "bytes": 21043
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/AuditCheckpointPreparationRowShape.php",
+      "sha256": "cec5b9437318862ccc27d8e07586428cdc8c0526c4a4870e569a5886e65c678c",
+      "bytes": 3115
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php",
+      "sha256": "19746456eac0935519b03ca08eae8f38c348230f20190d12b340db8d8da605ae",
+      "bytes": 7166
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php",
+      "sha256": "bf9fd05f3219fff318515caec9e43fc21bbbae81715de2c5e2301ac5ea4a2962",
+      "bytes": 7588
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStore.php",
+      "sha256": "eb04722b4e581c642da72416f6207a51629f6a64a4b57aeed934ac52552ef208",
+      "bytes": 7939
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "sha256": "d6ee2f9cb4e909d061a74331877ca2d702d3ee3fd1ace86de0549aea9b5c4734",
+      "bytes": 3479
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php",
+      "sha256": "e427482ebad4c9bacbe08409e651b2311f4e4577112e3fdfff5551909e33612e",
+      "bytes": 6795
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php",
+      "sha256": "2d10f9d6158d18370e0824ea6521e3ae926641852c9ba4e450176939d825b847",
+      "bytes": 5147
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php",
+      "sha256": "36846692da64663de920136f89c14e0c730ae9a0699271859c8738b8a92723c3",
+      "bytes": 3666
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php",
+      "sha256": "b7262da543f52ee455134cb3ebb7901d0e8e2c9bce138e1a41b9b230785927cb",
+      "bytes": 1564
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php",
+      "sha256": "8a20b5a4ce5923c93c20b90aa45d9ace6ecc6a784db8da52b305ec4726cfad77",
+      "bytes": 4507
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php",
+      "sha256": "dda65a1d90b599fc1143f8d1eda515489923474906db0a7bf9135020afeb8fdc",
+      "bytes": 96195
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Checkpoint/AuditCheckpointPreparationTest.php",
+      "sha256": "76f1b735fb5feeeca313cd3c0d834840ba994708120c2907882b64a3b4203c25",
+      "bytes": 13053
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/schema.json",
+      "sha256": "9cbabd60f91d868484b6c397aab4b2c0b42ab432eb2ab9a8d4a37f0512433cb3",
+      "bytes": 269409
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md",
+      "sha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+      "bytes": 31275
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-correction-r2-inputs.json",
+      "sha256": "b114083e1db06566c0ba1a579fe4b7b5c9ce5c2c1762a7a93de43c3cd46414eb",
+      "bytes": 772
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-r2-runtime/lint.log",
+      "sha256": "af33521693e679b30e4e04337a222ea9db54ad36d2fbba1179218dccd0baa370",
+      "bytes": 24393
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-layer-review-r2.md",
+      "sha256": "751000d8c73a0803ad58ca59892960f90c44f1c837add24e5a02719525d9272d",
+      "bytes": 20098
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42",
+      "bytes": 254508
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "bytes": 128581
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditPublicApiTest.php",
+      "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79",
+      "bytes": 53681
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-test-ci-bindings-r1.md",
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "bytes": 54451
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryRecord.php",
+      "sha256": "5bd3d5096e89e001dc45cc09dd89a785868d0aab7462bdab9b9da47cecf76e07",
+      "bytes": 4832
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "sha256": "39c88cd36e2e3b5afcac18df76e4b53bf8487dda953135a46dc4950aff93d0b9",
+      "bytes": 36189
+    }
+  ],
+  "newReferences": [
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "sha256": "f3942a28d44844c27fb5e06f874a30d9229294bb9f26cbce09e1d947378fca42",
+      "bytes": 254508,
+      "firstPinnedAt": "2026-10-14T23:53:08+09:00"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "sha256": "346324c3eabb04115c067f7e5c482771578af192d9d428943306bc74c9b64a6c",
+      "bytes": 128581,
+      "firstPinnedAt": "2026-10-14T23:53:08+09:00"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditPublicApiTest.php",
+      "sha256": "f73b80a07babe18b42aff5b32a9f55da83027c4484fd6a6a465f1d2e0e71dd79",
+      "bytes": 53681,
+      "firstPinnedAt": "2026-10-14T23:53:08+09:00"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-test-ci-bindings-r1.md",
+      "sha256": "bd77b117d437aba0d804c9e5cc3d280c3b0cb44f4fbb60ef7276ea747ea811f5",
+      "bytes": 54451,
+      "firstPinnedAt": "2026-10-14T23:53:08+09:00"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryRecord.php",
+      "sha256": "5bd3d5096e89e001dc45cc09dd89a785868d0aab7462bdab9b9da47cecf76e07",
+      "bytes": 4832,
+      "firstPinnedAt": "2026-10-14T23:58:01+09:00",
+      "usage": "Hash-only preservation check; source not re-reviewed"
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "sha256": "39c88cd36e2e3b5afcac18df76e4b53bf8487dda953135a46dc4950aff93d0b9",
+      "bytes": 36189,
+      "firstPinnedAt": "2026-10-14T23:58:01+09:00",
+      "usage": "Hash-only preservation check; source not re-reviewed"
+    }
+  ],
+  "contextualChangesExcluded": [
+    "develop/STATE.md",
+    "develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md",
+    "develop/orchestration/reports/P23-003F5P-attributed-checkpoint-production.md"
+  ],
+  "productTestsExecuted": false,
+  "runtimeExecuted": false,
+  "gitCommandsExecuted": false,
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-"
+      ],
+      "operation": "Read-only start fingerprint capture and final author proposal pin check",
+      "exit": 0,
+      "elapsedSeconds": 0.008372
+    },
+    {
+      "argv": [
+        "python3",
+        "-"
+      ],
+      "operation": "Read-only text inventory for fixed31 routing, seven helper paths/method counts, allowlist and actual current preload; add relied-on reference hashes",
+      "exit": 0,
+      "elapsedSeconds": 0.001732
+    },
+    {
+      "argv": [
+        "python3",
+        "-"
+      ],
+      "operation": "Final rehash of all actual semantic references and hash-only check of all four Root-frozen carrier/test inputs; write only assigned input record",
+      "exit": 0,
+      "elapsedSeconds": 0.004087
+    }
+  ],
+  "finiteInventoryChecks": {
+    "routing": {
+      "context": [
+        1,
+        3,
+        16,
+        21,
+        52
+      ],
+      "lifecycle": [
+        17,
+        18,
+        19,
+        23
+      ],
+      "closed": [
+        24,
+        49,
+        53
+      ],
+      "work": [
+        25,
+        26,
+        28
+      ],
+      "end": [
+        35
+      ],
+      "publication": [
+        65,
+        73,
+        76,
+        79
+      ],
+      "scalarOnly": [
+        5,
+        31,
+        33,
+        48,
+        51,
+        55,
+        64,
+        67,
+        68,
+        72,
+        75
+      ]
+    },
+    "sourceNativeTags": [
+      1,
+      3,
+      5,
+      16,
+      17,
+      18,
+      19,
+      21,
+      23,
+      24,
+      25,
+      26,
+      28,
+      31,
+      33,
+      35,
+      48,
+      49,
+      51,
+      52,
+      53,
+      55,
+      64,
+      65,
+      67,
+      68,
+      72,
+      73,
+      75,
+      76,
+      79
+    ],
+    "routingUniqueCount": 31,
+    "routingCount": 31,
+    "routingEqualsCurrent31Schema": true,
+    "newPathCount": 7,
+    "newPaths": [
+      "src/Internal/Audit/Authority/History/AuditHistoryScalar.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php"
+    ],
+    "newPathsAlreadyAllowed": [],
+    "newPathsAlreadyExist": [],
+    "oldAllowlistCount": 297,
+    "proposedAllowlistCount": 304,
+    "referenceOnlyCount": 62,
+    "newPhpTestsCount": 35,
+    "existingPhpTestEditsCount": 26,
+    "declarationsPerType": {
+      "AuditHistoryScalar": 5,
+      "AuditHistoryContextRelations": 6,
+      "AuditHistorySegmentLifecycle": 2,
+      "AuditHistoryClosedSegmentRelations": 4,
+      "AuditHistoryWorkRelations": 4,
+      "AuditHistoryCheckpointEndRelations": 2,
+      "AuditHistoryPublicationRelations": 4
+    },
+    "newDeclaredMethods": 27,
+    "currentAdditionalPreloadCount": 18,
+    "proposedAdditionalPreloadCount": 25,
+    "correctedVerificationPaths": [
+      "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "tests/Architecture/AuditAuthorityHistoryArchitectureTest.php",
+      "tests/Architecture/AuditRecordArchitectureTest.php",
+      "tests/Fixtures/Audit/AuthorityFilesystemCase.php",
+      "tests/Consumer/framework-package-export.sh",
+      "tests/Consumer/framework-package-required-inventory.sh"
+    ],
+    "verificationPathsNotAllowed": []
+  },
+  "changedInputs": [],
+  "allSemanticInputsStable": true,
+  "frozenFourFilePreservation": [
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "expectedSha256": "216201e4fcb2e74f24fcdd8b5fdb0345c163c278a408fafe891c80e563259d51",
+      "actualSha256": "216201e4fcb2e74f24fcdd8b5fdb0345c163c278a408fafe891c80e563259d51",
+      "matches": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "expectedSha256": "bf75aa4023260374ea388afac33cce4134e7a2452563ae02c6ce957d23221e0f",
+      "actualSha256": "bf75aa4023260374ea388afac33cce4134e7a2452563ae02c6ce957d23221e0f",
+      "matches": true
+    },
+    {
+      "path": "src/Internal/Audit/Authority/History/AuditHistoryRecord.php",
+      "expectedSha256": "5bd3d5096e89e001dc45cc09dd89a785868d0aab7462bdab9b9da47cecf76e07",
+      "actualSha256": "5bd3d5096e89e001dc45cc09dd89a785868d0aab7462bdab9b9da47cecf76e07",
+      "matches": true
+    },
+    {
+      "path": "tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php",
+      "expectedSha256": "39c88cd36e2e3b5afcac18df76e4b53bf8487dda953135a46dc4950aff93d0b9",
+      "actualSha256": "39c88cd36e2e3b5afcac18df76e4b53bf8487dda953135a46dc4950aff93d0b9",
+      "matches": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "HAD-01",
+      "severity": "High",
+      "disposition": "Correct actual stateVersion domain to open1..MAX,closed/sealed2..MAX; keep captured preparation2..MAX-1 and exact F2 retry binding."
+    },
+    {
+      "id": "HAD-02",
+      "severity": "Medium",
+      "disposition": "Adopt complete CheckpointEnd matrix and its CheckpointPresence projection with both actual durable recovery gaps retained."
+    },
+    {
+      "id": "HAD-03",
+      "severity": "Medium",
+      "disposition": "Add already-allowlisted AuditRecordArchitectureTest as exact timestamp caller/reference/mutation owner."
+    }
+  ],
+  "result": "Changes Required before adoption; seven-helper architecture coherent with the three finite corrections",
+  "localEndpointMatrix": [
+    {
+      "reservation": false,
+      "ordinal": 0,
+      "preparation": "absent",
+      "candidate": "absent",
+      "complete": "absent"
+    },
+    {
+      "reservation": true,
+      "ordinal": 0,
+      "preparation": "optional",
+      "candidate": "absent",
+      "complete": "absent"
+    },
+    {
+      "reservation": true,
+      "ordinal": 1,
+      "preparation": "present",
+      "candidate": "absent",
+      "complete": "absent"
+    },
+    {
+      "reservation": true,
+      "ordinal": 2,
+      "preparation": "present",
+      "candidate": "present",
+      "complete": "optional"
+    },
+    {
+      "reservation": true,
+      "ordinal": [
+        3,
+        4
+      ],
+      "preparation": "present",
+      "candidate": "present",
+      "complete": "present"
+    }
+  ],
+  "completedAt": "2026-10-14T23:58:01+09:00",
+  "inputSetSha256": "c04c2adc1c02effb93a48cf645e6a43657b4aebe6c45da76cc8d0d0d5615b79e",
+  "reportSha256": "368a6286451f5264ab186a9c7fdadfd7125c1de83066795fe0506a16647a417e",
+  "reportBytes": 17872,
+  "coreReadCommands": [
+    {
+      "cmd": "cat develop/STATE.md",
+      "exit": 0,
+      "toolWallSeconds": 1.0433e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "rg -n -A 45 'admission|seven-helper|seven helper|stateVersion|ordinal' develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md",
+      "exit": 0,
+      "toolWallSeconds": 1.3968e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "cat .phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md",
+      "exit": 0,
+      "toolWallSeconds": 9.834e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "rg -n '125|109' develop/spec/README.md",
+      "exit": 0,
+      "toolWallSeconds": 9.59e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "nl -ba .phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md | head -n 150",
+      "exit": 0,
+      "toolWallSeconds": 1.1558e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '112,146p' .phpunit.cache/f2-orchestration/accepted-integration/develop/spec/125-audit-checkpoint-persistence.md",
+      "exit": 0,
+      "toolWallSeconds": 9.944e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "cat .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentLifecycle.php",
+      "exit": 0,
+      "toolWallSeconds": 1.4246e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '1,100p' .phpunit.cache/f5-orchestration/20261014/history-layer-review-r2.md",
+      "exit": 0,
+      "toolWallSeconds": 1.5035e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "cat .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditSegmentRowParser.php .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentRelations.php",
+      "exit": 0,
+      "toolWallSeconds": 9.105e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "cat .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointSegmentBinding.php .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointStoredBinding.php",
+      "exit": 0,
+      "toolWallSeconds": 1.0869e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '36,78p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentGraph.php",
+      "exit": 0,
+      "toolWallSeconds": 1.3536e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '1,115p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditClosedSegmentNeighbors.php",
+      "exit": 0,
+      "toolWallSeconds": 2.577e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '80,141p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md",
+      "exit": 0,
+      "toolWallSeconds": 1.2085e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '215,255p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md",
+      "exit": 0,
+      "toolWallSeconds": 1.2195e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '374,400p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php",
+      "exit": 0,
+      "toolWallSeconds": 1.316e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '1470,1505p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Storage/PostgreSqlAuditRecordStore.php",
+      "exit": 0,
+      "toolWallSeconds": 1.238e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '88,128p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointPreparationWorkflow.php",
+      "exit": 0,
+      "toolWallSeconds": 1.323e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '126,171p' .phpunit.cache/f2-orchestration/accepted-integration/tests/Internal/Audit/Checkpoint/AuditCheckpointPreparationTest.php",
+      "exit": 0,
+      "toolWallSeconds": 8.47e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '220,242p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "exit": 0,
+      "toolWallSeconds": 1.4312e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '148,216p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "exit": 0,
+      "toolWallSeconds": 1.3315e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '194,277p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "exit": 0,
+      "toolWallSeconds": 1.5748e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '132,151p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php",
+      "exit": 0,
+      "toolWallSeconds": 6.092e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '343,410p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "exit": 0,
+      "toolWallSeconds": 1.1764e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "rg -n -A 7 '\"cyclomatic-complexity\"|\"kan-defect\"|\"too-many-methods\"|\"excessive-parameter-list\"' .phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/schema.json",
+      "exit": 0,
+      "toolWallSeconds": 9.531e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '15,27p' .phpunit.cache/f5-orchestration/20261014/history-layer-r2-runtime/lint.log",
+      "exit": 0,
+      "toolWallSeconds": 1.3439e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '138,156p' .phpunit.cache/f5-orchestration/20261014/history-layer-r2-runtime/lint.log",
+      "exit": 0,
+      "toolWallSeconds": 1.1266e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '154,187p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "exit": 0,
+      "toolWallSeconds": 1.4187e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "cat .phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditRecordTime.php",
+      "exit": 0,
+      "toolWallSeconds": 1.1626e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "rg -n -A 45 'function assertSafeString|function assertGrammarString' .phpunit.cache/f2-orchestration/accepted-integration/src/Core/Audit/AuditValidationException.php",
+      "exit": 0,
+      "toolWallSeconds": 8.504e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '19,146p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "exit": 0,
+      "toolWallSeconds": 7.677e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '45,96p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-history-type-correction-r2.md",
+      "exit": 0,
+      "toolWallSeconds": 9.99e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '296,342p' .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "exit": 0,
+      "toolWallSeconds": 8.119e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '68,80p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-capture-issuance-map-r1.md",
+      "exit": 0,
+      "toolWallSeconds": 1.3523e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '526,540p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "exit": 0,
+      "toolWallSeconds": 1.1629e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '95,143p' .phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md",
+      "exit": 0,
+      "toolWallSeconds": 1.087e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '143,172p' .phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md",
+      "exit": 0,
+      "toolWallSeconds": 1.0361e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "rg -n 'AuditHistoryScalar|AuditHistoryContextRelations|AuditHistorySegmentLifecycle|AuditHistoryClosedSegmentRelations|AuditHistoryWorkRelations|AuditHistoryCheckpointEndRelations|AuditHistoryPublicationRelations' .phpunit.cache/f2-orchestration/accepted-integration/src .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/allowlist.json",
+      "exit": 1,
+      "toolWallSeconds": 1.0297e-05,
+      "result": "No proposed helper occurrence"
+    },
+    {
+      "cmd": "sed -n '1272,1435p' .phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "exit": 0,
+      "toolWallSeconds": 1.2835e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '1535,1572p' .phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditArtifactArchitectureTest.php",
+      "exit": 0,
+      "toolWallSeconds": 8.537e-06,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '4512,4658p' .phpunit.cache/f2-orchestration/accepted-integration/tests/Architecture/AuditRecordArchitectureTest.php",
+      "exit": 0,
+      "toolWallSeconds": 1.16e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "cat .phpunit.cache/f5-orchestration/20261014/history-correction-r2-inputs.json",
+      "exit": 0,
+      "toolWallSeconds": 1.1799e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '990,1043p' .phpunit.cache/f2-orchestration/accepted-integration/develop/spec/130-audit-control-authority-and-production-provenance.md",
+      "exit": 0,
+      "toolWallSeconds": 1.0762e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "sed -n '324,338p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/checkpoint-issuance-map-r1.md",
+      "exit": 0,
+      "toolWallSeconds": 1.5151e-05,
+      "result": "Read-only text inspection"
+    },
+    {
+      "cmd": "date --iso-8601=seconds",
+      "exit": 0,
+      "toolWallSeconds": 1.0284e-05,
+      "result": "Read-only text inspection"
+    }
+  ],
+  "commandNotes": [
+    "Read commands are content inspections, not Product or parser execution. Supplemental bounded rg queries located the named source sections; broad outputs were not used as completeness evidence after truncation.",
+    "Only standard-library Python bookkeeping and the assigned reviewer artifacts were written. The two source/test inputs inspected by hash only are marked explicitly.",
+    "Core read log records actual issued commands; abbreviated paths in the Markdown report are expanded here."
+  ]
+}

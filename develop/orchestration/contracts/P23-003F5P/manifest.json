@@ -315,23 +315,63 @@
       "sha256": "3a971e0360ff1307a52ceb5934a2d114fa21e7e29584ab165347207979d3d444",
       "bytes": 59275,
       "source": ".phpunit.cache/f5-orchestration/20261014/history-tag-contract-review-r1-inputs.json"
+    },
+    {
+      "name": "history-admission-budget-options.md",
+      "sha256": "861134dd5b44e3563ac96483e78ffeaed930b8e893c76235045ec0ade4ff754a",
+      "bytes": 31275,
+      "source": ".phpunit.cache/f5-orchestration/20261014/history-admission-budget-options.md"
+    },
+    {
+      "name": "history-admission-design-review-r1.md",
+      "sha256": "368a6286451f5264ab186a9c7fdadfd7125c1de83066795fe0506a16647a417e",
+      "bytes": 17872,
+      "source": ".phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1.md"
+    },
+    {
+      "name": "history-admission-design-review-r1-inputs.json",
+      "sha256": "5e6a28de76860255066d23b1d8fa201297f2ff29cd83620efc681af66dbce4ea",
+      "bytes": 39636,
+      "source": ".phpunit.cache/f5-orchestration/20261014/history-admission-design-review-r1-inputs.json"
+    },
+    {
+      "name": "history-admission-responsibility-amendment-r1.md",
+      "sha256": "0c52ab51e8ae3272d49c040387de6727c0b9af02d534ee21c41974b4069aa3c9",
+      "bytes": 25665,
+      "source": ".phpunit.cache/f5-orchestration/20261015/admission-contract-candidate/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md"
+    },
+    {
+      "name": "history-admission-contract-review-r2.md.encoded.json",
+      "sha256": "d21ea3d59e10842b7c8e08ccb65e745c6d87894cc63f5ba34c3e42ba91f28451",
+      "bytes": 14419,
+      "source": ".phpunit.cache/f5-orchestration/20261015/history-admission-contract-review-r2.md",
+      "encoding": "json-utf8",
+      "originalName": "history-admission-contract-review-r2.md",
+      "originalSha256": "206ba7e1b896f3df205ed9f9a23ab4f65bc474181e9466f914f2748efd1caf39",
+      "originalBytes": 13965
+    },
+    {
+      "name": "history-admission-contract-review-r2-inputs.json",
+      "sha256": "6b779d54166283feb5048dadbbecdd2d7460c56b0a9a5f78c0f04e63e4287746",
+      "bytes": 77707,
+      "source": ".phpunit.cache/f5-orchestration/20261015/history-admission-contract-review-r2-inputs.json"
     }
   ],
   "integrationFiles": [
     {
       "name": "README.md",
-      "sha256": "da6ee2c77bd0f34d42ae447bbfe2f025d318f61a455bcaba0eb6f7cff24ca53c",
-      "bytes": 11349
+      "sha256": "1e9332a4d39149accf4c52690ac661568e0a35365f64d7a2cb5427df48c29134",
+      "bytes": 12353
     },
     {
       "name": "allowlist.json",
-      "sha256": "816bd0bd25514e1a94e0b9e06f7fb124d0d206a351bc85e6bcc7d480d6e54c05",
-      "bytes": 29279
+      "sha256": "1582ca472ca867eef08c168e692ee05cf54bd0845fce0bbd06a498d9e8164283",
+      "bytes": 29821
     }
   ],
   "authorityReview": "9312efe1e6e571dcfcf84f9c76929a446395fa7b16790b9aa1c7fc9f7d4e5768",
   "verificationReview": "d1232dce4fe1168c864c9fdb456eda57b2cc43117666dc964ef0994d321e14da",
-  "literalEditPaths": 297,
+  "literalEditPaths": 304,
   "referenceOnlyPaths": 62,
   "newPhpTests": 35,
   "existingPhpTestEdits": 26,
@@ -348,5 +388,24 @@
     "ProductExecuted": false,
     "reviewSha256": "2f463ef5fc11623348735ba46a30b5e73e80014e42d06abc4f484cacec00d78a",
     "adoptedAt": "2026-10-14T19:05:26+09:00"
+  },
+  "nativeAdmissionAmendment": {
+    "status": "Adopted after affected Green and Root P3 correction; committed Task controls issuance",
+    "editPathsAdded": [
+      "src/Internal/Audit/Authority/History/AuditHistoryScalar.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php",
+      "src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php"
+    ],
+    "additionalPreloadTypes": 25,
+    "effectiveClosedTypeInventory": 34,
+    "newDeclaredMethods": 27,
+    "ProductExecuted": false,
+    "reviewSha256": "206ba7e1b896f3df205ed9f9a23ab4f65bc474181e9466f914f2748efd1caf39",
+    "adoptedAt": "2026-10-15T11:12:11+09:00",
+    "editorialSuccessorSha256": "0c52ab51e8ae3272d49c040387de6727c0b9af02d534ee21c41974b4069aa3c9"
   }
 }

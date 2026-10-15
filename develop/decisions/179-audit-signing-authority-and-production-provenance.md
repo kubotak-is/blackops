@@ -203,3 +203,31 @@ callers, original F1 closure and nonempty Normalizer warmup are unchanged.
 This changes no wire bytes, history bound, F1/F2/F3 field, trust or release
 boundary. Product, cold/native/SQL and strict-quality evidence remain required;
 this contract correction is not Product Acceptance or release proof.
+
+
+## Native History admission responsibility refinement — 2026-10-15
+
+Measured class-level complexity rejects the earlier carrier/Codec layout under
+unchanged Mago limits. Moving private methods within one class does not fix the
+sum. Adopt the exact seven stateless helper responsibilities in the F5P native
+admission amendment, subject to its affected review and committed Root issuance.
+NativeGroup keeps one closed31-group schema and admits primitives before any
+retention. Codec removes its duplicate schema and uses the equivalent bounded
+flat-language preflight before recursive JCS. No F1/F2/SQL/current-trust edge,
+generic validator, authority constructor or quality waiver is introduced.
+
+Actual observed closed/sealed stateVersion admits2..MAX, while F2 captured
+closed_state_version retains2..MAX-1 and the accepted captured+1 seal binding.
+The reserved increment constrains preparation, not all History observations.
+Local endpoint and presence matrices preserve committed prepare-before-step1
+and persist-before-step3 recovery gaps. Actual-record/Grammar/replay equality
+and origin checks remain independently mandatory; local admission is not trust.
+
+This supersedes only the earlier no-extra-helper rule, Codec duplicate admission
+and one tag-getter edge, plus the exact preload/count deltas. The seven helper
+resolutions immediately follow NativeGroup, making the additional list25 and
+effective type closure34. The same two initializer callers and nonempty Unicode
+warmup remain. Scope becomes304; reference62, tests35/26 and native58 stay fixed.
+The existing global timestamp guard owns Scalar.admitString:1; no public API,
+namespace or additional Core caller allowance follows. Original records remain
+immutable. Actual quality/native/cold/full/export and release work remain open.

@@ -7,13 +7,14 @@ are contract inputs, never Product/runtime results. Root must commit the complet
 packet before issuing the configured worker.
 
 `manifest.json` pins immutable copied evidence and the final Root integration
-files. Three originals (the final authority review,its input record and the
-reviewed unified diff) use a lossless JSON-UTF8 envelope so format-required spaces
+files. Four retained records (the final authority review, its input record, the
+reviewed unified diff and the admission correction review) use lossless JSON-UTF8
+envelopes so format-required spaces
 and terminal blank lines remain exact without becoming repository whitespace
 errors. Decode `content` as UTF-8 and verify originalBytes/originalSha256; manifest
 originalName maps their historical filenames. All other originals are plain exact
 copies. This packaging changes no reviewed content.
-`allowlist.json` supplies297 exact candidate edit paths and62 reference-only
+`allowlist.json` supplies304 exact candidate edit paths and62 reference-only
 paths; it separately pins35 new and26 existing PHP test paths. No containing
 directory, namespace, mentioned type or reference-only input grants an edit.
 
@@ -35,7 +36,7 @@ The current Task and adopted specifications129–132/D179 remain authoritative.
 | [Pure replay r1](pure-checkpoint-codec-floor-delta-r1.md), [r2](pure-checkpoint-codec-floor-delta-r2.md) | Original-byte F1 data admission, three exact codec calls, raw bounds, runtime initialization and purpose-specific native holders. r2 resolves only its named r1 joins/surfaces. |
 | [Installation](installation-publication-issuance-r1.md), [correction](installation-publication-correction-r2.md) | Actual lazy Console/lifecycle publication, original selected archive digest, exact pending/accepted recovery; one Candidate.native selection caller,Registry9 and HistoryReplay.replay correction. |
 | [Online/delegate](online-delegate-checkpoint-issuance-r1.md), [correction](online-delegate-checkpoint-correction-r2.md) | Whole current trust, seed/delegate custody, exact phase7 root comparison and one-use authority; CIR-01/02 and PI-04 corrections below. |
-| [Type closure](checkpoint-history-type-closure-r1.md), [HT correction](checkpoint-history-type-correction-r2.md), [caller correction](checkpoint-control-cleanup-caller-correction-r3.md) |25 literal type surfaces, local Readers, same-capture loans and finite18 additional resolutions, plus the exact Record native projection and failed-owner disposal amendment. |
+| [Type closure](checkpoint-history-type-closure-r1.md), [HT correction](checkpoint-history-type-correction-r2.md), [caller correction](checkpoint-control-cleanup-caller-correction-r3.md) |25 literal type surfaces, local Readers, same-capture loans and finite25 additional resolutions, plus the exact Record native projection and failed-owner disposal amendment. |
 | [Resource contract](checkpoint-production-verification-packet-r1.md), [test/CI binding](checkpoint-test-ci-bindings-r1.md) | Actual native/DB/full/strict/export resources, exact test and fixture ownership, unchanged CI quality identity and required artifacts. |
 | [Verification correction](checkpoint-verification-correction-r2.md), [interruption correction](checkpoint-interruption-intro-correction-r3.md) | Literal35/26 test sets,27 bases/58 actual-owner native mappings, and seven process-interruption versus two managed-error bases. |
 
@@ -52,7 +53,7 @@ Apply only these explicit corrections to the retained original text:
    instance and its three F1 sites remain. Exactly two Replay and two first fenced
    comparison methods construct Readers from original same-capture/scope loans.
    Phase7's final already-closed comparison cannot reopen or construct a Reader.
-   The existing two-call-site initializer resolves the18 additional literal types;
+   The existing two-call-site initializer resolves the25 additional literal types;
    nonempty Normalizer FORM_C warming remains mandatory before either floor.
 3. The25 original literal type surfaces supplement the original path union with23 new paths
    and two already located facts. The descriptor-free ControlHistoryCaptureRows
@@ -110,6 +111,19 @@ Apply only these explicit corrections to the retained original text:
     type inventory25 to27. The existing preload16 becomes18 with its same two
     callers. Exact source/caller/guard/test obligations are in the supplement; no
     helper, threshold/baseline or runtime qualification waiver is introduced.
+
+12. [Native admission responsibilities](history-admission-responsibility-amendment-r1.md)
+    adds exactly seven stateless helpers and their27 declarations, retains the
+    sole31-group NativeGroup schema and removes Codec's duplicate admission and
+    encode-to-tag edge. Actual closed/sealed versions admit2..MAX; preparation
+    captured versions stay2..MAX-1. The complete endpoint/presence matrices retain
+    both F2 recovery gaps. The existing timestamp architecture owner is explicit.
+    Scope297 becomes304, effective type closure27 becomes34, and additional eager
+    resolutions18 become25. Reference62, tests35/26 and native58 stay unchanged.
+    Existing method/argument/complexity/privacy/caller/source-origin limits remain.
+    Affected review206ba7e1 closes HAD-01..03; Root closes its sole P3 reference
+    correction and adopts this exact supplement. Committed Task issuance and
+    separately opened runtime leases still govern implementation.
 
 There is no other override. Conflicting concrete callers, missing literal types,
 extra helpers, changed schemas or unachievable declared budgets return one bounded

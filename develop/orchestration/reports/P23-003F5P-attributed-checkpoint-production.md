@@ -1,25 +1,24 @@
 # P23-003F5P: Attributed Checkpoint Production Report
 
-Status: In Progress — phase/tag units committed; finite native-admission design under review
+Status: In Progress — admission contract adopted; bounded source implementation pending
 
 ## Summary
 
-Owner resumed. Root recovered and committed the previously accepted phase-enum
-unit at f50fff14dccce5644fbf4920b4923f6cf35f9ca9. The finite tag-family contract
-is committed at d8af3405f5fe53345bf8d00eb7eec67d61692196 and its three-enum
-implementation at829676129cbc04de6e674bc9292ae222d8029bc9. All three commits
-are retained on the independently matched remote integration branch.
+Root resumed at C82bb574 and revalidated all41 earlier design-review inputs.
+Independent affected Green206ba7e1 closes HAD-01..03; its103 selected inputs
+are stable. Root closes the sole P3 reference correction and adopts the finite
+seven-helper admission contract, preserving all earlier immutable evidence.
+The corrected actual/captured version domains and both recovery matrices are
+now explicit; no type/caller/quality waiver is granted.
 
-The three-enum source unit has independent Green review and six successful pure
-gates, with inherited diagnostics retained. Four rejected History carrier/codec/
-test files remain uncommitted. HL-02/03 close at source level only; HL-01/04 and
-measured complexity/test failures remain. A finite responsibility proposal is
-under independent review; it grants no new Product scope until explicit adoption.
+The next bounded source unit has11 carrier/helper/unit files and two architecture
+files assigned to separate Luna workers only after the management commit. Four
+prior rejected files remain unchanged and unaccepted. No Product test or runtime
+was executed in this management unit. Full F5P and1.3 remain incomplete.
 
-The primary checkout remains at8106c35 with cumulative mixed changes. Its644-path
-observation, subsequent645-path inventory and exact comparison with committed C
-are recorded below. No primary Product/index/mode cleanup has occurred. All eight
-full Product criteria and the parent release/delivery obligations remain open.
+Primary remains mixed at8106c35;2322 non-governance files/modes and all three index
+views are pinned for preservation. C's phase/tag source commits are remote at
+8296761; local reporting82bb574 is not yet pushed at the resume observation.
 
 ## Changed Files
 
@@ -30,10 +29,10 @@ worker receives only the literal future Product/test/tooling/documentation paths
 
 ## Decisions and Assumptions
 
-The effective scope is297 literal edits plus62 reference-only paths,with35 new and26 existing
+The effective scope is304 literal edits plus62 reference-only paths,with35 new and26 existing
 PHP test paths. Original maps remain byte-identical; README applies only named
 finite corrections. Both Replays have four shared collaborators and four exact
-local Reader sites;18 additional types resolve before either floor. Record.native
+local Reader sites;25 additional types resolve before either floor. Record.native
 and successful-replay loans preserve original bytes/object identity. Exact failed
 seal,pre-root,comparison and close paths have one sticky owned disposal attempt.
 
@@ -41,7 +40,8 @@ The stale ordinary PublicationWorkflow.rootRevision cleanup edge is removed:
 ordinary workflow9 methods,control fallbacks7 and external capsule-close callers12.
 InstallationWorkflow and PublicationWriter rootRevision remain. Interruption18
 comprises14 process variants and4 managed-error variants; total native58 stays.
-No new helper,path,phase,authority,baseline,limit or coverage waiver is introduced.
+Only the adopted seven helpers and their exact paths/callers are added. No phase,
+authority,baseline,limit or coverage waiver is introduced.
 
 ## Commands and Results
 
@@ -566,3 +566,108 @@ records0.189360s for the four-path scope, both STATE checks, diff--check,
 unfinished files. Root reviewed the reporting diff; no Product gate was repeated.
 The receipt's Report identity is refreshed only for this results paragraph before
 exact scoped staging; the stored archive matches its old STATE SHA256.
+
+
+## Resume and affected admission correction — 2026-10-15T11:02:54+09:00
+
+Root reconciled C at82bb574c097f373fc3b46a7030e272507cc13e94 with independently
+observed remote829676129cbc04de6e674bc9292ae222d8029bc9. The reporting checkpoint
+is local; completed phase/tag source commits remain remote-retained. Primary
+remains at8106c35 and mixed. E15/resume-baseline.json pins2322 non-governance
+files/modes (AGENTS is excluded from that count), three index views and all four
+unfinished files. All41 semantic inputs of completed design review368a6286 match.
+E15 is .phpunit.cache/f5-orchestration/20261015.
+
+Review368a6286 requires HAD-01 actual-versus-captured versions, HAD-02 complete
+CheckpointEnd/Presence matrices with both recovery gaps, and HAD-03 the existing
+AuditRecordArchitectureTest timestamp caller owner. Root incorporated these in
+E15/admission-contract-candidate, supplement336ad3d1. All50 retained immutable
+inputs remain unchanged; only seven literal helper edit paths are added, making
+304/62, effective type34, additional preload25, unchanged tests35/26/native58.
+The finite mechanical inventory check passed; no Product runtime was executed.
+
+Configured Astra/max admission_contract_review owns only affected correction
+review and E15/history-admission-contract-review-r2.md plus -inputs.json. Original
+contracts/source remain frozen; no new helper or Product edit is issued yet.
+Root owns candidate/governance/STATE, adoption, Git and all runtime leases.
+No DB or native resource is assigned. After Green, Root validates and commits
+the management unit, then issues bounded Luna implementation from that SHA.
+
+Release Documentation Impact: internal admission/preload contract only; public
+API, command/configuration, source/routes and current1.2.1/unreleased1.3.0 tuple
+are unchanged. Source/Search/LLM rebuild is not needed for this management unit.
+All full-child/publication/Owner preview/same-SHA CI/export and delivery gates
+remain. Remaining: corrected contract adoption, carrier/codec/union and tests,
+then actual Reader/Writer/custody/replay/production and all parent obligations.
+Next Action: close only HAD-01..03 and finite integration review before issuance.
+
+
+## Native-admission contract adoption — 2026-10-15T11:12:11+09:00
+
+Independent affected review206ba7e1 (inputs6b779d54) closes HAD-01/02/03 with
+103 before/after stable inputs. Root reviewed its result and the finite diff.
+The sole P3 correction changes `each local relation in §3` to `§1`; exact diff
+is E15/admission-p3-correction.diff. Final supplement SHA256
+0c52ab51e8ae3272d49c040387de6727c0b9af02d534ee21c41974b4069aa3c9.
+No other semantic correction or source/namespace/method exception was requested.
+
+Changes: immutable corrected supplement plus retained proposal/r1/r2 reviews and
+inputs; README precedence, allowlist/manifest, spec130 literal preload and D179
+chronological rationale; current Task/Report/STATE and exact STATE archives. All
+50 earlier immutable inputs remain byte-identical; the six additional records
+bring retained inputs56. Scope304/62, effective closure34, preload25 and original
+35/26 tests/native58 remain. The original shared-graph/native/cold/full/export
+requirements are not weakened by this local-admission correction.
+
+Commands/results: E15/resume-state.json records8 successful STATE checks/CAS
+updates. E15/resume-baseline.json records41 matched semantic inputs and four
+unchanged rejected files. E15/admission-candidate-mechanical-check.json records
+the original50 preservation/decoded-envelope and exact-seven-path check in
+0.024704s; independent review reused it. Current Docker image remains ab739e1d
+and a read-only app-container inventory is empty. No PHP/Mago/test/DB/native
+execution occurred; Product test time0, full-suite runs0. Root's final adoption
+receipt records subsequent manifest/state/diff/preservation checks and elapsed
+times. No Product gate is repeated for this management-only change.
+
+Acceptance: the finite contract correction is accepted for a management commit;
+HL-01/04 Product closure and full child Acceptance remain open. Source unit
+ownership and verification are in the Task and E15/history-source-unit-scope.json.
+The two future workers have disjoint11/2 files; Root owns all runtime leases.
+
+Release Documentation Impact: internal responsibility/preload contract only.
+Public sources/routes/API/commands/configuration, wire bytes and current Stable
+1.2.1/unreleased1.3.0 authority remain unchanged. No Source/Search/LLM artifact
+rebuild is required for this unit; all full-child/005/006 gates remain.
+
+Remaining: bounded source/helper/union/architecture correction, actual History
+Reader/Writer/custody/replay and whole checkpoint production/native/SQL/cold/
+strict/full/export; parent F4/F5/F6,D/E/G,004A,005/006 and primary integration.
+Next Action: commit this reviewed management unit, then issue the exact source
+scope from its recorded SHA; grant formatting/diagnostic leases only after
+source handoffs. Primary mixed Product/Website work is preserved and uncommitted.
+
+Management validation before staging: all56 manifest inputs and integration hashes
+match; original50 entries are unchanged. P/C adopted files match, all2322 primary
+non-governance bytes/modes and3 index views are preserved, and all4 rejected C
+files retain their resume hashes. Exact16 management paths exclude Product.
+Literal links, runner Python syntax and unstaged diff-check pass. The bounded
+validation took0.908651s; E15/admission-final-validation.json records inputs,
+commands and staged path/blob proof. Root reviewed the finite authority diff;
+no Product test was executed or invalidated by this bookkeeping.
+
+Staged whitespace check initially rejected a terminal blank line in the new
+amendment and preserved r2 review. The management preparation script exited1
+before commit. Root normalized only the owned amendment's terminal newline;
+the original reviewer bytes are preserved losslessly in its JSON-UTF8 envelope,
+matching the repository's existing evidence packaging. Original r2 report/hash
+and the103-input review remain unchanged. The decoded copy retains every byte.
+No semantic or Product input changed. E15/admission-packaging-correction.json
+records this second editorial successor and the initial failed packaging check.
+
+Corrected packaging validation: all56 stored entries (including four decoded
+envelopes) and integration hashes match; all50 previous entries are unchanged.
+P/C authority files,2322 preserved primary files/modes,3 index views and4 rejected
+files match. Final scope is17 management paths because the required packaging
+STATE update added one archive. Bounded verification took0.106138s. The exact
+staged-path/blob proof and successful corrected whitespace check are retained
+in E15/admission-final-validation.json; no Product gate was run.
