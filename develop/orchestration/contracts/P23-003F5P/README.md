@@ -125,6 +125,20 @@ Apply only these explicit corrections to the retained original text:
     correction and adopts this exact supplement. Committed Task issuance and
     separately opened runtime leases still govern implementation.
 
+13. [Admitted-row type flow](history-type-flow-amendment-r1.md) replaces only
+    NativeGroup.__construct's literal match with one literal integer switch.
+    After complete scalar admission, each fixed relation case annotates that
+    same admitted local with its truthful closed primitive shape, invokes the
+    same one callee and ends with a bare break. The default is one bare break.
+    Exact15 calls/20 relation tags/11 scalar-only tags, sole schema, sensitive
+    boundary, retention ordering and all method/caller/quality limits remain.
+    Installed1.42 annotation and budget probes are retained as syntax evidence;
+    actual Product gates remain required. Affected Green39a24c20 adopts
+    this frozen candidate through this finite precedence; its historical
+    Candidate status is retained verbatim. Scope304/62, type34, preload25,
+    tests35/26 and native58 do not change. HSR3-02..05 remain source obligations;
+    the successor switch guard replaces the syntax-specific HSR3-01 proof.
+
 There is no other override. Conflicting concrete callers, missing literal types,
 extra helpers, changed schemas or unachievable declared budgets return one bounded
 Finding to Root before implementation expands.

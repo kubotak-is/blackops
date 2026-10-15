@@ -1,0 +1,77 @@
+{
+  "purpose": "Installed Mago1.42 synthetic switch class-budget probe with positive violating if control. No Product or runtime qualification.",
+  "records": {
+    "switch-budget-receipt.json": {
+      "at": "2026-10-16T00:52:27+09:00",
+      "purpose": "Synthetic dispatch budget feasibility only; not Product qualification",
+      "argv": [
+        "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+        "--workspace",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/switch_budget",
+        "--config",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/switch_budget/mago.toml",
+        "lint"
+      ],
+      "binarySha256": "e9fceba0d32f03f606c16440f0aa4274b6bbbf1c0ad76a98022a901d48cf3962",
+      "seconds": 0.020406461000675336,
+      "exit": 0,
+      "files": {
+        "lint.log": "951686a16ea7992fedac49c07261226e1a9ea25a8927bf4d9e4bc3485c55c7ea",
+        "mago.toml": "cfa4fbab3214404411a535bb704522a5d50c6f72cba1a9e829293d035b15139b",
+        "probe.php": "07da8ec4a3944015103ae043f7de5262ba478c3fea9604e0a335d843cebdddf4"
+      }
+    },
+    "if-budget-control-receipt.json": {
+      "at": "2026-10-16T00:52:54+09:00",
+      "purpose": "Positive control for synthetic switch lint budget probe, no Product qualification",
+      "argv": [
+        "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+        "--workspace",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/if_budget_control",
+        "--config",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/if_budget_control/mago.toml",
+        "lint"
+      ],
+      "binarySha256": "e9fceba0d32f03f606c16440f0aa4274b6bbbf1c0ad76a98022a901d48cf3962",
+      "seconds": 0.014031086000613868,
+      "exit": 1,
+      "files": {
+        "lint.log": "8739cd6993b45d654096589f996e81f3347337a5b9cbeda3834fd75dba233d4e",
+        "DispatchBudgetProbe.php": "ad973008f3acf29b1e4a3f7e40b059f9d9e3f5862e57c9285bcc911fc4f27c72",
+        "mago.toml": "88a93c088847fda4f704815a117efef5a50b07c9383413f206da2e8ceae3fc4e"
+      }
+    }
+  },
+  "files": {
+    "switch_budget/lint.log": {
+      "sha256": "951686a16ea7992fedac49c07261226e1a9ea25a8927bf4d9e4bc3485c55c7ea",
+      "bytes": 601,
+      "content": "warning[file-name]: Class `DispatchBudgetProbe` should be in a file named `DispatchBudgetProbe.php`, found `probe.php`.\n  \u250c\u2500 probe.php:3:13\n  \u2502\n3 \u2502 final class DispatchBudgetProbe { public function run(int $tag): void {\n  \u2502             ^^^^^^^^^^^^^^^^^^^ Class `DispatchBudgetProbe` defined here\n  \u2502\n  = Help: Rename the file to `DispatchBudgetProbe.php` or rename the class to match the file name.\n\nwarning: found 1 issues: 1 warning(s)\n\n INFO Overriding workspace directory with /home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/switch_budget.\n"
+    },
+    "switch_budget/mago.toml": {
+      "sha256": "cfa4fbab3214404411a535bb704522a5d50c6f72cba1a9e829293d035b15139b",
+      "bytes": 40,
+      "content": "[source]\npaths = [\"probe.php\"]\n[linter]\n"
+    },
+    "switch_budget/probe.php": {
+      "sha256": "07da8ec4a3944015103ae043f7de5262ba478c3fea9604e0a335d843cebdddf4",
+      "bytes": 935,
+      "content": "<?php\ndeclare(strict_types=1);\nfinal class DispatchBudgetProbe { public function run(int $tag): void {\n        switch ($tag) {\n            case 1: echo \"1\"; break;\n            case 2: echo \"2\"; break;\n            case 3: echo \"3\"; break;\n            case 4: echo \"4\"; break;\n            case 5: echo \"5\"; break;\n            case 6: echo \"6\"; break;\n            case 7: echo \"7\"; break;\n            case 8: echo \"8\"; break;\n            case 9: echo \"9\"; break;\n            case 10: echo \"10\"; break;\n            case 11: echo \"11\"; break;\n            case 12: echo \"12\"; break;\n            case 13: echo \"13\"; break;\n            case 14: echo \"14\"; break;\n            case 15: echo \"15\"; break;\n            case 16: echo \"16\"; break;\n            case 17: echo \"17\"; break;\n            case 18: echo \"18\"; break;\n            case 19: echo \"19\"; break;\n            case 20: echo \"20\"; break;\n            default: break;\n        }\n    }\n}\n"
+    },
+    "if_budget_control/DispatchBudgetProbe.php": {
+      "sha256": "ad973008f3acf29b1e4a3f7e40b059f9d9e3f5862e57c9285bcc911fc4f27c72",
+      "bytes": 893,
+      "content": "<?php\ndeclare(strict_types=1);\nfinal class DispatchBudgetProbe { public function run(int $tag): void {\n        if ($tag === 1) { echo \"1\"; }\n        if ($tag === 2) { echo \"2\"; }\n        if ($tag === 3) { echo \"3\"; }\n        if ($tag === 4) { echo \"4\"; }\n        if ($tag === 5) { echo \"5\"; }\n        if ($tag === 6) { echo \"6\"; }\n        if ($tag === 7) { echo \"7\"; }\n        if ($tag === 8) { echo \"8\"; }\n        if ($tag === 9) { echo \"9\"; }\n        if ($tag === 10) { echo \"10\"; }\n        if ($tag === 11) { echo \"11\"; }\n        if ($tag === 12) { echo \"12\"; }\n        if ($tag === 13) { echo \"13\"; }\n        if ($tag === 14) { echo \"14\"; }\n        if ($tag === 15) { echo \"15\"; }\n        if ($tag === 16) { echo \"16\"; }\n        if ($tag === 17) { echo \"17\"; }\n        if ($tag === 18) { echo \"18\"; }\n        if ($tag === 19) { echo \"19\"; }\n        if ($tag === 20) { echo \"20\"; }\n    }\n}\n"
+    },
+    "if_budget_control/lint.log": {
+      "sha256": "8739cd6993b45d654096589f996e81f3347337a5b9cbeda3834fd75dba233d4e",
+      "bytes": 481,
+      "content": "error[cyclomatic-complexity]: Class has high complexity.\n  \u250c\u2500 DispatchBudgetProbe.php:3:7\n  \u2502\n3 \u2502 final class DispatchBudgetProbe { public function run(int $tag): void {\n  \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^^ Class has a cyclomatic complexity of 20, which exceeds the threshold of 15.\n\nerror: found 1 issues: 1 error(s)\n\n INFO Overriding workspace directory with /home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/if_budget_control.\n"
+    },
+    "if_budget_control/mago.toml": {
+      "sha256": "88a93c088847fda4f704815a117efef5a50b07c9383413f206da2e8ceae3fc4e",
+      "bytes": 54,
+      "content": "[source]\npaths = [\"DispatchBudgetProbe.php\"]\n[linter]\n"
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "at": "2026-10-16T00:40:24+09:00",
+  "purpose": "Installed Mago1.42 annotation syntax capability probe only; synthetic input is never executed as PHP and is not a Product gate.",
+  "runtime": "WSL host, exact installed binary; no Docker/DB/native or production edits",
+  "binarySha256": "e9fceba0d32f03f606c16440f0aa4274b6bbbf1c0ad76a98022a901d48cf3962",
+  "results": [
+    {
+      "name": "baseline",
+      "argv": [
+        "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+        "--workspace",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/baseline",
+        "--config",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/baseline/mago.toml",
+        "analyze"
+      ],
+      "exit": 1,
+      "seconds": 0.151395,
+      "inputSha256": "f079ee799e3e4b86ac14353ea0b2f4e062fabeed711d032c5b9185bac07e4cec",
+      "logSha256": "f08175bc439b24f7cc6278d0735b768495ab9d957c9ee23b28de34d95676ed8d"
+    },
+    {
+      "name": "argument",
+      "argv": [
+        "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+        "--workspace",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/argument",
+        "--config",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/argument/mago.toml",
+        "analyze"
+      ],
+      "exit": 1,
+      "seconds": 0.090127,
+      "inputSha256": "e49bbd762d64a81e7eb8fdd43efb4e4b54cb39eb7bf5ff58b810f4c62e7dcac1",
+      "logSha256": "eeff469bec1ca5774a9014475bd99603110379d86c9b7f4ee4d9d1d1d77e1db6"
+    },
+    {
+      "name": "arm_expression",
+      "argv": [
+        "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+        "--workspace",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/arm_expression",
+        "--config",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/arm_expression/mago.toml",
+        "analyze"
+      ],
+      "exit": 1,
+      "seconds": 0.094159,
+      "inputSha256": "fa3fc2f271cd1e8f241346e86bdffa1719aa654bdb3db34c3c03254fe3721f35",
+      "logSha256": "2f70443e6710708182fe74942fc51f97bde9011a949a1fd67a1c34111d03670c"
+    },
+    {
+      "name": "unnamed_argument",
+      "argv": [
+        "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+        "--workspace",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/unnamed_argument",
+        "--config",
+        "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/unnamed_argument/mago.toml",
+        "analyze"
+      ],
+      "exit": 1,
+      "seconds": 0.087448,
+      "inputSha256": "9c07a27cbf6da2c8125014d8aad0b0a0774bcc7cc1960a3a11918ce49b5b868f",
+      "logSha256": "71ddcb455edca6593abce4fd244e0851ba59018e7729b8b2c615ac507c457570"
+    }
+  ],
+  "switch": {
+    "at": "2026-10-16T00:42:19+09:00",
+    "name": "switch_statements",
+    "argv": [
+      "/home/kubotak/projects/blackops/.phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+      "--workspace",
+      "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/switch_statements",
+      "--config",
+      "/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/switch_statements/mago.toml",
+      "analyze"
+    ],
+    "exit": 0,
+    "seconds": 0.091831,
+    "inputSha256": "0d8a5fbda017030f8b28fb0f9c6600c318baeed98372d430a6e225dbabc53630",
+    "logSha256": "906f811c1bca2f58050cf5f03dad52cd451eb573ad7a70e4b32e0ca658e8e827",
+    "boundary": "Synthetic type syntax only, no PHP execution or Product qualification; actual row truth must be established before a Product annotation."
+  },
+  "inputs": {
+    "baseline": {
+      "probe.php": "<?php\ndeclare(strict_types=1);\n/** @param array{x:int} $value */\nfunction takeInt(array $value): void { echo $value['x']; }\n/** @param array{x:string} $value */\nfunction takeString(array $value): void { echo $value['x']; }\n/** @param array<string,int|string> $value */\nfunction route(int $tag, array $value): void {\n    match ($tag) {\n        1 => takeInt($value),\n        2 => takeString($value),\n        default => null,\n    };\n}\n",
+      "mago.toml": "[source]\npaths = [\"probe.php\"]\n[analyzer]\n",
+      "analyze.log": "error[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeInt`: expected `array{'x': int}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:10:22\n   \u2502\n10 \u2502         1 => takeInt($value),\n   \u2502              ------- ^^^^^^ This might not be type `array{'x': int}`\n   \u2502              \u2502        \n   \u2502              Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': int}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeString`: expected `array{'x': string}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:11:25\n   \u2502\n11 \u2502         2 => takeString($value),\n   \u2502              ---------- ^^^^^^ This might not be type `array{'x': string}`\n   \u2502              \u2502           \n   \u2502              Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': string}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror: found 2 issues: 2 error(s)\n\n INFO Overriding workspace directory with /home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/baseline.\n"
+    },
+    "argument": {
+      "probe.php": "<?php\ndeclare(strict_types=1);\n/** @param array{x:int} $value */\nfunction takeInt(array $value): void { echo $value['x']; }\n/** @param array{x:string} $value */\nfunction takeString(array $value): void { echo $value['x']; }\n/** @param array<string,int|string> $value */\nfunction route(int $tag, array $value): void {\n    match ($tag) {\n        1 => takeInt(/** @var array{x:int} $value */ $value),\n        2 => takeString(/** @var array{x:string} $value */ $value),\n        default => null,\n    };\n}\n",
+      "mago.toml": "[source]\npaths = [\"probe.php\"]\n[analyzer]\n",
+      "analyze.log": "error[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeInt`: expected `array{'x': int}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:10:54\n   \u2502\n10 \u2502         1 => takeInt(/** @var array{x:int} $value */ $value),\n   \u2502              -------                                 ^^^^^^ This might not be type `array{'x': int}`\n   \u2502              \u2502                                        \n   \u2502              Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': int}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeString`: expected `array{'x': string}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:11:60\n   \u2502\n11 \u2502         2 => takeString(/** @var array{x:string} $value */ $value),\n   \u2502              ----------                                    ^^^^^^ This might not be type `array{'x': string}`\n   \u2502              \u2502                                              \n   \u2502              Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': string}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror: found 2 issues: 2 error(s)\n\n INFO Overriding workspace directory with /home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/argument.\n"
+    },
+    "arm_expression": {
+      "probe.php": "<?php\ndeclare(strict_types=1);\n/** @param array{x:int} $value */\nfunction takeInt(array $value): void { echo $value['x']; }\n/** @param array{x:string} $value */\nfunction takeString(array $value): void { echo $value['x']; }\n/** @param array<string,int|string> $value */\nfunction route(int $tag, array $value): void {\n    match ($tag) {\n        1 => /** @var array{x:int} $value */ takeInt($value),\n        2 => /** @var array{x:string} $value */ takeString($value),\n        default => null,\n    };\n}\n",
+      "mago.toml": "[source]\npaths = [\"probe.php\"]\n[analyzer]\n",
+      "analyze.log": "error[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeInt`: expected `array{'x': int}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:10:54\n   \u2502\n10 \u2502         1 => /** @var array{x:int} $value */ takeInt($value),\n   \u2502                                              ------- ^^^^^^ This might not be type `array{'x': int}`\n   \u2502                                              \u2502        \n   \u2502                                              Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': int}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeString`: expected `array{'x': string}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:11:60\n   \u2502\n11 \u2502         2 => /** @var array{x:string} $value */ takeString($value),\n   \u2502                                                 ---------- ^^^^^^ This might not be type `array{'x': string}`\n   \u2502                                                 \u2502           \n   \u2502                                                 Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': string}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror: found 2 issues: 2 error(s)\n\n INFO Overriding workspace directory with /home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/arm_expression.\n"
+    },
+    "unnamed_argument": {
+      "probe.php": "<?php\ndeclare(strict_types=1);\n/** @param array{x:int} $value */\nfunction takeInt(array $value): void { echo $value['x']; }\n/** @param array{x:string} $value */\nfunction takeString(array $value): void { echo $value['x']; }\n/** @param array<string,int|string> $value */\nfunction route(int $tag, array $value): void {\n    match ($tag) {\n        1 => takeInt(/** @var array{x:int} */ $value),\n        2 => takeString(/** @var array{x:string} */ $value),\n        default => null,\n    };\n}\n",
+      "mago.toml": "[source]\npaths = [\"probe.php\"]\n[analyzer]\n",
+      "analyze.log": "error[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeInt`: expected `array{'x': int}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:10:47\n   \u2502\n10 \u2502         1 => takeInt(/** @var array{x:int} */ $value),\n   \u2502              -------                          ^^^^^^ This might not be type `array{'x': int}`\n   \u2502              \u2502                                 \n   \u2502              Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': int}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror[possibly-invalid-argument]: Possible argument type mismatch for argument #1 of `takeString`: expected `array{'x': string}`, but possibly received `array<string, int|string>`.\n   \u250c\u2500 probe.php:11:53\n   \u2502\n11 \u2502         2 => takeString(/** @var array{x:string} */ $value),\n   \u2502              ----------                             ^^^^^^ This might not be type `array{'x': string}`\n   \u2502              \u2502                                       \n   \u2502              Arguments to this function are incorrect\n   \u2502\n   = The provided type `array<string, int|string>` overlaps with `array{'x': string}` but is not fully contained.\n   = Help: Ensure the argument always has the expected type using checks or assertions.\n\nerror: found 2 issues: 2 error(s)\n\n INFO Overriding workspace directory with /home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/unnamed_argument.\n"
+    },
+    "switch_statements": {
+      "probe.php": "<?php\ndeclare(strict_types=1);\n/** @param array{x:int} $value */\nfunction takeInt(array $value): void { echo $value['x']; }\n/** @param array{x:string} $value */\nfunction takeString(array $value): void { echo $value['x']; }\n/** @param array<string,int|string> $value */\nfunction route(int $tag, array $value): void {\n    switch ($tag) {\n        case 1:\n            /** @var array{x:int} $value */\n            takeInt($value);\n            break;\n        case 2:\n            /** @var array{x:string} $value */\n            takeString($value);\n            break;\n        default:\n            break;\n    }\n}\n",
+      "mago.toml": "[source]\npaths = [\"probe.php\"]\n[analyzer]\n",
+      "analyze.log": " INFO Overriding workspace directory with /home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015/history-type-probe/switch_statements.\n INFO No issues found.\n"
+    }
+  }
+}

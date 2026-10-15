@@ -355,13 +355,43 @@
       "sha256": "6b779d54166283feb5048dadbbecdd2d7460c56b0a9a5f78c0f04e63e4287746",
       "bytes": 77707,
       "source": ".phpunit.cache/f5-orchestration/20261015/history-admission-contract-review-r2-inputs.json"
+    },
+    {
+      "name": "history-type-flow-amendment-r1.md",
+      "sha256": "94a7e3735263924cabe17b87edd601b80082e46b4c0778409c7279ff8bf258c0",
+      "bytes": 7153,
+      "source": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-amendment-r1.md"
+    },
+    {
+      "name": "history-type-flow-probe-r1.json",
+      "sha256": "cfed93fc1b41f441854d9f69ebcb46f4c8c8d28e30ba6b321e9a2fbc5ba9a2c5",
+      "bytes": 14702,
+      "source": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-probe-r1.json"
+    },
+    {
+      "name": "history-type-flow-budget-probe-r1.json",
+      "sha256": "03e9e8fd44371802fc64c9ac939922271bfd9845a2271d0bdb1236161be5ede9",
+      "bytes": 6677,
+      "source": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-budget-probe-r1.json"
+    },
+    {
+      "name": "history-type-flow-contract-review-r1.md",
+      "sha256": "39a24c20b842fe92b5cf426dec4c214d8612b470e9e889e6155e5ca14b29b136",
+      "bytes": 12617,
+      "source": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1.md"
+    },
+    {
+      "name": "history-type-flow-contract-review-r1-inputs.json",
+      "sha256": "f5faf058f2d74b2a609e2d8f289730dbfb442b2b312ffca0e3620262d455603d",
+      "bytes": 47186,
+      "source": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1-inputs.json"
     }
   ],
   "integrationFiles": [
     {
       "name": "README.md",
-      "sha256": "1e9332a4d39149accf4c52690ac661568e0a35365f64d7a2cb5427df48c29134",
-      "bytes": 12353
+      "sha256": "9946c10349635a9fad083efae07ca1fef458cec1f3f4017b46a3503e76929387",
+      "bytes": 13357
     },
     {
       "name": "allowlist.json",
@@ -407,5 +437,18 @@
     "reviewSha256": "206ba7e1b896f3df205ed9f9a23ab4f65bc474181e9466f914f2748efd1caf39",
     "adoptedAt": "2026-10-15T11:12:11+09:00",
     "editorialSuccessorSha256": "0c52ab51e8ae3272d49c040387de6727c0b9af02d534ee21c41974b4069aa3c9"
+  },
+  "nativeAdmissionTypeFlowAmendment": {
+    "status": "Adopted after affected Green; committed Root Task controls issuance",
+    "adoptedAt": "2026-10-16T00:59:39+09:00",
+    "reviewSha256": "39a24c20b842fe92b5cf426dec4c214d8612b470e9e889e6155e5ca14b29b136",
+    "amendmentSha256": "94a7e3735263924cabe17b87edd601b80082e46b4c0778409c7279ff8bf258c0",
+    "literalRelationCalls": 15,
+    "relationTags": 20,
+    "scalarOnlyTags": 11,
+    "editPathsAdded": [],
+    "additionalPreloadTypes": 25,
+    "effectiveClosedTypeInventory": 34,
+    "ProductExecuted": false
   }
 }

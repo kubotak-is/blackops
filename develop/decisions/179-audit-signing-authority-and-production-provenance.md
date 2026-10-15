@@ -231,3 +231,25 @@ warmup remain. Scope becomes304; reference62, tests35/26 and native58 stay fixed
 The existing global timestamp guard owns Scalar.admitString:1; no public API,
 namespace or additional Core caller allowance follows. Original records remain
 immutable. Actual quality/native/cold/full/export and release work remain open.
+
+## Finite admitted-row type flow refinement — 2026-10-16T00:59:39+09:00
+
+Installed Mago1.42.0 reports15 closed-row argument errors for the admitted
+primitive array passed from NativeGroup's literal match. Three inline match
+annotation forms retain the diagnostic in isolated probes; a per-case statement
+annotation is recognized. Root adopts the independently reviewed finite type-flow
+amendment: one integer switch after complete scalar admission, the same15 fixed
+calls covering20 tags, truthful per-case shape annotations on that same array,
+unconditional breaks and a no-op default. Retention follows the entire dispatch.
+
+No new schema, projected row, alias before admission, helper or weakened @param
+is authorized. Enum-int subject and literal-int labels avoid conversion changes.
+The synthetic20-case switch passes the default complexity rule while the20-if
+violation control fails at20>15; these are capability probes, not Product proof.
+Actual class budgets, analyzer, AST guards and meaningful runtime cases remain
+required. Green review39a24c20b842fe92b5cf426dec4c214d8612b470e9e889e6155e5ca14b29b136 is retained with its input record.
+
+This supersedes only the prior literal-match representation. All56 earlier
+inputs, seven-helper27-method contract, scope304/62, type34, preload25 and
+tests35/26/native58 remain. Stable1.2.1/unreleased1.3, public capabilities and
+all full-child/Owner preview/same-SHA release/delivery requirements remain.

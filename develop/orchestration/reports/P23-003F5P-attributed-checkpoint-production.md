@@ -671,3 +671,159 @@ files match. Final scope is17 management paths because the required packaging
 STATE update added one archive. Bounded verification took0.106138s. The exact
 staged-path/blob proof and successful corrected whitespace check are retained
 in E15/admission-final-validation.json; no Product gate was run.
+
+
+## Committed authority and source handoff — 2026-10-15T11:34:56+09:00
+
+Root committed exactly17 reviewed management paths as
+6b9f4f82ad04fc4e957c65deb5974247f26c7f05. Push succeeded after the sandbox DNS failure;
+a separate ls-remote independently matches that exact SHA. Reporting82bb574 and
+previous phase/tag source are ancestors. E15/admission-contract-commit.json
+records branch/scope/index and remote proof. Full source and release remain open.
+
+Root issued both configured Luna Max workers from this committed Task;
+E15/history-source-unit-issuance.json pins their exact11/2 paths and initial
+hashes. Both returned their disjoint source changes without runtime or Git.
+No successful Product verification follows from those handoffs. Root opens only
+E15/history-format/lease.json for mechanical formatting of the13 handed-off
+files by the carrier worker; architecture ownership is transferred solely for
+that operation. Both writers otherwise stop. Tests/DB/native remain unissued.
+Next Action: close the formatter lease, freeze inputs, run assigned diagnostic
+gates and independently review the corrected source before any source commit.
+
+## Source correction issuance after diagnostic r1 — 2026-10-15T18:19:59+09:00
+
+Root closed E15/history-diagnostic-r1/lease.json with all8331 input files stable
+at8831c46f and no app containers. Actual unit:25 tests/456 assertions,1 failure,
+1 PHP warning,exit1 in1.163855s. Architecture:41 tests/82262 assertions,5 failures,
+exit1 in27.151501s. Lint:exit1 in1.198578s,3 complexity errors (Publication19,
+Scalar17,CheckpointEnd16; limit15),13 warnings/3 help. Exact argv/logs/input/image
+and durations are in the per-action receipts. The initial unit Docker-image
+inspection was sandbox-denied before Product launch; its escalated run is the
+measured attempt. Formatter106s is lease wall time, not measured Mago runtime.
+
+Root reissues only the already assigned11 carrier /2 architecture paths, from
+management commit6b9f4f8 and this frozen failed input. Carrier worker must close
+HS-01..05 in E15/root-history-source-findings-r1.md; correct the undefined h2
+fixture and distinguish NativeGroup shape rejection from byte preflight rejection;
+remove the three actual complexity errors under unchanged method/type/path limits;
+resolve new in-scope lint warnings where applicable. Per-owner literal null-pair
+lists and finite descriptor sets are permitted by the adopted amendment; no
+new helper, baseline, suppression, schema owner or contract change is issued.
+
+Architecture worker must fix the missing SegmentLifecycle inventory and class/
+self name resolution, retain alias/FQCN positive and all meaningful negatives,
+and guard the issued literal match dispatch. Check preflight mutation guards
+against absent/reordered/ineffective rejection; tests must discriminate a bypass,
+not merely find syntactic markers. Both owners return exact hashes and evidence.
+No runtime, formatting, DB/native, Git, STATE or Report writes are delegated.
+Root owns subsequent formatting/freeze/verification and independent review.
+
+Acceptance remains open. Full-child and parent release criteria are unchanged.
+Next Action: corrected disjoint handoffs, then only necessary affected checks
+and independent bounded source review before any source commit.
+
+## Combined source review and quality correction — 2026-10-16T00:36:52+09:00
+
+Formatter r2: the worker sandbox attempt exited1 in0.14s; the pending escalated
+tool was interrupted after439.6s without exit/session/completion. Root verified
+all13 preformat hashes and no app container, then transferred the lease and ran
+the exact escalated argv:exit0,6 files formatted,1.266906161s command tool wall.
+The receipt/closed lease are E15/history-format-r2. No approval or successful
+execution was inferred from the interrupted request.
+
+Independent source review r3 (29968aab; inputs14000116) inspected an immutable
+preformat13-file snapshot and42 stable inputs. Local Product semantics have no
+new finding; test/guard HSR3-01..05 remain: parser null-default handling, integer
+error expectation, ineffective comparison wrappers, overwritten decoded locals/
+inert canonical equality, and the retained isolated pair/matrix/privacy/control
+coverage. Root followups HS-06..11 are retained in E15/root-history-source-followups-r2.md.
+
+Diagnostic r2 is closed with8331 stable files atdd3a76cf. Lint failed in1.180807s:
+Scalar22 and Lifecycle17 exceed15; inherited6 warnings/2 help remain. Analyze
+failed in2.042244s with15 NativeGroup-to-closed-shape argument errors,650 warnings/
+467 help; two new mixed warnings are actual pre-admission JCS outputs, not proof
+of scalar admission. Deptrac passed in3.659039s (0 violations/uncovered/warnings,
+7704 allowed); format passed in2.392639s; identifier scan passed in0.076109s.
+Unit/architecture were deliberately deferred for deterministic review findings,
+not executed or passed. Exact commands, image, logs and hashes are per-action
+receipts in E15/history-diagnostic-r2; no app container remains.
+
+Root issues the same11 carrier /2 architecture paths for bounded correction.
+Carrier: fix Scalar/Lifecycle measured budgets under unchanged surfaces and
+semantics; resolve all15 argument errors with truthful per-tag closed annotations
+only after scalar admission, retaining literal match and actual same admitted
+array. Never assert all incompatible shapes at once, weaken helper row types,
+or introduce a callback/helper/suppression/baseline change. Address actual mixed
+warnings without pretending unvalidated JCS values are scalars. If the installed
+analyzer cannot express the authorized flow, return a concrete bounded finding.
+Also close HSR3-02/05 in the existing Codec test through both factories and real
+Codec, preserving isolated conditions, exception arguments and the R4 controls.
+Architecture: close HSR3-01/03/04 in the existing History test, keep actual parser
+representations, exact effective predicates and finite decoded-value lifetime
+checks with positives/negatives; preserve unrelated Record guards. No runtime,
+formatter, Git, STATE or Report writes are delegated. Root owns all later leases.
+
+The source unit remains unaccepted and uncommitted. No Product threshold or
+contract waiver, public Documentation change or release readiness follows.
+Next Action: bounded corrected handoffs, Root formatter/affected gates and r3
+finding review before source commit. Full-child and release work remain open.
+
+## Adopted finite admitted-row typing correction — 2026-10-16T00:59:39+09:00
+
+Independent affected Green39a24c20b842fe92b5cf426dec4c214d8612b470e9e889e6155e5ca14b29b136 / inputsf5faf058f2d74b2a609e2d8f289730dbfb442b2b312ffca0e3620262d455603d adopts the frozen
+type-flow amendment94a7e373. The manifest retains all56 originals plus amendment,
+annotation probe, budget control and two review records (61 immutable inputs).
+README13 and D179 state only this representation precedence. Original contract
+budgets, callers, privacy and actual authority boundaries are unchanged.
+
+Installed1.42.0 baseline/three inline match annotation probes each fail with2
+argument errors; per-case switch statements pass analyzer in0.091831s. Synthetic
+20-case switch lint passes with a filename warning in0.020406s; the20-if control
+fails at complexity20>15 in0.014031s. Exact inputs/config/logs/argv/binary hashes
+are retained. These host syntax probes do not qualify Product or Docker runtime.
+
+Both workers handed off r2 corrections with no runtime/format/Git. NativeGroup
+typing remained a concrete blocker, not an implicit cast or limit waiver.
+Root's additional HSR3-05 follow-up retains the complete three-entry matrix
+and otherwise-consistent five endpoint-pair negatives in the existing CodecTest;
+source review and all pending source corrections remain unaccepted.
+
+After this management unit is committed, Root issues only NativeGroup's
+constructor switch/per-case annotations to the carrier worker and the existing
+History architecture switch guard to the architecture worker. Exact dispatch,
+same admitted local, complete scalar-loop ordering, annotation shape/default/
+break/fallthrough/retention mutations are required. The other assigned files
+remain frozen except the already-issued HSR3-05 CodecTest correction. Workers
+run no Docker/runtime/formatter/Git. Root owns subsequent formatting/freeze,
+affected unit/architecture/quality gates and independent source review.
+
+Release Documentation Impact: internal unreleased representation only; current
+authority tuple, public Source/routes/commands/config and artifacts are unchanged.
+No Source/Search/LLM rebuild/deploy is needed for this management amendment.
+Residual13-path Product/test source is deliberately uncommitted pending the
+quality/type corrections, meaningful runtime and independent affected review.
+Primary mixed Product/Website/index stay preserved. This management commit
+does not grant Product/fullF5P/Release Acceptance or reconcile primary.
+
+Remaining: complete carrier leaf gates/review, then actual History/Reader/
+Writer/custody/replay/production, all full-child native/SQL/cold/full/export and
+parent hardening/Documentation/Owner preview/same-SHA release/delivery work.
+Next Action: commit this reviewed management unit, issue the exact two source
+changes, freeze corrected13 files, and run only required affected verification.
+
+Management integration validation passed in0.171725s:61 immutable entries and
+all integration/decoded-envelope hashes agree; all56 original entries are exact;
+304/62 and35/26 inventories,34 types/25 preload stay unchanged. README links
+exist; P/C authority bytes match; primary2322 files/modes and3 index views are
+unchanged. C index was empty. E15/history-type-flow-validation.json retains the
+result. Root reviewed README/D179 finite precedence and the new Task issuance.
+
+The first guarded integration attempt exited1 before any mutation because the
+review input record was still being finalized. Root waited for the reviewer's
+sealed hashes and reran successfully. The first STATE draft dry-run exited1 for
+a missing exact Evidence heading; no STATE was written. Corrected P/C precheck,
+dry-run, CAS write and postcheck all passed; eight command receipts are retained
+in E15/type-flow-state-transition.json. Neither preparation failure ran Product
+or invalidated its historical results. Final explicit15-path management staging
+and whitespace/blob checks are recorded alongside the validation receipt.

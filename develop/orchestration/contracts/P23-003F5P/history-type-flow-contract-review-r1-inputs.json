@@ -1,0 +1,896 @@
+{
+  "review": "history-type-flow-contract-review-r1",
+  "authorityCommitReported": "6b9f4f82ad04fc4e957c65deb5974247f26c7f05",
+  "scope": "Read-only finite type-flow amendment review; no runtime or Git access; outputs limited to the two review artifacts",
+  "startedAt": "2026-10-16T00:51:36+0900",
+  "before": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392
+    },
+    {
+      "path": "develop/spec/README.md",
+      "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f",
+      "bytes": 46471
+    },
+    {
+      "path": "develop/spec/109-ai-development-workflow.md",
+      "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb",
+      "bytes": 13331
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/manifest.json",
+      "sha256": "217c7a936a270786d656c45ec95172743f81f03a3459af6a2035a5f27f6df102",
+      "bytes": 447
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-amendment-r1.md",
+      "sha256": "94a7e3735263924cabe17b87edd601b80082e46b4c0778409c7279ff8bf258c0",
+      "bytes": 7153
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-probe-r1.json",
+      "sha256": "cfed93fc1b41f441854d9f69ebcb46f4c8c8d28e30ba6b321e9a2fbc5ba9a2c5",
+      "bytes": 14702
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md",
+      "sha256": "0c52ab51e8ae3272d49c040387de6727c0b9af02d534ee21c41974b4069aa3c9",
+      "bytes": 25665
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "sha256": "3f930525eb84265a9274c122023e8b9f0dc955e539c56d3173d4feb317637f6a",
+      "bytes": 14467
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryScalar.php",
+      "sha256": "ddb09bd3f43f3106e12e4076870fcd737da0b1505dc9e30f5d823ed420a9080e",
+      "bytes": 5375
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php",
+      "sha256": "547ea0787620e917c1044344833d9db1f0e8f12f5c73142ec3d7945f978dc49c",
+      "bytes": 3821
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php",
+      "sha256": "46e582dfca779831106219390f8f4c52b777dc6e097a9d0b76ddf373eb1d5006",
+      "bytes": 2078
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php",
+      "sha256": "133d69c143fc0d4f9e05593c9f7ff7efbf15cab61e1ec744567744f45c458d4e",
+      "bytes": 2621
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php",
+      "sha256": "f8b4fa77927e37bfc45d59bd899c5d6b60411c4538d1edae66f9b378f5cac626",
+      "bytes": 3049
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php",
+      "sha256": "af9812d4d9245f120fe97d8b57e09f7347dfe3c347e68b1a0bed730098077e81",
+      "bytes": 2144
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php",
+      "sha256": "206d8bee6da614c276733f2e016fd35dce20d8d3743556eff0ab440051cccd13",
+      "bytes": 3382
+    }
+  ],
+  "contextBefore": [
+    {
+      "path": "develop/STATE.md",
+      "sha256": "6c9e85e51111ff476192c0f9f5c773a1cd6ca8e2aae6938867fb61ed6226d9d5",
+      "bytes": 5536
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md",
+      "sha256": "c0fbbcc6bd0b5ee7fa070172e46899be6643d6e8332c337f2a2ca85287a4ee97",
+      "bytes": 51956
+    }
+  ],
+  "additionalInputs": [
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-schema-lint-options.md",
+      "sha256": "d5e8303aea1eedab92054a4fcc41cd983c6e633b714f788903c91507a886e0e2",
+      "bytes": 9310
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/analyze.json",
+      "sha256": "e38350948da368b540c700b13d284c0a485b87d18529d82dbab72dcb8998b3f2",
+      "bytes": 1140
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/lint.json",
+      "sha256": "9153fc43285c5fc53aff6bbaea4b3292cba083b8331eea7ceaca2895add3577b",
+      "bytes": 1128
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mago.toml",
+      "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051",
+      "bytes": 1136
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryTag.php",
+      "sha256": "e222118bad2f7ae88d6f7850843d854fba98f4e40cafc50ac0bd6a7946425da1",
+      "bytes": 615
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryCheckpointTag.php",
+      "sha256": "8ddbf0ef335d30e140a50ea2d1168f0d591f0c1c0da636375ba1fa2f11342150",
+      "bytes": 836
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryControlTag.php",
+      "sha256": "5840ff5a52b64fbe5782a1876418f97392686c6ff666f72c86371aa29d345594",
+      "bytes": 649
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Switch_.php",
+      "sha256": "291a316798af12376e28e82e34fb625bd7b528cbd0859dde46d2c38b4752cdf8",
+      "bytes": 821
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Case_.php",
+      "sha256": "908e01eaca0d4147a494c946646020be81cdbab195c5bc6400fedcc9ddba1dc4",
+      "bytes": 882
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Break_.php",
+      "sha256": "14e09075ca77af2c05282bbe6a6009744946f039c8efe1fe0ed826272c56a631",
+      "bytes": 711
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+      "sha256": "e9fceba0d32f03f606c16440f0aa4274b6bbbf1c0ad76a98022a901d48cf3962",
+      "bytes": 28443320
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-budget-probe-r1.json",
+      "sha256": "03e9e8fd44371802fc64c9ac939922271bfd9845a2271d0bdb1236161be5ede9",
+      "bytes": 6677
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/analyze.log",
+      "sha256": "b80d8fccf98ad2f30d95f4805a19d1082f386ed0707a29f8fb436b035b0cba59",
+      "bytes": 792091
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/lint.log",
+      "sha256": "c3659b93d9d0c215a8a4551b0986402a783e3f943a59bd4067ed0267ad5eb2af",
+      "bytes": 6748
+    }
+  ],
+  "beforePinWallSeconds": 0.003062857998884283,
+  "initialReadNote": "AGENTS, STATE, candidate manifest and bounded candidate keyword search were read before this pin; parent supplied candidate amendment/probe hashes before review. No semantic assessment preceded pin.",
+  "candidateExpectedMatches": {
+    ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-amendment-r1.md": true,
+    ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-probe-r1.json": true
+  },
+  "mechanicalReview": {
+    "kind": "finite source text/schema comparison and retained capsule digest validation; no PHP/Mago/test execution",
+    "routes": [
+      {
+        "tags": [
+          1
+        ],
+        "callee": "AuditHistoryContextRelations::header",
+        "shapeMembers": 9,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          3
+        ],
+        "callee": "AuditHistoryContextRelations::externalAnchor",
+        "shapeMembers": 13,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          16
+        ],
+        "callee": "AuditHistoryContextRelations::partition",
+        "shapeMembers": 8,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          21
+        ],
+        "callee": "AuditHistoryContextRelations::recordEndpoint",
+        "shapeMembers": 4,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          52
+        ],
+        "callee": "AuditHistoryContextRelations::stagedBegin",
+        "shapeMembers": 5,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          17,
+          18,
+          19,
+          23
+        ],
+        "callee": "AuditHistorySegmentLifecycle::assertValid",
+        "shapeMembers": 12,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          24
+        ],
+        "callee": "AuditHistoryClosedSegmentRelations::proof",
+        "shapeMembers": 14,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          49,
+          53
+        ],
+        "callee": "AuditHistoryClosedSegmentRelations::binding",
+        "shapeMembers": 9,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          25
+        ],
+        "callee": "AuditHistoryWorkRelations::presence",
+        "shapeMembers": 4,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          26
+        ],
+        "callee": "AuditHistoryWorkRelations::reservation",
+        "shapeMembers": 14,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          28
+        ],
+        "callee": "AuditHistoryWorkRelations::step",
+        "shapeMembers": 8,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          35
+        ],
+        "callee": "AuditHistoryCheckpointEndRelations::assertValid",
+        "shapeMembers": 12,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          65
+        ],
+        "callee": "AuditHistoryPublicationRelations::transition",
+        "shapeMembers": 8,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          73,
+          76
+        ],
+        "callee": "AuditHistoryPublicationRelations::publication",
+        "shapeMembers": 12,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      },
+      {
+        "tags": [
+          79
+        ],
+        "callee": "AuditHistoryPublicationRelations::end",
+        "shapeMembers": 7,
+        "allSchemaRowsEqualHelperPrimitiveShape": true
+      }
+    ],
+    "nativeTagCount": 31,
+    "relationTagCount": 20,
+    "relationCallSites": 15,
+    "scalarOnlyTags": [
+      5,
+      31,
+      33,
+      48,
+      51,
+      55,
+      64,
+      67,
+      68,
+      72,
+      75
+    ],
+    "rejectedOtherEnumTags": [
+      2,
+      4,
+      6,
+      20,
+      22,
+      27,
+      29,
+      30,
+      32,
+      34,
+      50,
+      54,
+      66,
+      69,
+      70,
+      74,
+      77,
+      78,
+      255
+    ],
+    "actualAnalyzerErrors": [
+      {
+        "line": 4684,
+        "callee": "AuditHistoryContextRelations::header",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4696,
+        "callee": "AuditHistoryContextRelations::externalAnchor",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4708,
+        "callee": "AuditHistoryContextRelations::partition",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4720,
+        "callee": "AuditHistoryContextRelations::recordEndpoint",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4732,
+        "callee": "AuditHistoryContextRelations::stagedBegin",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4744,
+        "callee": "AuditHistorySegmentLifecycle::assertValid",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4756,
+        "callee": "AuditHistoryClosedSegmentRelations::proof",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4768,
+        "callee": "AuditHistoryClosedSegmentRelations::binding",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4780,
+        "callee": "AuditHistoryWorkRelations::presence",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4792,
+        "callee": "AuditHistoryWorkRelations::reservation",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4804,
+        "callee": "AuditHistoryWorkRelations::step",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4816,
+        "callee": "AuditHistoryCheckpointEndRelations::assertValid",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4828,
+        "callee": "AuditHistoryPublicationRelations::transition",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4840,
+        "callee": "AuditHistoryPublicationRelations::publication",
+        "code": "possibly-invalid-argument"
+      },
+      {
+        "line": 4852,
+        "callee": "AuditHistoryPublicationRelations::end",
+        "code": "possibly-invalid-argument"
+      }
+    ],
+    "syntaxCapsule": [
+      {
+        "name": "baseline",
+        "sourceHashMatches": true,
+        "logHashMatches": true,
+        "exit": 1,
+        "recordedSeconds": 0.151395
+      },
+      {
+        "name": "argument",
+        "sourceHashMatches": true,
+        "logHashMatches": true,
+        "exit": 1,
+        "recordedSeconds": 0.090127
+      },
+      {
+        "name": "arm_expression",
+        "sourceHashMatches": true,
+        "logHashMatches": true,
+        "exit": 1,
+        "recordedSeconds": 0.094159
+      },
+      {
+        "name": "unnamed_argument",
+        "sourceHashMatches": true,
+        "logHashMatches": true,
+        "exit": 1,
+        "recordedSeconds": 0.087448
+      },
+      {
+        "name": "switch_statements",
+        "sourceHashMatches": true,
+        "logHashMatches": true,
+        "exit": 0,
+        "recordedSeconds": 0.091831
+      }
+    ],
+    "budgetCapsuleEmbeddedHashesAllMatch": true,
+    "bookkeepingWallSeconds": 0.007217997997940984
+  },
+  "after": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4aeb51e232923207c0afc67fbd26196048325682191d306c75dd838468639b0c",
+      "bytes": 10392,
+      "unchanged": true
+    },
+    {
+      "path": "develop/spec/README.md",
+      "sha256": "35b026183007e8d082b5c9cec68894f73bda0c34d9aa3b2a372cf9f7642b6c7f",
+      "bytes": 46471,
+      "unchanged": true
+    },
+    {
+      "path": "develop/spec/109-ai-development-workflow.md",
+      "sha256": "72dbb8a50bd4c3f1ea0de2f88bef8f0a02b4cb92b61ae2f9a38b0df629045ebb",
+      "bytes": 13331,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/manifest.json",
+      "sha256": "217c7a936a270786d656c45ec95172743f81f03a3459af6a2035a5f27f6df102",
+      "bytes": 447,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-amendment-r1.md",
+      "sha256": "94a7e3735263924cabe17b87edd601b80082e46b4c0778409c7279ff8bf258c0",
+      "bytes": 7153,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-probe-r1.json",
+      "sha256": "cfed93fc1b41f441854d9f69ebcb46f4c8c8d28e30ba6b321e9a2fbc5ba9a2c5",
+      "bytes": 14702,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md",
+      "sha256": "0c52ab51e8ae3272d49c040387de6727c0b9af02d534ee21c41974b4069aa3c9",
+      "bytes": 25665,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "sha256": "3f930525eb84265a9274c122023e8b9f0dc955e539c56d3173d4feb317637f6a",
+      "bytes": 14467,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryScalar.php",
+      "sha256": "ddb09bd3f43f3106e12e4076870fcd737da0b1505dc9e30f5d823ed420a9080e",
+      "bytes": 5375,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php",
+      "sha256": "547ea0787620e917c1044344833d9db1f0e8f12f5c73142ec3d7945f978dc49c",
+      "bytes": 3821,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php",
+      "sha256": "46e582dfca779831106219390f8f4c52b777dc6e097a9d0b76ddf373eb1d5006",
+      "bytes": 2078,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php",
+      "sha256": "133d69c143fc0d4f9e05593c9f7ff7efbf15cab61e1ec744567744f45c458d4e",
+      "bytes": 2621,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php",
+      "sha256": "f8b4fa77927e37bfc45d59bd899c5d6b60411c4538d1edae66f9b378f5cac626",
+      "bytes": 3049,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php",
+      "sha256": "af9812d4d9245f120fe97d8b57e09f7347dfe3c347e68b1a0bed730098077e81",
+      "bytes": 2144,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php",
+      "sha256": "206d8bee6da614c276733f2e016fd35dce20d8d3743556eff0ab440051cccd13",
+      "bytes": 3382,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261014/history-schema-lint-options.md",
+      "sha256": "d5e8303aea1eedab92054a4fcc41cd983c6e633b714f788903c91507a886e0e2",
+      "bytes": 9310,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/analyze.json",
+      "sha256": "e38350948da368b540c700b13d284c0a485b87d18529d82dbab72dcb8998b3f2",
+      "bytes": 1140,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/lint.json",
+      "sha256": "9153fc43285c5fc53aff6bbaea4b3292cba083b8331eea7ceaca2895add3577b",
+      "bytes": 1128,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/mago.toml",
+      "sha256": "763d87c4a9bf0f9173e2728a09c6a4ad54ef669fcba06591db28bdcaff535051",
+      "bytes": 1136,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryTag.php",
+      "sha256": "e222118bad2f7ae88d6f7850843d854fba98f4e40cafc50ac0bd6a7946425da1",
+      "bytes": 615,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryCheckpointTag.php",
+      "sha256": "8ddbf0ef335d30e140a50ea2d1168f0d591f0c1c0da636375ba1fa2f11342150",
+      "bytes": 836,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryControlTag.php",
+      "sha256": "5840ff5a52b64fbe5782a1876418f97392686c6ff666f72c86371aa29d345594",
+      "bytes": 649,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Switch_.php",
+      "sha256": "291a316798af12376e28e82e34fb625bd7b528cbd0859dde46d2c38b4752cdf8",
+      "bytes": 821,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Case_.php",
+      "sha256": "908e01eaca0d4147a494c946646020be81cdbab195c5bc6400fedcc9ddba1dc4",
+      "bytes": 882,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Break_.php",
+      "sha256": "14e09075ca77af2c05282bbe6a6009744946f039c8efe1fe0ed826272c56a631",
+      "bytes": 711,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f2-orchestration/accepted-integration/vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago",
+      "sha256": "e9fceba0d32f03f606c16440f0aa4274b6bbbf1c0ad76a98022a901d48cf3962",
+      "bytes": 28443320,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-budget-probe-r1.json",
+      "sha256": "03e9e8fd44371802fc64c9ac939922271bfd9845a2271d0bdb1236161be5ede9",
+      "bytes": 6677,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/analyze.log",
+      "sha256": "b80d8fccf98ad2f30d95f4805a19d1082f386ed0707a29f8fb436b035b0cba59",
+      "bytes": 792091,
+      "unchanged": true
+    },
+    {
+      "path": ".phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/lint.log",
+      "sha256": "c3659b93d9d0c215a8a4551b0986402a783e3f943a59bd4067ed0267ad5eb2af",
+      "bytes": 6748,
+      "unchanged": true
+    }
+  ],
+  "contextAfter": [
+    {
+      "path": "develop/STATE.md",
+      "sha256": "6c9e85e51111ff476192c0f9f5c773a1cd6ca8e2aae6938867fb61ed6226d9d5",
+      "bytes": 5536,
+      "unchanged": true
+    },
+    {
+      "path": "develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md",
+      "sha256": "c0fbbcc6bd0b5ee7fa070172e46899be6643d6e8332c337f2a2ca85287a4ee97",
+      "bytes": 51956,
+      "unchanged": true
+    }
+  ],
+  "allSemanticInputsUnchanged": true,
+  "afterPinWallSeconds": 0.02480326000659261,
+  "finishedSemanticReadAt": "2026-10-16T00:56:06+0900",
+  "report": {
+    "path": ".phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1.md",
+    "sha256": "39a24c20b842fe92b5cf426dec4c214d8612b470e9e889e6155e5ca14b29b136",
+    "bytes": 12617
+  },
+  "verdict": "Affected contract Green; no new P1/P2/P3 finding; no Product or runtime acceptance",
+  "commands": [
+    {
+      "label": "instructions",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat AGENTS.md",
+      "exit": 0,
+      "toolWallSeconds": 0.000013381,
+      "originalTokenCount": 2598,
+      "status": "Completed"
+    },
+    {
+      "label": "current state",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat develop/STATE.md",
+      "exit": 0,
+      "toolWallSeconds": 0.000012921,
+      "originalTokenCount": 1384,
+      "status": "Completed"
+    },
+    {
+      "label": "candidate inventory",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat .phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/manifest.json",
+      "exit": 0,
+      "toolWallSeconds": 0.000011208,
+      "originalTokenCount": 112,
+      "status": "Completed"
+    },
+    {
+      "label": "locate active task and candidate obligations",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "rg -n 'type.flow|Mago|closed.shape|HSR3|leaf unit|型フロー|source correction|Source Correction' develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md develop/spec/README.md .phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-amendment-r1.md .phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-probe-r1.json",
+      "exit": 0,
+      "toolWallSeconds": 0.000022668,
+      "originalTokenCount": 802,
+      "status": "Completed"
+    },
+    {
+      "label": "pin selected semantic and contextual inputs before review",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json,time\np=Path('/home/kubotak/projects/blackops')\ne=Path('.phpunit.cache/f5-orchestration/20261015')\nc=Path('.phpunit.cache/f2-orchestration/accepted-integration')\npaths=[Path('AGENTS.md'),Path('develop/spec/README.md'),Path('develop/spec/109-ai-development-workflow.md'),e/'history-type-flow-candidate/manifest.json',e/'history-type-flow-candidate/history-type-flow-amendment-r1.md',e/'history-type-flow-candidate/history-type-flow-probe-r1.json',c/'develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md',c/'src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php',c/'src/Internal/Audit/Authority/History/AuditHistoryScalar.php',c/'src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php',c/'src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php',c/'src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php',c/'src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php',c/'src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php',c/'src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php']\ndef pin(x):\n b=(p/x).read_bytes();return {'path':str(x),'sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b)}\nstart=time.perf_counter()\nd={'review':'history-type-flow-contract-review-r1','authorityCommitReported':'6b9f4f82ad04fc4e957c65deb5974247f26c7f05','scope':'Read-only finite type-flow amendment review; no runtime or Git access; outputs limited to the two review artifacts','startedAt':time.strftime('%Y-%m-%dT%H:%M:%S%z'),'before':[pin(x) for x in paths],'contextBefore':[pin(Path('develop/STATE.md')),pin(Path('develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md'))],'additionalInputs':[],'beforePinWallSeconds':time.perf_counter()-start,'initialReadNote':'AGENTS, STATE, candidate manifest and bounded candidate keyword search were read before this pin; parent supplied candidate amendment/probe hashes before review. No semantic assessment preceded pin.'}\nexpected={'history-type-flow-amendment-r1.md':'94a7e3735263924cabe17b87edd601b80082e46b4c0778409c7279ff8bf258c0','history-type-flow-probe-r1.json':'cfed93fc1b41f441854d9f69ebcb46f4c8c8d28e30ba6b321e9a2fbc5ba9a2c5'}\nd['candidateExpectedMatches']={x['path']:x['sha256']==expected[Path(x['path']).name] for x in d['before'] if Path(x['path']).name in expected}\nassert all(d['candidateExpectedMatches'].values())\nout=p/e/'history-type-flow-contract-review-r1-inputs.json'\nassert not out.exists(), 'refuse to overwrite existing output before inspection'\nout.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps(d,ensure_ascii=False,indent=2))\nPY",
+      "exit": 0,
+      "toolWallSeconds": 0.000011875,
+      "originalTokenCount": 1194,
+      "status": "Completed"
+    },
+    {
+      "label": "read frozen type-flow candidate",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "nl -ba .phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-amendment-r1.md",
+      "exit": 0,
+      "toolWallSeconds": 0.000008232,
+      "originalTokenCount": 1983,
+      "status": "Completed"
+    },
+    {
+      "label": "read installed-analyzer capability probe receipts",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat .phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-probe-r1.json",
+      "exit": 0,
+      "toolWallSeconds": 0.000013282,
+      "originalTokenCount": 3676,
+      "status": "Completed"
+    },
+    {
+      "label": "read bounded task correction authority and workflow index",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "sed -n '640,860p' develop/orchestration/tasks/P23-003F5P-attributed-checkpoint-production.md\nrg -n '109-ai|130-|109|130' develop/spec/README.md\nrg -n '独立|Review|検証|Source|Command|境界|品質|委譲' develop/spec/109-ai-development-workflow.md",
+      "exit": 0,
+      "toolWallSeconds": 0.000013769,
+      "originalTokenCount": 4869,
+      "status": "Completed"
+    },
+    {
+      "label": "read current sole schema and admission dispatch",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "nl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php",
+      "exit": 0,
+      "toolWallSeconds": 0.000017911,
+      "originalTokenCount": 4307,
+      "status": "Completed"
+    },
+    {
+      "label": "read Context and Work closed rows",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "nl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php\nnl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php",
+      "exit": 0,
+      "toolWallSeconds": 0.000017728,
+      "originalTokenCount": 1993,
+      "status": "Completed"
+    },
+    {
+      "label": "locate original dispatch, shape and quality authority",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "rg -n 'match|15|cyclomatic|Kan|literal|closed|schema|SCHEMAS|call|switch|type' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md\nrg --files .phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2 .phpunit.cache/f5-orchestration/20261014 | rg 'analyze|lint-options|lint-rules|diagnostic-r2/.+receipt|diagnostic-r2/.+log'",
+      "exit": 0,
+      "toolWallSeconds": 0.000014313,
+      "originalTokenCount": 4605,
+      "status": "Completed"
+    },
+    {
+      "label": "read remaining helper closed rows and scalar admission",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "nl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php\nnl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php\nnl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php\nnl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php\nnl -ba .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryScalar.php",
+      "exit": 0,
+      "toolWallSeconds": 0.000018689,
+      "originalTokenCount": 4593,
+      "status": "Completed"
+    },
+    {
+      "label": "read bounded adopted amendment and workflow quality rules",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "sed -n '1,58p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md\nsed -n '115,165p' .phpunit.cache/f2-orchestration/accepted-integration/develop/orchestration/contracts/P23-003F5P/history-admission-responsibility-amendment-r1.md\nsed -n '30,111p' develop/spec/109-ai-development-workflow.md",
+      "exit": 0,
+      "toolWallSeconds": 0.000016632,
+      "originalTokenCount": 5944,
+      "status": "Completed"
+    },
+    {
+      "label": "find bounded local lint and diagnostic evidence files",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "rg --files --hidden .phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2 .phpunit.cache/f5-orchestration/20261014 | rg 'lint|analy|cyclomatic|kan|mago|class.complex'",
+      "exit": 0,
+      "toolWallSeconds": 0.000014556,
+      "originalTokenCount": 287,
+      "status": "Completed"
+    },
+    {
+      "label": "pin bounded diagnostics, enum and AST references",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json,time\np=Path('/home/kubotak/projects/blackops');e=Path('.phpunit.cache/f5-orchestration/20261015');c=Path('.phpunit.cache/f2-orchestration/accepted-integration')\npaths=[Path('.phpunit.cache/f5-orchestration/20261014/history-schema-lint-options.md'),e/'history-diagnostic-r2/analyze.json',e/'history-diagnostic-r2/lint.json',c/'mago.toml',c/'src/Internal/Audit/Authority/History/AuditHistoryTag.php',c/'src/Internal/Audit/Authority/History/AuditHistoryCheckpointTag.php',c/'src/Internal/Audit/Authority/History/AuditHistoryControlTag.php',c/'vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Switch_.php',c/'vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Case_.php',c/'vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Break_.php',c/'vendor/carthage-software/mago/composer/bin/1.42.0/mago-1.42.0-x86_64-unknown-linux-gnu/mago']\nstart=time.perf_counter();pins=[]\nfor x in paths:\n b=(p/x).read_bytes();pins.append({'path':str(x),'sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b)})\no=p/e/'history-type-flow-contract-review-r1-inputs.json';d=json.loads(o.read_text());d['additionalInputs'].extend(pins);o.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps({'additionalBefore':pins,'wallSeconds':time.perf_counter()-start},indent=2))\nPY",
+      "exit": 0,
+      "toolWallSeconds": 0.00001283,
+      "originalTokenCount": 664,
+      "status": "Completed"
+    },
+    {
+      "label": "read prior Mago rule evidence and current config",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "sed -n '1,150p' .phpunit.cache/f5-orchestration/20261014/history-schema-lint-options.md\ncat .phpunit.cache/f2-orchestration/accepted-integration/mago.toml",
+      "exit": 0,
+      "toolWallSeconds": 0.000011731,
+      "originalTokenCount": 2427,
+      "status": "Completed"
+    },
+    {
+      "label": "read actual diagnostic receipts",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat .phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/analyze.json\ncat .phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/lint.json",
+      "exit": 0,
+      "toolWallSeconds": 0.000011772,
+      "originalTokenCount": 567,
+      "status": "Completed"
+    },
+    {
+      "label": "read integer enum union and installed switch AST contract",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryTag.php\ncat .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryCheckpointTag.php\ncat .phpunit.cache/f2-orchestration/accepted-integration/src/Internal/Audit/Authority/History/AuditHistoryControlTag.php\ncat .phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Switch_.php\ncat .phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Case_.php\ncat .phpunit.cache/f2-orchestration/accepted-integration/vendor/nikic/php-parser/lib/PhpParser/Node/Stmt/Break_.php",
+      "exit": 0,
+      "toolWallSeconds": 0.000012834,
+      "originalTokenCount": 1129,
+      "status": "Completed"
+    },
+    {
+      "label": "pin supplementary budget capsule and actual diagnostic logs",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json\np=Path('/home/kubotak/projects/blackops');e=Path('.phpunit.cache/f5-orchestration/20261015')\npaths=[e/'history-type-flow-candidate/history-type-flow-budget-probe-r1.json',e/'history-diagnostic-r2/analyze.log',e/'history-diagnostic-r2/lint.log']\npins=[]\nfor x in paths:\n b=(p/x).read_bytes();pins.append({'path':str(x),'sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b)})\nassert pins[0]['sha256']=='03e9e8fd44371802fc64c9ac939922271bfd9845a2271d0bdb1236161be5ede9'\no=p/e/'history-type-flow-contract-review-r1-inputs.json';d=json.loads(o.read_text());d['additionalInputs'].extend(pins);o.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\\n')\nfor label in ['analyze','lint']:\n r=json.loads((p/e/f'history-diagnostic-r2/{label}.json').read_text());assert pins[['analyze','lint'].index(label)+1]['sha256']==r['logSha256']\nprint(json.dumps({'additionalBefore':pins,'originalDiagnosticLogHashesMatchReceipts':True},indent=2))\nPY",
+      "exit": 0,
+      "toolWallSeconds": 0.000013619,
+      "originalTokenCount": 186,
+      "status": "Completed"
+    },
+    {
+      "label": "read retained syntax budget probes",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat .phpunit.cache/f5-orchestration/20261015/history-type-flow-candidate/history-type-flow-budget-probe-r1.json",
+      "exit": 0,
+      "toolWallSeconds": 0.000010286,
+      "originalTokenCount": 1670,
+      "status": "Completed"
+    },
+    {
+      "label": "read only actual errors from prior diagnostic logs",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "rg -n -A 9 '^error\\[|^error: found|NativeGroup.php:|has a cyclomatic' .phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/analyze.log .phpunit.cache/f5-orchestration/20261015/history-diagnostic-r2/lint.log",
+      "exit": 0,
+      "toolWallSeconds": 0.000013895,
+      "originalTokenCount": 11015,
+      "status": "Completed"
+    },
+    {
+      "label": "compare all literal schema rows with closed helper shapes and verify retained probe bytes",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json,re,time\np=Path('/home/kubotak/projects/blackops');e=Path('.phpunit.cache/f5-orchestration/20261015');c=p/'.phpunit.cache/f2-orchestration/accepted-integration';h=c/'src/Internal/Audit/Authority/History'\nstart=time.perf_counter();source=(h/'AuditHistoryNativeGroup.php').read_text();scalar=(h/'AuditHistoryScalar.php').read_text()\nrows={}\nfor tag,body in re.findall(r'^        (\\d+) => \\[(.*?)\\],',source,re.M|re.S):\n fields={}\n for key,value in re.findall(r\"'([A-Za-z0-9_]+)' => ('[^']*'|self::[A-Z_]+)\",body):\n  fields[key]={'self::OPTIONAL_FENCING':'?F','self::REQUIRED_FENCING':'F'}.get(value,value.strip(\"'\"))\n assert fields\n rows[int(tag)]=fields\nints=set(re.findall(r\"'([^']+)' =>\",scalar.split('private const array INTEGER_BOUNDS = [',1)[1].split('\\n    ];',1)[0]))\nstrings=set(re.findall(r\"'([^']+)' =>\",scalar.split('private const array STRING_KINDS = [',1)[1].split('\\n    ];',1)[0]))\nnullable=set(re.findall(r\"'([^']+)' =>\",scalar.split('private const array NULLABLE_KINDS = [',1)[1].split('\\n    ];',1)[0]))\ndef primitive(kind):\n if kind=='null': return 'null'\n prefix=''\n if kind.startswith('?'):\n  assert kind in nullable\n  prefix='?';kind=kind[1:]\n assert kind=='B' or kind in ints or kind in strings,kind\n return prefix+('bool' if kind=='B' else 'int' if kind in ints else 'string')\nroutes=[];relation_tags=[]\nfor tags,owner,method in re.findall(r'([\\d, ]+) => (AuditHistory\\w+)::(\\w+)\\(\\$admitted\\)',source):\n tags=[int(x.strip()) for x in tags.split(',')];relation_tags+=tags\n helper=(h/f'{owner}.php').read_text()\n shapes={m:dict(field.strip().split(':',1) for field in shape.split(',')) for shape,m in re.findall(r'@param array\\{([^}]+)\\} \\$v\\s*\\*/\\s*public static function (\\w+)',helper)}\n assert method in shapes,(owner,method)\n target=shapes[method]\n for tag in tags:\n  actual={k:primitive(v) for k,v in rows[tag].items()};assert actual==target,(tag,actual,target)\n routes.append({'tags':tags,'callee':owner+'::'+method,'shapeMembers':len(target),'allSchemaRowsEqualHelperPrimitiveShape':True})\nassert len(rows)==31 and len(routes)==15 and len(relation_tags)==20 and len(set(relation_tags))==20\nalltags=[]\nfor name in ['AuditHistoryTag','AuditHistoryCheckpointTag','AuditHistoryControlTag']:\n value=(h/f'{name}.php').read_text();assert 'enum '+name+': int' in value\n alltags += [int(x) for x in re.findall(r'case \\w+ = (\\d+);',value)]\nassert len(alltags)==50 and len(set(alltags))==50 and set(rows)<=set(alltags)\nanalyze=(p/e/'history-diagnostic-r2/analyze.log').read_text();errors=[]\nfor line_no,line in enumerate(analyze.splitlines(),1):\n if line.startswith('error['):\n  m=re.search(r'argument #1 of `[^`]*\\\\(AuditHistory[^`]+)`',line);assert m,line\n  errors.append({'line':line_no,'callee':m.group(1),'code':line.split(']:')[0][6:]})\nassert len(errors)==15 and {x['callee'] for x in errors}=={x['callee'] for x in routes}\nprobe=json.loads((p/e/'history-type-flow-candidate/history-type-flow-probe-r1.json').read_text());capsule=[]\nfor receipt in probe['results']+[probe['switch']]:\n name=receipt['name'];inputs=probe['inputs'][name]\n loghash=hashlib.sha256(inputs['analyze.log'].encode()).hexdigest();sourcehash=hashlib.sha256(inputs['probe.php'].encode()).hexdigest()\n assert loghash==receipt['logSha256']\n assert sourcehash==receipt['inputSha256'],(name,sourcehash,receipt['inputSha256'])\n capsule.append({'name':name,'sourceHashMatches':True,'logHashMatches':True,'exit':receipt['exit'],'recordedSeconds':receipt['seconds']})\nbudget=json.loads((p/e/'history-type-flow-candidate/history-type-flow-budget-probe-r1.json').read_text())\nfor name,item in budget['files'].items():\n assert hashlib.sha256(item['content'].encode()).hexdigest()==item['sha256']\n assert len(item['content'].encode())==item['bytes']\nfor name,r in budget['records'].items():\n directory='switch_budget' if name=='switch-budget-receipt.json' else 'if_budget_control'\n for f,digest in r['files'].items(): assert budget['files'][directory+'/'+f]['sha256']==digest\ncheck={'kind':'finite source text/schema comparison and retained capsule digest validation; no PHP/Mago/test execution','routes':routes,'nativeTagCount':len(rows),'relationTagCount':len(relation_tags),'relationCallSites':len(routes),'scalarOnlyTags':sorted(set(rows)-set(relation_tags)),'rejectedOtherEnumTags':sorted(set(alltags)-set(rows)),'actualAnalyzerErrors':errors,'syntaxCapsule':capsule,'budgetCapsuleEmbeddedHashesAllMatch':True,'bookkeepingWallSeconds':time.perf_counter()-start}\no=p/e/'history-type-flow-contract-review-r1-inputs.json';d=json.loads(o.read_text());d['mechanicalReview']=check;o.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps(check,indent=2))\nPY",
+      "exit": 0,
+      "toolWallSeconds": 0.000030986,
+      "originalTokenCount": 1590,
+      "status": "Completed"
+    },
+    {
+      "label": "re-pin all selected inputs after finite semantic review",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json,time\np=Path('/home/kubotak/projects/blackops');o=p/'.phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1-inputs.json';d=json.loads(o.read_text());start=time.perf_counter()\ndef after(item):\n b=(p/item['path']).read_bytes();actual=hashlib.sha256(b).hexdigest();return {'path':item['path'],'sha256':actual,'bytes':len(b),'unchanged':actual==item['sha256'] and len(b)==item['bytes']}\nd['after']=[after(x) for x in d['before']+d['additionalInputs']];d['contextAfter']=[after(x) for x in d['contextBefore']];d['allSemanticInputsUnchanged']=all(x['unchanged'] for x in d['after']);d['afterPinWallSeconds']=time.perf_counter()-start;d['finishedSemanticReadAt']=time.strftime('%Y-%m-%dT%H:%M:%S%z');assert d['allSemanticInputsUnchanged'];o.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\\n');print(json.dumps({'semanticInputCount':len(d['after']),'allSemanticInputsUnchanged':d['allSemanticInputsUnchanged'],'contextAfter':d['contextAfter'],'afterPinWallSeconds':d['afterPinWallSeconds'],'finishedSemanticReadAt':d['finishedSemanticReadAt']},indent=2))\nPY",
+      "exit": 0,
+      "toolWallSeconds": 0.000026497,
+      "originalTokenCount": 152,
+      "status": "Completed"
+    },
+    {
+      "label": "load review evidence and pin report output",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json\np=Path('/home/kubotak/projects/blackops/.phpunit.cache/f5-orchestration/20261015')\nd=json.loads((p/'history-type-flow-contract-review-r1-inputs.json').read_text());b=(p/'history-type-flow-contract-review-r1.md').read_bytes();d['report']={'path':'.phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1.md','sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b)};print(json.dumps(d,ensure_ascii=False))\nPY",
+      "exit": 0,
+      "toolWallSeconds": 0.000012319,
+      "originalTokenCount": 4776,
+      "status": "Completed"
+    },
+    {
+      "label": "read owned JSON for exact evidence-only replacement",
+      "cwd": "/home/kubotak/projects/blackops",
+      "literalCommand": "cat .phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1-inputs.json",
+      "exit": 0,
+      "toolWallSeconds": 0.00001313,
+      "status": "Completed"
+    }
+  ],
+  "commandReceiptBoundary": "Read/search/hash/text/JSON commands only. Output-file apply_patch writes are restricted to the two assigned artifacts. Tool-reported wall values are retained as returned; Python bookkeeping durations are separately measured. Final output hash/newline verification is emitted after this JSON is sealed, avoiding circular self-hashes.",
+  "productRuntimePerformed": false,
+  "gitCommandsPerformed": false,
+  "writtenPaths": [
+    ".phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1.md",
+    ".phpunit.cache/f5-orchestration/20261015/history-type-flow-contract-review-r1-inputs.json"
+  ],
+  "pendingGates": [
+    "Root adoption and management commit",
+    "Finite NativeGroup switch/annotation implementation and AST successor source review",
+    "HSR3-02..05",
+    "Scalar/Lifecycle measured quality corrections",
+    "Frozen meaningful unit/architecture/format/lint/analyze/Deptrac/identifier gates",
+    "Actual Reader/capture/replay/custody/preload/cold/native58/SQL/full512M/export and parent release/Owner requirements"
+  ]
+}
