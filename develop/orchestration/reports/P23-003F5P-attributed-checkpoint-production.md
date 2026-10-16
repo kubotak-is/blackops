@@ -827,3 +827,232 @@ dry-run, CAS write and postcheck all passed; eight command receipts are retained
 in E15/type-flow-state-transition.json. Neither preparation failure ran Product
 or invalidated its historical results. Final explicit15-path management staging
 and whitespace/blob checks are recorded alongside the validation receipt.
+
+## Finite correction source issuance — 2026-10-16T01:08:49+09:00
+
+Root committed the exact15-path management unit as
+cfa8d0e36d393743a4768dba88d506dce4aee959 in C on
+agent/p23-006-accepted-integration. Commit tool wall0.1176564s; committed blobs
+match the validated index and the index is empty. Initial push hit sandbox DNS;
+escalated push succeeded. Independent ls-remote exits0 in0.28287421s and matches
+that exact SHA. E15/history-type-flow-commit.json pins scope and remote proof.
+Primary remains at8106c35 with its mixed Product/Website/index preserved.
+
+E15/history-type-flow-source-issuance.json pins all13 initial source hashes.
+Root issued only NativeGroup's constructor correction and the existing History
+architecture syntax guard under their prior disjoint owners. The carrier returned
+NativeGroup41543367 with15 relation bodies plus default (16 bare breaks),20 labels
+and truthful per-case annotations. The completed HSR3-05 follow-up test6ef21185 is
+frozen; all other source is frozen. Architecture handoff and all actual successor
+runtime/quality/independent review remain pending. No source Acceptance/commit.
+Next Action: receive the architecture handoff, mechanically format the13 assigned
+paths, freeze the final input and run affected gates and independent review.
+
+## Frozen diagnostic r3 and affected corrections — 2026-10-16T01:21:09+09:00
+
+Root formatted the exact13 handed-off paths:exit0,3 files changed,
+1.026465267s command tool wall. E15/history-format-r3 proves only allowed paths
+changed, unchanged runtime/config and the full source before/after snapshots.
+The resulting8331-file input is0a777151dd2d2ef538cb460e0fbc63e87aa4a09d59849b9f3f480a8cf51e4fe2.
+All seven diagnostic commands used that same input/image and preserved it;
+E15/history-diagnostic-r3 retains exact argv,log hashes,durations and exits.
+Lease is closed and no app container remains. Combined command wall is39.795899s.
+
+Unit:27 tests/925 assertions,1 expectation failure,exit1 in1.057418s.
+The canonical candidate-null pair mutation correctly reaches NativeGroup;
+the test incorrectly expected byte-preflight/JCS rejection. Architecture:
+41 tests/86665 assertions,1 failure in31.432527s. Installed PhpParser subtraction
+is BinaryOp.Minus; the guard incorrectly named nonexistent Sub and rejected the
+actual correct original-byte boundary. Lint:one error Scalar16>15 in1.092036s;
+inherited6warnings/2help. Actual Lifecycle and NativeGroup budgets now pass.
+Analyze:exit0 in1.436727s; all15 shape errors and2 added mixed warnings are gone,
+leaving inherited648warnings/467help. Deptrac:exit0 in3.511031s,0violations/
+0uncovered/0warnings and7704allowed. Format:exit0 in1.252477s; identifiers:
+expected rawrg exit1 with empty output in0.013683s. No full-child/native result.
+
+Root reissued only Scalar and the two already assigned test files. Scalar's
+finite true-only map uses direct key membership in place of a redundant
+fallback conditional; domains/methods/callers remain. Unit corrects the one
+message; architecture uses installed Minus. E15/history-source-correction-r3.json
+pins failed inputs and issuance; all other10 unit paths stay frozen.
+
+Independent r4 review runs on immutable E15/history-source-review-r4-input.
+Its bounded follow-up retains HSR3-04: compound writes to the decoded array and
+canonical-result overwrite can evade the current test guard. The implementation
+Codec does neither; the guard must enforce finite unchanged data flow and prove
+both negatives while retaining the alias positive. HSR3-05 also retains the old
+domain method's fromNative-only nonNFC/length/anchor-ack/endpoint-higher/endpoint-
+length/tenant-pair cases and wire fixtures whose PHP single quotes produce invalid
+JSON escape syntax instead of intended UTF8/control payloads. Workers correct
+only the existing two tests; no Product seam/helper or Acceptance is added.
+No new runtime lease opens until these known defects are corrected and handed off.
+
+Remaining: affected handoffs, fresh necessary gates and independent successor
+finding closure before the13-path source commit; all prior full-child/parent
+release, Owner preview and primary integration remain. Next Action: receive the
+finite review and corrected tests, freeze source, verify and review only the
+changed successor while reusing established unchanged evidence where justified.
+
+## Passing diagnostic r4 and test-only proof closure — 2026-10-16T01:47:50+09:00
+
+Root formatted the prior three-path correction: exit0 in0.728498582s command
+wall; only History architecture formatting changed. E15/history-format-r4 pins
+that lease. The13-path immutable review snapshot is E15/history-source-review-r5-input.
+Diagnostic r4 freezes8331 files at3558e107a6a3f4df5e6bc570091e0f3ec6b502c56a83062c4365e512f20a5b32
+and imageab739e1d. All7 gates passed and preserved input; Root closed the lease
+after the final snapshot and confirmed no BlackOps app container remained.
+
+| Gate | Result | Actual command seconds |
+| --- | --- | --- |
+| unit | 27 tests /1017 assertions, exit0 | 1.0365 |
+| architecture | 41 tests /86756 assertions, exit0 | 32.549763 |
+| lint | 0 errors /6 inherited warnings /2 help, exit0 | 1.074689 |
+| analyze | 0 errors /648 inherited warnings /467 help, exit0 | 1.406237 |
+| Deptrac | 0 violations /0 uncovered /7704 allowed /0 warnings, exit0 | 3.372431 |
+| format src tests | exit0 | 1.324234 |
+| management identifiers | raw rg exit1, empty output | 0.016714 |
+
+Exact argv, image, inputs, start/end, log hashes and results are retained in
+E15/history-diagnostic-r4. Approval gaps between commands are not command runtime.
+This resolves the three r3 runtime failures without any budget or baseline change.
+
+Sealed affected source review r5 c613beaea73f8def98668ceadd2d7b41d93a67d0bf2b7f901b7608ff993fd5c4 /
+inputsef5c3a2b5e97225783cf74f20025d6a170b499253667a17055606ca9706c49b2
+retains20 stable selected inputs and reuses unchanged predecessors. No new Product
+semantic defect is found. Changes Required is limited to two test proof gaps:
+HSR4-01 misses foreach element binding after canonical comparison and original tag
+rebinding before toNative; HSR4-02 still has one single-quoted UTF8 wire replacement.
+All other finite matrix, three-entry, reference, control and previous gate findings
+are closed by this affected review. Its captured runtime evidence predates the
+format/identifier receipts; Root subsequently verified both final receipts.
+
+Root issues only AuditAuthorityHistoryArchitectureTest.php to the architecture
+worker and AuditHistoryGroupCodecTest.php to the carrier worker. The architecture
+successor must allow only the finite actual statement/binding flow from method
+entry through return, preserving original bytes/tag and unchanged native aliases;
+it must reject both exact new counterexamples plus the previous compound-write
+and canonical-overwrite negatives. It must retain the alias positive and actual
+installed parser forms; adding another blacklist entry is insufficient. The UTF8
+wire must use actual invalid bytes shared with the array fixture, preserving the
+exact replacement count and fixed error/no-previous checks. All10 Product files
+and AuditRecordArchitectureTest.php are frozen. No worker runtime/Git/STATE lease.
+
+Root will run affected unit/architecture/format/identifier checks, pin unchanged
+src/examples/vendor/config/runtime inputs and reuse r4 lint/analyze/Deptrac success.
+Independent review is limited to these two proof gaps and changed tests. The13-path
+source unit remains unaccepted/uncommitted pending those results. No public Source,
+route, command, configuration, Release Authority or artifact changed in this
+correction; no Documentation delivery or production deploy occurs.
+
+Remaining: finish this source leaf, then the complete actual History/Reader/
+Writer/custody/replay/production, native58/SQL/cold/full512M/export and parent
+release/Owner preview/delivery/primary reconciliation. Next Action: freeze both
+corrected tests, run the affected gates and close the two independent findings.
+
+## Accepted History carrier source leaf — 2026-10-16T13:38:55+09:00
+
+Summary: Root accepts only the13-file carrier/codec/helper/test layer on frozen
+inputdaac12d92041522f825454b2d4883dbebbd92f4185666f3ba0507fb07a055cf5.
+The actual NativeGroup owns31 closed schemas and retains only admitted detached
+scalars; seven stateless helpers own27 relation/scalar methods. Record preserves
+original bounded payloads and the closed three-enum tag union. Codec performs
+bounded flat original-byte preflight, JCS decoding/canonical equality and one
+fromDecoded admission of that same native value. No actual history provenance,
+current authority, descriptor custody or replay success follows from this layer.
+
+Root Review closes source scope, exact method/caller/quality limits, privacy/R4,
+finite same-array/bytes/tag flow, unchanged-alias positive and discriminating
+mutations. Independent affected Green8955b3c47c39ba9f98200f61af0cbc980d8e808c7988b3b2992036ebf293a26c /
+inputsbbf8855b3da6574acb356be0c4fdbfe1abff305a92672460901487f3288d4792
+closes HSR4-01/02 with18 stable selected inputs. Prior unchanged Product and
+matrix/caller/representation conclusions remain retained through sealed r4/r5.
+Root caught one additional nested AssignOp-in-OR counterexample before runtime;
+the final finite expression grammar and exact negative close it. The UTF8 wire
+now concatenates the same actual invalid bytes as both factory fixtures.
+No independent source finding remains for this bounded layer.
+
+Changed Files (exact final SHA256):
+
+| Path | SHA256 |
+| --- | --- |
+| `src/Internal/Audit/Authority/History/AuditHistoryCheckpointEndRelations.php` | `af9812d4d9245f120fe97d8b57e09f7347dfe3c347e68b1a0bed730098077e81` |
+| `src/Internal/Audit/Authority/History/AuditHistoryClosedSegmentRelations.php` | `133d69c143fc0d4f9e05593c9f7ff7efbf15cab61e1ec744567744f45c458d4e` |
+| `src/Internal/Audit/Authority/History/AuditHistoryContextRelations.php` | `547ea0787620e917c1044344833d9db1f0e8f12f5c73142ec3d7945f978dc49c` |
+| `src/Internal/Audit/Authority/History/AuditHistoryGroupCodec.php` | `2a709469ff69e5fa919f6cae4943fe41fa70a6c0e3d56b01194281aeebe3f2c7` |
+| `src/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php` | `4154336730616d5bd302d816ee9c8414e539a99757b6039f5bdee0649ad3d613` |
+| `src/Internal/Audit/Authority/History/AuditHistoryPublicationRelations.php` | `206d8bee6da614c276733f2e016fd35dce20d8d3743556eff0ab440051cccd13` |
+| `src/Internal/Audit/Authority/History/AuditHistoryRecord.php` | `89a8ca5eab408b9eccdaabb069b50a14c133f7e79399e0fd368b656184dbc0bc` |
+| `src/Internal/Audit/Authority/History/AuditHistoryScalar.php` | `7406a13a32d47f01ad0ffb94976b79fe6aee3b74f6f4fda401982d652de9ff99` |
+| `src/Internal/Audit/Authority/History/AuditHistorySegmentLifecycle.php` | `eab85f09ce6010993a8c49e65cfa230758518f6940339e5f1fe4faf603f1e8fb` |
+| `src/Internal/Audit/Authority/History/AuditHistoryWorkRelations.php` | `f8b4fa77927e37bfc45d59bd899c5d6b60411c4538d1edae66f9b378f5cac626` |
+| `tests/Architecture/AuditAuthorityHistoryArchitectureTest.php` | `a03f2db5bfe322d12048a4b4670d3dba2b9107e0b97766f054cc6fdc0825ea4b` |
+| `tests/Architecture/AuditRecordArchitectureTest.php` | `d1d18bbda93843a78c139c0e9557a702e4dbef9e4316142c406fcfeb140c0eaf` |
+| `tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php` | `8a9bfb44c598f9adc0fa5399ebbb0cd90cb7312c3bc1b32d5aec1cdcefcced7f` |
+
+Commands and Results: all4 final commands preserve the same8331-file input and
+imageab739e1d3bb8d9c7b6696401f7d4821eff72ae870db703feb537015a4fa14f5d.
+APP is exactly `docker compose -f compose.yaml -f .phpunit.cache/f5-orchestration/20261013/compose.override.yaml run --rm --no-deps -T app` from P, binding C to /app.
+The runner stores literal expanded argv, image, before/after input, log hash,
+start/end, elapsed and raw exit in E15/history-diagnostic-r5/<gate>.json and .log.
+
+| Gate | Result | Actual command seconds |
+| --- | --- | --- |
+| unit: APP php -d zend.exception_ignore_args=0 vendor/bin/phpunit --display-all-issues --cache-directory .phpunit.cache/f5-orchestration/20261015-history-r5 --log-junit .phpunit.cache/f5-orchestration/20261015-history-r5/unit.xml tests/Internal/Audit/Authority/History/AuditHistoryGroupCodecTest.php tests/Internal/Audit/AuditJcsCodecTest.php | Passed,27 tests/1017 assertions,exit0 | 1.094011 |
+| architecture: same PHP/PHPUnit flags and cache, --log-junit .phpunit.cache/f5-orchestration/20261015-history-r5/architecture.xml tests/Architecture/AuditAuthorityHistoryArchitectureTest.php tests/Architecture/AuditRecordArchitectureTest.php tests/Architecture/AuditArtifactArchitectureTest.php tests/Architecture/AuditPublicApiTest.php | Passed,41 tests/86768 assertions,exit0 | 31.531037 |
+| APP mago format --check src tests | Passed,exit0 | 1.310145 |
+| rg management identifier scan of C/src and C/tests PHP | Passed,rawexit1 and empty output | 0.015132 |
+| APP mago lint, original r4 | Reused Passed,0 errors/6 inherited warnings/2 help | 1.074689 |
+| APP mago analyze, original r4 | Reused Passed,0 errors/648 inherited warnings/467 help | 1.406237 |
+| APP php vendor/bin/deptrac analyse --no-cache, original r4 | Reused Passed,0 violations/0 uncovered/7704 allowed/0 warnings | 3.372431 |
+
+The3 static results are reused through history-static-reuse-r5.json3c9358ad:
+every non-test file, dependency, configuration and runtime input equals r4; only
+two tests changed. No source, baseline, threshold, PHP512M budget or dependency
+waiver. Root separately verified unchanged sources after all final gates.
+Formatter r5 exit0 in0.850623594s changed only HistoryArchitecture; its lease is
+closed. Final runtime lease is closed; no BlackOps app container remains and no
+shared DB/native/cold resource was used. Unrelated Playwright/LiveKit containers
+were preserved. The interrupted prior request produced no architecture receipt;
+a later sandbox attempt exited1 at Docker socket permission before a gate started.
+The escalated exact successor ran the three remaining gates successfully.
+Waiting between commands is not Product command runtime.
+
+Decisions and Assumptions: this is the coherent partial-layer checkpoint allowed
+by the Task, not full-child Acceptance. The current Stable1.2.1/experimental-stable
+and roadmap1.3.0/unreleased authority tuple is unchanged. This unit adds only
+internal unreleased data admission; no public command/config/capability/route or
+reader source changes. The full child's named internal/guide Documentation and
+all-public Source/Search/LLM checks remain assigned to actual runtime integration.
+No Documentation delivery, publication, tag, release or production deploy occurs.
+
+Acceptance Criteria: exact13 paths, adopted declaration/method/caller/schema
+contracts, meaningful local scalar/relation/codec/mutation/privacy controls,
+assigned quality gates and independent affected source review are Passed/Reused
+as stated. Reader/Writer/custody/replay, actual production-origin/native/SQL/cold,
+unpartitioned full512M suite and export are Not Run for this leaf and remain open.
+E15/history-carrier-leaf-acceptance.json records the Root decision and exact inputs.
+Root must stage only this source unit plus its management checkpoint/archives.
+Its eventual exact SHA/committed blobs/index/remote proof belongs in
+E15/history-carrier-leaf-commit.json; absence of that receipt means commit pending.
+
+The Owner's667-path question was checked directly at2026-10-16T13:25:26+09:00.
+Primary8106c35 has667 paths: develop410,src132,tests67,docs53 and5 other paths;
+562 are untracked and105 have another working-tree change status.354 paths have
+exact content already committed in C atcfa8d0e;75 differ and238 are absent from
+that HEAD (234 governance/history,4 reader/Website). All132 Product paths match
+committed C content. This comparison is not blanket Acceptance/removal permission.
+E15/primary-667-inventory.json pins every row. Relative to the645-path inventory
+of2026-10-14T23:42:44+09:00, all22 added paths are11 contract/review records and11
+STATE archives; none are Product/test additions. E15/primary-667-delta.json pins it.
+Root reverified2322 primary non-governance files/modes and all3 index views remain
+unchanged. C commits do not advance primary HEAD or reduce these differences.
+This checkpoint adds only the required next STATE archive to primary's inventory.
+
+Remaining Issues: full F5P and parent F4/F5/F6,D/E/G,D-control/Inline ambiguity/
+rotation,004A,005 all-public Documentation/Owner preview,006 same-SHA CI/export,
+Framework/Skeleton publication/delivery/live proof and primary integration remain.
+Optional003H/004B stay excluded. Suggested Next Action: commit this accepted layer
+promptly, verify its exact source/remote receipt, then prioritize a concrete
+primary-reconciliation packet from the667 inventory. Preserve distinct reader/
+Website and history work; do not start another production layer before this
+checkpoint. A committed C layer does not mean the primary tree is reconciled.

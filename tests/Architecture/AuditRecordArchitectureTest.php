@@ -1394,6 +1394,7 @@ final class AuditRecordArchitectureTest extends TestCase
             'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['snapshot' => 3],
             'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['assert' => 5],
             'Internal/Audit/Artifact/AuditTrustLookup.php' => ['assertSignedAt' => 2],
+            'Internal/Audit/Authority/History/AuditHistoryScalar.php' => ['admitString' => 1],
             'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php' => ['canonicalNow' => 2],
             'Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php' => ['parse' => 1],
             'Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php' => ['read' => 2],
@@ -1430,6 +1431,89 @@ final class AuditRecordArchitectureTest extends TestCase
         ksort($expectedTimestampOwners);
         ksort($actualTimestampOwners);
         self::assertSame($expectedTimestampOwners, $actualTimestampOwners, 'no unlisted timestamp caller is allowed');
+
+        $scalarPath = $sourceRoot . '/Internal/Audit/Authority/History/AuditHistoryScalar.php';
+        $scalarSource = file_get_contents($scalarPath);
+        self::assertIsString($scalarSource);
+        self::assertSame(
+            ['admitString' => 1],
+            $this->auditTimestampCallInventory($scalarSource),
+            'History scalar owns the sole Core timestamp call for its surface',
+        );
+        $nativePath = $sourceRoot . '/Internal/Audit/Authority/History/AuditHistoryNativeGroup.php';
+        $nativeSource = file_get_contents($nativePath);
+        self::assertIsString($nativeSource);
+        self::assertSame(
+            [],
+            $this->auditTimestampCallInventory($nativeSource),
+            'NativeGroup does not own timestamp validation',
+        );
+        $scalarAlias = <<<'PHP'
+            <?php
+            namespace BlackOps\Internal\Audit\Authority\History;
+            use BlackOps\Core\Audit\AuditRecordTime as Time;
+            final class AuditHistoryScalar
+            {
+                private static function admitString(): string
+                {
+                    Time::assertTimestamp($value);
+                    return $value;
+                }
+            }
+            PHP;
+        self::assertSame(['admitString' => 1], $this->auditTimestampCallInventory($scalarAlias));
+        $scalarFqcn = <<<'PHP'
+            <?php
+            namespace BlackOps\Internal\Audit\Authority\History;
+            final class AuditHistoryScalar
+            {
+                private static function admitString(): string
+                {
+                    \BlackOps\Core\Audit\AuditRecordTime::assertTimestamp($value);
+                    return $value;
+                }
+            }
+            PHP;
+        self::assertSame(['admitString' => 1], $this->auditTimestampCallInventory($scalarFqcn));
+        $relocated = str_replace('function admitString(', 'function relocatedString(', $scalarSource, $replacements);
+        self::assertSame(1, $replacements);
+        self::assertNotSame(['admitString' => 1], $this->auditTimestampCallInventory($relocated));
+        $duplicate = preg_replace(
+            '/(AuditRecordTime::assertTimestamp\([^;]+;)/',
+            '$1 $1',
+            $scalarSource,
+            1,
+            $replacements,
+        );
+        self::assertIsString($duplicate);
+        self::assertSame(1, $replacements);
+        self::assertNotSame(['admitString' => 1], $this->auditTimestampCallInventory($duplicate));
+        $sibling = $scalarSource . <<<'PHP'
+
+            final class AuditHistorySiblingHelper
+            {
+                private static function unrelated(): void
+                {
+                    AuditRecordTime::assertTimestamp($value);
+                }
+            }
+            PHP;
+        self::assertNotSame(['admitString' => 1], $this->auditTimestampCallInventory($sibling));
+        $extraA2 = $scalarSource . <<<'PHP'
+
+            final class AuditHistoryExtraA2Reference
+            {
+                private static function unrelated(): void
+                {
+                    \BlackOps\Core\Audit\AuditRecordDraft::fromArray([]);
+                }
+            }
+            PHP;
+        self::assertSame(
+            ['AuditRecordDraft'],
+            $this->a2DeliveryViolations($scalarPath, $extraA2, $deliveryDirectory, $productTypes),
+            'History scalar A2 allowance rejects a sibling product type',
+        );
         $anchorTime = $sourceRoot . '/Internal/Audit/Anchor/AuditAnchorTime.php';
         $anchorTimeSource = file_get_contents($anchorTime);
         self::assertIsString($anchorTimeSource);
@@ -4620,6 +4704,7 @@ final class AuditRecordArchitectureTest extends TestCase
             'Internal/Audit/Artifact/AuditTrustSnapshotShape.php' => ['AuditRecordTime'],
             'Internal/Audit/Artifact/AuditTrustEntryRelation.php' => ['AuditRecordTime'],
             'Internal/Audit/Artifact/AuditTrustLookup.php' => ['AuditRecordTime'],
+            'Internal/Audit/Authority/History/AuditHistoryScalar.php' => ['AuditRecordTime'],
             'Internal/Audit/Checkpoint/PostgreSqlAuditPartitionStateParser.php' => ['AuditRecordTime'],
             'Internal/Audit/Checkpoint/PostgreSqlAuditSegmentTextFields.php' => ['AuditRecordTime'],
             'Internal/Audit/Checkpoint/PostgreSqlAuditCheckpointTrustWorkflow.php' => ['AuditRecordTime'],
